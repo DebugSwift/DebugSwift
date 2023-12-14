@@ -38,7 +38,7 @@ extension UIViewController {
         self.navigationItem.rightBarButtonItem = rightButton
     }
 
-    public func addLeftBarButton(buttonImage: UIImage?, completion: (() -> Void)? = nil) {
+    func addLeftBarButton(buttonImage: UIImage?, completion: (() -> Void)? = nil) {
         let backButton = CustomBarButtonItem(image: buttonImage, style: .plain) { _ in
             if let completion = completion {
                 completion()
@@ -59,17 +59,17 @@ extension UIViewController {
 
 final class CustomBarButtonItem: UIBarButtonItem {
 
-    public typealias UIBarButtonItemTargetClosure = (UIBarButtonItem) -> Void
+    typealias UIBarButtonItemTargetClosure = (UIBarButtonItem) -> Void
 
     private var targetClosure: UIBarButtonItemTargetClosure?
 
-    public convenience init(title: String?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?) {
+    convenience init(title: String?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?) {
         self.init(title: title, style: style, target: nil, action: #selector(CustomBarButtonItem.closureAction(sender:)))
         target = self
         self.targetClosure = closure
     }
 
-    public convenience init(image: UIImage?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?) {
+    convenience init(image: UIImage?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?) {
         self.init(image: image, style: style, target: nil, action: #selector(CustomBarButtonItem.closureAction(sender:)))
         target = self
         self.targetClosure = closure

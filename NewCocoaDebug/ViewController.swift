@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  NewCocoaDebug
 //
-//  Created by 周晓瑞 on 2018/6/12.
-//  Copyright © 2018年 apple. All rights reserved.
+//  Created by Matheus Gois on 2023/12/12.
+//  Copyright © 2023 apple. All rights reserved.
 //
 
 import UIKit
@@ -27,7 +27,7 @@ class ViewController: UIViewController {
 
         buildButton()
         FloatViewManager.setup(TabBarController())
-        
+
     }
 
     fileprivate func buildButton() {

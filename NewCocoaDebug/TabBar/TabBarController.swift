@@ -9,11 +9,11 @@
 import UIKit
 
 class BaseController: UIViewController {
-    public init() {
+    init() {
         super.init(nibName: nil, bundle: nil)
     }
 
-    public init(withNib: Bool) {
+    init(withNib: Bool) {
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -23,20 +23,19 @@ class BaseController: UIViewController {
     }
 }
 
-
 class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
         let controllers = [
-            NetworkViewController(), 
+            NetworkViewController(),
             PerformanceViewController(),
             ResourcesViewController(),
             InterfaceViewController(),
             AppViewController()
         ]
 
-        viewControllers = controllers.map { 
+        viewControllers = controllers.map {
             UINavigationController(rootViewController: $0)
         }
 
