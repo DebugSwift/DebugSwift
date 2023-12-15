@@ -54,6 +54,22 @@ class ResourcesGenericController: UITableViewController {
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = .black
+        guard viewModel.numberOfItems() != .zero else { return }
+        addRightBarButton(
+            image: .init(named: "trash.circle"),
+            tintColor: .red
+        ) { [weak self] in
+            self?.showAlert(
+                with: "This action remove all data", title: "Warning",
+                leftButtonTitle: "delete",
+                leftButtonStyle: .destructive,
+                leftButtonHandler: { _ in
+                    self?.clearAction()
+                },
+                rightButtonTitle: "cancel",
+                rightButtonStyle: .cancel
+            )
+        }
     }
 
     func setupSearch() {
@@ -65,7 +81,7 @@ class ResourcesGenericController: UITableViewController {
         tableView.backgroundView = backgroundLabel
     }
 
-    @IBAction func clearButtonAction(_ sender: Any) {
+    private func clearAction() {
         viewModel.handleClearAction()
         tableView.reloadData()
     }
@@ -78,21 +94,21 @@ class ResourcesGenericController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let numberOfItems = searchController.isActive ? viewModel.numberOfFilteredItems() : viewModel.numberOfItems()
-            backgroundLabel.text = numberOfItems == .zero ? viewModel.emptyListDescriptionString() : ""
-            return numberOfItems
+        backgroundLabel.text = numberOfItems == .zero ? viewModel.emptyListDescriptionString() : ""
+        return numberOfItems
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
 
         let dataSource = searchController.isActive ?
-            viewModel.filteredDataSourceForItem(atIndex: indexPath.row) :
-            viewModel.dataSourceForItem(atIndex: indexPath.row)
+        viewModel.filteredDataSourceForItem(atIndex: indexPath.row) :
+        viewModel.dataSourceForItem(atIndex: indexPath.row)
 
         cell.setup(
             title: dataSource.title,
             subtitle: dataSource.value,
-            image: nil
+            image: .init(named: "doc.on.doc")
         )
 
         return cell
@@ -103,16 +119,32 @@ class ResourcesGenericController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-            if editingStyle == .delete {
-                viewModel.handleDeleteItemAction(atIndex: indexPath.row)
-                tableView.deleteRows(at: [indexPath], with: .fade)
-
-                tableView.deleteRows(at: [indexPath], with: .fade)
-            }
+        if editingStyle == .delete {
+            viewModel.handleDeleteItemAction(atIndex: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
         }
+    }
 
     override func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
         return "Delete"
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) else {
+            return
+        }
+
+        let title = cell.textLabel?.text ?? ""
+        let contentToCopy = "\(title)"
+        UIPasteboard.general.string = contentToCopy
+
+        UIView.animate(withDuration: 0.3, animations: {
+            cell.alpha = 0.5
+        }) { _ in
+            UIView.animate(withDuration: 0.3) {
+                cell.alpha = 1.0
+            }
+        }
     }
 }
 

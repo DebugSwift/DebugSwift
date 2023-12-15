@@ -9,7 +9,7 @@
 import UIKit
 
 extension UIViewController {
-    func showAlert(with message: String, title: String = "Atenção", leftButtonTitle: String? = nil, leftButtonStyle: UIAlertAction.Style = .destructive, leftButtonHandler: ((UIAlertAction) -> Void)? = nil, rightButtonTitle: String = "OK", rightButtonStyle: UIAlertAction.Style = .default, rightButtonHandler: ((UIAlertAction) -> Void)? = nil) {
+    func showAlert(with message: String, title: String = "Warning", leftButtonTitle: String? = nil, leftButtonStyle: UIAlertAction.Style = .destructive, leftButtonHandler: ((UIAlertAction) -> Void)? = nil, rightButtonTitle: String = "OK", rightButtonStyle: UIAlertAction.Style = .default, rightButtonHandler: ((UIAlertAction) -> Void)? = nil) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         alertController.addAction(UIAlertAction(title: rightButtonTitle, style: rightButtonStyle, handler: rightButtonHandler))
@@ -23,11 +23,18 @@ extension UIViewController {
         }
     }
 
-    func addRightBarButton(image: UIImage?, completion: (() -> Void)? = nil) {
+    func addRightBarButton(
+        image: UIImage?,
+        tintColor: UIColor? = nil,
+        completion: (() -> Void)? = nil
+    ) {
         let rightButton = CustomBarButtonItem(image: image, style: .plain) { _ in
             if let completion = completion {
                 completion()
             }
+        }
+        if let tintColor {
+            rightButton.tintColor = tintColor
         }
         navigationItem.rightBarButtonItem = rightButton
     }

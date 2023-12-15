@@ -82,8 +82,8 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             let viewModel = ResourcesUserDefaultsViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
         case 2:
-            // Handle "Keychain" selection
-            print("Keychain selected")
+            let viewModel = ResourcesKeychainViewModel()
+            controller = ResourcesGenericController(viewModel: viewModel)
         case 3:
             // Handle "CoreData" selection
             print("CoreData selected")
