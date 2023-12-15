@@ -38,6 +38,11 @@
 		2EAD94692B2CC03200C68F87 /* ApplicationDirectories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94682B2CC03200C68F87 /* ApplicationDirectories.swift */; };
 		2EAD946B2B2CC04900C68F87 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD946A2B2CC04900C68F87 /* Debug.swift */; };
 		2EAD946D2B2CC05A00C68F87 /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD946C2B2CC05A00C68F87 /* InputStream+.swift */; };
+		2EAD94702B2CD1E300C68F87 /* UIImage+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD946F2B2CD1E300C68F87 /* UIImage+.swift */; };
+		2EAD94732B2CD67600C68F87 /* Resources.Files.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94722B2CD67600C68F87 /* Resources.Files.Controller.swift */; };
+		2EAD94752B2CDBAB00C68F87 /* UITableViewCell+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94742B2CDBAB00C68F87 /* UITableViewCell+.swift */; };
+		2EAD94772B2CE1BE00C68F87 /* FileManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94762B2CE1BE00C68F87 /* FileManaging.swift */; };
+		2EAD94792B2CE75A00C68F87 /* Bundle+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94782B2CE75A00C68F87 /* Bundle+.swift */; };
 		69C314A120CFC27700213861 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C314A020CFC27700213861 /* AppDelegate.swift */; };
 		69C314A320CFC27700213861 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C314A220CFC27700213861 /* ViewController.swift */; };
 		69C314A820CFC27900213861 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 69C314A720CFC27900213861 /* Assets.xcassets */; };
@@ -84,6 +89,11 @@
 		2EAD94682B2CC03200C68F87 /* ApplicationDirectories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDirectories.swift; sourceTree = "<group>"; };
 		2EAD946A2B2CC04900C68F87 /* Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debug.swift; sourceTree = "<group>"; };
 		2EAD946C2B2CC05A00C68F87 /* InputStream+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
+		2EAD946F2B2CD1E300C68F87 /* UIImage+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+.swift"; sourceTree = "<group>"; };
+		2EAD94722B2CD67600C68F87 /* Resources.Files.Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resources.Files.Controller.swift; sourceTree = "<group>"; };
+		2EAD94742B2CDBAB00C68F87 /* UITableViewCell+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+.swift"; sourceTree = "<group>"; };
+		2EAD94762B2CE1BE00C68F87 /* FileManaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManaging.swift; sourceTree = "<group>"; };
+		2EAD94782B2CE75A00C68F87 /* Bundle+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+.swift"; sourceTree = "<group>"; };
 		69C3149D20CFC27700213861 /* NewCocoaDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NewCocoaDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		69C314A020CFC27700213861 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		69C314A220CFC27700213861 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -170,6 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				2EAD942F2B2BC2D000C68F87 /* Resources.Controller.swift */,
+				2EAD94712B2CD63400C68F87 /* Files */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -232,6 +243,10 @@
 				2EAD94662B2CC02400C68F87 /* URLCache+.swift */,
 				2EAD946A2B2CC04900C68F87 /* Debug.swift */,
 				2EAD946C2B2CC05A00C68F87 /* InputStream+.swift */,
+				2EAD946F2B2CD1E300C68F87 /* UIImage+.swift */,
+				2EAD94742B2CDBAB00C68F87 /* UITableViewCell+.swift */,
+				2EAD94762B2CE1BE00C68F87 /* FileManaging.swift */,
+				2EAD94782B2CE75A00C68F87 /* Bundle+.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -256,6 +271,14 @@
 				2EAD94682B2CC03200C68F87 /* ApplicationDirectories.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		2EAD94712B2CD63400C68F87 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				2EAD94722B2CD67600C68F87 /* Resources.Files.Controller.swift */,
+			);
+			path = Files;
 			sourceTree = "<group>";
 		};
 		69C3149420CFC27600213861 = {
@@ -423,13 +446,17 @@
 				69C314C020CFE05800213861 /* TransitionPush.swift in Sources */,
 				2EAD945D2B2CBF0600C68F87 /* Data+.swift in Sources */,
 				2EAD94532B2CA23000C68F87 /* CacheStoragePolicy.swift in Sources */,
+				2EAD94752B2CDBAB00C68F87 /* UITableViewCell+.swift in Sources */,
 				69C314B720CFCAED00213861 /* FloatViewManager.swift in Sources */,
 				2EAD94362B2BC30C00C68F87 /* App.Controller.swift in Sources */,
+				2EAD94702B2CD1E300C68F87 /* UIImage+.swift in Sources */,
 				2EAD94382B2BCF1700C68F87 /* Network.Cell.swift in Sources */,
 				2EAD946D2B2CC05A00C68F87 /* InputStream+.swift in Sources */,
 				2EAD945B2B2CBEF900C68F87 /* Dictionary+.swift in Sources */,
+				2EAD94772B2CE1BE00C68F87 /* FileManaging.swift in Sources */,
 				69C314B920CFCCEB00213861 /* CurrentTopController.swift in Sources */,
 				2EAD94332B2BC2EE00C68F87 /* Interface.Controller.swift in Sources */,
+				2EAD94792B2CE75A00C68F87 /* Bundle+.swift in Sources */,
 				2E1E9F7D27515D430087006E /* UIViewController+Extensions.swift in Sources */,
 				2E1E9F7F27515D810087006E /* UIColor+Extensions.swift in Sources */,
 				2EAD946B2B2CC04900C68F87 /* Debug.swift in Sources */,
@@ -444,6 +471,7 @@
 				2EAD945F2B2CBF7700C68F87 /* Date+.swift in Sources */,
 				2EAD943E2B2BF79E00C68F87 /* Network.Cell.Detail.swift in Sources */,
 				2EAD943A2B2BCF7E00C68F87 /* Network.Model.swift in Sources */,
+				2EAD94732B2CD67600C68F87 /* Resources.Files.Controller.swift in Sources */,
 				2EAD94612B2CBFE000C68F87 /* HTTPProtocolDelegate.swift in Sources */,
 				69C314BD20CFD28D00213861 /* FloatChat+DesignSystem.swift in Sources */,
 				69C314C220CFE06D00213861 /* TransitionPop.swift in Sources */,

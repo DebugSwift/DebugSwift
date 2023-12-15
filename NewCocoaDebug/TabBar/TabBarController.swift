@@ -9,6 +9,12 @@ class BaseController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
+
     @available(*, unavailable)
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -30,9 +36,9 @@ fileprivate extension TabBarController {
 
     func configureTabBar() {
         let controllers: [UIViewController] = [
+            ResourcesViewController(),
             NetworkViewController(),
             PerformanceViewController(),
-            ResourcesViewController(),
             InterfaceViewController(),
             AppViewController()
         ]

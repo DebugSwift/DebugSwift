@@ -22,14 +22,10 @@ class AppViewController: BaseController {
 
     func setup() {
         title = "App"
-        if #available(iOS 13.0, *) {
-            tabBarItem = UITabBarItem(
-                title: title,
-                image: UIImage(systemName: "app"),
-                tag: 4
-            )
-        } else {
-            // Fallback on earlier versions
-        }
+        tabBarItem = UITabBarItem(
+            title: title,
+            image: UIImage(named: "app"),
+            tag: 4
+        )
     }
 }

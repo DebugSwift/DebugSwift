@@ -22,14 +22,10 @@ class InterfaceViewController: BaseController {
 
     func setup() {
         title = "Interface"
-        if #available(iOS 13.0, *) {
-            tabBarItem = UITabBarItem(
-                title: title,
-                image: UIImage(systemName: "square.grid.2x2"),
-                tag: 3
-            )
-        } else {
-            // Fallback on earlier versions
-        }
+        tabBarItem = UITabBarItem(
+            title: title,
+            image: UIImage(named: "square.grid.2x2"),
+            tag: 3
+        )
     }
 }

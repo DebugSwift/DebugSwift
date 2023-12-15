@@ -39,7 +39,6 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.prefersLargeTitles = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.mockRequest()
@@ -52,16 +51,11 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
 
     func setup() {
         title = "Network"
-        if #available(iOS 13.0, *) {
-            tabBarItem = UITabBarItem(
-                title: "Network",
-                image: UIImage(systemName: "network"),
-                tag: 0
-            )
-        } else {
-            // Fallback on earlier versions
-        }
-
+        tabBarItem = UITabBarItem(
+            title: title,
+            image: UIImage(named: "network"),
+            tag: 0
+        )
         NetworkHelper.shared.enable()
         setupKeyboardDismissGesture()
         observers()
