@@ -23,35 +23,23 @@ extension UIViewController {
         }
     }
 
-    func addRightBarButton(buttonImage: UIImage?, completion: (() -> Void)? = nil) {
-        let rightButton = CustomBarButtonItem(image: buttonImage, style: .plain) { _ in
+    func addRightBarButton(image: UIImage?, completion: (() -> Void)? = nil) {
+        let rightButton = CustomBarButtonItem(image: image, style: .plain) { _ in
             if let completion = completion {
                 completion()
             }
         }
-        rightButton.imageInsets = UIEdgeInsets(
-            top: 0,
-            left: 0,
-            bottom: 0,
-            right: 6
-        )
-        self.navigationItem.rightBarButtonItem = rightButton
+        navigationItem.rightBarButtonItem = rightButton
     }
 
-    func addLeftBarButton(buttonImage: UIImage?, completion: (() -> Void)? = nil) {
-        let backButton = CustomBarButtonItem(image: buttonImage, style: .plain) { _ in
+    func addLeftBarButton(image: UIImage?, completion: (() -> Void)? = nil) {
+        let backButton = CustomBarButtonItem(image: image, style: .plain) { _ in
             if let completion = completion {
                 completion()
                 return
             }
         }
-        backButton.imageInsets = UIEdgeInsets(
-            top: 0,
-            left: 2,
-            bottom: 0,
-            right: 0
-        )
-        self.navigationItem.leftBarButtonItem = backButton
+        navigationItem.leftBarButtonItem = backButton
     }
 }
 

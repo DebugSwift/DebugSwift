@@ -9,17 +9,22 @@
 import UIKit
 
 class ResourcesViewController: BaseController {
+
     override init() {
         super.init()
-        setup()
+        setupTabBar()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .blue
+        setup()
     }
 
     func setup() {
+    }
+
+    func setupTabBar() {
         title = "Resources"
         if #available(iOS 13.0, *) {
             tabBarItem = UITabBarItem(
@@ -31,4 +36,5 @@ class ResourcesViewController: BaseController {
             // Fallback on earlier versions
         }
     }
+
 }

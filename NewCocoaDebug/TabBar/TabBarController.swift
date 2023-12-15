@@ -1,11 +1,3 @@
-//
-//  Performance.swift
-//  NewCocoaDebug
-//
-//  Created by Matheus Gois on 14/12/23.
-//  Copyright © 2023 apple. All rights reserved.
-//
-
 import UIKit
 
 class BaseController: UIViewController {
@@ -24,18 +16,20 @@ class BaseController: UIViewController {
 }
 
 class TabBarController: UITabBarController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        setupTabBar()
-        setupNavigation()
+        configureTabBar()
+        configureNavigation()
     }
-
 }
 
+// MARK: - Private Extensions
+
 fileprivate extension TabBarController {
-    func setupTabBar() {
-        let controllers = [
+
+    func configureTabBar() {
+        let controllers: [UIViewController] = [
             NetworkViewController(),
             PerformanceViewController(),
             ResourcesViewController(),
@@ -52,30 +46,37 @@ fileprivate extension TabBarController {
         tabBar.unselectedItemTintColor = .gray
     }
 
-    func setupNavigation() {
+    func configureNavigation() {
         // Remove the default back button
         navigationItem.hidesBackButton = true
 
         let closeButton: UIBarButtonItem
+
         if #available(iOS 14.0, *) {
             closeButton = UIBarButtonItem(systemItem: .close)
             closeButton.target = self
             closeButton.action = #selector(closeButtonTapped)
         } else {
-            // Add a custom "close" button
-            closeButton = UIBarButtonItem(title: "Close", style: .plain, target: self, action: #selector(closeButtonTapped))
+            closeButton = UIBarButtonItem(
+                title: "Close",
+                style: .plain,
+                target: self,
+                action: #selector(closeButtonTapped)
+            )
         }
 
         navigationItem.rightBarButtonItem = closeButton
+        configureAppearance()
+    }
+
+    func configureAppearance() {
+        UINavigationBar.appearance().barTintColor = .black
+        UINavigationBar.appearance().barStyle = .black
+        UINavigationBar.appearance().backgroundColor = .clear
+        UITabBar.appearance().barTintColor = .black
     }
 
     @objc func closeButtonTapped() {
-        // Handle close button tap
-        // For example, you can dismiss the current view controller
         navigationController?.popViewController(animated: true)
     }
 }
-
-// Usage
-let tabBarController = TabBarController()
-// Present or set as the root view controller as needed
