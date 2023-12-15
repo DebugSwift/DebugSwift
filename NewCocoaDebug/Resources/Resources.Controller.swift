@@ -79,8 +79,8 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             // Handle "File" selection
             controller = ResourcesFilesViewController()
         case 1:
-            // Handle "User Defaults" selection
-            print("User Defaults selected")
+            let viewModel = ResourcesUserDefaultsViewModel()
+            controller = ResourcesGenericController(viewModel: viewModel)
         case 2:
             // Handle "Keychain" selection
             print("Keychain selected")

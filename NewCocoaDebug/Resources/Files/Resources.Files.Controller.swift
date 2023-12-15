@@ -135,18 +135,17 @@ extension ResourcesFilesViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-            cell.setup(
-                title: subdirectories[indexPath.row]
-            )
+            cell.setup(title: subdirectories[indexPath.row])
 
             return cell
         } else {
             let fileName = files[indexPath.row]
-            let fileSize = sizeStringForFileWithName(fileName: fileName) ?? ""
+            let fileSize = sizeStringForFileWithName(fileName: fileName) ?? "No data"
 
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             cell.setup(
-                title: "\(fileName)\nSize: \(fileSize)",
+                title: fileName,
+                subtitle: "Size: \(fileSize)",
                 image: .init(named: "square.and.arrow.up")
             )
 

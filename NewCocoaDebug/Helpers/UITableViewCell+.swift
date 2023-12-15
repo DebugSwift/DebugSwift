@@ -18,9 +18,9 @@ extension UITableViewCell {
         textLabel?.textColor = .white
         textLabel?.numberOfLines = .zero
 
-        detailTextLabel?.text = subtitle
-        detailTextLabel?.textColor = .white
-        detailTextLabel?.numberOfLines = .zero
+        if let subtitle {
+            textLabel?.setAttributedText(title: title, subtitle: subtitle)
+        }
 
         backgroundColor = .clear
         selectionStyle = .none
