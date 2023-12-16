@@ -229,9 +229,22 @@ extension ResourcesFilesViewController {
     // MARK: - Alert
 
     func presentAlertWithError(_ error: Error) {
-        let alert = UIAlertController(title: "Deletion error", message: error.localizedDescription, preferredStyle: .alert)
-        let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        let alert = UIAlertController(
+            title: "Deletion error",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        let defaultAction = UIAlertAction(
+            title: "OK",
+            style: .default,
+            handler: nil
+        )
         alert.addAction(defaultAction)
-        present(alert, animated: true, completion: nil)
+
+        present(
+            alert,
+            animated: true,
+            completion: nil
+        )
     }
 }
