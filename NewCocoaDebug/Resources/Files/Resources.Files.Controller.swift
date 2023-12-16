@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class ResourcesFilesViewController: UITableViewController {
+final class ResourcesFilesViewController: BaseTableController {
 
     enum Constants {
         static let nextSizeAbbreviationThreshold: Double = 1024

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ResourcesGenericController: UITableViewController {
+class ResourcesGenericController: BaseTableController {
 
     private let titleValueCellIdentifier = "cell"
 

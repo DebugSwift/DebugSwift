@@ -21,6 +21,27 @@ class BaseController: UIViewController {
     }
 }
 
+class BaseTableController: UITableViewController {
+    init() {
+        super.init(style: .grouped)
+    }
+
+    override init(style: UITableView.Style) {
+        super.init(style: style)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
+
+    @available(*, unavailable)
+    public required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
 class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
@@ -36,9 +57,9 @@ fileprivate extension TabBarController {
 
     func configureTabBar() {
         let controllers: [UIViewController] = [
-            ResourcesViewController(),
-            NetworkViewController(),
             PerformanceViewController(),
+            NetworkViewController(),
+            ResourcesViewController(),
             InterfaceViewController(),
             AppViewController()
         ]

@@ -19,7 +19,7 @@ final class ResourcesViewController: BaseController {
         return tableView
     }()
 
-    private let items = ["Files", "User Defaults", "Keychain", "CoreData", "Cookies"]
+    private let items = ["Files", "User Defaults", "Keychain"] // TODO: - "CoreData", "Cookies"
 
     override init() {
         super.init()
@@ -86,10 +86,12 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             controller = ResourcesGenericController(viewModel: viewModel)
         case 3:
             // Handle "CoreData" selection
-            print("CoreData selected")
+            showAlert(with: "TODO")
+
         case 4:
             // Handle "Cookies" selection
-            print("Cookies selected")
+            showAlert(with: "TODO")
+
         default:
             break
         }
