@@ -12,6 +12,7 @@ extension UITableViewCell {
     func setup(
         title: String,
         subtitle: String? = nil,
+        description: String? = nil,
         image: UIImage? = UIImage(named: "chevron.right")
     ) {
         textLabel?.text = title
@@ -25,9 +26,24 @@ extension UITableViewCell {
         backgroundColor = .clear
         selectionStyle = .none
 
-        let disclosureIndicator = UIImageView(image: image)
-        disclosureIndicator.tintColor = .white
-        accessoryView = disclosureIndicator
-        accessoryType = .disclosureIndicator
+        if let image {
+            let disclosureIndicator = UIImageView(image: image)
+            disclosureIndicator.tintColor = .white
+            accessoryView = disclosureIndicator
+            accessoryType = .disclosureIndicator
+        } else if let description {
+            let label = UILabel()
+            label.text = title
+            label.textColor = .darkGray
+            label.numberOfLines = .zero
+            label.text = description
+            label.translatesAutoresizingMaskIntoConstraints = false
+            addSubview(label)
+
+            NSLayoutConstraint.activate([
+                label.centerYAnchor.constraint(equalTo: centerYAnchor),
+                label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
+            ])
+        }
     }
 }

@@ -10,6 +10,7 @@
 		2E1E9F7D27515D430087006E /* UIViewController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1E9F7C27515D430087006E /* UIViewController+Extensions.swift */; };
 		2E1E9F7F27515D810087006E /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1E9F7E27515D810087006E /* UIColor+Extensions.swift */; };
 		2E9A15D12B2E39E400AEC6B8 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E9A15D02B2E39E400AEC6B8 /* String+.swift */; };
+		2E9A15D32B2E516C00AEC6B8 /* App.ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E9A15D22B2E516C00AEC6B8 /* App.ViewModel.swift */; };
 		2EAD942A2B2BC27600C68F87 /* Network.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94292B2BC27600C68F87 /* Network.Controller.swift */; };
 		2EAD942C2B2BC28700C68F87 /* Performance.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD942B2B2BC28700C68F87 /* Performance.Controller.swift */; };
 		2EAD94302B2BC2D000C68F87 /* Resources.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD942F2B2BC2D000C68F87 /* Resources.Controller.swift */; };
@@ -86,6 +87,7 @@
 		2E1E9F7C27515D430087006E /* UIViewController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extensions.swift"; sourceTree = "<group>"; };
 		2E1E9F7E27515D810087006E /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		2E9A15D02B2E39E400AEC6B8 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
+		2E9A15D22B2E516C00AEC6B8 /* App.ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.ViewModel.swift; sourceTree = "<group>"; };
 		2EAD94292B2BC27600C68F87 /* Network.Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.Controller.swift; sourceTree = "<group>"; };
 		2EAD942B2B2BC28700C68F87 /* Performance.Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Performance.Controller.swift; sourceTree = "<group>"; };
 		2EAD942F2B2BC2D000C68F87 /* Resources.Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resources.Controller.swift; sourceTree = "<group>"; };
@@ -271,6 +273,7 @@
 			isa = PBXGroup;
 			children = (
 				2EAD94352B2BC30C00C68F87 /* App.Controller.swift */,
+				2E9A15D22B2E516C00AEC6B8 /* App.ViewModel.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -629,6 +632,7 @@
 				2EAD94972B2D089F00C68F87 /* ChartView.swift in Sources */,
 				2EAD949E2B2D483F00C68F87 /* UserInterfaceToolkit.swift in Sources */,
 				2EAD94B42B2E1ACA00C68F87 /* TopUIView.swift in Sources */,
+				2E9A15D32B2E516C00AEC6B8 /* App.ViewModel.swift in Sources */,
 				2EAD94692B2CC03200C68F87 /* ApplicationDirectories.swift in Sources */,
 				69C314C920D22F7900213861 /* FloatBallView.swift in Sources */,
 				2EAD94422B2C973700C68F87 /* HTTP.Datasource.swift in Sources */,
@@ -791,14 +795,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9424788LV8;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = DebugSwift/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ta.DebugSwift;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maatheusgois.DebugSwift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -810,14 +814,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9424788LV8;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = DebugSwift/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ta.DebugSwift;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maatheusgois.DebugSwift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
