@@ -66,9 +66,9 @@ fileprivate extension TabBarController {
 
     func configureTabBar() {
         let controllers: [UIViewController] = [
-            InterfaceViewController(),
             NetworkViewController(),
             PerformanceViewController(),
+            InterfaceViewController(),
             ResourcesViewController(),
             AppViewController()
         ]
