@@ -24,10 +24,12 @@ class BaseController: UIViewController {
 class BaseTableController: UITableViewController {
     init() {
         super.init(style: .grouped)
+        configureAppearance()
     }
 
     override init(style: UITableView.Style) {
         super.init(style: style)
+        configureAppearance()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -39,6 +41,13 @@ class BaseTableController: UITableViewController {
     @available(*, unavailable)
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func configureAppearance() {
+        UINavigationBar.appearance().barTintColor = .black
+        UINavigationBar.appearance().barStyle = .black
+        UINavigationBar.appearance().backgroundColor = .clear
+        UITabBar.appearance().barTintColor = .black
     }
 }
 
@@ -57,10 +66,10 @@ fileprivate extension TabBarController {
 
     func configureTabBar() {
         let controllers: [UIViewController] = [
-            PerformanceViewController(),
-            NetworkViewController(),
-            ResourcesViewController(),
             InterfaceViewController(),
+            NetworkViewController(),
+            PerformanceViewController(),
+            ResourcesViewController(),
             AppViewController()
         ]
 
@@ -93,14 +102,6 @@ fileprivate extension TabBarController {
         }
 
         navigationItem.rightBarButtonItem = closeButton
-        configureAppearance()
-    }
-
-    func configureAppearance() {
-        UINavigationBar.appearance().barTintColor = .black
-        UINavigationBar.appearance().barStyle = .black
-        UINavigationBar.appearance().backgroundColor = .clear
-        UITabBar.appearance().barTintColor = .black
     }
 
     @objc func closeButtonTapped() {

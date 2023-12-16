@@ -14,7 +14,7 @@ enum PerformanceSection: Int {
     case FPS
 }
 
-class PerformanceWidgetView: UIView {
+class PerformanceWidgetView: TopLevelViewWrapper {
 
     private let widgetMinimalOffset: CGFloat = 10
     private var tapGestureRecognizer: UITapGestureRecognizer!
@@ -43,7 +43,6 @@ class PerformanceWidgetView: UIView {
     }()
 
     weak var delegate: PerformanceWidgetViewDelegate?
-    private var widgetWindow: UIWindow?
 
     // MARK: - Initialization
 
@@ -61,36 +60,9 @@ class PerformanceWidgetView: UIView {
         fpsValueLabel.text = String(format: "FPS: %.0lf", fps)
     }
 
-    func toggle(with newValue: Bool) {
-        if newValue {
-            showWidgetWindow()
-        }
-
-        UIView.animate(withDuration: 0.35, animations: {
-            self.alpha = newValue ? 1.0 : 0.0
-        }) { (_) in
-            self.isHidden = !newValue
-            if !newValue {
-                self.removeWidgetWindow()
-            }
-        }
-    }
-
-    private func showWidgetWindow() {
-        widgetWindow = UIWindow(frame: UIScreen.main.bounds)
-        widgetWindow?.rootViewController = UIViewController()
-        widgetWindow?.rootViewController?.view.addSubview(self)
-        widgetWindow?.isHidden = false
+    override func showWidgetWindow() {
+        super.showWidgetWindow()
         setup()
-
-        alpha = 0.0
-        UIView.animate(withDuration: 0.35) { self.alpha = 1.0 }
-        widgetWindow?.isUserInteractionEnabled = false
-    }
-
-    private func removeWidgetWindow() {
-        widgetWindow?.isHidden = true
-        widgetWindow = nil
     }
 
     private func setup() {

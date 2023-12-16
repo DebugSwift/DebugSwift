@@ -55,6 +55,18 @@
 		2EAD94932B2D07C200C68F87 /* MenuSegmentedControlTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94922B2D07C200C68F87 /* MenuSegmentedControlTableViewCell.swift */; };
 		2EAD94952B2D085600C68F87 /* MenuChartTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94942B2D085600C68F87 /* MenuChartTableViewCell.swift */; };
 		2EAD94972B2D089F00C68F87 /* ChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94962B2D089F00C68F87 /* ChartView.swift */; };
+		2EAD949A2B2D45D900C68F87 /* UIWindow+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94992B2D45D900C68F87 /* UIWindow+.swift */; };
+		2EAD949C2B2D462000C68F87 /* TouchIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD949B2B2D462000C68F87 /* TouchIndicatorView.swift */; };
+		2EAD949E2B2D483F00C68F87 /* UserInterfaceToolkit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD949D2B2D483F00C68F87 /* UserInterfaceToolkit.swift */; };
+		2EAD94A02B2D48E500C68F87 /* GridOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD949F2B2D48E500C68F87 /* GridOverlayView.swift */; };
+		2EAD94A22B2D498600C68F87 /* GridOverlayColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94A12B2D498600C68F87 /* GridOverlayColorScheme.swift */; };
+		2EAD94A42B2D4A5000C68F87 /* CustomAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94A32B2D4A5000C68F87 /* CustomAction.swift */; };
+		2EAD94A62B2D4F0200C68F87 /* UIColor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94A52B2D4F0200C68F87 /* UIColor+.swift */; };
+		2EAD94A82B2D4F3A00C68F87 /* UIView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94A72B2D4F3A00C68F87 /* UIView+.swift */; };
+		2EAD94AA2B2D503E00C68F87 /* Interface.Grid.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94A92B2D503E00C68F87 /* Interface.Grid.Controller.swift */; };
+		2EAD94AC2B2D507A00C68F87 /* ColorPickerTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94AB2B2D507A00C68F87 /* ColorPickerTableViewCell.swift */; };
+		2EAD94AE2B2D50B900C68F87 /* SliderTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94AD2B2D50B900C68F87 /* SliderTableViewCell.swift */; };
+		2EAD94B42B2E1ACA00C68F87 /* TopUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94B32B2E1ACA00C68F87 /* TopUIView.swift */; };
 		69C314A120CFC27700213861 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C314A020CFC27700213861 /* AppDelegate.swift */; };
 		69C314A320CFC27700213861 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C314A220CFC27700213861 /* ViewController.swift */; };
 		69C314A820CFC27900213861 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 69C314A720CFC27900213861 /* Assets.xcassets */; };
@@ -118,6 +130,18 @@
 		2EAD94922B2D07C200C68F87 /* MenuSegmentedControlTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSegmentedControlTableViewCell.swift; sourceTree = "<group>"; };
 		2EAD94942B2D085600C68F87 /* MenuChartTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuChartTableViewCell.swift; sourceTree = "<group>"; };
 		2EAD94962B2D089F00C68F87 /* ChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartView.swift; sourceTree = "<group>"; };
+		2EAD94992B2D45D900C68F87 /* UIWindow+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindow+.swift"; sourceTree = "<group>"; };
+		2EAD949B2B2D462000C68F87 /* TouchIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchIndicatorView.swift; sourceTree = "<group>"; };
+		2EAD949D2B2D483F00C68F87 /* UserInterfaceToolkit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInterfaceToolkit.swift; sourceTree = "<group>"; };
+		2EAD949F2B2D48E500C68F87 /* GridOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridOverlayView.swift; sourceTree = "<group>"; };
+		2EAD94A12B2D498600C68F87 /* GridOverlayColorScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridOverlayColorScheme.swift; sourceTree = "<group>"; };
+		2EAD94A32B2D4A5000C68F87 /* CustomAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAction.swift; sourceTree = "<group>"; };
+		2EAD94A52B2D4F0200C68F87 /* UIColor+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+.swift"; sourceTree = "<group>"; };
+		2EAD94A72B2D4F3A00C68F87 /* UIView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+.swift"; sourceTree = "<group>"; };
+		2EAD94A92B2D503E00C68F87 /* Interface.Grid.Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interface.Grid.Controller.swift; sourceTree = "<group>"; };
+		2EAD94AB2B2D507A00C68F87 /* ColorPickerTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerTableViewCell.swift; sourceTree = "<group>"; };
+		2EAD94AD2B2D50B900C68F87 /* SliderTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderTableViewCell.swift; sourceTree = "<group>"; };
+		2EAD94B32B2E1ACA00C68F87 /* TopUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopUIView.swift; sourceTree = "<group>"; };
 		69C3149D20CFC27700213861 /* NewCocoaDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NewCocoaDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		69C314A020CFC27700213861 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		69C314A220CFC27700213861 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -218,6 +242,9 @@
 			isa = PBXGroup;
 			children = (
 				2EAD94322B2BC2EE00C68F87 /* Interface.Controller.swift */,
+				2EAD949B2B2D462000C68F87 /* TouchIndicatorView.swift */,
+				2EAD949D2B2D483F00C68F87 /* UserInterfaceToolkit.swift */,
+				2EAD94AF2B2D54FF00C68F87 /* Grid */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -277,6 +304,11 @@
 				2EAD94762B2CE1BE00C68F87 /* FileManaging.swift */,
 				2EAD94782B2CE75A00C68F87 /* Bundle+.swift */,
 				2EAD94802B2CED6700C68F87 /* UILabel+.swift */,
+				2EAD94992B2D45D900C68F87 /* UIWindow+.swift */,
+				2EAD94A32B2D4A5000C68F87 /* CustomAction.swift */,
+				2EAD94A52B2D4F0200C68F87 /* UIColor+.swift */,
+				2EAD94A72B2D4F3A00C68F87 /* UIView+.swift */,
+				2EAD94B32B2E1ACA00C68F87 /* TopUIView.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -355,6 +387,26 @@
 				2EAD948D2B2CFE9200C68F87 /* Performace.FPSCalculator.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		2EAD94AF2B2D54FF00C68F87 /* Grid */ = {
+			isa = PBXGroup;
+			children = (
+				2EAD94A92B2D503E00C68F87 /* Interface.Grid.Controller.swift */,
+				2EAD94B02B2DC2BB00C68F87 /* Views */,
+			);
+			path = Grid;
+			sourceTree = "<group>";
+		};
+		2EAD94B02B2DC2BB00C68F87 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2EAD94A12B2D498600C68F87 /* GridOverlayColorScheme.swift */,
+				2EAD94AB2B2D507A00C68F87 /* ColorPickerTableViewCell.swift */,
+				2EAD94AD2B2D50B900C68F87 /* SliderTableViewCell.swift */,
+				2EAD949F2B2D48E500C68F87 /* GridOverlayView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		69C3149420CFC27600213861 = {
@@ -510,15 +562,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				2EAD94672B2CC02400C68F87 /* URLCache+.swift in Sources */,
+				2EAD94A02B2D48E500C68F87 /* GridOverlayView.swift in Sources */,
 				2EAD94492B2C985100C68F87 /* NetworkDetailModel.swift in Sources */,
 				2EAD948C2B2CFE5000C68F87 /* Performance.Toolkit.swift in Sources */,
 				2EAD94862B2CF10400C68F87 /* KeychainService.swift in Sources */,
 				2EAD94552B2CA24900C68F87 /* CanonicalRequest.swift in Sources */,
+				2EAD94A42B2D4A5000C68F87 /* CustomAction.swift in Sources */,
 				2EAD94652B2CC01100C68F87 /* HTTPURLResponse+.swift in Sources */,
 				2EAD947B2B2CE93000C68F87 /* Resources.UserDefaults.ViewModel.swift in Sources */,
+				2EAD94A62B2D4F0200C68F87 /* UIColor+.swift in Sources */,
 				69C314C720D116CA00213861 /* BottomFloatView.swift in Sources */,
 				69C314A320CFC27700213861 /* ViewController.swift in Sources */,
 				2EAD942C2B2BC28700C68F87 /* Performance.Controller.swift in Sources */,
+				2EAD949C2B2D462000C68F87 /* TouchIndicatorView.swift in Sources */,
+				2EAD949A2B2D45D900C68F87 /* UIWindow+.swift in Sources */,
 				69C314B520CFC9F300213861 /* TabBarController.swift in Sources */,
 				2EAD944E2B2C9FEE00C68F87 /* UIViewController+.swift in Sources */,
 				2EAD948A2B2CFDC200C68F87 /* Performance.WidgetView.swift in Sources */,
@@ -533,8 +590,12 @@
 				2EAD94382B2BCF1700C68F87 /* Network.Cell.swift in Sources */,
 				2EAD946D2B2CC05A00C68F87 /* InputStream+.swift in Sources */,
 				2EAD94932B2D07C200C68F87 /* MenuSegmentedControlTableViewCell.swift in Sources */,
+				2EAD94AA2B2D503E00C68F87 /* Interface.Grid.Controller.swift in Sources */,
 				2EAD945B2B2CBEF900C68F87 /* Dictionary+.swift in Sources */,
+				2EAD94AE2B2D50B900C68F87 /* SliderTableViewCell.swift in Sources */,
+				2EAD94A82B2D4F3A00C68F87 /* UIView+.swift in Sources */,
 				2EAD94772B2CE1BE00C68F87 /* FileManaging.swift in Sources */,
+				2EAD94AC2B2D507A00C68F87 /* ColorPickerTableViewCell.swift in Sources */,
 				69C314B920CFCCEB00213861 /* CurrentTopController.swift in Sources */,
 				2EAD94952B2D085600C68F87 /* MenuChartTableViewCell.swift in Sources */,
 				2EAD94332B2BC2EE00C68F87 /* Interface.Controller.swift in Sources */,
@@ -542,9 +603,12 @@
 				2EAD94792B2CE75A00C68F87 /* Bundle+.swift in Sources */,
 				2EAD947F2B2CEA3800C68F87 /* Resources.Generic.Controller.swift in Sources */,
 				2E1E9F7D27515D430087006E /* UIViewController+Extensions.swift in Sources */,
+				2EAD94A22B2D498600C68F87 /* GridOverlayColorScheme.swift in Sources */,
 				2E1E9F7F27515D810087006E /* UIColor+Extensions.swift in Sources */,
 				2EAD946B2B2CC04900C68F87 /* Debug.swift in Sources */,
 				2EAD94972B2D089F00C68F87 /* ChartView.swift in Sources */,
+				2EAD949E2B2D483F00C68F87 /* UserInterfaceToolkit.swift in Sources */,
+				2EAD94B42B2E1ACA00C68F87 /* TopUIView.swift in Sources */,
 				2EAD94692B2CC03200C68F87 /* ApplicationDirectories.swift in Sources */,
 				69C314C920D22F7900213861 /* FloatBallView.swift in Sources */,
 				2EAD94422B2C973700C68F87 /* HTTP.Datasource.swift in Sources */,
