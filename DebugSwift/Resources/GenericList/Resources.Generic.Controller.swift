@@ -10,8 +10,6 @@ import UIKit
 
 class ResourcesGenericController: BaseTableController {
 
-    private let titleValueCellIdentifier = "cell"
-
     let viewModel: ResourcesGenericListViewModel
 
     init(viewModel: ResourcesGenericListViewModel) {
@@ -49,7 +47,10 @@ class ResourcesGenericController: BaseTableController {
     }
 
     func setupTableView() {
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(
+            UITableViewCell.self,
+            forCellReuseIdentifier: .cell
+        )
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()

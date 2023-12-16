@@ -66,9 +66,9 @@ fileprivate extension TabBarController {
 
     func configureTabBar() {
         let controllers: [UIViewController] = [
+            InterfaceViewController(),
             NetworkViewController(),
             PerformanceViewController(),
-            InterfaceViewController(),
             ResourcesViewController(),
             AppViewController()
         ]
@@ -83,7 +83,6 @@ fileprivate extension TabBarController {
     }
 
     func configureNavigation() {
-        // Remove the default back button
         navigationItem.hidesBackButton = true
 
         let closeButton: UIBarButtonItem

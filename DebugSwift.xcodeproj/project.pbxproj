@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2E1E9F7D27515D430087006E /* UIViewController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1E9F7C27515D430087006E /* UIViewController+Extensions.swift */; };
 		2E1E9F7F27515D810087006E /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1E9F7E27515D810087006E /* UIColor+Extensions.swift */; };
+		2E9A15D12B2E39E400AEC6B8 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E9A15D02B2E39E400AEC6B8 /* String+.swift */; };
 		2EAD942A2B2BC27600C68F87 /* Network.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD94292B2BC27600C68F87 /* Network.Controller.swift */; };
 		2EAD942C2B2BC28700C68F87 /* Performance.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD942B2B2BC28700C68F87 /* Performance.Controller.swift */; };
 		2EAD94302B2BC2D000C68F87 /* Resources.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAD942F2B2BC2D000C68F87 /* Resources.Controller.swift */; };
@@ -84,6 +85,7 @@
 /* Begin PBXFileReference section */
 		2E1E9F7C27515D430087006E /* UIViewController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extensions.swift"; sourceTree = "<group>"; };
 		2E1E9F7E27515D810087006E /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
+		2E9A15D02B2E39E400AEC6B8 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		2EAD94292B2BC27600C68F87 /* Network.Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.Controller.swift; sourceTree = "<group>"; };
 		2EAD942B2B2BC28700C68F87 /* Performance.Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Performance.Controller.swift; sourceTree = "<group>"; };
 		2EAD942F2B2BC2D000C68F87 /* Resources.Controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resources.Controller.swift; sourceTree = "<group>"; };
@@ -205,6 +207,22 @@
 			path = TabBar;
 			sourceTree = "<group>";
 		};
+		2E9A15CE2B2E373800AEC6B8 /* TouchIndicator */ = {
+			isa = PBXGroup;
+			children = (
+				2EAD949B2B2D462000C68F87 /* TouchIndicatorView.swift */,
+			);
+			path = TouchIndicator;
+			sourceTree = "<group>";
+		};
+		2E9A15CF2B2E374D00AEC6B8 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				2EAD949D2B2D483F00C68F87 /* UserInterfaceToolkit.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		2EAD94282B2BC26700C68F87 /* Network */ = {
 			isa = PBXGroup;
 			children = (
@@ -242,9 +260,9 @@
 			isa = PBXGroup;
 			children = (
 				2EAD94322B2BC2EE00C68F87 /* Interface.Controller.swift */,
-				2EAD949B2B2D462000C68F87 /* TouchIndicatorView.swift */,
-				2EAD949D2B2D483F00C68F87 /* UserInterfaceToolkit.swift */,
 				2EAD94AF2B2D54FF00C68F87 /* Grid */,
+				2E9A15CE2B2E373800AEC6B8 /* TouchIndicator */,
+				2E9A15CF2B2E374D00AEC6B8 /* Helpers */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -309,6 +327,7 @@
 				2EAD94A52B2D4F0200C68F87 /* UIColor+.swift */,
 				2EAD94A72B2D4F3A00C68F87 /* UIView+.swift */,
 				2EAD94B32B2E1ACA00C68F87 /* TopUIView.swift */,
+				2E9A15D02B2E39E400AEC6B8 /* String+.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -577,6 +596,7 @@
 				2EAD949C2B2D462000C68F87 /* TouchIndicatorView.swift in Sources */,
 				2EAD949A2B2D45D900C68F87 /* UIWindow+.swift in Sources */,
 				69C314B520CFC9F300213861 /* TabBarController.swift in Sources */,
+				2E9A15D12B2E39E400AEC6B8 /* String+.swift in Sources */,
 				2EAD944E2B2C9FEE00C68F87 /* UIViewController+.swift in Sources */,
 				2EAD948A2B2CFDC200C68F87 /* Performance.WidgetView.swift in Sources */,
 				2EAD94302B2BC2D000C68F87 /* Resources.Controller.swift in Sources */,

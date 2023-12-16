@@ -9,7 +9,7 @@
 import UIKit
 
 protocol MenuSwitchTableViewCellDelegate: AnyObject {
-    func menuSwitchTableViewCell(_ menuSwitchTableViewCell: MenuSwitchTableViewCell, didSetOn isOn: Bool)
+    func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool)
 }
 
 class MenuSwitchTableViewCell: UITableViewCell {
@@ -63,4 +63,8 @@ class MenuSwitchTableViewCell: UITableViewCell {
     @objc func switchValueChanged(_ sender: UISwitch) {
         delegate?.menuSwitchTableViewCell(self, didSetOn: sender.isOn)
     }
+}
+
+extension MenuSwitchTableViewCell {
+    static let identifier = "MenuSwitchTableViewCell"
 }

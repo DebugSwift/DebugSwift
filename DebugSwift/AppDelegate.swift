@@ -22,6 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.rootViewController = navigation
         self.window?.makeKeyAndVisible()
 
+        UIView.swizzleMethods() // Change to configuration
+        UIWindow.db_swizzleMethods()
         return true
     }
 

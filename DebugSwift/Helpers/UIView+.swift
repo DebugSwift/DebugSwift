@@ -71,7 +71,7 @@ extension UIView {
     // MARK: - Method swizzling
 
     static func swizzleMethods() {
-        DispatchQueue.once(token: NSUUID().uuidString) {
+        DispatchQueue.once(token: UUID().uuidString) {
             // Swizzle init(coder:)
             swizzleMethod(self,
                           originalSelector: #selector(UIView.init(coder:)),
@@ -83,9 +83,9 @@ extension UIView {
                           swizzledSelector: #selector(UIView.swizzledInitWithFrame(_:)))
 
             // Swizzle dealloc
-            swizzleMethod(self,
-                          originalSelector: NSSelectorFromString("dealloc"),
-                          swizzledSelector: #selector(UIView.swizzledDealloc))
+//            swizzleMethod(self,
+//                          originalSelector: NSSelectorFromString("dealloc"),
+//                          swizzledSelector: #selector(UIView.swizzledDealloc))
         }
     }
 
@@ -113,20 +113,22 @@ extension UIView {
     private func db_registerForNotifications() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(db_handleColorizedDebugBordersChangedNotification(_:)),
-            name: UserInterfaceToolkit.shared.colorizedViewBordersChangedNotification,
+            selector: #selector(changedNotification(_:)),
+            name: UserInterfaceToolkit.notification,
             object: nil
         )
     }
 
-    @objc private func db_handleColorizedDebugBordersChangedNotification(_ notification: Notification) {
+    @objc private func changedNotification(
+        _ notification: Notification
+    ) {
         db_refreshDebugBorders()
     }
 
     // MARK: - Handling debug borders
 
     private func db_refreshDebugBorders() {
-        if UserInterfaceToolkit.shared.colorizedViewBordersEnabled {
+        if UserInterfaceToolkit.colorizedViewBordersEnabled {
             db_showDebugBorders()
         } else {
             db_hideDebugBorders()
@@ -147,9 +149,7 @@ extension UIView {
 
     private func db_hideDebugBorders() {
         guard showsDebugBorder else { return }
-
         showsDebugBorder = false
-
         layer.borderWidth = previousBorderWidth
         layer.borderColor = previousBorderColor
     }

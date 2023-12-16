@@ -36,7 +36,10 @@ final class ResourcesViewController: BaseController {
         tableView.delegate = self
         tableView.dataSource = self
 
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(
+            UITableViewCell.self,
+            forCellReuseIdentifier: .cell
+        )
 
         view.addSubview(tableView)
 
@@ -63,7 +66,10 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: .cell,
+            for: indexPath
+        )
         cell.setup(title: items[indexPath.row])
         return cell
     }

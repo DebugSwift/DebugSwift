@@ -19,8 +19,6 @@ final class InterfaceViewController: BaseController {
         return tableView
     }()
 
-    private let items = ["Grid"]
-
     override init() {
         super.init()
         setupTabBar()
@@ -28,7 +26,6 @@ final class InterfaceViewController: BaseController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         setupTable()
     }
 
@@ -36,7 +33,15 @@ final class InterfaceViewController: BaseController {
         tableView.delegate = self
         tableView.dataSource = self
 
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(
+            UITableViewCell.self,
+            forCellReuseIdentifier: .cell
+        )
+
+        tableView.register(
+            MenuSwitchTableViewCell.self,
+            forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
+        )
 
         view.addSubview(tableView)
 
@@ -59,13 +64,33 @@ final class InterfaceViewController: BaseController {
 }
 extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return Features.allCases.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.setup(title: items[indexPath.row])
-        return cell
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
+
+        let feature = Features(rawValue: indexPath.row)
+        let title = feature?.title ?? ""
+
+        switch feature {
+        case .grid:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: .cell,
+                for: indexPath
+            )
+            cell.setup(title: title)
+            return cell
+        case .touches, .colorize, .animations:
+            return toggleCell(
+                title: title,
+                index: indexPath.row
+            )
+        default:
+            return .init()
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -74,14 +99,67 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         var controller: UIViewController?
-        switch indexPath.row {
-        case 0:
+        switch Features(rawValue: indexPath.row) {
+        case .grid:
             controller = InterfaceGridController()
         default:
             break
         }
         if let controller {
             navigationController?.pushViewController(controller, animated: true)
+        }
+    }
+}
+
+extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
+    func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
+        switch Features(rawValue: cell.tag) {
+        case .colorize:
+            UserInterfaceToolkit.colorizedViewBordersEnabled = isOn
+
+        case .animations:
+            UserInterfaceToolkit.shared.slowAnimationsEnabled = isOn
+
+        case .touches:
+            UserInterfaceToolkit.shared.showingTouchesEnabled = isOn
+
+        default: break
+        }
+    }
+
+    private func toggleCell(
+        title: String?,
+        index: Int
+    ) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
+        cell.titleLabel.text = title
+        cell.tag = index
+//        cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
+        cell.delegate = self
+        return cell
+    }
+}
+
+extension InterfaceViewController {
+    enum Features: Int, CaseIterable {
+        case colorize
+        case animations
+        case touches
+        case grid
+
+        var title: String {
+            switch self {
+            case .touches:
+                return "Showing touches"
+            case .grid:
+                return "Grid overlay"
+            case .colorize:
+                return "Colorized view borders"
+            case .animations:
+                return "Slow animations"
+            }
         }
     }
 }

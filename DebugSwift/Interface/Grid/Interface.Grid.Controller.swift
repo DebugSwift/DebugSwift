@@ -39,7 +39,7 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Grid"
+        title = "Grid overlay"
 
         tableView.register(MenuSwitchTableViewCell.self, forCellReuseIdentifier: switchCellIdentifier)
         tableView.register(SliderTableViewCell.self, forCellReuseIdentifier: sliderCellIdentifier)
@@ -174,7 +174,7 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
 
     // MARK: - MenuSwitchTableViewCellDelegate
 
-    func menuSwitchTableViewCell(_ menuSwitchTableViewCell: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
+    func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
         userInterfaceToolkit.isGridOverlayShown = isOn
         let sectionsToReload = IndexSet(integer: GridOverlaySettingsSection.settings.rawValue)
         tableView.reloadSections(sectionsToReload, with: .fade)

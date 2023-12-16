@@ -13,7 +13,6 @@ class UserInterfaceToolkit {
     // MARK: - Properties
 
     static let shared = UserInterfaceToolkit()
-    let colorizedViewBordersChangedNotification = Notification.Name("UserInterfaceToolkitColorizedViewBordersChangedNotification")
 
     var gridOverlay = GridOverlayView()
     var gridOverlayColorSchemes: [GridOverlayColorScheme] = [
@@ -32,16 +31,18 @@ class UserInterfaceToolkit {
 
     var slowAnimationsEnabled: Bool = false {
         didSet {
-            guard oldValue != slowAnimationsEnabled else { return }
-            UIApplication.shared.windows.forEach { setSpeed(for: $0) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                guard oldValue != self.slowAnimationsEnabled else { return }
+                UIApplication.shared.windows.forEach { self.setSpeed(for: $0) }
+            }
         }
     }
 
-    var colorizedViewBordersEnabled: Bool = false {
+    static var colorizedViewBordersEnabled: Bool = false {
         didSet {
             guard oldValue != colorizedViewBordersEnabled else { return }
             NotificationCenter.default.post(
-                name: colorizedViewBordersChangedNotification,
+                name: Self.notification,
                 object: NSNumber(value: colorizedViewBordersEnabled)
             )
         }
@@ -127,4 +128,8 @@ class UserInterfaceToolkit {
             of: colorScheme
         ) ?? .zero
     }
+}
+
+extension UserInterfaceToolkit {
+    static let notification = Notification.Name("UserInterfaceToolkitColorizedViewBordersChangedNotification")
 }

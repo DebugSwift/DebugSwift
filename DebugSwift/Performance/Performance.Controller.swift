@@ -13,7 +13,6 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
     var selectedSection: PerformanceSection = .CPU
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)
 
-    private let switchCellIdentifier = "MenuSwitchTableViewCell"
     private let segmentedControlCellIdentifier = "MenuSegmentedControlTableViewCell"
     private let valueCellIdentifier = "MenuValueTableViewCell"
     private let buttonCellIdentifier = "MenuButtonTableViewCell"
@@ -52,7 +51,10 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
     }
 
     private func setupTableView() {
-        tableView.register(MenuSwitchTableViewCell.self, forCellReuseIdentifier: switchCellIdentifier)
+        tableView.register(
+            MenuSwitchTableViewCell.self,
+            forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
+        )
         tableView.register(MenuSegmentedControlTableViewCell.self, forCellReuseIdentifier: segmentedControlCellIdentifier)
         tableView.register(MenuChartTableViewCell.self, forCellReuseIdentifier: chartCellIdentifier)
         tableView.backgroundColor = .black
@@ -248,7 +250,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
     }
 
     private func toggleCell() -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: switchCellIdentifier) as? MenuSwitchTableViewCell ?? MenuSwitchTableViewCell()
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
         cell.titleLabel.text = "Show widget"
         cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
         cell.delegate = self
