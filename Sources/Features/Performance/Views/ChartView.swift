@@ -1,3 +1,11 @@
+//
+//  ChartView.swift
+//  DebugSwift
+//
+//  Created by Matheus Gois on 15/12/23.
+//  Copyright © 2023 apple. All rights reserved.
+//
+
 import UIKit
 
 class ChartView: UIView {
