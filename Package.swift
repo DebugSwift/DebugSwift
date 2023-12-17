@@ -1,3 +1,4 @@
+// swift-tools-version:5.7
 import PackageDescription
 
 let package = Package(
@@ -9,7 +10,7 @@ let package = Package(
         .library(
             name: "DebugSwift",
             targets: ["DebugSwift"]
-        ),
+        )
     ],
     dependencies: [],
     targets: [
@@ -17,6 +18,12 @@ let package = Package(
             name: "DebugSwift",
             dependencies: [],
             path: "Sources"
+        ),
+        .testTarget(
+            name: "DebugSwiftTests",
+            dependencies: ["DebugSwift"],
+            path: "Tests"
         )
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
