@@ -52,7 +52,7 @@ extension UITableViewCell {
                 ),
                 label.leadingAnchor.constraint(
                     equalTo: leadingAnchor,
-                    constant: UIScreen.main.bounds.width/2
+                    constant: UIScreen.main.bounds.width / 2
                 )
             ])
         }

@@ -11,7 +11,10 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                NavigationLink(destination: MockRequestView(endpoint: "https://reqres.in/api/users?page=\(Int.random(in: 1...5))")) {
+                NavigationLink(
+                    destination: MockRequestView(
+                        endpoint: "https://reqres.in/api/users?page=\(Int.random(in: 1...5))")
+                ) {
                     Text("Success Mocked Request")
                 }
 
@@ -32,7 +35,7 @@ struct ContentView_Previews: PreviewProvider {
 
 struct MockRequestView: View {
     let endpoint: String
-    @State private var responseText: String = ""
+    @State private var responseText = ""
 
     var body: some View {
         VStack {

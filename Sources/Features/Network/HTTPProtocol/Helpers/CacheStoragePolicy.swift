@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CacheHelper {
+enum CacheHelper {
     /// Determines the cache storage policy for a response.
     /// When providing a response to the client, this function is used to tell the client whether
     /// the response is cacheable or not.
@@ -16,7 +16,8 @@ struct CacheHelper {
     ///   - request: The request that generated the response; must not be nil.
     ///   - response: The response itself; must not be nil.
     /// - Returns: A cache storage policy to use.
-    static func cacheStoragePolicy(for request: URLRequest, and response: HTTPURLResponse) -> URLCache.StoragePolicy {
+    static func cacheStoragePolicy(for request: URLRequest, and response: HTTPURLResponse)
+        -> URLCache.StoragePolicy {
         var cacheable: Bool
         var result: URLCache.StoragePolicy
 
@@ -31,7 +32,7 @@ struct CacheHelper {
         // If the response might be cacheable, look at the "Cache-Control" header in the response.
         if cacheable {
             let responseHeader = (response.allHeaderFields["Cache-Control"] as? String)?.lowercased()
-            if let responseHeader = responseHeader, responseHeader.range(of: "no-store") != nil {
+            if let responseHeader, responseHeader.range(of: "no-store") != nil {
                 cacheable = false
             }
         }
@@ -39,7 +40,7 @@ struct CacheHelper {
         // If we still think it might be cacheable, look at the "Cache-Control" header in the request.
         if cacheable {
             let requestHeader = (request.allHTTPHeaderFields?["Cache-Control"] as? String)?.lowercased()
-            if let requestHeader = requestHeader,
+            if let requestHeader,
                requestHeader.range(of: "no-store") != nil,
                requestHeader.range(of: "no-cache") != nil {
                 cacheable = false

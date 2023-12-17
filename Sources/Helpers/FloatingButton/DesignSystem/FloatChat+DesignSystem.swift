@@ -1,5 +1,5 @@
 //
-//  ConstDefine.swift
+//  FloatChat+DesignSystem.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 2023/12/12.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct DSFloatChat {
+enum DSFloatChat {
     static let animationDuration = 0.3
     static let animationCancelMoveDuration = 0.35
 
@@ -21,7 +21,7 @@ struct DSFloatChat {
     static let bottomViewFloatHeight: CGFloat = 160
     static let minX = screenWidth - bottomViewFloatWidth
     static let minY = screenHeight - bottomViewFloatHeight
-    static let ballRect = CGRect(x: screenWidth-70, y: screenHeight * 0.3, width: 20, height: 20)
+    static let ballRect = CGRect(x: screenWidth - 70, y: screenHeight * 0.3, width: 20, height: 20)
     static let padding: CGFloat = 10.0
     static let topSafeAreaPadding = window?.safeAreaInsets.top ?? .zero
     static let bottomSafeAreaPadding = window?.safeAreaInsets.bottom ?? .zero

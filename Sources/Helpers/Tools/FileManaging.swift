@@ -17,11 +17,11 @@ protocol FileManaging {
 
 class FileManagerHelper: FileManaging {
     func contentsOfDirectory(atPath path: String) throws -> [String] {
-        return try FileManager.default.contentsOfDirectory(atPath: path)
+        try FileManager.default.contentsOfDirectory(atPath: path)
     }
 
     func fileExists(atPath path: String, isDirectory: inout ObjCBool) -> Bool {
-        return FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
+        FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
     }
 
     func removeItem(atPath path: String) throws {
@@ -29,6 +29,6 @@ class FileManagerHelper: FileManaging {
     }
 
     func attributesOfItem(atPath path: String) throws -> [FileAttributeKey: Any] {
-        return try FileManager.default.attributesOfItem(atPath: path)
+        try FileManager.default.attributesOfItem(atPath: path)
     }
 }

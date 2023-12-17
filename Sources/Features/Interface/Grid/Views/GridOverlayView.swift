@@ -9,7 +9,6 @@
 import UIKit
 
 class GridOverlayView: TopLevelViewWrapper {
-
     let GridOverlayViewMinHorizontalMiddlePartSize: NSInteger = 8
     let GridOverlayViewMinVerticalMiddlePartSize: NSInteger = 8
     let GridOverlayViewLabelFontSize: CGFloat = 9.0
@@ -98,8 +97,10 @@ class GridOverlayView: TopLevelViewWrapper {
         var middlePartSize = screenSize - linesPerHalf * 2 * gridSize
         let showsLabel = middlePartSize != 0
 
-        if middlePartSize < GridOverlayViewMinHorizontalMiddlePartSize && showsLabel {
-            linesPerHalf -= (GridOverlayViewMinHorizontalMiddlePartSize - middlePartSize + 2 * gridSize - 1) / (2 * gridSize)
+        if middlePartSize < GridOverlayViewMinHorizontalMiddlePartSize, showsLabel {
+            linesPerHalf -=
+                (GridOverlayViewMinHorizontalMiddlePartSize - middlePartSize + 2 * gridSize - 1)
+                / (2 * gridSize)
             middlePartSize = screenSize - linesPerHalf * 2 * gridSize
         }
 
@@ -142,8 +143,10 @@ class GridOverlayView: TopLevelViewWrapper {
         middlePartSize = screenSize - linesPerHalf * 2 * gridSize
         let showsVerticalLabel = middlePartSize != 0
 
-        if middlePartSize < GridOverlayViewMinVerticalMiddlePartSize && showsVerticalLabel {
-            linesPerHalf -= (GridOverlayViewMinVerticalMiddlePartSize - middlePartSize + 2 * gridSize - 1) / (2 * gridSize)
+        if middlePartSize < GridOverlayViewMinVerticalMiddlePartSize, showsVerticalLabel {
+            linesPerHalf -=
+                (GridOverlayViewMinVerticalMiddlePartSize - middlePartSize + 2 * gridSize - 1)
+                / (2 * gridSize)
             middlePartSize = screenSize - linesPerHalf * 2 * gridSize
         }
 

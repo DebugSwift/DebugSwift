@@ -9,7 +9,6 @@
 import UIKit
 
 final class InterfaceViewController: BaseController {
-
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -63,16 +62,16 @@ final class InterfaceViewController: BaseController {
         )
     }
 }
+
 extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Features.allCases.count
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        Features.allCases.count
     }
 
     func tableView(
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
-
         let feature = Features(rawValue: indexPath.row)
         let title = feature?.title ?? ""
 
@@ -94,11 +93,11 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80.0
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        80.0
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         var controller: UIViewController?
         switch Features(rawValue: indexPath.row) {
         case .grid:
@@ -132,13 +131,14 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
         title: String?,
         index: Int
     ) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: MenuSwitchTableViewCell.identifier
-        ) as? MenuSwitchTableViewCell ?? .init()
+        let cell =
+            tableView.dequeueReusableCell(
+                withIdentifier: MenuSwitchTableViewCell.identifier
+            ) as? MenuSwitchTableViewCell ?? .init()
         cell.titleLabel.text = title
         cell.tag = index
-//        TODO: - Create
-//        cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
+        //        TODO: - Create
+        //        cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
         cell.delegate = self
         return cell
     }

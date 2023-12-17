@@ -8,7 +8,6 @@
 import UIKit
 
 class ViewController: UIViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -29,13 +28,13 @@ class ViewController: UIViewController {
 
         let session = URLSession.shared
 
-        let task = session.dataTask(with: url) { (data, _, error) in
-            if let error = error {
+        let task = session.dataTask(with: url) { data, _, error in
+            if let error {
                 print("Error: \(error)")
                 return
             }
 
-            guard let data = data else {
+            guard let data else {
                 print("No data received")
                 return
             }

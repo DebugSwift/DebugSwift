@@ -1,5 +1,5 @@
 //
-//  ZZFloatViewManager.swift
+//  FloatViewManager.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 2023/12/12.
@@ -9,7 +9,6 @@
 import UIKit
 
 final class FloatViewManager: NSObject {
-
     // Properties
 
     static let shared = FloatViewManager()
@@ -20,7 +19,7 @@ final class FloatViewManager: NSObject {
 
     private var floatViewController: UIViewController?
 
-    required override init() {
+    override required init() {
         super.init()
         currentNavigationController()?.delegate = self
 
@@ -57,12 +56,18 @@ final class FloatViewManager: NSObject {
     }
 }
 
-fileprivate extension FloatViewManager {
-    func setup() {
-        bottomFloatView.frame = .init(x: DSFloatChat.screenWidth, y: DSFloatChat.screenHeight, width: DSFloatChat.bottomViewFloatWidth, height: DSFloatChat.bottomViewFloatHeight)
+extension FloatViewManager {
+    private func setup() {
+        bottomFloatView.frame = .init(
+            x: DSFloatChat.screenWidth, y: DSFloatChat.screenHeight,
+            width: DSFloatChat.bottomViewFloatWidth, height: DSFloatChat.bottomViewFloatHeight
+        )
         DSFloatChat.window?.addSubview(bottomFloatView)
 
-        ballRedCancelView.frame = .init(x: DSFloatChat.screenWidth, y: DSFloatChat.screenHeight, width: DSFloatChat.bottomViewFloatWidth, height: DSFloatChat.bottomViewFloatHeight)
+        ballRedCancelView.frame = .init(
+            x: DSFloatChat.screenWidth, y: DSFloatChat.screenHeight,
+            width: DSFloatChat.bottomViewFloatWidth, height: DSFloatChat.bottomViewFloatHeight
+        )
         ballRedCancelView.type = BottomFloatViewType.red
         DSFloatChat.window?.addSubview(ballRedCancelView)
 
@@ -70,10 +75,10 @@ fileprivate extension FloatViewManager {
         ballView.delegate = self
     }
 
-    func ballMoveEvents() {
+    private func ballMoveEvents() {
         // Circular reference
         ballView.ballDidSelect = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
             if let viewController = self.floatViewController {
                 // Prevent clicks
@@ -97,14 +102,14 @@ fileprivate extension FloatViewManager {
         }
     }
 }
+
 extension FloatViewManager: UINavigationControllerDelegate {
     func navigationController(
-        _ navigationController: UINavigationController,
+        _: UINavigationController,
         animationControllerFor operation: UINavigationController.Operation,
         from fromVC: UIViewController,
         to toVC: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-
         // Animate only for effect VCs, ignore other VCs
         if operation == .push {
             guard toVC == floatViewController else { return nil }
@@ -121,25 +126,32 @@ extension FloatViewManager: UINavigationControllerDelegate {
 }
 
 extension FloatViewManager: FloatViewDelegate {
-    func floatViewBeginMove(floatView: FloatBallView, point: CGPoint) {
-        UIView.animate(withDuration: 0.2, animations: {
-            self.ballRedCancelView.frame = CGRect(
-                x: DSFloatChat.screenWidth - DSFloatChat.bottomViewFloatWidth,
-                y: DSFloatChat.screenHeight - DSFloatChat.bottomViewFloatHeight,
-                width: DSFloatChat.bottomViewFloatWidth,
-                height: DSFloatChat.bottomViewFloatHeight
-            )
-        }) { _ in }
+    func floatViewBeginMove(floatView _: FloatBallView, point _: CGPoint) {
+        UIView.animate(
+            withDuration: 0.2,
+            animations: {
+                self.ballRedCancelView.frame = CGRect(
+                    x: DSFloatChat.screenWidth - DSFloatChat.bottomViewFloatWidth,
+                    y: DSFloatChat.screenHeight - DSFloatChat.bottomViewFloatHeight,
+                    width: DSFloatChat.bottomViewFloatWidth,
+                    height: DSFloatChat.bottomViewFloatHeight
+                )
+            }
+        ) { _ in }
     }
 
-    func floatViewMoved(floatView: FloatBallView, point: CGPoint) {
-        guard let transformBottomP = DSFloatChat.window?.convert(ballView.center, to: ballRedCancelView) else {
+    func floatViewMoved(floatView _: FloatBallView, point _: CGPoint) {
+        guard let transformBottomP = DSFloatChat.window?.convert(ballView.center, to: ballRedCancelView)
+        else {
             return
         }
 
-        if transformBottomP.x > .zero && transformBottomP.y > .zero {
-            let arcCenter = CGPoint(x: DSFloatChat.bottomViewFloatWidth, y: DSFloatChat.bottomViewFloatHeight)
-            let distance = pow((transformBottomP.x - arcCenter.x), 2) + pow((transformBottomP.y - arcCenter.y), 2)
+        if transformBottomP.x > .zero, transformBottomP.y > .zero {
+            let arcCenter = CGPoint(
+                x: DSFloatChat.bottomViewFloatWidth, y: DSFloatChat.bottomViewFloatHeight
+            )
+            let distance =
+                pow(transformBottomP.x - arcCenter.x, 2) + pow(transformBottomP.y - arcCenter.y, 2)
             let onArc = pow(arcCenter.x, 2)
 
             if distance <= onArc {
@@ -158,18 +170,21 @@ extension FloatViewManager: FloatViewDelegate {
         }
     }
 
-    func floatViewCancelMove(floatView: FloatBallView) {
+    func floatViewCancelMove(floatView _: FloatBallView) {
         if ballRedCancelView.insideBottomSelected {
             ballView.show = false
         }
 
-        UIView.animate(withDuration: DSFloatChat.animationCancelMoveDuration, animations: {
-            self.ballRedCancelView.frame = .init(
-                x: DSFloatChat.screenWidth,
-                y: DSFloatChat.screenHeight,
-                width: DSFloatChat.bottomViewFloatWidth,
-                height: DSFloatChat.bottomViewFloatHeight
-            )
-        }) { _ in }
+        UIView.animate(
+            withDuration: DSFloatChat.animationCancelMoveDuration,
+            animations: {
+                self.ballRedCancelView.frame = .init(
+                    x: DSFloatChat.screenWidth,
+                    y: DSFloatChat.screenHeight,
+                    width: DSFloatChat.bottomViewFloatWidth,
+                    height: DSFloatChat.bottomViewFloatHeight
+                )
+            }
+        ) { _ in }
     }
 }

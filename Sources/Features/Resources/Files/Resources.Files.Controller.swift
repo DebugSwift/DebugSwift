@@ -9,7 +9,6 @@
 import UIKit
 
 final class ResourcesFilesViewController: BaseTableController {
-
     enum Constants {
         static let nextSizeAbbreviationThreshold: Double = 1024
     }
@@ -105,24 +104,25 @@ final class ResourcesFilesViewController: BaseTableController {
         pathLabel.text = "    \(textPath.isEmpty ? "/" : textPath)"
         if path == nil { path = NSHomeDirectory() }
 
-        backgroundLabel.text = (subdirectories.count + files.count > 0) ? "" : "This directory is empty."
+        backgroundLabel.text =
+            (subdirectories.count + files.count > 0) ? "" : "This directory is empty."
     }
 }
 
 extension ResourcesFilesViewController {
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+    override func numberOfSections(in _: UITableView) -> Int {
+        2
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? subdirectories.count : files.count
+    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        section == 0 ? subdirectories.count : files.count
     }
 
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80.0
+    override func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        80.0
     }
 
-    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    override func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if section == .zero {
             return pathLabel
         } else if !files.isEmpty {
@@ -132,7 +132,8 @@ extension ResourcesFilesViewController {
         }
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
+        -> UITableViewCell {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             cell.setup(title: subdirectories[indexPath.row])
@@ -153,12 +154,15 @@ extension ResourcesFilesViewController {
         }
     }
 
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+    override func tableView(_: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         let fullPath = fullPathForElement(with: indexPath)
         return FileManager.default.isDeletableFile(atPath: fullPath)
     }
 
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    override func tableView(
+        _ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle,
+        forRowAt indexPath: IndexPath
+    ) {
         if editingStyle == .delete {
             let fullPath = fullPathForElement(with: indexPath)
             do {

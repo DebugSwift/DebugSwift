@@ -1,5 +1,5 @@
 //
-//  Resources.Model.swift
+//  Network.Model.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 14/12/23.

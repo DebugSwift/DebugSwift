@@ -1,5 +1,5 @@
 //
-//  Performance.swift
+//  Network.Controller.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 14/12/23.
@@ -9,7 +9,6 @@
 import UIKit
 
 class NetworkViewController: BaseController, UISearchBarDelegate {
-
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -94,7 +93,7 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
 
     // MARK: - UISearchBarDelegate
 
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_: UISearchBar, textDidChange searchText: String) {
         viewModel.networkSearchWord = searchText
         viewModel.applyFilter()
         tableView.reloadData()
@@ -109,7 +108,6 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
 }
 
 extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
-
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.delegate = self
@@ -130,20 +128,21 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
 
     // MARK: - UITableViewDataSource
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.models.count
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        viewModel.models.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: "NetworkCell", for: indexPath
-        ) as! NetworkTableViewCell
+        let cell =
+            tableView.dequeueReusableCell(
+                withIdentifier: "NetworkCell", for: indexPath
+            ) as! NetworkTableViewCell
         cell.setup(viewModel.models[indexPath.row])
 
         return cell
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         let model = viewModel.models[indexPath.row]
         let controller = NetworkViewControllerDetail(model: model)
         navigationController?.pushViewController(controller, animated: true)

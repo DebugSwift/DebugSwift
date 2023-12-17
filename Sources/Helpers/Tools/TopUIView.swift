@@ -16,9 +16,12 @@ class TopLevelViewWrapper: UIView {
             showWidgetWindow()
         }
 
-        UIView.animate(withDuration: 0.35, animations: {
-            self.alpha = newValue ? 1.0 : 0.0
-        }) { (_) in
+        UIView.animate(
+            withDuration: 0.35,
+            animations: {
+                self.alpha = newValue ? 1.0 : 0.0
+            }
+        ) { _ in
             self.isHidden = !newValue
             if !newValue {
                 self.removeWidgetWindow()
@@ -27,10 +30,8 @@ class TopLevelViewWrapper: UIView {
     }
 
     func showWidgetWindow() {
-        if
-            #available(iOS 13.0, *),
-            let scene = UIApplication.shared.keyWindow?.windowScene
-        {
+        if #available(iOS 13.0, *),
+           let scene = UIApplication.shared.keyWindow?.windowScene {
             widgetWindow = UIWindow(windowScene: scene)
         } else {
             widgetWindow = UIWindow(frame: UIScreen.main.bounds)

@@ -15,24 +15,23 @@ protocol FloatViewDelegate: NSObjectProtocol {
 }
 
 class FloatBallView: UIView {
-
     weak var delegate: FloatViewDelegate?
     var ballDidSelect: (() -> Void)?
 
     fileprivate var beginPoint: CGPoint?
 
-    var changeStatusInNextTransaction: Bool = true
+    var changeStatusInNextTransaction = true
 
     lazy var label: UILabel = buildLabel()
 
-    var show: Bool = false {
+    var show = false {
         didSet {
             guard oldValue != show else { return }
             if show {
                 DSFloatChat.window?.addSubview(self)
                 layer.position = .init(
                     x: 20,
-                    y: UIScreen.main.bounds.height/2 - 80
+                    y: UIScreen.main.bounds.height / 2 - 80
                 )
                 alpha = .zero
                 UIView.animate(withDuration: DSFloatChat.animationDuration) {
@@ -40,10 +39,13 @@ class FloatBallView: UIView {
                 }
             } else {
                 alpha = 1.0
-                UIView.animate(withDuration: DSFloatChat.animationDuration, animations: {
-                    self.alpha = .zero
-                }) { _ in
-                     self.removeFromSuperview()
+                UIView.animate(
+                    withDuration: DSFloatChat.animationDuration,
+                    animations: {
+                        self.alpha = .zero
+                    }
+                ) { _ in
+                    self.removeFromSuperview()
                 }
             }
         }
@@ -71,7 +73,8 @@ class FloatBallView: UIView {
         layer.cornerRadius = bounds.width * 0.5
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -89,14 +92,14 @@ class FloatBallView: UIView {
     }
 }
 
-fileprivate extension FloatBallView {
-    func addGesture() {
+extension FloatBallView {
+    private func addGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapGesture))
         tap.delaysTouchesBegan = true
         addGestureRecognizer(tap)
     }
 
-    func setUp() {
+    private func setUp() {
         backgroundColor = .black
         layer.masksToBounds = true
         layer.borderColor = UIColor.white.cgColor
@@ -105,7 +108,7 @@ fileprivate extension FloatBallView {
         label.text = .init(0)
     }
 
-    func buildLabel() -> UILabel {
+    private func buildLabel() -> UILabel {
         let label = UILabel()
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -119,7 +122,7 @@ fileprivate extension FloatBallView {
         return label
     }
 
-    func startAnimation() {
+    private func startAnimation() {
         let label = UILabel()
         label.text = "🚀"
         label.textAlignment = .center
@@ -150,26 +153,26 @@ fileprivate extension FloatBallView {
     }
 }
 
-fileprivate extension FloatBallView {
-    @objc func tapGesture() {
-       guard let ballDidSelect = ballDidSelect else {
-           return
+extension FloatBallView {
+    @objc private func tapGesture() {
+        guard let ballDidSelect else {
+            return
         }
-         ballDidSelect()
+        ballDidSelect()
     }
 }
 
 // MARK: - Gesture move
 
 extension FloatBallView {
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
         beginPoint = touches.first?.location(in: self)
-        if let beginPoint = beginPoint {
+        if let beginPoint {
             delegate?.floatViewBeginMove(floatView: self, point: beginPoint)
         }
     }
 
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+    override func touchesMoved(_ touches: Set<UITouch>, with _: UIEvent?) {
         let currentPoint = touches.first?.location(in: self)
 
         guard let currentP = currentPoint, let beginP = beginPoint else {
@@ -183,15 +186,15 @@ extension FloatBallView {
         center = CGPoint(x: center.x + offsetX, y: center.y + offsetY)
     }
 
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let superview = superview else { return }
+    override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
+        guard let superview else { return }
 
         delegate?.floatViewCancelMove(floatView: self)
 
-        let  marginLeft = frame.origin.x
-        let  marginRight = superview.frame.width - frame.minX - frame.width
-        let  marginTop = frame.minY
-        let  marginBottom = superview.frame.height - self.frame.minY - frame.height
+        let marginLeft = frame.origin.x
+        let marginRight = superview.frame.width - frame.minX - frame.width
+        let marginTop = frame.minY
+        let marginBottom = superview.frame.height - frame.minY - frame.height
 
         var destinationFrame = frame
 
@@ -233,23 +236,27 @@ extension FloatBallView {
             }
             destinationFrame = CGRect(
                 x: tempX,
-                y: superview.frame.height - frame.height-DSFloatChat.padding-DSFloatChat.bottomSafeAreaPadding,
+                y: superview.frame.height - frame.height - DSFloatChat.padding
+                    - DSFloatChat.bottomSafeAreaPadding,
                 width: DSFloatChat.ballRect.width,
                 height: DSFloatChat.ballRect.height
             )
         } else {
             destinationFrame = CGRect(
-                x: marginLeft < marginRight ? DSFloatChat.padding : superview.frame.width - frame.width-DSFloatChat.padding,
+                x: marginLeft < marginRight
+                    ? DSFloatChat.padding : superview.frame.width - frame.width - DSFloatChat.padding,
                 y: frame.minY,
                 width: DSFloatChat.ballRect.width,
                 height: DSFloatChat.ballRect.height
             )
         }
 
-        UIView.animate(withDuration: DSFloatChat.animationDuration, animations: {
-            self.frame = destinationFrame
-        }) { (_) in
-
+        UIView.animate(
+            withDuration: DSFloatChat.animationDuration,
+            animations: {
+                self.frame = destinationFrame
+            }
+        ) { _ in
         }
     }
 }

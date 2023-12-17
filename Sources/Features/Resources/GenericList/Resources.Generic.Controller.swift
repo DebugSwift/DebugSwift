@@ -9,7 +9,6 @@
 import UIKit
 
 class ResourcesGenericController: BaseTableController {
-
     let viewModel: ResourcesGenericListViewModel
 
     init(viewModel: ResourcesGenericListViewModel) {
@@ -17,7 +16,8 @@ class ResourcesGenericController: BaseTableController {
         super.init(style: .grouped)
     }
 
-    required init?(coder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -89,22 +89,25 @@ class ResourcesGenericController: BaseTableController {
 
     // MARK: - UITableViewDataSource
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+    override func numberOfSections(in _: UITableView) -> Int {
+        1
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let numberOfItems = searchController.isActive ? viewModel.numberOfFilteredItems() : viewModel.numberOfItems()
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        let numberOfItems =
+            searchController.isActive ? viewModel.numberOfFilteredItems() : viewModel.numberOfItems()
         backgroundLabel.text = numberOfItems == .zero ? viewModel.emptyListDescriptionString() : ""
         return numberOfItems
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
+        -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
 
-        let dataSource = searchController.isActive ?
-        viewModel.filteredDataSourceForItem(atIndex: indexPath.row) :
-        viewModel.dataSourceForItem(atIndex: indexPath.row)
+        let dataSource =
+            searchController.isActive
+                ? viewModel.filteredDataSourceForItem(atIndex: indexPath.row)
+                : viewModel.dataSourceForItem(atIndex: indexPath.row)
 
         cell.setup(
             title: dataSource.title,
@@ -115,19 +118,24 @@ class ResourcesGenericController: BaseTableController {
         return cell
     }
 
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
+    override func tableView(_: UITableView, canEditRowAt _: IndexPath) -> Bool {
+        true
     }
 
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    override func tableView(
+        _ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle,
+        forRowAt indexPath: IndexPath
+    ) {
         if editingStyle == .delete {
             viewModel.handleDeleteItemAction(atIndex: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
 
-    override func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
-        return "Delete"
+    override func tableView(
+        _: UITableView, titleForDeleteConfirmationButtonForRowAt _: IndexPath
+    ) -> String? {
+        "Delete"
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -139,9 +147,12 @@ class ResourcesGenericController: BaseTableController {
         let contentToCopy = "\(title)"
         UIPasteboard.general.string = contentToCopy
 
-        UIView.animate(withDuration: 0.3, animations: {
-            cell.alpha = 0.5
-        }) { _ in
+        UIView.animate(
+            withDuration: 0.3,
+            animations: {
+                cell.alpha = 0.5
+            }
+        ) { _ in
             UIView.animate(withDuration: 0.3) {
                 cell.alpha = 1.0
             }

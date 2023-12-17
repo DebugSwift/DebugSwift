@@ -15,15 +15,16 @@ private var UIViewPreviousBorderWidthKey: UInt8 = 2
 private var UIViewDebugBorderColorKey: UInt8 = 3
 
 extension UIView {
-
     // MARK: - ShowsDebugBorder property
 
     private var showsDebugBorder: Bool {
         get {
-            return objc_getAssociatedObject(self, &UIViewShowsDebugBorderKey) as? Bool ?? false
+            objc_getAssociatedObject(self, &UIViewShowsDebugBorderKey) as? Bool ?? false
         }
         set {
-            objc_setAssociatedObject(self, &UIViewShowsDebugBorderKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(
+                self, &UIViewShowsDebugBorderKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         }
     }
 
@@ -31,11 +32,14 @@ extension UIView {
 
     private var previousBorderColor: CGColor? {
         get {
-            return (objc_getAssociatedObject(self, &UIViewPreviousBorderColorKey) as? UIColor)?.cgColor
+            (objc_getAssociatedObject(self, &UIViewPreviousBorderColorKey) as? UIColor)?.cgColor
         }
         set {
             if let color = newValue {
-                objc_setAssociatedObject(self, &UIViewPreviousBorderColorKey, UIColor(cgColor: color), .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                objc_setAssociatedObject(
+                    self, &UIViewPreviousBorderColorKey, UIColor(cgColor: color),
+                    .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                )
             }
         }
     }
@@ -44,10 +48,12 @@ extension UIView {
 
     private var previousBorderWidth: CGFloat {
         get {
-            return objc_getAssociatedObject(self, &UIViewPreviousBorderWidthKey) as? CGFloat ?? 0.0
+            objc_getAssociatedObject(self, &UIViewPreviousBorderWidthKey) as? CGFloat ?? 0.0
         }
         set {
-            objc_setAssociatedObject(self, &UIViewPreviousBorderWidthKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(
+                self, &UIViewPreviousBorderWidthKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         }
     }
 
@@ -59,12 +65,17 @@ extension UIView {
                 return color.cgColor
             } else {
                 let color = UIColor.randomColor()
-                objc_setAssociatedObject(self, &UIViewDebugBorderColorKey, color, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                objc_setAssociatedObject(
+                    self, &UIViewDebugBorderColorKey, color, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                )
                 return color.cgColor
             }
         }
         set {
-            objc_setAssociatedObject(self, &UIViewDebugBorderColorKey, UIColor(cgColor: newValue), .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(
+                self, &UIViewDebugBorderColorKey, UIColor(cgColor: newValue),
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         }
     }
 
@@ -73,19 +84,23 @@ extension UIView {
     static func swizzleMethods() {
         DispatchQueue.once(token: UUID().uuidString) {
             // Swizzle init(coder:)
-            swizzleMethod(self,
-                          originalSelector: #selector(UIView.init(coder:)),
-                          swizzledSelector: #selector(UIView.swizzledInitWithCoder(_:)))
+            swizzleMethod(
+                self,
+                originalSelector: #selector(UIView.init(coder:)),
+                swizzledSelector: #selector(UIView.swizzledInitWithCoder(_:))
+            )
 
             // Swizzle init(frame:)
-            swizzleMethod(self,
-                          originalSelector: #selector(UIView.init(frame:)),
-                          swizzledSelector: #selector(UIView.swizzledInitWithFrame(_:)))
+            swizzleMethod(
+                self,
+                originalSelector: #selector(UIView.init(frame:)),
+                swizzledSelector: #selector(UIView.swizzledInitWithFrame(_:))
+            )
 
             // Swizzle dealloc
-//            swizzleMethod(self,
-//                          originalSelector: NSSelectorFromString("dealloc"),
-//                          swizzledSelector: #selector(UIView.swizzledDealloc))
+            //            swizzleMethod(self,
+            //                          originalSelector: NSSelectorFromString("dealloc"),
+            //                          swizzledSelector: #selector(UIView.swizzledDealloc))
         }
     }
 
@@ -120,7 +135,7 @@ extension UIView {
     }
 
     @objc private func changedNotification(
-        _ notification: Notification
+        _: Notification
     ) {
         db_refreshDebugBorders()
     }
@@ -155,14 +170,22 @@ extension UIView {
     }
 }
 
-private func swizzleMethod(_ classType: AnyClass, originalSelector: Selector, swizzledSelector: Selector) {
+private func swizzleMethod(
+    _ classType: AnyClass, originalSelector: Selector, swizzledSelector: Selector
+) {
     let originalMethod = class_getInstanceMethod(classType, originalSelector)
     let swizzledMethod = class_getInstanceMethod(classType, swizzledSelector)
 
-    let didAddMethod = class_addMethod(classType, originalSelector, method_getImplementation(swizzledMethod!), method_getTypeEncoding(swizzledMethod!))
+    let didAddMethod = class_addMethod(
+        classType, originalSelector, method_getImplementation(swizzledMethod!),
+        method_getTypeEncoding(swizzledMethod!)
+    )
 
     if didAddMethod {
-        class_replaceMethod(classType, swizzledSelector, method_getImplementation(originalMethod!), method_getTypeEncoding(originalMethod!))
+        class_replaceMethod(
+            classType, swizzledSelector, method_getImplementation(originalMethod!),
+            method_getTypeEncoding(originalMethod!)
+        )
     } else {
         method_exchangeImplementations(originalMethod!, swizzledMethod!)
     }

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NetworkDetailModel.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 15/12/23.
@@ -14,8 +14,8 @@ struct NetworkDetailModel {
     var url: String?
     var image: UIImage?
     var blankContent: String?
-    var isLast: Bool = false
-    var requestSerializer: RequestSerializer = RequestSerializer.JSON// default JSON format
+    var isLast = false
+    var requestSerializer: RequestSerializer = .JSON // default JSON format
     var requestHeaderFields: [String: Any]?
     var responseHeaderFields: [String: Any]?
     var requestData: Data?

@@ -13,7 +13,7 @@ extension Data {
         let byteCountFormatter = ByteCountFormatter()
         byteCountFormatter.allowedUnits = [.useKB, .useMB, .useGB]
 
-        return byteCountFormatter.string(fromByteCount: Int64(self.count))
+        return byteCountFormatter.string(fromByteCount: Int64(count))
     }
 
     func formattedString() -> String {

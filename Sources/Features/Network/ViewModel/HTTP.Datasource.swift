@@ -1,5 +1,5 @@
 //
-//  HttpDatasource.swift
+//  HTTP.Datasource.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 15/12/23.
@@ -14,7 +14,7 @@ class HttpDatasource {
     var httpModels: [HttpModel] = []
 
     private init() {
-//        httpModels = Array(repeating: HttpModel(), count: 1000 + 100)
+        //        httpModels = Array(repeating: HttpModel(), count: 1000 + 100)
     }
 
     func addHttpRequest(_ model: HttpModel) -> Bool {
@@ -23,7 +23,7 @@ class HttpDatasource {
         }
 
         // URL Filter, ignore case
-        for urlString in (NetworkHelper.shared.ignoredURLs ?? []) {
+        for urlString in NetworkHelper.shared.ignoredURLs ?? [] {
             if model.url?.absoluteString.lowercased().contains(urlString.lowercased()) == true {
                 return false
             }
@@ -31,7 +31,7 @@ class HttpDatasource {
 
         // Maximum number limit
         if httpModels.count >= 1000 {
-            if httpModels.count > 0 {
+            if !httpModels.isEmpty {
                 httpModels.remove(at: 0)
             }
         }
@@ -59,7 +59,7 @@ class HttpDatasource {
 }
 
 extension URLRequest {
-    private struct AssociatedKeys {
+    private enum AssociatedKeys {
         static var requestId = "requestId"
         static var startTime = "startTime"
     }
@@ -70,21 +70,27 @@ extension URLRequest {
                 return id
             } else {
                 let newValue = UUID().uuidString
-                objc_setAssociatedObject(self, AssociatedKeys.requestId, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
+                objc_setAssociatedObject(
+                    self, AssociatedKeys.requestId, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC
+                )
                 return newValue
             }
         }
         set {
-            objc_setAssociatedObject(self, AssociatedKeys.requestId, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
+            objc_setAssociatedObject(
+                self, AssociatedKeys.requestId, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC
+            )
         }
     }
 
     var startTime: NSNumber? {
         get {
-            return objc_getAssociatedObject(self, AssociatedKeys.startTime) as? NSNumber
+            objc_getAssociatedObject(self, AssociatedKeys.startTime) as? NSNumber
         }
         set {
-            objc_setAssociatedObject(self, AssociatedKeys.startTime, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(
+                self, AssociatedKeys.startTime, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         }
     }
 }

@@ -11,7 +11,6 @@ import Foundation
 typealias CustomActionBody = () -> Void
 
 class CustomAction {
-
     // MARK: - Properties
 
     private(set) var name: String
@@ -25,7 +24,7 @@ class CustomAction {
     }
 
     class func customAction(withName name: String, body: CustomActionBody?) -> CustomAction {
-        return CustomAction(name: name, body: body)
+        CustomAction(name: name, body: body)
     }
 
     // MARK: - Performing action

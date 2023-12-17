@@ -5,7 +5,7 @@ class BaseController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
-    init(withNib: Bool) {
+    init(withNib _: Bool) {
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -16,7 +16,7 @@ class BaseController: UIViewController {
     }
 
     @available(*, unavailable)
-    public required init?(coder aDecoder: NSCoder) {
+    public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
@@ -38,7 +38,7 @@ class BaseTableController: UITableViewController {
     }
 
     @available(*, unavailable)
-    public required init?(coder aDecoder: NSCoder) {
+    public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -51,7 +51,6 @@ class BaseTableController: UITableViewController {
 }
 
 class TabBarController: UITabBarController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTabBar()
@@ -61,9 +60,8 @@ class TabBarController: UITabBarController {
 
 // MARK: - Private Extensions
 
-fileprivate extension TabBarController {
-
-    func configureTabBar() {
+extension TabBarController {
+    private func configureTabBar() {
         let controllers: [UIViewController] = [
             NetworkViewController(),
             PerformanceViewController(),
@@ -81,7 +79,7 @@ fileprivate extension TabBarController {
         tabBar.unselectedItemTintColor = .gray
     }
 
-    func configureNavigation() {
+    private func configureNavigation() {
         navigationItem.hidesBackButton = true
 
         let closeButton: UIBarButtonItem
@@ -102,8 +100,8 @@ fileprivate extension TabBarController {
         navigationItem.rightBarButtonItem = closeButton
     }
 
-    @objc func closeButtonTapped() {
-        if let navigationController = navigationController {
+    @objc private func closeButtonTapped() {
+        if let navigationController {
             if navigationController.presentingViewController != nil {
                 dismiss(animated: true, completion: nil)
             } else {

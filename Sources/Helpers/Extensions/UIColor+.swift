@@ -1,5 +1,5 @@
 //
-//  UIColor.swift
+//  UIColor+.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 16/12/23.
@@ -31,7 +31,7 @@ extension UIColor {
     static func intFromHexString(hex hexStr: String) -> UInt32 {
         var hexInt: UInt32 = 0
         // Create scanner
-        let scanner: Scanner = Scanner(string: hexStr)
+        let scanner = Scanner(string: hexStr)
         // Tell scanner to skip the # character
         scanner.charactersToBeSkipped = CharacterSet(charactersIn: "#")
         // Scan hex value

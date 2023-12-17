@@ -1,5 +1,5 @@
 //
-//  UIViewController+Extensions.swift
+//  UIViewController+Present.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 26/11/21.
@@ -9,13 +9,21 @@
 import UIKit
 
 extension UIViewController {
-    func showAlert(with message: String, title: String = "Warning", leftButtonTitle: String? = nil, leftButtonStyle: UIAlertAction.Style = .destructive, leftButtonHandler: ((UIAlertAction) -> Void)? = nil, rightButtonTitle: String = "OK", rightButtonStyle: UIAlertAction.Style = .default, rightButtonHandler: ((UIAlertAction) -> Void)? = nil) {
+    func showAlert(
+        with message: String, title: String = "Warning", leftButtonTitle: String? = nil,
+        leftButtonStyle: UIAlertAction.Style = .destructive,
+        leftButtonHandler: ((UIAlertAction) -> Void)? = nil, rightButtonTitle: String = "OK",
+        rightButtonStyle: UIAlertAction.Style = .default,
+        rightButtonHandler: ((UIAlertAction) -> Void)? = nil
+    ) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
-        alertController.addAction(UIAlertAction(title: rightButtonTitle, style: rightButtonStyle, handler: rightButtonHandler))
+        alertController.addAction(
+            UIAlertAction(title: rightButtonTitle, style: rightButtonStyle, handler: rightButtonHandler))
 
-        if let leftButtonTitle = leftButtonTitle {
-            alertController.addAction(UIAlertAction(title: leftButtonTitle, style: leftButtonStyle, handler: leftButtonHandler))
+        if let leftButtonTitle {
+            alertController.addAction(
+                UIAlertAction(title: leftButtonTitle, style: leftButtonStyle, handler: leftButtonHandler))
         }
 
         DispatchQueue.main.async {
@@ -29,7 +37,7 @@ extension UIViewController {
         completion: (() -> Void)? = nil
     ) {
         let rightButton = CustomBarButtonItem(image: image, style: .plain) { _ in
-            if let completion = completion {
+            if let completion {
                 completion()
             }
         }
@@ -41,7 +49,7 @@ extension UIViewController {
 
     func addLeftBarButton(image: UIImage?, completion: (() -> Void)? = nil) {
         let backButton = CustomBarButtonItem(image: image, style: .plain) { _ in
-            if let completion = completion {
+            if let completion {
                 completion()
                 return
             }
@@ -53,19 +61,28 @@ extension UIViewController {
 // MARK: - Helpers
 
 final class CustomBarButtonItem: UIBarButtonItem {
-
     typealias UIBarButtonItemTargetClosure = (UIBarButtonItem) -> Void
 
     private var targetClosure: UIBarButtonItemTargetClosure?
 
-    convenience init(title: String?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?) {
-        self.init(title: title, style: style, target: nil, action: #selector(CustomBarButtonItem.closureAction(sender:)))
+    convenience init(
+        title: String?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?
+    ) {
+        self.init(
+            title: title, style: style, target: nil,
+            action: #selector(CustomBarButtonItem.closureAction(sender:))
+        )
         target = self
         self.targetClosure = closure
     }
 
-    convenience init(image: UIImage?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?) {
-        self.init(image: image, style: style, target: nil, action: #selector(CustomBarButtonItem.closureAction(sender:)))
+    convenience init(
+        image: UIImage?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?
+    ) {
+        self.init(
+            image: image, style: style, target: nil,
+            action: #selector(CustomBarButtonItem.closureAction(sender:))
+        )
         target = self
         self.targetClosure = closure
     }
@@ -76,7 +93,9 @@ final class CustomBarButtonItem: UIBarButtonItem {
 }
 
 extension UINavigationController {
-    func pushViewController(viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {
+    func pushViewController(
+        viewController: UIViewController, animated: Bool, completion: @escaping () -> Void
+    ) {
         pushViewController(viewController, animated: animated)
 
         if animated, let coordinator = transitionCoordinator {

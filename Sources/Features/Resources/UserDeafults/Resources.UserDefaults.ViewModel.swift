@@ -24,7 +24,7 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     private func setupKeys() {
-        self.keys = UserDefaults.standard.dictionaryRepresentation().keys.sorted()
+        keys = UserDefaults.standard.dictionaryRepresentation().keys.sorted()
         if let latitudeIndex = keys.firstIndex(of: Constants.simulatedLocationLatitude) {
             keys.remove(at: latitudeIndex)
         }
@@ -36,11 +36,11 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
     // MARK: - DBTitleValueListViewModel
 
     func viewTitle() -> String {
-        return "User defaults"
+        "User defaults"
     }
 
     func numberOfItems() -> Int {
-        return keys.count
+        keys.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
@@ -65,7 +65,7 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func emptyListDescriptionString() -> String {
-        return "There are no entries in the user defaults."
+        "There are no entries in the user defaults."
     }
 
     // MARK: - Search Functionality
@@ -73,7 +73,7 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
     private var filteredKeys = [String]()
 
     func numberOfFilteredItems() -> Int {
-        return filteredKeys.count
+        filteredKeys.count
     }
 
     func filteredDataSourceForItem(atIndex index: Int) -> (title: String, value: String) {

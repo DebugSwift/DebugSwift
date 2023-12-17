@@ -9,19 +9,21 @@
 import UIKit
 
 final class TransitionPop: NSObject, UIViewControllerAnimatedTransitioning {
-
     var transitionCtx: UIViewControllerContextTransitioning?
 
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return DSFloatChat.animationDuration
+    func transitionDuration(using _: UIViewControllerContextTransitioning?)
+        -> TimeInterval {
+        DSFloatChat.animationDuration
     }
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         transitionCtx = transitionContext
 
-        guard  let  fromVC = transitionContext .viewController(forKey: UITransitionContextViewControllerKey.from),
-            let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)  else {
-                return
+        guard let fromVC = transitionContext.viewController(
+            forKey: UITransitionContextViewControllerKey.from),
+            let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)
+        else {
+            return
         }
 
         let containerView = transitionContext.containerView
@@ -29,10 +31,12 @@ final class TransitionPop: NSObject, UIViewControllerAnimatedTransitioning {
         containerView.addSubview(fromVC.view)
 
         let ballRect = FloatViewManager.shared.ballView.frame
-        let  startAnimationPath = UIBezierPath(roundedRect: toVC.view.bounds, cornerRadius: 0.1)
-        let endAnimationPath = UIBezierPath(roundedRect: ballRect, cornerRadius: ballRect.size.height/2)
+        let startAnimationPath = UIBezierPath(roundedRect: toVC.view.bounds, cornerRadius: 0.1)
+        let endAnimationPath = UIBezierPath(
+            roundedRect: ballRect, cornerRadius: ballRect.size.height / 2
+        )
 
-        let maskLayer: CAShapeLayer = CAShapeLayer()
+        let maskLayer = CAShapeLayer()
         maskLayer.path = endAnimationPath.cgPath
         fromVC.view.layer.mask = maskLayer
 
@@ -49,7 +53,7 @@ final class TransitionPop: NSObject, UIViewControllerAnimatedTransitioning {
 // MARK: - Animation end callback
 
 extension TransitionPop: CAAnimationDelegate {
-    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+    func animationDidStop(_: CAAnimation, finished _: Bool) {
         transitionCtx?.completeTransition(true)
         transitionCtx?.view(forKey: UITransitionContextViewKey.from)?.layer.mask = nil
         transitionCtx?.view(forKey: UITransitionContextViewKey.to)?.layer.mask = nil

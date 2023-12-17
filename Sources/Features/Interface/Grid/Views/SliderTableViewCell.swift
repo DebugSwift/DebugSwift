@@ -15,7 +15,6 @@ protocol SliderTableViewCellDelegate: AnyObject {
 }
 
 class SliderTableViewCell: UITableViewCell {
-
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
@@ -95,18 +94,18 @@ class SliderTableViewCell: UITableViewCell {
         delegate?.sliderCell(self, didSelectValue: CGFloat(sender.value))
     }
 
-    @objc func sliderEditingDidBegin(_ sender: UISlider) {
+    @objc func sliderEditingDidBegin(_: UISlider) {
         delegate?.sliderCellDidStartEditingValue(self)
     }
 
-    @objc func sliderEditingDidEnd(_ sender: UISlider) {
+    @objc func sliderEditingDidEnd(_: UISlider) {
         delegate?.sliderCellDidEndEditingValue(self)
     }
 
     private func updateValueLabel() {
         switch SliderType(rawValue: slider.tag) {
         case .float:
-            valueLabel.text  = String(format: "%.1lf%%", slider.value)
+            valueLabel.text = String(format: "%.1lf%%", slider.value)
 
         case .int:
             valueLabel.text = "\(Int(slider.value))"

@@ -9,7 +9,6 @@
 import Foundation
 
 final class KeychainService {
-
     private(set) var keychainValues = [String: Any]()
     private(set) var keychainKeys = [String]()
 
@@ -32,7 +31,7 @@ final class KeychainService {
         var searchDictionary = [String: Any]()
         if let encodedKey = key.data(using: .utf8) {
             searchDictionary[kSecAttrAccount as String] = encodedKey
-            let secItemClasses = self.secItemClasses()
+            let secItemClasses = secItemClasses()
             for secItemClass in secItemClasses {
                 searchDictionary[kSecClass as String] = secItemClass
                 SecItemDelete(searchDictionary as CFDictionary)
@@ -86,7 +85,7 @@ final class KeychainService {
             kSecReturnData as String: kCFBooleanTrue!
         ]
 
-        let secItemClasses = self.secItemClasses()
+        let secItemClasses = secItemClasses()
 
         for secItemClass in secItemClasses {
             query[kSecClass as String] = secItemClass
@@ -103,10 +102,13 @@ final class KeychainService {
                             account = dictionary[kSecAttrAccount as String] as? String ?? ""
                         }
 
-                        if let data = dictionary[kSecValueData as String] as? Data, data.count > 0, account.count > 0 {
+                        if let data = dictionary[kSecValueData as String] as? Data, !data.isEmpty,
+                           !account.isEmpty {
                             var unarchivedObject: Any?
                             do {
-                                unarchivedObject = try NSKeyedUnarchiver.unarchivedObject(ofClass: NSArray.self, from: data)
+                                unarchivedObject = try NSKeyedUnarchiver.unarchivedObject(
+                                    ofClass: NSArray.self, from: data
+                                )
                             } catch {
                                 // Do nothing.
                             }
@@ -126,7 +128,7 @@ final class KeychainService {
     }
 
     private func secItemClasses() -> [Any] {
-        return [
+        [
             kSecClassGenericPassword,
             kSecClassInternetPassword,
             kSecClassCertificate,

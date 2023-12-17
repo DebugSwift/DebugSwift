@@ -1,5 +1,5 @@
 //
-//  CurrentTopController.swift
+//  NSObject+.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 2023/12/12.
@@ -16,24 +16,26 @@ extension NSObject {
         }
 
         if viewController.isKind(of: UINavigationController.self) {
-            guard let viewController = (viewController as! UINavigationController).visibleViewController else {
+            guard let viewController = (viewController as! UINavigationController).visibleViewController
+            else {
                 return nil
             }
             return viewController
         } else if viewController.isKind(of: UITabBarController.self) {
-            guard let viewController = (viewController as! UITabBarController).selectedViewController else {
+            guard let viewController = (viewController as! UITabBarController).selectedViewController
+            else {
                 return nil
             }
             return viewController
         }
-       return nil
+        return nil
     }
 
     func currentNavigationController() -> UINavigationController? {
-        return currentViewController()?.navigationController
+        currentViewController()?.navigationController
     }
 
     func currentTabbarController() -> UITabBarController? {
-        return currentViewController()?.tabBarController
+        currentViewController()?.tabBarController
     }
 }

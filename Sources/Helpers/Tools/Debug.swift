@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Debug {
+enum Debug {
     enum DebugLevel {
         case full
         case normal

@@ -9,7 +9,6 @@
 import UIKit
 
 class AppViewModel: NSObject {
-
     var infos: [Info] {
         [
             getAppVersionInfo(),
@@ -35,8 +34,7 @@ class AppViewModel: NSObject {
     }
 
     func getAppBuildInfo() -> Info? {
-        guard
-            let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+        guard let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
         else {
             return nil
         }

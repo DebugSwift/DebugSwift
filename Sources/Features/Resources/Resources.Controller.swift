@@ -9,7 +9,6 @@
 import UIKit
 
 final class ResourcesViewController: BaseController {
-
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -60,9 +59,10 @@ final class ResourcesViewController: BaseController {
         )
     }
 }
+
 extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        items.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -74,11 +74,11 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80.0
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        80.0
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         var controller: UIViewController?
         switch indexPath.row {
         case 0:

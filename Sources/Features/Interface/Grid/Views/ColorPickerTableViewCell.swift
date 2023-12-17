@@ -9,11 +9,12 @@
 import UIKit
 
 protocol ColorPickerTableViewCellDelegate: AnyObject {
-    func colorPickerCell(_ colorPickerCell: ColorPickerTableViewCell, didSelectColorAtIndex index: Int)
+    func colorPickerCell(
+        _ colorPickerCell: ColorPickerTableViewCell, didSelectColorAtIndex index: Int
+    )
 }
 
 class ColorPickerTableViewCell: UITableViewCell {
-
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
@@ -25,7 +26,7 @@ class ColorPickerTableViewCell: UITableViewCell {
 
     private var primaryColors: [UIColor] = []
     private var secondaryColors: [UIColor] = []
-    private var selectedIndex: Int = 0
+    private var selectedIndex = 0
 
     // StackView to hold the color checkboxes
     private lazy var colorStackView: UIStackView = {
@@ -111,7 +112,7 @@ class ColorPickerTableViewCell: UITableViewCell {
 
     private func updateCheckBoxes() {
         for (index, view) in colorStackView.arrangedSubviews.enumerated() {
-            view.alpha = index == selectedIndex ? 1: 0.2
+            view.alpha = index == selectedIndex ? 1 : 0.2
         }
     }
 }

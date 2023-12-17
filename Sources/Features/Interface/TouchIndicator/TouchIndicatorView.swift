@@ -9,7 +9,6 @@
 import UIKit
 
 class TouchIndicatorView: UIView {
-
     enum Constants {
         static let size = CGSize(width: 40.0, height: 40.0)
     }
@@ -27,7 +26,7 @@ class TouchIndicatorView: UIView {
     }
 
     class func indicatorView() -> TouchIndicatorView {
-        return TouchIndicatorView(
+        TouchIndicatorView(
             frame: CGRect(origin: .zero, size: Constants.size)
         )
     }

@@ -11,15 +11,18 @@ import UIKit
 class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
     var transitionCtx: UIViewControllerContextTransitioning?
 
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return DSFloatChat.animationDuration
+    func transitionDuration(using _: UIViewControllerContextTransitioning?)
+        -> TimeInterval {
+        DSFloatChat.animationDuration
     }
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         transitionCtx = transitionContext
 
-        guard let fromVC = transitionContext .viewController(forKey: UITransitionContextViewControllerKey.from),
-              let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) else {
+        guard let fromVC = transitionContext.viewController(
+            forKey: UITransitionContextViewControllerKey.from),
+            let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)
+        else {
             return
         }
 
@@ -28,10 +31,12 @@ class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
         containerView.addSubview(toVC.view)
 
         let ballRect = FloatViewManager.shared.ballView.frame
-        let startAnimationPath = UIBezierPath(roundedRect: ballRect, cornerRadius: ballRect.size.height/2)
+        let startAnimationPath = UIBezierPath(
+            roundedRect: ballRect, cornerRadius: ballRect.size.height / 2
+        )
         let endAnimationPath = UIBezierPath(roundedRect: toVC.view.bounds, cornerRadius: 0.1)
 
-        let maskLayer: CAShapeLayer = CAShapeLayer()
+        let maskLayer = CAShapeLayer()
         maskLayer.path = endAnimationPath.cgPath
         toVC.view.layer.mask = maskLayer
 
@@ -54,7 +59,7 @@ class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
 // MARK: - Animation end callback
 
 extension TransitionPush: CAAnimationDelegate {
-    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+    func animationDidStop(_: CAAnimation, finished _: Bool) {
         transitionCtx?.completeTransition(true)
         transitionCtx?.view(forKey: UITransitionContextViewKey.from)?.layer.mask = nil
         transitionCtx?.view(forKey: UITransitionContextViewKey.to)?.layer.mask = nil

@@ -9,11 +9,11 @@
 import Foundation
 
 class NetworkViewModel {
-//    var models = [NetworkCellModel]()
+    //    var models = [NetworkCellModel]()
 
-    var reachEnd: Bool = true
-    var firstIn: Bool = true
-    var reloadDataFinish: Bool = true
+    var reachEnd = true
+    var firstIn = true
+    var reloadDataFinish = true
 
     var models = [HttpModel]()
     var cacheModels = [HttpModel]()

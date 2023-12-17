@@ -21,7 +21,8 @@ class MenuChartTableViewCell: UITableViewCell {
         setup()
     }
 
-    required init?(coder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -38,6 +39,5 @@ class MenuChartTableViewCell: UITableViewCell {
             chartView.trailingAnchor.constraint(equalTo: trailingAnchor),
             chartView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
-
     }
 }

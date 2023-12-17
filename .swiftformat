@@ -1,0 +1,73 @@
+--swiftversion 5.7
+
+--exclude Pods,Carthage,Submodules,SourcePackages,vendor,scripts
+
+--disable blankLinesAtStartOfScope
+--disable wrapMultilineStatementBraces
+
+--exponentgrouping disabled
+--fractiongrouping disabled
+--xcodeindentation disabled
+
+--allman false
+--assetliterals visual-width
+--beforemarks 
+--binarygrouping none
+--categorymark "MARK: %c"
+--classthreshold 0
+--closingparen balanced
+--commas inline
+--conflictmarkers reject
+--decimalgrouping none
+--elseposition same-line
+--emptybraces no-space
+--enumthreshold 0
+--exponentcase lowercase
+--extensionacl on-declarations
+--extensionlength 0
+--extensionmark "MARK: - %t + %c"
+--fragment false
+--funcattributes preserve
+--groupedextension "MARK: %c"
+--guardelse auto
+--header ignore
+--hexgrouping none
+--hexliteralcase lowercase
+--ifdef no-indent
+--importgrouping alpha
+--indent 4
+--indentcase false
+--lifecycle 
+--linebreaks lf
+--markextensions always
+--marktypes always
+--maxwidth none
+--modifierorder 
+--nevertrailing 
+--nospaceoperators ...,..<
+--nowrapoperators 
+--octalgrouping none
+--operatorfunc spaced
+--patternlet hoist
+--ranges spaced
+--redundanttype inferred
+--self init-only
+--selfrequired 
+--semicolons inline
+--shortoptionals always
+--smarttabs enabled
+--stripunusedargs closure-only
+--structthreshold 0
+--tabwidth unspecified
+--trailingclosures 
+--trimwhitespace always
+--typeattributes preserve
+--typemark "MARK: - %t"
+--varattributes preserve
+--voidtype void
+--wraparguments before-first
+--wrapcollections before-first
+--wrapparameters before-first
+--wrapconditions preserve
+--wrapreturntype preserve
+--yodaswap always

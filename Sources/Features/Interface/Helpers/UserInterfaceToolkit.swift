@@ -9,7 +9,6 @@
 import UIKit
 
 class UserInterfaceToolkit {
-
     // MARK: - Properties
 
     static let shared = UserInterfaceToolkit()
@@ -23,13 +22,13 @@ class UserInterfaceToolkit {
         .init(primaryColor: .white, secondaryColor: .white),
         .init(primaryColor: .gray, secondaryColor: .white)
     ]
-    var isGridOverlayShown: Bool = false {
+    var isGridOverlayShown = false {
         didSet {
             gridOverlay.toggle(with: isGridOverlayShown)
         }
     }
 
-    var slowAnimationsEnabled: Bool = false {
+    var slowAnimationsEnabled = false {
         didSet {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 guard oldValue != self.slowAnimationsEnabled else { return }
@@ -38,17 +37,17 @@ class UserInterfaceToolkit {
         }
     }
 
-    static var colorizedViewBordersEnabled: Bool = false {
+    static var colorizedViewBordersEnabled = false {
         didSet {
             guard oldValue != colorizedViewBordersEnabled else { return }
             NotificationCenter.default.post(
-                name: Self.notification,
+                name: notification,
                 object: NSNumber(value: colorizedViewBordersEnabled)
             )
         }
     }
 
-    var showingTouchesEnabled: Bool = false {
+    var showingTouchesEnabled = false {
         didSet {
             guard oldValue != showingTouchesEnabled else { return }
             UIApplication.shared.windows.forEach { setShowingTouchesEnabled(for: $0) }
@@ -87,39 +86,53 @@ class UserInterfaceToolkit {
 
     func autolayoutTrace() -> String? {
         guard let window = UIWindow.keyWindow else { return nil }
-        let key = String(data: Data([0x5f, 0x61, 0x75, 0x74, 0x6f, 0x6c, 0x61, 0x79, 0x6f, 0x75, 0x74, 0x54, 0x72, 0x61, 0x63, 0x65]), encoding: .ascii)
+        let key = String(
+            data: Data([
+                0x5f, 0x61, 0x75, 0x74, 0x6f, 0x6c, 0x61, 0x79, 0x6f, 0x75, 0x74, 0x54, 0x72, 0x61, 0x63,
+                0x65
+            ]), encoding: .ascii
+        )
         let selector = NSSelectorFromString(key ?? "")
         return (window.perform(selector)?.takeUnretainedValue as? () -> String)?()
     }
 
     func viewDescription(_ view: UIView) -> String? {
-        let key = String(data: Data([0x72, 0x65, 0x63, 0x75, 0x72, 0x73, 0x69, 0x76, 0x65, 0x44, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e]), encoding: .ascii)
+        let key = String(
+            data: Data([
+                0x72, 0x65, 0x63, 0x75, 0x72, 0x73, 0x69, 0x76, 0x65, 0x44, 0x65, 0x73, 0x63, 0x72, 0x69,
+                0x70, 0x74, 0x69, 0x6f, 0x6e
+            ]), encoding: .ascii
+        )
         let selector = NSSelectorFromString(key ?? "")
         return (view.perform(selector)?.takeUnretainedValue as? () -> String)?()
     }
 
     func viewControllerHierarchy() -> String? {
         guard let rootViewController = UIWindow.keyWindow?.rootViewController else { return nil }
-        let key = String(data: Data([0x5f, 0x70, 0x72, 0x69, 0x6e, 0x74, 0x48, 0x69, 0x65, 0x72, 0x61, 0x72, 0x63, 0x68, 0x79]), encoding: .ascii)
+        let key = String(
+            data: Data([
+                0x5f, 0x70, 0x72, 0x69, 0x6e, 0x74, 0x48, 0x69, 0x65, 0x72, 0x61, 0x72, 0x63, 0x68, 0x79
+            ]), encoding: .ascii
+        )
         let selector = NSSelectorFromString(key ?? "")
         return (rootViewController.perform(selector)?.takeUnretainedValue as? () -> String)?()
     }
 
     // MARK: - Handling flags
 
-    fileprivate func setSpeed(for window: UIWindow) {
+    private func setSpeed(for window: UIWindow) {
         let speed: Float = slowAnimationsEnabled ? 0.1 : 1.0
         window.layer.speed = speed
     }
 
-    fileprivate func setShowingTouchesEnabled(for window: UIWindow) {
+    private func setShowingTouchesEnabled(for window: UIWindow) {
         window.setShowingTouchesEnabled(showingTouchesEnabled)
     }
 
     // MARK: - Grid overlay
 
     func setSelectedGridOverlayColorSchemeIndex(_ selectedGridOverlayColorSchemeIndex: Int) {
-        self.gridOverlay.colorScheme = self.gridOverlayColorSchemes[selectedGridOverlayColorSchemeIndex]
+        gridOverlay.colorScheme = gridOverlayColorSchemes[selectedGridOverlayColorSchemeIndex]
     }
 
     var selectedGridOverlayColorSchemeIndex: Int {
@@ -131,5 +144,6 @@ class UserInterfaceToolkit {
 }
 
 extension UserInterfaceToolkit {
-    static let notification = Notification.Name("UserInterfaceToolkitColorizedViewBordersChangedNotification")
+    static let notification = Notification.Name(
+        "UserInterfaceToolkitColorizedViewBordersChangedNotification")
 }

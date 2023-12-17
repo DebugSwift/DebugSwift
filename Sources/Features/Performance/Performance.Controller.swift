@@ -1,5 +1,5 @@
 //
-//  PerformanceViewController.swift
+//  Performance.Controller.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 14/12/23.
@@ -9,7 +9,6 @@
 import UIKit
 
 class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate {
-
     var selectedSection: PerformanceSection = .CPU
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)
 
@@ -55,7 +54,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
             MenuSwitchTableViewCell.self,
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
-        tableView.register(MenuSegmentedControlTableViewCell.self, forCellReuseIdentifier: segmentedControlCellIdentifier)
+        tableView.register(
+            MenuSegmentedControlTableViewCell.self, forCellReuseIdentifier: segmentedControlCellIdentifier
+        )
         tableView.register(MenuChartTableViewCell.self, forCellReuseIdentifier: chartCellIdentifier)
         tableView.backgroundColor = .black
         view.backgroundColor = .black
@@ -78,8 +79,11 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
     }
 
     func refreshSegmentedControlCell() {
-        let segmentedControlIndexPath = IndexPath(row: 0, section: PerformanceTableViewSection.segmentedControl.rawValue)
-        if let segmentedControlCell = tableView.cellForRow(at: segmentedControlIndexPath) as? MenuSegmentedControlTableViewCell {
+        let segmentedControlIndexPath = IndexPath(
+            row: 0, section: PerformanceTableViewSection.segmentedControl.rawValue
+        )
+        if let segmentedControlCell = tableView.cellForRow(at: segmentedControlIndexPath)
+            as? MenuSegmentedControlTableViewCell {
             segmentedControlCell.segmentedControl.selectedSegmentIndex = selectedSection.rawValue
         }
     }
@@ -119,7 +123,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
             cell.detailTextLabel?.text = String(format: "%.1lf%%", performanceToolkit.maxCPU)
             return cell
         case 2:
-            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier) as? MenuChartTableViewCell else { return nil }
+            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier)
+                as? MenuChartTableViewCell
+            else { return nil }
             configureChartCell(
                 chartCell,
                 value: performanceToolkit.maxCPU,
@@ -145,7 +151,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
             cell.detailTextLabel?.text = String(format: "%.1lf MB", performanceToolkit.maxMemory)
             return cell
         case 2:
-            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier) as? MenuChartTableViewCell else { return nil }
+            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier)
+                as? MenuChartTableViewCell
+            else { return nil }
             configureChartCell(
                 chartCell,
                 value: performanceToolkit.maxMemory,
@@ -154,7 +162,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
             )
             return chartCell
         case 3:
-            let cell = tableView.dequeueReusableCell(withIdentifier: buttonCellIdentifier) ?? UITableViewCell(style: .default, reuseIdentifier: buttonCellIdentifier)
+            let cell =
+                tableView.dequeueReusableCell(withIdentifier: buttonCellIdentifier)
+                    ?? UITableViewCell(style: .default, reuseIdentifier: buttonCellIdentifier)
             cell.textLabel?.text = "Simulate memory warning"
             return cell
         default:
@@ -173,7 +183,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
             cell.textLabel?.text = "Min FPS"
             cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.minFPS)
         case 2:
-            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier) as? MenuChartTableViewCell else { return nil }
+            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier)
+                as? MenuChartTableViewCell
+            else { return nil }
             configureChartCell(
                 chartCell,
                 value: performanceToolkit.minFPS,
@@ -204,7 +216,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
     }
 
     private func valueTableViewCell() -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: valueCellIdentifier) ?? UITableViewCell(style: .value1, reuseIdentifier: valueCellIdentifier)
+        let cell =
+            tableView.dequeueReusableCell(withIdentifier: valueCellIdentifier)
+                ?? UITableViewCell(style: .value1, reuseIdentifier: valueCellIdentifier)
         cell.selectionStyle = .none
         cell.backgroundColor = .black
         cell.textLabel?.textColor = .white
@@ -215,7 +229,7 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
     // MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.section == PerformanceTableViewSection.statistics.rawValue && indexPath.row == 2 {
+        if indexPath.section == PerformanceTableViewSection.statistics.rawValue, indexPath.row == 2 {
             // Chart cell.
             return tableView.bounds.size.width + chartCellRatioConstant
         }
@@ -224,7 +238,7 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
 
     // MARK: - UITableViewDataSource
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch PerformanceTableViewSection(rawValue: section)! {
         case .toggle, .segmentedControl:
             return 1
@@ -233,11 +247,12 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
         }
     }
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
+    override func numberOfSections(in _: UITableView) -> Int {
+        3
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override func tableView(_: UITableView, cellForRowAt indexPath: IndexPath)
+        -> UITableViewCell {
         switch indexPath.section {
         case PerformanceTableViewSection.toggle.rawValue:
             return toggleCell()
@@ -251,9 +266,10 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
     }
 
     private func toggleCell() -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: MenuSwitchTableViewCell.identifier
-        ) as? MenuSwitchTableViewCell ?? .init()
+        let cell =
+            tableView.dequeueReusableCell(
+                withIdentifier: MenuSwitchTableViewCell.identifier
+            ) as? MenuSwitchTableViewCell ?? .init()
         cell.titleLabel.text = "Show widget"
         cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
         cell.delegate = self
@@ -261,7 +277,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
     }
 
     private func segmentedControlCell() -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: segmentedControlCellIdentifier) as? MenuSegmentedControlTableViewCell ?? MenuSegmentedControlTableViewCell()
+        let cell =
+            tableView.dequeueReusableCell(withIdentifier: segmentedControlCellIdentifier)
+                as? MenuSegmentedControlTableViewCell ?? MenuSegmentedControlTableViewCell()
         let segmentTitles = ["CPU", "Memory", "FPS"]
         cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)
         cell.delegate = self
@@ -272,7 +290,9 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
 // MARK: - MenuSwitchTableViewCellDelegate
 
 extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
-    func menuSwitchTableViewCell(_ menuSwitchTableViewCell: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
+    func menuSwitchTableViewCell(
+        _: MenuSwitchTableViewCell, didSetOn isOn: Bool
+    ) {
         performanceToolkit.isWidgetShown = isOn
     }
 }
@@ -280,7 +300,10 @@ extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
 // MARK: - MenuSegmentedControlTableViewCellDelegate
 
 extension PerformanceViewController: MenuSegmentedControlTableViewCellDelegate {
-    func menuSegmentedControlTableViewCell(_ menuSegmentedControlTableViewCell: MenuSegmentedControlTableViewCell, didSelectSegmentAtIndex index: Int) {
+    func menuSegmentedControlTableViewCell(
+        _: MenuSegmentedControlTableViewCell,
+        didSelectSegmentAtIndex index: Int
+    ) {
         setSelectedSection(PerformanceSection(rawValue: index)!)
     }
 }
@@ -288,13 +311,13 @@ extension PerformanceViewController: MenuSegmentedControlTableViewCellDelegate {
 // MARK: - PerformanceToolkitDelegate
 
 extension PerformanceViewController {
-    func performanceToolkitDidUpdateStats(_ performanceToolkit: PerformanceToolkit) {
+    func performanceToolkitDidUpdateStats(_: PerformanceToolkit) {
         reloadStatisticsSection(animated: false)
     }
 }
 
 extension PerformanceViewController: PerformanceWidgetViewDelegate {
-    func performanceWidgetView(_ performanceWidgetView: PerformanceWidgetView, didTapOnSection section: PerformanceSection) {
-
-    }
+    func performanceWidgetView(
+        _: PerformanceWidgetView, didTapOnSection _: PerformanceSection
+    ) {}
 }

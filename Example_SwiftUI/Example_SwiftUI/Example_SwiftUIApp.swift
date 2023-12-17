@@ -5,8 +5,8 @@
 //  Created by Matheus Gois on 16/12/23.
 //
 
-import SwiftUI
 import DebugSwift
+import SwiftUI
 
 @main
 struct Example_SwiftUIApp: App {
@@ -21,8 +21,8 @@ struct Example_SwiftUIApp: App {
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+        _: UIApplication,
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         DebugSwiftSettings.setup()
         DebugSwiftSettings.show()

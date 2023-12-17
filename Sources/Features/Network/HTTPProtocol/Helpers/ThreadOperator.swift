@@ -15,12 +15,12 @@ final class ThreadOperator: NSObject {
     private var operation: (() -> Void)?
 
     override init() {
-        thread = Thread.current
+        self.thread = Thread.current
 
         if let mode = RunLoop.current.currentMode {
-            modes = [mode, .default].map { $0 }
+            self.modes = [mode, .default].map { $0 }
         } else {
-            modes = [.default]
+            self.modes = [.default]
         }
 
         super.init()
@@ -28,7 +28,10 @@ final class ThreadOperator: NSObject {
 
     func execute(_ operation: @escaping () -> Void) {
         self.operation = operation
-        perform(#selector(operate), on: thread, with: nil, waitUntilDone: true, modes: modes.map { $0.rawValue })
+        perform(
+            #selector(operate), on: thread, with: nil, waitUntilDone: true,
+            modes: modes.map(\.rawValue)
+        )
         self.operation = nil
     }
 

@@ -13,7 +13,6 @@ class GridOverlayColorScheme: Equatable {
         lhs.primaryColor == rhs.primaryColor && rhs.secondaryColor == lhs.secondaryColor
     }
 
-
     // MARK: - Properties
 
     private(set) var primaryColor: UIColor
@@ -30,7 +29,6 @@ class GridOverlayColorScheme: Equatable {
         withPrimaryColor primaryColor: UIColor,
         secondaryColor: UIColor
     ) -> GridOverlayColorScheme {
-        return GridOverlayColorScheme(primaryColor: primaryColor, secondaryColor: secondaryColor)
+        GridOverlayColorScheme(primaryColor: primaryColor, secondaryColor: secondaryColor)
     }
 }
-

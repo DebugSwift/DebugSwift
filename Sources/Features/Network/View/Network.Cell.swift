@@ -1,5 +1,5 @@
 //
-//  Resources.Cell.swift
+//  Network.Cell.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 14/12/23.
@@ -139,7 +139,9 @@ class NetworkTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             descriptionLabel.topAnchor.constraint(equalTo: methodLabel.bottomAnchor, constant: 4),
             descriptionLabel.leadingAnchor.constraint(equalTo: numberLabel.trailingAnchor, constant: 4),
-            descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -60),
+            descriptionLabel.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor, constant: -60
+            ),
             descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
 

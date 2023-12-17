@@ -13,7 +13,6 @@ protocol MenuSwitchTableViewCellDelegate: AnyObject {
 }
 
 class MenuSwitchTableViewCell: UITableViewCell {
-
     weak var delegate: MenuSwitchTableViewCellDelegate?
 
     lazy var titleLabel: UILabel = {
@@ -56,7 +55,9 @@ class MenuSwitchTableViewCell: UITableViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
 
-            valueSwitch.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            valueSwitch.trailingAnchor.constraint(
+                equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16
+            ),
             valueSwitch.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }

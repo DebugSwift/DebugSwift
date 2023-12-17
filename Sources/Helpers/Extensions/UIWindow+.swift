@@ -10,12 +10,11 @@ import Foundation
 import UIKit
 
 extension UIWindow {
-
     // MARK: - Constants
 
     private enum Constants {
-        static let touchIndicatorsKey: String = "DebugToolkit_touchIndicators"
-        static let reusableTouchIndicatorsKey: String = "DebugToolkit_reusableTouchIndicators"
+        static let touchIndicatorsKey = "DebugToolkit_touchIndicators"
+        static let reusableTouchIndicatorsKey = "DebugToolkit_reusableTouchIndicators"
         static let touchIndicatorViewMinAlpha: CGFloat = 0.6
         static var associatedTouchIndicators: UInt8 = 0
         static var associatedReusableTouchIndicators: UInt8 = 1
@@ -25,16 +24,24 @@ extension UIWindow {
 
     private var touchIndicators: NSMapTable<UITouch, TouchIndicatorView> {
         get {
-            if let touchIndicators = objc_getAssociatedObject(self, &Constants.associatedTouchIndicators) as? NSMapTable<UITouch, TouchIndicatorView> {
+            if let touchIndicators = objc_getAssociatedObject(self, &Constants.associatedTouchIndicators)
+                as? NSMapTable<UITouch, TouchIndicatorView> {
                 return touchIndicators
             } else {
-                let touchIndicators = NSMapTable<UITouch, TouchIndicatorView>(keyOptions: .weakMemory, valueOptions: .weakMemory)
-                objc_setAssociatedObject(self, &Constants.associatedTouchIndicators, touchIndicators, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                let touchIndicators = NSMapTable<UITouch, TouchIndicatorView>(
+                    keyOptions: .weakMemory, valueOptions: .weakMemory
+                )
+                objc_setAssociatedObject(
+                    self, &Constants.associatedTouchIndicators, touchIndicators,
+                    .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                )
                 return touchIndicators
             }
         }
         set {
-            objc_setAssociatedObject(self, &Constants.associatedTouchIndicators, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(
+                self, &Constants.associatedTouchIndicators, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         }
     }
 
@@ -42,16 +49,24 @@ extension UIWindow {
 
     private var reusableTouchIndicators: NSMutableSet {
         get {
-            if let reusableTouchIndicators = objc_getAssociatedObject(self, &Constants.associatedReusableTouchIndicators) as? NSMutableSet {
+            if let reusableTouchIndicators = objc_getAssociatedObject(
+                self, &Constants.associatedReusableTouchIndicators
+            ) as? NSMutableSet {
                 return reusableTouchIndicators
             } else {
                 let reusableTouchIndicators = NSMutableSet()
-                objc_setAssociatedObject(self, &Constants.associatedReusableTouchIndicators, reusableTouchIndicators, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                objc_setAssociatedObject(
+                    self, &Constants.associatedReusableTouchIndicators, reusableTouchIndicators,
+                    .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                )
                 return reusableTouchIndicators
             }
         }
         set {
-            objc_setAssociatedObject(self, &Constants.associatedReusableTouchIndicators, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(
+                self, &Constants.associatedReusableTouchIndicators, newValue,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
         }
     }
 
@@ -61,9 +76,8 @@ extension UIWindow {
         DispatchQueue.once(token: "com.yourdomain.YourApp.UIWindow.db_swizzleMethods") {
             let originalSelector = #selector(UIWindow.sendEvent(_:))
             let swizzledSelector = #selector(UIWindow.db_sendEvent(_:))
-            guard
-                let originalMethod = class_getInstanceMethod(self, originalSelector),
-                let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)
+            guard let originalMethod = class_getInstanceMethod(self, originalSelector),
+                  let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)
             else {
                 return
             }
@@ -142,7 +156,9 @@ extension UIWindow {
             var indicatorViewAlpha: CGFloat = 1.0
             if #available(iOS 9.0, *) {
                 if self.traitCollection.forceTouchCapability == UIForceTouchCapability.available {
-                    indicatorViewAlpha = Constants.touchIndicatorViewMinAlpha + (1.0 - Constants.touchIndicatorViewMinAlpha) * touch.force / touch.maximumPossibleForce
+                    indicatorViewAlpha =
+                        Constants.touchIndicatorViewMinAlpha + (1.0 - Constants.touchIndicatorViewMinAlpha)
+                            * touch.force / touch.maximumPossibleForce
                 }
             }
             indicatorView.alpha = indicatorViewAlpha
@@ -152,11 +168,11 @@ extension UIWindow {
     // MARK: - UIDebuggingInformationOverlay
 
     @objc func db_debuggingInformationOverlayInit() -> UIWindow {
-        return type(of: self).init()
+        type(of: self).init()
     }
 
     @objc var state: UIGestureRecognizer.State {
-        return .ended
+        .ended
     }
 
     // MARK: - Swizzled Method
@@ -165,7 +181,7 @@ extension UIWindow {
         if event.type == .touches {
             db_handleTouches(event.allTouches!)
         }
-        self.db_sendEvent(event)
+        db_sendEvent(event)
     }
 
     static var keyWindow: UIWindow? {

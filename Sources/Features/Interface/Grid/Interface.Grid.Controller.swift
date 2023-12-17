@@ -1,5 +1,5 @@
 //
-//  GridOverlaySettingsTableViewController.swift
+//  Interface.Grid.Controller.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 16/12/23.
@@ -19,8 +19,8 @@ enum GridOverlaySettingsRow: Int {
     case color
 }
 
-class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDelegate, SliderTableViewCellDelegate, ColorPickerTableViewCellDelegate {
-
+class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDelegate,
+    SliderTableViewCellDelegate, ColorPickerTableViewCellDelegate {
     private let switchCellIdentifier = "MenuSwitchTableViewCell"
     private let sliderCellIdentifier = "SliderTableViewCell"
     private let colorPickerCellIdentifier = "ColorPickerTableViewCell"
@@ -43,7 +43,9 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
 
         tableView.register(MenuSwitchTableViewCell.self, forCellReuseIdentifier: switchCellIdentifier)
         tableView.register(SliderTableViewCell.self, forCellReuseIdentifier: sliderCellIdentifier)
-        tableView.register(ColorPickerTableViewCell.self, forCellReuseIdentifier: colorPickerCellIdentifier)
+        tableView.register(
+            ColorPickerTableViewCell.self, forCellReuseIdentifier: colorPickerCellIdentifier
+        )
 
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
@@ -54,7 +56,9 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
         setupGridColors()
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(
+        to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator
+    ) {
         super.viewWillTransition(to: size, with: coordinator)
         tableView.reloadData()
     }
@@ -74,11 +78,11 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
 
     // MARK: - UITableViewDataSource
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+    override func numberOfSections(in _: UITableView) -> Int {
+        2
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let tableViewSection = GridOverlaySettingsSection(rawValue: section) else {
             return 0
         }
@@ -90,13 +94,16 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
         }
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
+        -> UITableViewCell {
         guard let tableViewSection = GridOverlaySettingsSection(rawValue: indexPath.section) else {
             return UITableViewCell()
         }
         switch tableViewSection {
         case .toggle:
-            let switchCell = tableView.dequeueReusableCell(withIdentifier: switchCellIdentifier, for: indexPath) as! MenuSwitchTableViewCell
+            let switchCell =
+                tableView.dequeueReusableCell(withIdentifier: switchCellIdentifier, for: indexPath)
+                    as! MenuSwitchTableViewCell
             switchCell.titleLabel.text = "Show grid overlay"
             switchCell.valueSwitch.isOn = userInterfaceToolkit.isGridOverlayShown
             switchCell.delegate = self
@@ -112,7 +119,9 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
         }
         switch settingsRow {
         case .size:
-            let sliderCell = tableView.dequeueReusableCell(withIdentifier: sliderCellIdentifier, for: indexPath) as! SliderTableViewCell
+            let sliderCell =
+                tableView.dequeueReusableCell(withIdentifier: sliderCellIdentifier, for: indexPath)
+                    as! SliderTableViewCell
             sliderCell.titleLabel.text = "Size"
             sliderCell.delegate = self
             sliderCell.setMinValue(minGridSize)
@@ -120,7 +129,9 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
             sliderCell.setValue(CGFloat(userInterfaceToolkit.gridOverlay.gridSize))
             return sliderCell
         case .opacity:
-            let sliderCell = tableView.dequeueReusableCell(withIdentifier: sliderCellIdentifier, for: indexPath) as! SliderTableViewCell
+            let sliderCell =
+                tableView.dequeueReusableCell(withIdentifier: sliderCellIdentifier, for: indexPath)
+                    as! SliderTableViewCell
             sliderCell.titleLabel.text = "Opacity"
             sliderCell.delegate = self
             sliderCell.setMinValue(minOpacity)
@@ -128,9 +139,11 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
             sliderCell.setValue(userInterfaceToolkit.gridOverlay.opacity)
             return sliderCell
         case .color:
-            let colorPickerCell = tableView.dequeueReusableCell(
-                withIdentifier: colorPickerCellIdentifier,
-                for: indexPath) as! ColorPickerTableViewCell
+            let colorPickerCell =
+                tableView.dequeueReusableCell(
+                    withIdentifier: colorPickerCellIdentifier,
+                    for: indexPath
+                ) as! ColorPickerTableViewCell
 
             colorPickerCell.titleLabel.text = "Color"
             colorPickerCell.delegate = self
@@ -143,7 +156,7 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
         }
     }
 
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    override func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         guard let settingsRow = GridOverlaySettingsRow(rawValue: indexPath.row) else {
             return .zero
         }
@@ -155,7 +168,7 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
         }
     }
 
-    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    override func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let tableViewSection = GridOverlaySettingsSection(rawValue: section) else {
             return nil
         }
@@ -174,7 +187,7 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
 
     // MARK: - MenuSwitchTableViewCellDelegate
 
-    func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
+    func menuSwitchTableViewCell(_: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
         userInterfaceToolkit.isGridOverlayShown = isOn
         let sectionsToReload = IndexSet(integer: GridOverlaySettingsSection.settings.rawValue)
         tableView.reloadSections(sectionsToReload, with: .fade)
@@ -184,7 +197,8 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
 
     func sliderCell(_ sliderCell: SliderTableViewCell, didSelectValue value: CGFloat) {
         guard let indexPath = tableView.indexPath(for: sliderCell),
-              let settingsRow = GridOverlaySettingsRow(rawValue: indexPath.row) else {
+              let settingsRow = GridOverlaySettingsRow(rawValue: indexPath.row)
+        else {
             return
         }
         switch settingsRow {
@@ -199,7 +213,8 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
 
     func sliderCellDidStartEditingValue(_ sliderCell: SliderTableViewCell) {
         guard let indexPath = tableView.indexPath(for: sliderCell),
-              let settingsRow = GridOverlaySettingsRow(rawValue: indexPath.row) else {
+              let settingsRow = GridOverlaySettingsRow(rawValue: indexPath.row)
+        else {
             return
         }
         if settingsRow == .size {
@@ -209,7 +224,8 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
 
     func sliderCellDidEndEditingValue(_ sliderCell: SliderTableViewCell) {
         guard let indexPath = tableView.indexPath(for: sliderCell),
-              let settingsRow = GridOverlaySettingsRow(rawValue: indexPath.row) else {
+              let settingsRow = GridOverlaySettingsRow(rawValue: indexPath.row)
+        else {
             return
         }
         if settingsRow == .size {
@@ -224,14 +240,19 @@ class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDeleg
             targetAlpha *= semiTransparencyRatio
         }
         targetAlpha = max(min(0.2, opacity), targetAlpha)
-        UIView.animate(withDuration: 0.35, delay: 0.0, options: .beginFromCurrentState, animations: {
-            self.userInterfaceToolkit.gridOverlay.alpha = targetAlpha
-        }, completion: nil)
+        UIView.animate(
+            withDuration: 0.35, delay: 0.0, options: .beginFromCurrentState,
+            animations: {
+                self.userInterfaceToolkit.gridOverlay.alpha = targetAlpha
+            }, completion: nil
+        )
     }
 
     // MARK: - ColorPickerTableViewCellDelegate
 
-    func colorPickerCell(_ colorPickerCell: ColorPickerTableViewCell, didSelectColorAtIndex index: Int) {
+    func colorPickerCell(
+        _: ColorPickerTableViewCell, didSelectColorAtIndex index: Int
+    ) {
         userInterfaceToolkit.setSelectedGridOverlayColorSchemeIndex(index)
     }
 }

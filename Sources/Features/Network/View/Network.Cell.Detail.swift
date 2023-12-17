@@ -9,7 +9,6 @@
 import UIKit
 
 class NetworkTableViewCellDetail: UITableViewCell {
-
     let details: UITextView = {
         let textView = UITextView()
         textView.font = UIFont.systemFont(ofSize: 12, weight: .medium)

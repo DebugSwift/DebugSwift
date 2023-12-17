@@ -10,7 +10,6 @@ import Foundation
 import Security
 
 class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
-
     enum Constants {
         static let simulatedLocationLatitude = "DBDebugToolkit_simulatedLocationLatitude"
         static let simulatedLocationLongitude = "DBDebugToolkit_simulatedLocationLongitude"
@@ -41,11 +40,11 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
     // MARK: - DBTitleValueListViewModel
 
     func viewTitle() -> String {
-        return "Keychain"
+        "Keychain"
     }
 
     func numberOfItems() -> Int {
-        return keys.count
+        keys.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
@@ -68,7 +67,7 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func emptyListDescriptionString() -> String {
-        return "There are no entries in the Keychain."
+        "There are no entries in the Keychain."
     }
 
     // MARK: - Search Functionality
@@ -76,7 +75,7 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
     private var filteredKeys = [String]()
 
     func numberOfFilteredItems() -> Int {
-        return filteredKeys.count
+        filteredKeys.count
     }
 
     func filteredDataSourceForItem(atIndex index: Int) -> (title: String, value: String) {

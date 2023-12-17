@@ -7,8 +7,7 @@
 
 import UIKit
 
-public struct DebugSwiftSettings {
-
+public enum DebugSwiftSettings {
     public static func setup() {
         UIView.swizzleMethods()
         UIWindow.db_swizzleMethods()

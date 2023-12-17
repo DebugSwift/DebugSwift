@@ -15,7 +15,6 @@ enum PerformanceSection: Int {
 }
 
 class PerformanceWidgetView: TopLevelViewWrapper {
-
     private let widgetMinimalOffset: CGFloat = 10
     private var tapGestureRecognizer: UITapGestureRecognizer!
     private var panGestureRecognizer: UIPanGestureRecognizer!
@@ -103,7 +102,8 @@ class PerformanceWidgetView: TopLevelViewWrapper {
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8)
         ])
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.alpha = 0.5
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.alpha = 0.5
         }
     }
 
@@ -113,5 +113,7 @@ class PerformanceWidgetView: TopLevelViewWrapper {
 }
 
 protocol PerformanceWidgetViewDelegate: AnyObject {
-    func performanceWidgetView(_ performanceWidgetView: PerformanceWidgetView, didTapOnSection section: PerformanceSection)
+    func performanceWidgetView(
+        _ performanceWidgetView: PerformanceWidgetView, didTapOnSection section: PerformanceSection
+    )
 }

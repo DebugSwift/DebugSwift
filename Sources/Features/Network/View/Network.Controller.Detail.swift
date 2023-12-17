@@ -7,11 +7,9 @@
 //
 
 import Foundation
-
 import UIKit
 
 final class NetworkViewControllerDetail: BaseController {
-
     private var model: HttpModel
     private var infos: [Config]
     private var filteredInfos: [Config] = []
@@ -63,7 +61,6 @@ final class NetworkViewControllerDetail: BaseController {
             )
             navigationItem.rightBarButtonItem = copyButton
         }
-
     }
 
     func setup() {
@@ -115,20 +112,20 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
 
     // MARK: - UITableViewDataSource
 
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in _: UITableView) -> Int {
         _infos.count + 1
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        1
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         section == .zero ? .zero : UITableView.automaticDimension
     }
 
     func tableView(
-        _ tableView: UITableView, viewForHeaderInSection section: Int
+        _: UITableView, viewForHeaderInSection section: Int
     ) -> UIView? {
         if section == .zero {
             return nil
@@ -145,18 +142,20 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == .zero {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: "NetworkCell",
-                for: indexPath
-            ) as! NetworkTableViewCell
+            let cell =
+                tableView.dequeueReusableCell(
+                    withIdentifier: "NetworkCell",
+                    for: indexPath
+                ) as! NetworkTableViewCell
             cell.setup(model)
 
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: "NetworkCellDetail",
-                for: indexPath
-            ) as! NetworkTableViewCellDetail
+            let cell =
+                tableView.dequeueReusableCell(
+                    withIdentifier: "NetworkCellDetail",
+                    for: indexPath
+                ) as! NetworkTableViewCellDetail
             cell.setup(_infos[indexPath.section - 1].description, searchController.searchBar.text)
 
             return cell
@@ -168,9 +167,10 @@ extension NetworkViewControllerDetail: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let searchText = searchController.searchBar.text else { return }
 
-        filteredInfos = searchText.isEmpty
-        ? infos
-        : infos.filter { $0.description.localizedCaseInsensitiveContains(searchText) }
+        filteredInfos =
+            searchText.isEmpty
+                ? infos
+                : infos.filter { $0.description.localizedCaseInsensitiveContains(searchText) }
 
         tableView.reloadData()
     }

@@ -1,5 +1,5 @@
 //
-//  CustomHTTPProtocol.swift
+//  HTTPProtocol.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 15/12/23.
@@ -27,7 +27,7 @@ final class CustomHTTPProtocol: URLProtocol {
     override class func canInit(with request: URLRequest) -> Bool {
         if let _ = property(forKey: requestProperty, in: request) { return false }
 
-        if let scheme = request.url?.scheme?.lowercased(), (scheme == "http" || scheme == "https") {
+        if let scheme = request.url?.scheme?.lowercased(), scheme == "http" || scheme == "https" {
             return true
         }
 
@@ -35,17 +35,17 @@ final class CustomHTTPProtocol: URLProtocol {
     }
 
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        return RequestHelper.canonicalRequest(for: request)
+        RequestHelper.canonicalRequest(for: request)
     }
 
-    private var delegate: CustomHTTPProtocolDelegate? { return CustomHTTPProtocol.classDelegate }
+    private var delegate: CustomHTTPProtocolDelegate? { CustomHTTPProtocol.classDelegate }
 
     private var session: URLSession?
     private var dataTask: URLSessionDataTask?
     private var cachePolicy: URLCache.StoragePolicy = .notAllowed
-    private var data: Data = Data()
-    private var didRetry: Bool = false
-    private var didReceiveData: Bool = false
+    private var data: Data = .init()
+    private var didRetry = false
+    private var didReceiveData = false
     private var startTime = Date()
     private var response: HTTPURLResponse?
     private var error: Error?
@@ -94,12 +94,11 @@ final class CustomHTTPProtocol: URLProtocol {
     }
 
     override func stopLoading() {
-
         dataTask?.cancel()
 
-        if let task = self.dataTask {
+        if let task = dataTask {
             task.cancel()
-            self.dataTask = nil
+            dataTask = nil
         }
 
         guard NetworkHelper.shared.isNetworkEnable else {
@@ -145,7 +144,7 @@ final class CustomHTTPProtocol: URLProtocol {
             model.responseHeaderFields = response.allHeaderFields.convertKeysToString()
         }
 
-        if self.response?.mimeType == nil {
+        if response?.mimeType == nil {
             model.isImage = false
         }
 
@@ -178,7 +177,11 @@ final class CustomHTTPProtocol: URLProtocol {
 }
 
 extension CustomHTTPProtocol: URLSessionDataDelegate {
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+    func urlSession(
+        _: URLSession, task _: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest,
+        completionHandler: @escaping (URLRequest?) -> Void
+    ) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             Debug.print("willPerformHTTPRedirection", level: .full)
@@ -188,7 +191,10 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         }
     }
 
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+    func urlSession(
+        _: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+    ) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             Debug.print("didReceive response", level: .full)
@@ -204,7 +210,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         }
     }
 
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             Debug.print("didReceive data", level: .full)
@@ -222,7 +228,8 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     private func canRetry(error: NSError) -> Bool {
         guard error.code == Int(CFNetworkErrors.cfurlErrorNetworkConnectionLost.rawValue),
               !didRetry,
-              !didReceiveData else {
+              !didReceiveData
+        else {
             return false
         }
 

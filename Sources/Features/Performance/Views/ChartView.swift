@@ -25,7 +25,7 @@ class ChartView: UIView {
         }
     }
 
-    var filled: Bool = true {
+    var filled = true {
         didSet {
             setNeedsDisplay()
         }
@@ -37,13 +37,13 @@ class ChartView: UIView {
         }
     }
 
-    var markedValueFormat: String = "%.1lf" {
+    var markedValueFormat = "%.1lf" {
         didSet {
             setNeedsDisplay()
         }
     }
 
-    var measurementsLimit: Int = 1 {
+    var measurementsLimit = 1 {
         didSet {
             setNeedsDisplay()
         }
@@ -84,7 +84,10 @@ class ChartView: UIView {
         // Set up coordinate system
         let xAxisHeight: CGFloat = 30.0
         let yAxisWidth: CGFloat = 30.0
-        let graphRect = CGRect(x: yAxisWidth, y: topPadding, width: rect.width - yAxisWidth, height: graphHeight - xAxisHeight)
+        let graphRect = CGRect(
+            x: yAxisWidth, y: topPadding, width: rect.width - yAxisWidth,
+            height: graphHeight - xAxisHeight
+        )
 
         // Draw the x-axis
         drawXAxis(in: context, graphRect: graphRect)
@@ -113,7 +116,7 @@ class ChartView: UIView {
         context.strokePath()
     }
 
-    private func drawGraphLine(in context: CGContext, graphRect: CGRect) {
+    private func drawGraphLine(in _: CGContext, graphRect: CGRect) {
         let path = UIBezierPath()
         path.lineWidth = 2.0
         path.lineJoinStyle = .round
@@ -162,7 +165,10 @@ class ChartView: UIView {
             let x = graphRect.minX + CGFloat(index) * (graphRect.width / CGFloat(measurements.count - 1))
             let y = graphRect.maxY - markedValue * (graphRect.height / maxValue)
 
-            let markPath = UIBezierPath(arcCenter: CGPoint(x: x, y: y), radius: 5.0, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: true)
+            let markPath = UIBezierPath(
+                arcCenter: CGPoint(x: x, y: y), radius: 5.0, startAngle: 0, endAngle: CGFloat.pi * 2,
+                clockwise: true
+            )
             markPath.fill()
 
             // Draw Y-axis line only up to the top of the graph
@@ -178,7 +184,9 @@ class ChartView: UIView {
                 .font: UIFont.systemFont(ofSize: 12)
             ]
             let textSize = formattedText.size(withAttributes: attributes)
-            let textRect = CGRect(x: x - textSize.width / 2, y: y - 20, width: textSize.width, height: textSize.height)
+            let textRect = CGRect(
+                x: x - textSize.width / 2, y: y - 20, width: textSize.width, height: textSize.height
+            )
             formattedText.draw(in: textRect, withAttributes: attributes)
         }
     }

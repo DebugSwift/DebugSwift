@@ -16,10 +16,11 @@ import Foundation
 ///   - urlData: The URL as a mutable buffer; the routine modifies this.
 ///   - bytesInserted: The number of bytes that have been inserted so far in the mutable buffer.
 /// - Returns: An updated value of bytesInserted or kCFNotFound if the URL must be reparsed.
-typealias CanonicalRequestStepFunction = (_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex) -> CFIndex
+typealias CanonicalRequestStepFunction = (
+    _ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex
+) -> CFIndex
 
-
-struct RequestHelper {
+enum RequestHelper {
     // MARK: - API
 
     /// Canonicalize the request.
@@ -32,7 +33,8 @@ struct RequestHelper {
 
         // First up check that we're dealing with HTTP or HTTPS. If not, do nothing (why were we
         // we even called?).
-        guard let scheme = request.url?.scheme?.lowercased(), scheme == "http" || scheme == "https" else {
+        guard let scheme = request.url?.scheme?.lowercased(), scheme == "http" || scheme == "https"
+        else {
             fatalError("Unsupported URL scheme.")
         }
 
@@ -56,7 +58,10 @@ struct RequestHelper {
         for (stepIndex, stepFunction) in stepFunctions.enumerated() {
             // If we don't have valid URL data, create it from the URL.
             if bytesInserted == kCFNotFound {
-                guard let urlDataImmutable = CFURLCreateData(nil, requestURL as CFURL?, CFStringBuiltInEncodings.UTF8.rawValue, true) else {
+                guard let urlDataImmutable = CFURLCreateData(
+                    nil, requestURL as CFURL?, CFStringBuiltInEncodings.UTF8.rawValue, true
+                )
+                else {
                     fatalError("Failed to create URL data.")
                 }
 
@@ -70,7 +75,11 @@ struct RequestHelper {
             // If the step invalidated our URL (or we're on the last step, whereupon we'll need
             // the URL outside of the loop), recreate the URL from the URL data.
             if bytesInserted == kCFNotFound || (stepIndex + 1) == stepCount {
-                guard let newRequestURL = CFURLCreateWithBytes(nil, urlData!.bytes, CFIndex(urlData!.length), CFStringBuiltInEncodings.UTF8.rawValue, nil) else {
+                guard let newRequestURL = CFURLCreateWithBytes(
+                    nil, urlData!.bytes, CFIndex(urlData!.length), CFStringBuiltInEncodings.UTF8.rawValue,
+                    nil
+                )
+                else {
                     fatalError("Failed to create URL from bytes.")
                 }
 
@@ -90,7 +99,9 @@ struct RequestHelper {
     ///   - urlData: The URL as a mutable buffer; the routine modifies this.
     ///   - bytesInserted: The number of bytes that have been inserted so far in the mutable buffer.
     /// - Returns: An updated value of bytesInserted or kCFNotFound if the URL must be reparsed.
-    private static func fixPostSchemeSeparator(_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex) -> CFIndex {
+    private static func fixPostSchemeSeparator(
+        _ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex
+    ) -> CFIndex {
         var urlDataBytes: UnsafeMutablePointer<UInt8>?
         var urlDataLength: Int
         var cursor: Int
@@ -107,13 +118,13 @@ struct RequestHelper {
 
         separatorLength = 0
         cursor = Int(range.location) + Int(bytesInserted) + Int(range.length)
-        if cursor < urlDataLength && urlDataBytes![cursor] == 58 { // ASCII code for ':'
+        if cursor < urlDataLength, urlDataBytes![cursor] == 58 { // ASCII code for ':'
             cursor += 1
             separatorLength += 1
-            if cursor < urlDataLength && urlDataBytes![cursor] == 47 { // ASCII code for '/'
+            if cursor < urlDataLength, urlDataBytes![cursor] == 47 { // ASCII code for '/'
                 cursor += 1
                 separatorLength += 1
-                if cursor < urlDataLength && urlDataBytes![cursor] == 47 { // ASCII code for '/'
+                if cursor < urlDataLength, urlDataBytes![cursor] == 47 { // ASCII code for '/'
                     cursor += 1
                     separatorLength += 1
                 }
@@ -122,7 +133,12 @@ struct RequestHelper {
 
         expectedSeparatorLength = 3 // Length of "://"
         if separatorLength != expectedSeparatorLength {
-            urlData.replaceBytes(in: NSRange(location: Int(range.location) + Int(bytesInserted) + Int(range.length), length: separatorLength), withBytes: ":/", length: expectedSeparatorLength)
+            urlData.replaceBytes(
+                in: NSRange(
+                    location: Int(range.location) + Int(bytesInserted) + Int(range.length),
+                    length: separatorLength
+                ), withBytes: ":/", length: expectedSeparatorLength
+            )
             return kCFNotFound // have to build everything now
         }
 
@@ -135,14 +151,17 @@ struct RequestHelper {
     ///   - urlData: The URL as a mutable buffer; the routine modifies this.
     ///   - bytesInserted: The number of bytes that have been inserted so far in the mutable buffer.
     /// - Returns: An updated value of bytesInserted or kCFNotFound if the URL must be reparsed.
-    private static func lowercaseScheme(_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex) -> CFIndex {
+    private static func lowercaseScheme(
+        _ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex
+    ) -> CFIndex {
         let range = CFURLGetByteRangeForComponent(url as CFURL, .scheme, nil)
         guard range.location != kCFNotFound else {
             return bytesInserted
         }
 
         let urlDataBytes = urlData.mutableBytes.assumingMemoryBound(to: UInt8.self)
-        for i in Int(range.location) + Int(bytesInserted) ..< Int(range.location) + Int(bytesInserted) + Int(range.length) {
+        for i in Int(range.location) + Int(bytesInserted)..<Int(range.location) + Int(bytesInserted)
+            + Int(range.length) {
             urlDataBytes[i] = UInt8(tolower_l(Int32(urlDataBytes[i]), nil))
         }
 
@@ -155,14 +174,16 @@ struct RequestHelper {
     ///   - urlData: The URL as a mutable buffer; the routine modifies this.
     ///   - bytesInserted: The number of bytes that have been inserted so far in the mutable buffer.
     /// - Returns: An updated value of bytesInserted or kCFNotFound if the URL must be reparsed.
-    private static func lowercaseHost(_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex) -> CFIndex {
+    private static func lowercaseHost(_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex)
+        -> CFIndex {
         let range = CFURLGetByteRangeForComponent(url as CFURL, .host, nil)
         guard range.location != kCFNotFound else {
             return bytesInserted
         }
 
         let urlDataBytes = urlData.mutableBytes.assumingMemoryBound(to: UInt8.self)
-        for i in Int(range.location) + Int(bytesInserted) ..< Int(range.location) + Int(bytesInserted) + Int(range.length) {
+        for i in Int(range.location) + Int(bytesInserted)..<Int(range.location) + Int(bytesInserted)
+            + Int(range.length) {
             urlDataBytes[i] = UInt8(tolower_l(Int32(urlDataBytes[i]), nil))
         }
 
@@ -175,7 +196,8 @@ struct RequestHelper {
     ///   - urlData: The URL as a mutable buffer; the routine modifies this.
     ///   - bytesInserted: The number of bytes that have been inserted so far in the mutable buffer.
     /// - Returns: An updated value of bytesInserted or kCFNotFound if the URL must be reparsed.
-    private static func fixEmptyHost(_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex) -> CFIndex {
+    private static func fixEmptyHost(_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex)
+        -> CFIndex {
         let range = CFURLGetByteRangeForComponent(url as CFURL, .host, nil)
         guard range.length == 0 else {
             return bytesInserted
@@ -185,7 +207,10 @@ struct RequestHelper {
         let rangeWithSeparator = CFRange()
 
         if range.location != kCFNotFound {
-            urlData.replaceBytes(in: NSRange(location: Int(range.location) + Int(bytesInserted), length: 0), withBytes: "localhost", length: localhostLength)
+            urlData.replaceBytes(
+                in: NSRange(location: Int(range.location) + Int(bytesInserted), length: 0),
+                withBytes: "localhost", length: localhostLength
+            )
             return bytesInserted + localhostLength
         } else if range.length == 0 {
             let localhostLength = strlen("localhost")
@@ -206,13 +231,14 @@ struct RequestHelper {
     ///   - urlData: The URL as a mutable buffer; the routine modifies this.
     ///   - bytesInserted: The number of bytes that have been inserted so far in the mutable buffer.
     /// - Returns: An updated value of bytesInserted or kCFNotFound if the URL must be reparsed.
-    private static func fixEmptyPath(_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex) -> CFIndex {
+    private static func fixEmptyPath(_ url: URL, _ urlData: NSMutableData, _ bytesInserted: CFIndex)
+        -> CFIndex {
         var rangeWithSeparator = CFRange()
         let range = CFURLGetByteRangeForComponent(url as CFURL, .path, &rangeWithSeparator)
 
         // The following is not a typo. We use rangeWithSeparator to find where to insert the "/"
         // and the range length to decide whether we /need/ to insert the "/".
-        if range.location != kCFNotFound && rangeWithSeparator.length == 0 {
+        if range.location != kCFNotFound, rangeWithSeparator.length == 0 {
             urlData.replaceBytes(
                 in: NSRange(location: Int(rangeWithSeparator.location) + Int(bytesInserted), length: 0),
                 withBytes: "/",
@@ -230,9 +256,9 @@ struct RequestHelper {
     private static func canonicalizeHeaders(_ request: NSMutableURLRequest) {
         // If there's no content type and the request is a POST with a body, add a default
         // content type of "application/x-www-form-urlencoded".
-        if request.value(forHTTPHeaderField: "Content-Type") == nil
-            && request.httpMethod.caseInsensitiveCompare("POST") == .orderedSame
-            && (request.httpBody != nil || request.httpBodyStream != nil) {
+        if request.value(forHTTPHeaderField: "Content-Type") == nil,
+           request.httpMethod.caseInsensitiveCompare("POST") == .orderedSame,
+           request.httpBody != nil || request.httpBodyStream != nil {
             request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         }
 

@@ -1,5 +1,5 @@
 //
-//  HttpModel.swift
+//  HTTP.Model.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 15/12/23.
@@ -24,12 +24,12 @@ class HttpModel: NSObject {
     var startTime: String?
     var endTime: String?
     var totalDuration: String?
-    var isImage: Bool = false
+    var isImage = false
 
     var requestHeaderFields: [String: Any]?
     var responseHeaderFields: [String: Any]?
-    var isTag: Bool = false
-    var isSelected: Bool = false
+    var isTag = false
+    var isSelected = false
     var requestSerializer: RequestSerializer = .JSON
     var errorDescription: String?
     var errorLocalizedDescription: String?

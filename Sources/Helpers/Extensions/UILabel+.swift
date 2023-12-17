@@ -29,10 +29,12 @@ extension UILabel {
         attributedString.append(NSAttributedString(string: "\n"))
 
         // Subtitle
-        let subtitleAttributedString = NSAttributedString(string: subtitle, attributes: subtitleAttributes)
+        let subtitleAttributedString = NSAttributedString(
+            string: subtitle, attributes: subtitleAttributes
+        )
         attributedString.append(subtitleAttributedString)
 
-        self.attributedText = attributedString
-        self.numberOfLines = 0
+        attributedText = attributedString
+        numberOfLines = 0
     }
 }
