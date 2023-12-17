@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="7X6-iY-CCT">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Navigation Controller-->
+        <scene sceneID="KeY-hw-eP8">
+            <objects>
+                <navigationController id="7X6-iY-CCT" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="tEI-r4-DGp">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="jqi-w4-83e"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="MqR-g0-fov" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1266" y="4"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Example" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="B3B-A4-ddj">
+                                <rect key="frame" x="28" y="650" width="337" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="aaa-mz-Jl2"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Success Request"/>
+                                <connections>
+                                    <action selector="successMocked" destination="BYZ-38-t0r" eventType="touchUpInside" id="Kds-k8-O54"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="faL-Au-3nb">
+                                <rect key="frame" x="28" y="718" width="337" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="5KP-y2-cGu"/>
+                                </constraints>
+                                <buttonConfiguration key="configuration" style="gray" title="Failured Request"/>
+                                <connections>
+                                    <action selector="failureRequest" destination="BYZ-38-t0r" eventType="touchUpInside" id="YvP-yd-IBc"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="faL-Au-3nb" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="28" id="6F7-e8-Rgm"/>
+                            <constraint firstItem="faL-Au-3nb" firstAttribute="top" secondItem="B3B-A4-ddj" secondAttribute="bottom" constant="8" symbolic="YES" id="Us3-hV-iYl"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="faL-Au-3nb" secondAttribute="trailing" constant="28" id="WrZ-3f-eoN"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="B3B-A4-ddj" secondAttribute="trailing" constant="28" id="agZ-dV-bVu"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="faL-Au-3nb" secondAttribute="bottom" constant="40" id="n8K-Au-zOK"/>
+                            <constraint firstItem="B3B-A4-ddj" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="28" id="swr-Ls-ogZ"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="bKo-uX-baO"/>
+                </viewController>
+            </objects>
+            <point key="canvasLocation" x="-323" y="4"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
