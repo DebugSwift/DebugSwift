@@ -45,6 +45,33 @@ DebugSwift is a comprehensive toolkit designed to simplify and enhance the debug
 
 ## Getting Started
 
+### Installation
+
+#### CocoaPods
+
+Add the following line to your `Podfile`:
+
+```ruby
+pod 'DebugSwift', 'rc-0.0.1'
+```
+
+Then, run:
+
+```bash
+pod install
+```
+
+#### Swift Package Manager (SPM)
+
+Add the following dependency to your `Package.swift` file:
+
+```swift
+.package(url: "https://github.com/MaatheusGois/DebugSwift.git", from: "rc-0.0.1")
+```
+
+Then, add `"DebugSwift"` to your target's dependencies.
+
+
 # WIP
 
 ## Contributing
