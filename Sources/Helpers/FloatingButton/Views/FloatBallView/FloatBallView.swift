@@ -59,6 +59,13 @@ class FloatBallView: UIView {
         addGesture()
     }
 
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        super.motionEnded(motion, with: event)
+        if motion == .motionShake {
+            FloatViewManager.shared.toggle()
+        }
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         layer.cornerRadius = bounds.width * 0.5
