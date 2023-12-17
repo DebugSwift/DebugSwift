@@ -99,6 +99,8 @@ fileprivate extension FloatBallView {
     func setUp() {
         backgroundColor = .black
         layer.masksToBounds = true
+        layer.borderColor = UIColor.white.cgColor
+        layer.borderWidth = 0.3
         alpha = 0.0
         label.text = .init(0)
     }
