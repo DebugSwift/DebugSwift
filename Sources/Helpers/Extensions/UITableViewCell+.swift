@@ -36,13 +36,24 @@ extension UITableViewCell {
             label.text = title
             label.textColor = .darkGray
             label.numberOfLines = .zero
+            label.textAlignment = .right
+
             label.text = description
             label.translatesAutoresizingMaskIntoConstraints = false
             addSubview(label)
 
             NSLayoutConstraint.activate([
-                label.centerYAnchor.constraint(equalTo: centerYAnchor),
-                label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
+                label.centerYAnchor.constraint(
+                    equalTo: centerYAnchor
+                ),
+                label.trailingAnchor.constraint(
+                    equalTo: trailingAnchor,
+                    constant: -16
+                ),
+                label.leadingAnchor.constraint(
+                    equalTo: leadingAnchor,
+                    constant: UIScreen.main.bounds.width/2
+                )
             ])
         }
     }

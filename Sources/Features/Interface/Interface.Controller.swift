@@ -43,6 +43,7 @@ final class InterfaceViewController: BaseController {
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
 
+        view.backgroundColor = .black
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([

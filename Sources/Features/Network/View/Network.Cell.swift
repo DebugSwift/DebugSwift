@@ -106,6 +106,8 @@ class NetworkTableViewCell: UITableViewCell {
         contentView.addSubview(timestampLabel)
 
         contentView.backgroundColor = .black
+        backgroundColor = .black
+        selectionStyle = .none
     }
 
     func setupConstraints() {

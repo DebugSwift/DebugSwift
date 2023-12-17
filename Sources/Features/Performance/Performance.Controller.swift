@@ -58,6 +58,7 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
         tableView.register(MenuSegmentedControlTableViewCell.self, forCellReuseIdentifier: segmentedControlCellIdentifier)
         tableView.register(MenuChartTableViewCell.self, forCellReuseIdentifier: chartCellIdentifier)
         tableView.backgroundColor = .black
+        view.backgroundColor = .black
     }
 
     // MARK: - Updating section

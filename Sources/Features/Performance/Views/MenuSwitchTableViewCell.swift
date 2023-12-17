@@ -51,11 +51,12 @@ class MenuSwitchTableViewCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(valueSwitch)
         contentView.backgroundColor = .black
+        backgroundColor = .black
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            titleLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
 
-            valueSwitch.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            valueSwitch.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16),
             valueSwitch.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }

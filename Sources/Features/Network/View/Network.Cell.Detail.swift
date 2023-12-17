@@ -63,6 +63,7 @@ class NetworkTableViewCellDetail: UITableViewCell {
         setupConstraints()
 
         contentView.backgroundColor = .black
+        backgroundColor = .black
     }
 
     func setupViews() {

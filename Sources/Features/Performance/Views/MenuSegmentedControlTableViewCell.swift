@@ -41,11 +41,12 @@ class MenuSegmentedControlTableViewCell: UITableViewCell {
         selectionStyle = .none
         contentView.addSubview(segmentedControl)
         contentView.backgroundColor = .black
+        backgroundColor = .black
         NSLayoutConstraint.activate([
-            segmentedControl.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            segmentedControl.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            segmentedControl.topAnchor.constraint(equalTo: topAnchor, constant: 8),
-            segmentedControl.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8)
+            segmentedControl.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            segmentedControl.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            segmentedControl.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 8),
+            segmentedControl.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -8)
         ])
     }
 

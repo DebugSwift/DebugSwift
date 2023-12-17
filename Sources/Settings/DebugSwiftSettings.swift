@@ -17,6 +17,7 @@ public struct DebugSwiftSettings {
             FloatViewManager.setup(TabBarController())
             NetworkHelper.shared.enable()
         }
+        LaunchTimeTracker.measureAppStartUpTime()
     }
 
     public static func show() {

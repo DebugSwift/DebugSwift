@@ -102,6 +102,7 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
             NetworkTableViewCellDetail.self,
             forCellReuseIdentifier: "NetworkCellDetail"
         )
+        view.backgroundColor = .black
 
         // Configure constraints for the tableView
         NSLayoutConstraint.activate([
