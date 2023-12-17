@@ -5,7 +5,7 @@
 //  Created by Matheus Gois on 16/12/23.
 //
 
-import Foundation
+import UIKit
 
 public struct DebugSwiftSettings {
 
@@ -29,4 +29,3 @@ public struct DebugSwiftSettings {
         FloatViewManager.remove()
     }
 }
-

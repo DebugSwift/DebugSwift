@@ -11,6 +11,7 @@
 		2EA3B65F2B2E7F71001B59FE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA3B65E2B2E7F71001B59FE /* ContentView.swift */; };
 		2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6602B2E7F74001B59FE /* Assets.xcassets */; };
 		2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */; };
+		2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2EA3B66B2B2E8054001B59FE /* DebugSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		2EA3B65E2B2E7F71001B59FE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2EA3B6602B2E7F74001B59FE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		2EA3B66D2B2E80C6001B59FE /* DebugSwift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DebugSwift; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -35,6 +38,7 @@
 		2EA3B6502B2E7F71001B59FE = {
 			isa = PBXGroup;
 			children = (
+				2EA3B66D2B2E80C6001B59FE /* DebugSwift */,
 				2EA3B65B2B2E7F71001B59FE /* Example_SwiftUI */,
 				2EA3B65A2B2E7F71001B59FE /* Products */,
 			);
@@ -83,6 +87,9 @@
 			dependencies = (
 			);
 			name = Example_SwiftUI;
+			packageProductDependencies = (
+				2EA3B66B2B2E8054001B59FE /* DebugSwift */,
+			);
 			productName = Example_SwiftUI;
 			productReference = 2EA3B6592B2E7F71001B59FE /* Example_SwiftUI.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +118,9 @@
 				Base,
 			);
 			mainGroup = 2EA3B6502B2E7F71001B59FE;
+			packageReferences = (
+				2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */,
+			);
 			productRefGroup = 2EA3B65A2B2E7F71001B59FE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -342,6 +352,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MaatheusGois/DebugSwift";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2EA3B66B2B2E8054001B59FE /* DebugSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */;
+			productName = DebugSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2EA3B6512B2E7F71001B59FE /* Project object */;
 }

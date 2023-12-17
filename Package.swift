@@ -18,11 +18,6 @@ let package = Package(
             name: "DebugSwift",
             dependencies: [],
             path: "Sources"
-        ),
-        .testTarget(
-            name: "DebugSwiftTests",
-            dependencies: ["DebugSwift"],
-            path: "Tests"
         )
     ],
     swiftLanguageVersions: [.v5]
