@@ -74,6 +74,7 @@ class ResourcesGenericController: BaseTableController {
     }
 
     func setupSearch() {
+        navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.searchController = searchController
         definesPresentationContext = true
     }

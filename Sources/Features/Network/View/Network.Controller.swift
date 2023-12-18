@@ -83,6 +83,7 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
     private func setupSearchBar() {
         searchBar.delegate = self
         navigationItem.titleView = searchBar
+        navigationItem.hidesSearchBarWhenScrolling = false
     }
 
     private func scrollToBottom() {

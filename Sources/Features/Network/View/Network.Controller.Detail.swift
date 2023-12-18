@@ -78,6 +78,7 @@ final class NetworkViewControllerDetail: BaseController {
 
     func setupSearch() {
         navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
     }
 }
