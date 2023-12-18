@@ -102,7 +102,7 @@ class ResourcesGenericController: BaseTableController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
         -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
 
         let dataSource =
             searchController.isActive
@@ -162,7 +162,6 @@ class ResourcesGenericController: BaseTableController {
 
 extension ResourcesGenericController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        // Implement search logic here
         let searchText = searchController.searchBar.text ?? ""
         viewModel.filterContentForSearchText(searchText)
         tableView.reloadData()

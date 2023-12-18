@@ -50,7 +50,7 @@ final class ResourcesFilesViewController: BaseTableController {
     }
 
     private func setup() {
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: .cell)
         setupContents()
         setupViews()
         setupUI()
@@ -135,7 +135,7 @@ extension ResourcesFilesViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
         -> UITableViewCell {
         if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
             cell.setup(title: subdirectories[indexPath.row])
 
             return cell
@@ -143,7 +143,7 @@ extension ResourcesFilesViewController {
             let fileName = files[indexPath.row]
             let fileSize = sizeStringForFileWithName(fileName: fileName) ?? "No data"
 
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
             cell.setup(
                 title: fileName,
                 subtitle: "Size: \(fileSize)",
