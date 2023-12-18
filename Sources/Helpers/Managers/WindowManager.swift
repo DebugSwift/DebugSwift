@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct WindowManager {
     static var rootNavigation: UINavigationController? {
