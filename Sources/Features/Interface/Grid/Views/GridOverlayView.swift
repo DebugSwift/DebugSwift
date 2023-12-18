@@ -67,6 +67,8 @@ class GridOverlayView: TopLevelViewWrapper {
             topAnchor.constraint(equalTo: superview.topAnchor),
             bottomAnchor.constraint(equalTo: superview.bottomAnchor)
         ])
+
+        isUserInteractionEnabled = false
     }
 
     private func setupLabels() {
