@@ -55,7 +55,7 @@ class ResourcesGenericController: BaseTableController {
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = .black
-        guard viewModel.numberOfItems() != .zero else { return }
+        guard viewModel.numberOfItems() != .zero, viewModel.isDeleteEnable else { return }
         addRightBarButton(
             image: .init(named: "trash.circle"),
             tintColor: .red
@@ -119,14 +119,14 @@ class ResourcesGenericController: BaseTableController {
     }
 
     override func tableView(_: UITableView, canEditRowAt _: IndexPath) -> Bool {
-        true
+        viewModel.isDeleteEnable
     }
 
     override func tableView(
         _ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle,
         forRowAt indexPath: IndexPath
     ) {
-        if editingStyle == .delete {
+        if editingStyle == .delete, viewModel.isDeleteEnable {
             viewModel.handleDeleteItemAction(atIndex: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
@@ -135,7 +135,7 @@ class ResourcesGenericController: BaseTableController {
     override func tableView(
         _: UITableView, titleForDeleteConfirmationButtonForRowAt _: IndexPath
     ) -> String? {
-        "Delete"
+        viewModel.isDeleteEnable ? "Delete" : nil
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -170,13 +170,15 @@ extension ResourcesGenericController: UISearchResultsUpdating {
 }
 
 protocol ResourcesGenericListViewModel: AnyObject {
+    var isDeleteEnable: Bool { get }
+
     /// Returns the number of title-value pairs.
     func numberOfItems() -> Int
 
     /// Returns the number of filtered title-value pairs for search.
     func numberOfFilteredItems() -> Int
 
-    /// Returns a `String` instance that will be used as a title for `DBTitleValueListTableViewController` instance.
+    /// Returns a `String` instance that will be used as a title for `Controller` instance.
     func viewTitle() -> String
 
     /// Provides the data source object for a cell at the given index.
@@ -200,4 +202,10 @@ protocol ResourcesGenericListViewModel: AnyObject {
     /// Filters the content based on the search text.
     /// - Parameter searchText: The text to be used for filtering.
     func filterContentForSearchText(_ searchText: String)
+}
+
+// Optional
+
+extension ResourcesGenericListViewModel {
+    var isDeleteEnable: Bool { true }
 }

@@ -22,6 +22,10 @@ class AppViewModel: NSObject {
         ].compactMap { $0 }
     }
 
+    var customInfos: [CustomData] {
+        DebugSwift.customInfo?() ?? []
+    }
+
     func getAppVersionInfo() -> Info? {
         guard let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
             return nil

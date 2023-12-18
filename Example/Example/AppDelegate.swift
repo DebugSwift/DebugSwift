@@ -15,6 +15,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         DebugSwift.setup()
+        DebugSwift.customInfo = {
+            [
+                .init(
+                    title: "Info 1",
+                    infos: [
+                        .init(title: "title 1", subtitle: "title 2")
+                    ]
+                )
+            ]
+        }
         DebugSwift.show()
 
         return true

@@ -33,7 +33,7 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
         }
     }
 
-    // MARK: - DBTitleValueListViewModel
+    // MARK: - ViewModel
 
     func viewTitle() -> String {
         "User defaults"

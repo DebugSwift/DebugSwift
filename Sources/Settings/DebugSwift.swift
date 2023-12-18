@@ -30,4 +30,6 @@ public enum DebugSwift {
     public static func hide() {
         FloatViewManager.remove()
     }
+
+    public static var customInfo: (() -> [CustomData])?
 }

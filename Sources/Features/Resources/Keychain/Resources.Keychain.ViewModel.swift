@@ -36,7 +36,7 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
         }
     }
 
-    // MARK: - DBTitleValueListViewModel
+    // MARK: - ViewModel
 
     func viewTitle() -> String {
         "Keychain"

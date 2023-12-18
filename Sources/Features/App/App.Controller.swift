@@ -65,8 +65,16 @@ final class AppViewController: BaseController {
 }
 
 extension AppViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        viewModel.infos.count
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section == .zero {
+            return viewModel.infos.count
+        } else {
+            return viewModel.customInfos.count
+        }
+    }
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        viewModel.customInfos.isEmpty ? 1 : 2
     }
 
     func tableView(
@@ -77,16 +85,35 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             withIdentifier: .cell,
             for: indexPath
         )
-        let info = viewModel.infos[indexPath.row]
-        cell.setup(
-            title: info.title,
-            description: info.detail,
-            image: nil
-        )
-        return cell
+        if indexPath.section == 0 {
+            let info = viewModel.infos[indexPath.row]
+            cell.setup(
+                title: info.title,
+                description: info.detail,
+                image: nil
+            )
+            return cell
+        } else {
+            let info = viewModel.customInfos[indexPath.row]
+            cell.setup(title: info.title)
+            return cell
+        }
+    }
+
+    func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        section == 1 ? "Custom Data" : nil
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
         80.0
+    }
+
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == 1 {
+            let data = viewModel.customInfos[indexPath.row]
+            let viewModel = AppCustomInfoViewModel(data: data)
+            let controller = ResourcesGenericController(viewModel: viewModel)
+            navigationController?.pushViewController(controller, animated: true)
+        }
     }
 }
