@@ -24,8 +24,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        DebugSwiftSettings.setup()
-        DebugSwiftSettings.show()
+        DebugSwift.setup()
+        DebugSwift.show()
         return true
     }
 }

@@ -52,7 +52,7 @@ DebugSwift is a comprehensive toolkit designed to simplify and enhance the debug
 Add the following line to your `Podfile`:
 
 ```ruby
-pod 'DebugSwift', 'rc-0.0.1'
+pod 'DebugSwift', 'rc-0.0.2'
 ```
 
 Then, run:
@@ -66,13 +66,25 @@ pod install
 Add the following dependency to your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/MaatheusGois/DebugSwift.git", from: "rc-0.0.1")
+.package(url: "https://github.com/MaatheusGois/DebugSwift.git", from: "rc-0.0.2")
 ```
 
 Then, add `"DebugSwift"` to your target's dependencies.
 
 
-# WIP
+### Using
+
+```swift
+func application(
+    _: UIApplication,
+    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
+) -> Bool {
+    DebugSwift.setup()
+    DebugSwift.show()
+
+    return true
+}
+``````
 
 ## Contributing
 
