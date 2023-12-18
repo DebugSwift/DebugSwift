@@ -10,8 +10,8 @@ import Foundation
 
 class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
     enum Constants {
-        static let simulatedLocationLatitude = "DBDebugToolkit_simulatedLocationLatitude"
-        static let simulatedLocationLongitude = "DBDebugToolkit_simulatedLocationLongitude"
+        static let simulatedLocationLatitude = "_simulatedLocationLatitude"
+        static let simulatedLocationLongitude = "_simulatedLocationLongitude"
     }
 
     private var keys = [String]()

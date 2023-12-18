@@ -33,6 +33,9 @@ struct WindowManager {
         if let viewController = FloatViewManager.shared.floatViewController {
             // Prevent clicks
             UIApplication.shared.beginIgnoringInteractionEvents()
+            // Remove keyboard, if opened.
+            UIWindow.keyWindow?.endEditing(true)
+
             WindowManager.rootNavigation?.pushViewController(
                 viewController,
                 animated: true

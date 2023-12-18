@@ -17,7 +17,6 @@ class TabBarController: UITabBarController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        view.endEditing(true)
     }
 
     override func viewDidAppear(_ animated: Bool) {

@@ -11,13 +11,12 @@ import Security
 
 class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
     enum Constants {
-        static let simulatedLocationLatitude = "DBDebugToolkit_simulatedLocationLatitude"
-        static let simulatedLocationLongitude = "DBDebugToolkit_simulatedLocationLongitude"
-        static let keychainServiceName = "YourKeychainServiceName"
+        static let simulatedLocationLatitude = "_simulatedLocationLatitude"
+        static let simulatedLocationLongitude = "_simulatedLocationLongitude"
     }
 
     private var keys = [String]()
-    private var keychain = KeychainService()
+    private var keychain = Keychain()
 
     // MARK: - Initialization
 
@@ -27,7 +26,7 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     private func setupKeys() {
-        keys = keychain.keychainKeys
+        keys = keychain.allKeys()
 
         if let latitudeIndex = keys.firstIndex(of: Constants.simulatedLocationLatitude) {
             keys.remove(at: latitudeIndex)
@@ -49,20 +48,17 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
 
     func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
         let key = keys[index]
-        let value = keychain.getValue(forKey: key) ?? ""
+        let value = (try? keychain.get(key)) ?? ""
         return (title: key, value: value)
     }
 
     func handleClearAction() {
-        for key in keys {
-            keychain.removeValue(for: key)
-        }
-        keys.removeAll()
+        try? keychain.removeAll()
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
         let key = keys[index]
-        keychain.removeValue(for: key)
+        try? keychain.remove(key)
         keys.remove(at: index)
     }
 
@@ -80,7 +76,7 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
 
     func filteredDataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
         let key = filteredKeys[index]
-        let value = keychain.getValue(forKey: key) ?? ""
+        let value = (try? keychain.get(key)) ?? ""
         return (title: key, value: value)
     }
 
