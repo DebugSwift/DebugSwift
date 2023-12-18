@@ -86,7 +86,7 @@ class AppViewModel: NSObject {
     }
 
     func getDeviceModelInfo() -> Info {
-        let deviceModel = UIDevice.current.model
+        let deviceModel = UIDevice.current.modelName
         return Info(
             title: "Device Model:",
             detail: deviceModel

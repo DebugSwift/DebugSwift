@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 )
             ]
         }
+
         DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
         DebugSwift.show()
 
