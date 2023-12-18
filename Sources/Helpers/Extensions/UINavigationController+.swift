@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension UINavigationController {
     func setBackgroundColor(color: UIColor = .black) {
