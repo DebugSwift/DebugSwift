@@ -13,10 +13,6 @@ class HttpDatasource {
 
     var httpModels: [HttpModel] = []
 
-    private init() {
-        //        httpModels = Array(repeating: HttpModel(), count: 1000 + 100)
-    }
-
     func addHttpRequest(_ model: HttpModel) -> Bool {
         if model.url?.absoluteString.isEmpty == true {
             return false

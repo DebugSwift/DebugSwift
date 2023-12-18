@@ -24,7 +24,7 @@ final class CustomHTTPProtocol: URLProtocol {
         URLProtocol.unregisterClass(self)
     }
 
-    override class func canInit(with request: URLRequest) -> Bool {
+    private class func canServeRequest(_ request: URLRequest) -> Bool {
         if let _ = property(forKey: requestProperty, in: request) { return false }
 
         if let scheme = request.url?.scheme?.lowercased(), scheme == "http" || scheme == "https" {
@@ -34,8 +34,17 @@ final class CustomHTTPProtocol: URLProtocol {
         return false
     }
 
+    override class func canInit(with request: URLRequest) -> Bool {
+        canServeRequest(request)
+    }
+
+    override class func canInit(with task: URLSessionTask) -> Bool {
+        guard let request = task.currentRequest else { return false }
+        return canServeRequest(request)
+    }
+
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        RequestHelper.canonicalRequest(for: request)
+        request
     }
 
     private var delegate: CustomHTTPProtocolDelegate? { CustomHTTPProtocol.classDelegate }
@@ -168,9 +177,8 @@ final class CustomHTTPProtocol: URLProtocol {
             let statusCode = model.statusCode ?? "Unknown"
 
             NotificationCenter.default.post(
-                name: NSNotification.Name("reloadHttp_CocoaDebug"),
-                object: nil,
-                userInfo: ["statusCode": statusCode]
+                name: NSNotification.Name("reloadHttp_DebugSwift"),
+                object: nil
             )
         }
     }
@@ -192,7 +200,9 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     }
 
     func urlSession(
-        _: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+        _: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive response: URLResponse,
         completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
     ) {
         threadOperator?.execute { [weak self] in

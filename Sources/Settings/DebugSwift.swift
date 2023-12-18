@@ -11,11 +11,13 @@ public enum DebugSwift {
     public static func setup() {
         UIView.swizzleMethods()
         UIWindow.db_swizzleMethods()
+        URLSessionConfiguration.swizzleMethods()
         NetworkHelper.shared.enable()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             FloatViewManager.setup(TabBarController())
         }
+
         LaunchTimeTracker.measureAppStartUpTime()
     }
 

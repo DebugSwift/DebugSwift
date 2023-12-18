@@ -15,7 +15,7 @@ class NetworkViewModel {
     var firstIn = true
     var reloadDataFinish = true
 
-    var models = [HttpModel]()
+    var models = HttpDatasource.shared.httpModels
     var cacheModels = [HttpModel]()
     var searchModels = [HttpModel]()
 

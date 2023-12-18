@@ -83,13 +83,13 @@ extension UIView {
 
     static func swizzleMethods() {
         DispatchQueue.once(token: UUID().uuidString) {
-            swizzleMethod(
+            SwizzleManager.swizzle(
                 self,
                 originalSelector: #selector(UIView.init(coder:)),
                 swizzledSelector: #selector(UIView.swizzledInitWithCoder(_:))
             )
 
-            swizzleMethod(
+            SwizzleManager.swizzle(
                 self,
                 originalSelector: #selector(UIView.init(frame:)),
                 swizzledSelector: #selector(UIView.swizzledInitWithFrame(_:))
@@ -160,26 +160,5 @@ extension UIView {
         showsDebugBorder = false
         layer.borderWidth = previousBorderWidth
         layer.borderColor = previousBorderColor
-    }
-}
-
-private func swizzleMethod(
-    _ classType: AnyClass, originalSelector: Selector, swizzledSelector: Selector
-) {
-    let originalMethod = class_getInstanceMethod(classType, originalSelector)
-    let swizzledMethod = class_getInstanceMethod(classType, swizzledSelector)
-
-    let didAddMethod = class_addMethod(
-        classType, originalSelector, method_getImplementation(swizzledMethod!),
-        method_getTypeEncoding(swizzledMethod!)
-    )
-
-    if didAddMethod {
-        class_replaceMethod(
-            classType, swizzledSelector, method_getImplementation(originalMethod!),
-            method_getTypeEncoding(originalMethod!)
-        )
-    } else {
-        method_exchangeImplementations(originalMethod!, swizzledMethod!)
     }
 }

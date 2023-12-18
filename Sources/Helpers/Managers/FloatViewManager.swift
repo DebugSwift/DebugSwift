@@ -24,14 +24,15 @@ final class FloatViewManager: NSObject {
 
         setup()
         setupClickEvent()
+        observers()
     }
 
     static func setup(_ viewController: UIViewController) {
         shared.floatViewController = viewController
     }
 
-    static func increment() {
-        shared.ballView.increment()
+    static func animate() {
+        shared.ballView.animate()
     }
 
     static func reset() {
@@ -52,6 +53,16 @@ final class FloatViewManager: NSObject {
 
     static func toggle() {
         FloatViewManager.shared.ballView.show.toggle()
+    }
+
+    func observers() {
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name(rawValue: "reloadHttp_DebugSwift"),
+            object: nil,
+            queue: .main
+        ) { _ in
+            Self.animate()
+        }
     }
 }
 

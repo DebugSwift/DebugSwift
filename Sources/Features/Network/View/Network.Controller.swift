@@ -38,6 +38,12 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        scrollToBottom()
     }
 
     func setup() {
@@ -54,7 +60,7 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
 
     func observers() {
         NotificationCenter.default.addObserver(
-            forName: NSNotification.Name(rawValue: "reloadHttp_CocoaDebug"),
+            forName: NSNotification.Name(rawValue: "reloadHttp_DebugSwift"),
             object: nil,
             queue: .main
         ) { [weak self] _ in
@@ -65,7 +71,7 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
     func reloadHttp(needScrollToEnd: Bool = false) {
         guard viewModel.reloadDataFinish else { return }
 
-        FloatViewManager.increment()
+        FloatViewManager.animate()
         viewModel.applyFilter()
         tableView.reloadData()
 

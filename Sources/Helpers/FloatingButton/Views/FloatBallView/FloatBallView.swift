@@ -78,12 +78,10 @@ class FloatBallView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func increment() {
-        if var value = Int(label.text ?? "0") {
-            value += 1
-            label.text = .init(value)
-        }
+    func animate() {
+        guard isShowing else { return }
 
+        label.text = .init(HttpDatasource.shared.httpModels.count)
         startAnimation()
     }
 
