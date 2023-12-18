@@ -8,7 +8,8 @@
 
 import UIKit
 
-class NetworkViewController: BaseController, UISearchBarDelegate {
+class NetworkViewController: BaseController {
+
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -16,11 +17,12 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
         return tableView
     }()
 
-    let searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchBar.placeholder = "Search"
-        return searchBar
+    private lazy var searchController: UISearchController = {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search"
+        return searchController
     }()
 
     private let viewModel = NetworkViewModel()
@@ -39,6 +41,7 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
+        addDeleteButton()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -81,8 +84,7 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
     }
 
     private func setupSearchBar() {
-        searchBar.delegate = self
-        navigationItem.titleView = searchBar
+        navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
     }
 
@@ -98,22 +100,39 @@ class NetworkViewController: BaseController, UISearchBarDelegate {
         }
     }
 
-    // MARK: - UISearchBarDelegate
-
-    func searchBar(_: UISearchBar, textDidChange searchText: String) {
-        viewModel.networkSearchWord = searchText
-        viewModel.applyFilter()
-        tableView.reloadData()
+    private func addDeleteButton() {
+        guard !viewModel.models.isEmpty else { return }
+        addRightBarButton(
+            image: .init(named: "trash.circle"),
+            tintColor: .red
+        ) { [weak self] in
+            self?.showAlert(
+                with: "This action remove all data", title: "Warning",
+                leftButtonTitle: "delete",
+                leftButtonStyle: .destructive,
+                leftButtonHandler: { _ in
+                    self?.clearAction()
+                },
+                rightButtonTitle: "cancel",
+                rightButtonStyle: .cancel
+            )
+        }
     }
 
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = nil
-        searchBar.resignFirstResponder()
-        viewModel.applyFilter()
+    private func clearAction() {
+        viewModel.handleClearAction()
         tableView.reloadData()
     }
 }
 
+extension NetworkViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let searchText = searchController.searchBar.text else { return }
+        viewModel.networkSearchWord = searchText
+        viewModel.applyFilter()
+        tableView.reloadData()
+    }
+}
 extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
     private func setupTableView() {
         view.addSubview(tableView)

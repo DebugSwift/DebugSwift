@@ -42,6 +42,7 @@ class TabBarController: UITabBarController {
         tabBar.tintColor = .white
         tabBar.unselectedItemTintColor = .gray
         tabBar.setBackgroundColor(color: .black)
+        tabBar.addTopBorderWithColor(color: .gray, thickness: 0.3)
         if #available(iOS 13.0, *) {
             overrideUserInterfaceStyle = .dark
         }

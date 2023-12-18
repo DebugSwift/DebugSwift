@@ -15,6 +15,14 @@ private var UIViewPreviousBorderWidthKey: UInt8 = 2
 private var UIViewDebugBorderColorKey: UInt8 = 3
 
 extension UIView {
+
+    func addTopBorderWithColor(color: UIColor, thickness: CGFloat = 1) {
+        let border = CALayer()
+        border.backgroundColor = color.cgColor
+        border.frame = CGRect(x: 0, y: 0, width: self.frame.size.width, height: thickness)
+        self.layer.addSublayer(border)
+    }
+
     // MARK: - ShowsDebugBorder property
 
     private var showsDebugBorder: Bool {

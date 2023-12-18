@@ -41,7 +41,7 @@ class HttpDatasource {
         return true
     }
 
-    func reset() {
+    func removeAll() {
         httpModels.removeAll()
     }
 

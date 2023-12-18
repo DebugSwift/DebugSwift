@@ -26,6 +26,7 @@ class FloatBallView: UIView {
 
     var show = false {
         didSet {
+            updateText()
             guard oldValue != show else { return }
             if show {
                 WindowManager.window.addSubview(self)
@@ -83,6 +84,10 @@ class FloatBallView: UIView {
 
         label.text = .init(HttpDatasource.shared.httpModels.count)
         startAnimation()
+    }
+
+    func updateText() {
+        label.text = .init(HttpDatasource.shared.httpModels.count)
     }
 
     func reset() {

@@ -35,4 +35,9 @@ class NetworkViewModel {
             models = searchModels
         }
     }
+
+    func handleClearAction() {
+        HttpDatasource.shared.removeAll()
+        models.removeAll()
+    }
 }
