@@ -55,7 +55,7 @@ DebugSwift is a comprehensive toolkit designed to simplify and enhance the debug
 Add the following line to your `Podfile`:
 
 ```ruby
-pod 'DebugSwift', 'rc-0.0.2'
+pod 'DebugSwift', :git => 'https://github.com/MaatheusGois/DebugSwift.git', :branch => 'main'
 ```
 
 Then, run:
@@ -69,7 +69,7 @@ pod install
 Add the following dependency to your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/MaatheusGois/DebugSwift.git", from: "rc-0.0.2")
+.package(url: "https://github.com/MaatheusGois/DebugSwift.git", from: "main")
 ```
 
 Then, add `"DebugSwift"` to your target's dependencies.
