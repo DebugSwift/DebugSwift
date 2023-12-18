@@ -51,11 +51,12 @@ class TabBarController: UITabBarController {
         navigationItem.hidesBackButton = true
 
         let closeButton: UIBarButtonItem
-
-        if #available(iOS 14.0, *) {
-            closeButton = UIBarButtonItem(systemItem: .close)
-            closeButton.target = self
-            closeButton.action = #selector(closeButtonTapped)
+        if #available(iOS 13.0, *) {
+            closeButton = UIBarButtonItem(
+                barButtonSystemItem: .close,
+                target: self,
+                action: #selector(closeButtonTapped)
+            )
         } else {
             closeButton = UIBarButtonItem(
                 title: "Close",
@@ -63,6 +64,7 @@ class TabBarController: UITabBarController {
                 target: self,
                 action: #selector(closeButtonTapped)
             )
+            closeButton.tintColor = .white
         }
 
         navigationItem.rightBarButtonItem = closeButton
