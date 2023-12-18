@@ -51,10 +51,8 @@ class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - Search Functionality
 
-    private var filteredKeys = [String]()
-
     func numberOfFilteredItems() -> Int {
-        filteredKeys.count
+        filteredInfo.count
     }
 
     func filteredDataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
