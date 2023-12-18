@@ -15,6 +15,17 @@ class TabBarController: UITabBarController {
         configureNavigation()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        UIView.animate(withDuration: DSFloatChat.animationDuration) {
+            WindowManager.showNavigationBar()
+        }
+    }
+
     private func configureTabBar() {
         let controllers: [UIViewController] = [
             NetworkViewController(),
@@ -29,8 +40,11 @@ class TabBarController: UITabBarController {
         }
 
         tabBar.tintColor = .white
-        tabBar.backgroundColor = .black
         tabBar.unselectedItemTintColor = .gray
+        tabBar.setBackgroundColor(color: .black)
+        if #available(iOS 13.0, *) {
+            overrideUserInterfaceStyle = .dark
+        }
     }
 
     private func configureNavigation() {
@@ -55,14 +69,6 @@ class TabBarController: UITabBarController {
     }
 
     @objc private func closeButtonTapped() {
-        if let navigationController {
-            if navigationController.presentingViewController != nil {
-                dismiss(animated: true, completion: nil)
-            } else {
-                navigationController.popViewController(animated: true)
-            }
-        } else {
-            Debug.print("No navigation controller found.", level: .minimal)
-        }
+        WindowManager.removeDebugger()
     }
 }

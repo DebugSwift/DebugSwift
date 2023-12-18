@@ -28,7 +28,7 @@ class FloatBallView: UIView {
         didSet {
             guard oldValue != show else { return }
             if show {
-                DSFloatChat.window?.addSubview(self)
+                WindowManager.window.addSubview(self)
                 layer.position = .init(
                     x: 20,
                     y: UIScreen.main.bounds.height / 2 - 80
@@ -52,7 +52,7 @@ class FloatBallView: UIView {
     }
 
     var isShowing: Bool {
-        DSFloatChat.window?.contains(self) == true
+        WindowManager.window.contains(self) == true
     }
 
     override init(frame: CGRect) {
@@ -64,7 +64,7 @@ class FloatBallView: UIView {
     override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         super.motionEnded(motion, with: event)
         if motion == .motionShake {
-            FloatViewManager.shared.toggle()
+            FloatViewManager.toggle()
         }
     }
 

@@ -9,8 +9,6 @@
 import UIKit
 
 class TopLevelViewWrapper: UIView {
-    private(set) var widgetWindow: UIWindow?
-
     func toggle(with newValue: Bool) {
         if newValue {
             showWidgetWindow()
@@ -30,25 +28,12 @@ class TopLevelViewWrapper: UIView {
     }
 
     func showWidgetWindow() {
-        if #available(iOS 13.0, *),
-           let scene = UIApplication.shared.keyWindow?.windowScene {
-            widgetWindow = UIWindow(windowScene: scene)
-        } else {
-            widgetWindow = UIWindow(frame: UIScreen.main.bounds)
-        }
-
-        // Create a UIWindow instance associated with the scene
-        widgetWindow?.rootViewController = UIViewController()
-        widgetWindow?.rootViewController?.view.addSubview(self)
-        widgetWindow?.isHidden = false
-        widgetWindow?.isUserInteractionEnabled = false
-        // Animation
-        alpha = 0.0
+        WindowManager.window.rootViewController?.view.addSubview(self)
+        alpha = .zero
         UIView.animate(withDuration: 0.35) { self.alpha = 1.0 }
     }
 
     func removeWidgetWindow() {
-        widgetWindow?.isHidden = true
-        widgetWindow = nil
+        self.removeFromSuperview()
     }
 }

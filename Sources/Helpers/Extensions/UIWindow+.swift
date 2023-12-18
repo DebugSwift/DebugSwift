@@ -13,8 +13,6 @@ extension UIWindow {
     // MARK: - Constants
 
     private enum Constants {
-        static let touchIndicatorsKey = "DebugToolkit_touchIndicators"
-        static let reusableTouchIndicatorsKey = "DebugToolkit_reusableTouchIndicators"
         static let touchIndicatorViewMinAlpha: CGFloat = 0.6
         static var associatedTouchIndicators: UInt8 = 0
         static var associatedReusableTouchIndicators: UInt8 = 1
@@ -49,14 +47,19 @@ extension UIWindow {
 
     private var reusableTouchIndicators: NSMutableSet {
         get {
-            if let reusableTouchIndicators = objc_getAssociatedObject(
-                self, &Constants.associatedReusableTouchIndicators
-            ) as? NSMutableSet {
+            if
+                let reusableTouchIndicators = objc_getAssociatedObject(
+                    self,
+                    &Constants.associatedReusableTouchIndicators
+                ) as? NSMutableSet
+            {
                 return reusableTouchIndicators
             } else {
                 let reusableTouchIndicators = NSMutableSet()
                 objc_setAssociatedObject(
-                    self, &Constants.associatedReusableTouchIndicators, reusableTouchIndicators,
+                    self,
+                    &Constants.associatedReusableTouchIndicators,
+                    reusableTouchIndicators,
                     .OBJC_ASSOCIATION_RETAIN_NONATOMIC
                 )
                 return reusableTouchIndicators
@@ -64,7 +67,9 @@ extension UIWindow {
         }
         set {
             objc_setAssociatedObject(
-                self, &Constants.associatedReusableTouchIndicators, newValue,
+                self,
+                &Constants.associatedReusableTouchIndicators,
+                newValue,
                 .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
         }
@@ -73,7 +78,7 @@ extension UIWindow {
     // MARK: - Method swizzling
 
     @objc class func db_swizzleMethods() {
-        DispatchQueue.once(token: "com.yourdomain.YourApp.UIWindow.db_swizzleMethods") {
+        DispatchQueue.once(token: "debugswift.uiwindow.db_swizzleMethods") {
             let originalSelector = #selector(UIWindow.sendEvent(_:))
             let swizzledSelector = #selector(UIWindow.db_sendEvent(_:))
             guard let originalMethod = class_getInstanceMethod(self, originalSelector),
@@ -154,12 +159,11 @@ extension UIWindow {
     func db_handleTouchForce(_ touch: UITouch) {
         if let indicatorView = touchIndicators.object(forKey: touch) {
             var indicatorViewAlpha: CGFloat = 1.0
-            if #available(iOS 9.0, *) {
-                if self.traitCollection.forceTouchCapability == UIForceTouchCapability.available {
-                    indicatorViewAlpha =
-                        Constants.touchIndicatorViewMinAlpha + (1.0 - Constants.touchIndicatorViewMinAlpha)
-                            * touch.force / touch.maximumPossibleForce
-                }
+
+            if self.traitCollection.forceTouchCapability == UIForceTouchCapability.available {
+                indicatorViewAlpha =
+                    Constants.touchIndicatorViewMinAlpha + (1.0 - Constants.touchIndicatorViewMinAlpha)
+                        * touch.force / touch.maximumPossibleForce
             }
             indicatorView.alpha = indicatorViewAlpha
         }

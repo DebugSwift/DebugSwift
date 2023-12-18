@@ -83,24 +83,17 @@ extension UIView {
 
     static func swizzleMethods() {
         DispatchQueue.once(token: UUID().uuidString) {
-            // Swizzle init(coder:)
             swizzleMethod(
                 self,
                 originalSelector: #selector(UIView.init(coder:)),
                 swizzledSelector: #selector(UIView.swizzledInitWithCoder(_:))
             )
 
-            // Swizzle init(frame:)
             swizzleMethod(
                 self,
                 originalSelector: #selector(UIView.init(frame:)),
                 swizzledSelector: #selector(UIView.swizzledInitWithFrame(_:))
             )
-
-            // Swizzle dealloc
-            //            swizzleMethod(self,
-            //                          originalSelector: NSSelectorFromString("dealloc"),
-            //                          swizzledSelector: #selector(UIView.swizzledDealloc))
         }
     }
 

@@ -9,7 +9,6 @@
 import UIKit
 
 final class FloatViewManager: NSObject {
-    // Properties
 
     static let shared = FloatViewManager()
 
@@ -17,14 +16,14 @@ final class FloatViewManager: NSObject {
     let ballView = FloatBallView()
     let ballRedCancelView = BottomFloatView()
 
-    private var floatViewController: UIViewController?
+    private(set) var floatViewController: UIViewController?
 
     override required init() {
         super.init()
-        currentNavigationController()?.delegate = self
+        WindowManager.rootNavigation?.delegate = self
 
         setup()
-        ballMoveEvents()
+        setupClickEvent()
     }
 
     static func setup(_ viewController: UIViewController) {
@@ -51,7 +50,7 @@ final class FloatViewManager: NSObject {
         shared.ballView.show = false
     }
 
-    func toggle() {
+    static func toggle() {
         FloatViewManager.shared.ballView.show.toggle()
     }
 }
@@ -62,43 +61,24 @@ extension FloatViewManager {
             x: DSFloatChat.screenWidth, y: DSFloatChat.screenHeight,
             width: DSFloatChat.bottomViewFloatWidth, height: DSFloatChat.bottomViewFloatHeight
         )
-        DSFloatChat.window?.addSubview(bottomFloatView)
+        WindowManager.window.addSubview(bottomFloatView)
 
         ballRedCancelView.frame = .init(
             x: DSFloatChat.screenWidth, y: DSFloatChat.screenHeight,
             width: DSFloatChat.bottomViewFloatWidth, height: DSFloatChat.bottomViewFloatHeight
         )
         ballRedCancelView.type = BottomFloatViewType.red
-        DSFloatChat.window?.addSubview(ballRedCancelView)
+        WindowManager.window.addSubview(ballRedCancelView)
 
         ballView.frame = DSFloatChat.ballRect
         ballView.delegate = self
     }
 
-    private func ballMoveEvents() {
-        // Circular reference
+    private func setupClickEvent() {
         ballView.ballDidSelect = { [weak self] in
             guard let self else { return }
 
-            if let viewController = self.floatViewController {
-                // Prevent clicks
-                UIApplication.shared.beginIgnoringInteractionEvents()
-
-                if let navigationController = self.currentNavigationController() {
-                    navigationController.pushViewController(viewController, animated: true)
-                } else {
-                    // Create a new navigation controller if there isn't one
-                    let newNavigationController = UINavigationController(rootViewController: viewController)
-                    newNavigationController.modalPresentationStyle = .fullScreen
-                    UIApplication.topViewController()?.present(
-                        newNavigationController,
-                        animated: true,
-                        completion: nil
-                    )
-                }
-
-                UIApplication.shared.endIgnoringInteractionEvents()
-            }
+            WindowManager.presentDebugger()
         }
     }
 }
@@ -110,15 +90,12 @@ extension FloatViewManager: UINavigationControllerDelegate {
         from fromVC: UIViewController,
         to toVC: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-        // Animate only for effect VCs, ignore other VCs
         if operation == .push {
             guard toVC == floatViewController else { return nil }
             return TransitionPush()
-
         } else if operation == .pop {
             guard fromVC == floatViewController else { return nil }
             return TransitionPop()
-
         } else {
             return nil
         }
@@ -141,14 +118,15 @@ extension FloatViewManager: FloatViewDelegate {
     }
 
     func floatViewMoved(floatView _: FloatBallView, point _: CGPoint) {
-        guard let transformBottomP = DSFloatChat.window?.convert(ballView.center, to: ballRedCancelView)
-        else {
-            return
-        }
+        let transformBottomP = WindowManager.window.convert(
+            ballView.center,
+            to: ballRedCancelView
+        )
 
         if transformBottomP.x > .zero, transformBottomP.y > .zero {
             let arcCenter = CGPoint(
-                x: DSFloatChat.bottomViewFloatWidth, y: DSFloatChat.bottomViewFloatHeight
+                x: DSFloatChat.bottomViewFloatWidth,
+                y: DSFloatChat.bottomViewFloatHeight
             )
             let distance =
                 pow(transformBottomP.x - arcCenter.x, 2) + pow(transformBottomP.y - arcCenter.y, 2)

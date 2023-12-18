@@ -65,7 +65,10 @@ class PerformanceWidgetView: TopLevelViewWrapper {
     }
 
     private func setup() {
-        guard let superview = widgetWindow?.rootViewController?.view else { return }
+        guard
+            let superview = WindowManager.window.rootViewController?.view
+        else { return }
+
         translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([

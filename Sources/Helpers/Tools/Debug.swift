@@ -9,7 +9,7 @@
 import Foundation
 
 enum Debug {
-    enum DebugLevel {
+    public enum DebugLevel {
         case full
         case normal
         case minimal
@@ -18,16 +18,11 @@ enum Debug {
     static func execute(level: DebugLevel, action: () -> Void) {
         switch level {
         case .full:
-            // Execute the action for full debugging
             action()
         case .normal:
-            // Execute the action for normal debugging
-            // You can customize this behavior based on your needs
             action()
         case .minimal:
-            // Execute the action for minimal debugging
-            // You can customize this behavior based on your needs
-            action()
+            break
         }
     }
 
@@ -37,10 +32,8 @@ enum Debug {
     ) {
         switch level {
         case .full, .normal:
-            // Print the message for full and normal levels
             Swift.print(message)
         case .minimal:
-            // Do nothing for minimal level
             break
         }
     }

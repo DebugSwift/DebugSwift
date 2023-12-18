@@ -30,9 +30,8 @@ class BaseTableController: UITableViewController {
     }
 
     func configureAppearance() {
-        UINavigationBar.appearance().barTintColor = .black
-        UINavigationBar.appearance().barStyle = .black
-        UINavigationBar.appearance().backgroundColor = .clear
-        UITabBar.appearance().barTintColor = .black
+        if #available(iOS 13.0, *) {
+            overrideUserInterfaceStyle = .dark
+        }
     }
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
+final class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
     var transitionCtx: UIViewControllerContextTransitioning?
 
     func transitionDuration(using _: UIViewControllerContextTransitioning?)
@@ -19,9 +19,13 @@ class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         transitionCtx = transitionContext
 
-        guard let fromVC = transitionContext.viewController(
-            forKey: UITransitionContextViewControllerKey.from),
-            let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)
+        guard
+            let fromVC = transitionContext.viewController(
+                forKey: UITransitionContextViewControllerKey.from
+            ),
+            let toVC = transitionContext.viewController(
+                forKey: UITransitionContextViewControllerKey.to
+            )
         else {
             return
         }
@@ -32,9 +36,13 @@ class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
 
         let ballRect = FloatViewManager.shared.ballView.frame
         let startAnimationPath = UIBezierPath(
-            roundedRect: ballRect, cornerRadius: ballRect.size.height / 2
+            roundedRect: ballRect,
+            cornerRadius: ballRect.size.height / 2
         )
-        let endAnimationPath = UIBezierPath(roundedRect: toVC.view.bounds, cornerRadius: 0.1)
+        let endAnimationPath = UIBezierPath(
+            roundedRect: toVC.view.bounds,
+            cornerRadius: 0.1
+        )
 
         let maskLayer = CAShapeLayer()
         maskLayer.path = endAnimationPath.cgPath
@@ -45,7 +53,9 @@ class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
         basicAnimation.toValue = endAnimationPath.cgPath
         basicAnimation.delegate = self
         basicAnimation.duration = DSFloatChat.animationDuration
-        basicAnimation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.linear)
+        basicAnimation.timingFunction = CAMediaTimingFunction(
+            name: CAMediaTimingFunctionName.linear
+        )
         maskLayer.add(basicAnimation, forKey: "pathAnimation")
         /// Hidden ball
         if FloatViewManager.shared.ballView.changeStatusInNextTransaction {

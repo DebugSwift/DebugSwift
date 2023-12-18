@@ -11,10 +11,16 @@ import UIKit
 class BaseController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
+        if #available(iOS 13.0, *) {
+            overrideUserInterfaceStyle = .dark
+        }
     }
 
     init(withNib _: Bool) {
         super.init(nibName: nil, bundle: nil)
+        if #available(iOS 13.0, *) {
+            overrideUserInterfaceStyle = .dark
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {

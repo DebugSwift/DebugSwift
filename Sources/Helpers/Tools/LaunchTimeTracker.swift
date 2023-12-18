@@ -11,6 +11,7 @@ import Foundation
 enum LaunchTimeTracker {
     static var launchStartTime: Double?
 
+    // FIXME: - Sometimes processTimeMilliseconds, doesnt return the correct value.
     static func measureAppStartUpTime() {
         var kinfo = kinfo_proc()
         var size = MemoryLayout<kinfo_proc>.stride
