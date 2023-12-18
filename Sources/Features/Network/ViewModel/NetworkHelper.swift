@@ -12,10 +12,6 @@ class NetworkHelper {
     static let shared = NetworkHelper()
 
     var mainColor: UIColor
-    var ignoredURLs: [String]?
-    var onlyURLs: [String]?
-    var ignoredPrefixLogs: [String]?
-    var onlyPrefixLogs: [String]?
     var protobufTransferMap: [String: [String]]?
     var isNetworkEnable: Bool
 

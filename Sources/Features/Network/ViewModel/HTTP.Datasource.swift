@@ -18,10 +18,21 @@ class HttpDatasource {
             return false
         }
 
-        // URL Filter, ignore case
-        for urlString in NetworkHelper.shared.ignoredURLs ?? [] {
-            if model.url?.absoluteString.lowercased().contains(urlString.lowercased()) == true {
-                return false
+        if !DebugSwift.Network.onlyURLs.isEmpty {
+            for urlString in DebugSwift.Network.onlyURLs {
+                if model.url?.absoluteString.lowercased().contains(
+                    urlString.lowercased()
+                ) == false {
+                    return false
+                }
+            }
+        } else {
+            for urlString in DebugSwift.Network.ignoredURLs {
+                if model.url?.absoluteString.lowercased().contains(
+                    urlString.lowercased()
+                ) == true {
+                    return false
+                }
             }
         }
 

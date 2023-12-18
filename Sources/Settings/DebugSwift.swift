@@ -30,6 +30,15 @@ public enum DebugSwift {
     public static func hide() {
         FloatViewManager.remove()
     }
+}
 
-    public static var customInfo: (() -> [CustomData])?
+extension DebugSwift {
+    public enum Network {
+        public static var ignoredURLs = [String]()
+        public static var onlyURLs = [String]()
+    }
+
+    public enum App {
+        public static var customInfo: (() -> [CustomData])?
+    }
 }

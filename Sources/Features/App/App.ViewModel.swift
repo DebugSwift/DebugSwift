@@ -23,7 +23,7 @@ class AppViewModel: NSObject {
     }
 
     var customInfos: [CustomData] {
-        DebugSwift.customInfo?() ?? []
+        DebugSwift.App.customInfo?() ?? []
     }
 
     func getAppVersionInfo() -> Info? {
