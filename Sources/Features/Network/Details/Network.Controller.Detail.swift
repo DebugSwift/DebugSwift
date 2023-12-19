@@ -48,32 +48,26 @@ final class NetworkViewControllerDetail: BaseController {
 
     private func setupNavigation() {
         let copyButton: UIBarButtonItem
-        if #available(iOS 13.0, *) {
-            addRightBarButton(image: UIImage(systemName: "doc.on.doc")) { [weak self] in
-                self?.copyButtonTapped()
-            }
-        } else {
-            copyButton = UIBarButtonItem(
-                title: "Copy",
-                style: .plain,
-                target: self,
-                action: #selector(copyButtonTapped)
-            )
-            navigationItem.rightBarButtonItem = copyButton
-        }
+        addRightBarButton(
+            actions: [
+                .init(
+                    image: UIImage(named: "doc.on.doc"),
+                    completion: { [weak self] in
+                        self?.copyButtonTapped()
+                    }
+                ),
+                .init(
+                    image: UIImage(named: "ellipsis.curlybraces"),
+                    completion: { [weak self] in
+                        self?.copyCurlButtonTapped()
+                    }
+                )
+            ]
+        )
     }
 
     func setup() {
         title = "Details"
-        if #available(iOS 13.0, *) {
-            tabBarItem = UITabBarItem(
-                title: title,
-                image: UIImage(systemName: "network"),
-                tag: 0
-            )
-        } else {
-            // Fallback on earlier versions
-        }
     }
 
     func setupSearch() {
@@ -222,11 +216,21 @@ extension [NetworkViewControllerDetail.Config] {
 }
 
 extension NetworkViewControllerDetail {
-    @objc func copyButtonTapped() {
+    @objc private func copyButtonTapped() {
         UIPasteboard.general.string = formatLog(model: model)
     }
 
-    func formatLog(
+    @objc private func copyCurlButtonTapped() {
+        let curlCommand = """
+            curl -X \(model.method ?? "") \\
+                 -H "\(model.requestHeaderFields?.formattedCurlString() ?? "")" \\
+                 -d "\(model.requestData?.formattedCurlString() ?? "")" \\
+                 \(model.url?.absoluteString ?? "")
+        """
+        UIPasteboard.general.string = curlCommand
+    }
+
+    private func formatLog(
         model: HttpModel
     ) -> String {
         let formattedLog = """

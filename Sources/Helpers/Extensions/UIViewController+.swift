@@ -46,7 +46,10 @@ extension UIViewController {
         tintColor: UIColor? = nil,
         completion: (() -> Void)? = nil
     ) {
-        let rightButton = CustomBarButtonItem(image: image, style: .plain) { _ in
+        let rightButton = CustomBarButtonItem(
+            image: image,
+            style: .plain
+        ) { _ in
             if let completion {
                 completion()
             }
@@ -55,6 +58,24 @@ extension UIViewController {
             rightButton.tintColor = tintColor
         }
         navigationItem.rightBarButtonItem = rightButton
+    }
+
+    func addRightBarButton(
+        actions: [ButtonAction]
+    ) {
+        let rightButtons = actions.map { action in
+            return CustomBarButtonItem(
+                image: action.image,
+                tintColor: action.tintColor,
+                style: .plain
+            ) { _ in
+                if let completion = action.completion {
+                    completion()
+                }
+            }
+        }
+
+        navigationItem.rightBarButtonItems = rightButtons
     }
 
     func addLeftBarButton(
@@ -83,7 +104,9 @@ final class CustomBarButtonItem: UIBarButtonItem {
     private var targetClosure: UIBarButtonItemTargetClosure?
 
     convenience init(
-        title: String?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?
+        title: String?,
+        style: UIBarButtonItem.Style = .plain,
+        closure: UIBarButtonItemTargetClosure?
     ) {
         self.init(
             title: title, style: style, target: nil,
@@ -94,17 +117,45 @@ final class CustomBarButtonItem: UIBarButtonItem {
     }
 
     convenience init(
-        image: UIImage?, style: UIBarButtonItem.Style = .plain, closure: UIBarButtonItemTargetClosure?
+        image: UIImage?,
+        tintColor: UIColor? = nil,
+        style: UIBarButtonItem.Style = .plain,
+        closure: UIBarButtonItemTargetClosure?
     ) {
         self.init(
-            image: image, style: style, target: nil,
+            image: image,
+            style: style,
+            target: nil,
             action: #selector(CustomBarButtonItem.closureAction(sender:))
         )
+
+        if let tintColor {
+            self.tintColor = tintColor
+        }
+
         target = self
         self.targetClosure = closure
     }
 
     @objc func closureAction(sender: UIBarButtonItem) {
         targetClosure?(sender)
+    }
+}
+
+extension UIViewController {
+    struct ButtonAction {
+        init(
+            image: UIImage? = nil,
+            tintColor: UIColor? = nil,
+            completion: (() -> Void)? = nil
+        ) {
+            self.image = image
+            self.tintColor = tintColor
+            self.completion = completion
+        }
+
+        let image: UIImage?
+        let tintColor: UIColor?
+        let completion: (() -> Void)?
     }
 }

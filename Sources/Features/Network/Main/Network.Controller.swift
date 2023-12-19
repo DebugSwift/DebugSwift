@@ -159,10 +159,10 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell =
-            tableView.dequeueReusableCell(
-                withIdentifier: "NetworkCell", for: indexPath
-            ) as! NetworkTableViewCell
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: "NetworkCell",
+            for: indexPath
+        ) as! NetworkTableViewCell
         cell.setup(viewModel.models[indexPath.row])
 
         return cell

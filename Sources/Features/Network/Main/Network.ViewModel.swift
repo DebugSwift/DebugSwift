@@ -9,7 +9,6 @@
 import Foundation
 
 class NetworkViewModel {
-    //    var models = [NetworkCellModel]()
 
     var reachEnd = true
     var firstIn = true

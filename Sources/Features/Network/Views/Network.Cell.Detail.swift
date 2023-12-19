@@ -11,7 +11,10 @@ import UIKit
 class NetworkTableViewCellDetail: UITableViewCell {
     let details: UITextView = {
         let textView = UITextView()
-        textView.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        textView.font = UIFont.systemFont(
+            ofSize: 12,
+            weight: .medium
+        )
         textView.isScrollEnabled = false
 
         textView.textColor = .white
@@ -22,7 +25,10 @@ class NetworkTableViewCellDetail: UITableViewCell {
         return textView
     }()
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    override init(
+        style: UITableViewCell.CellStyle,
+        reuseIdentifier: String?
+    ) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
     }

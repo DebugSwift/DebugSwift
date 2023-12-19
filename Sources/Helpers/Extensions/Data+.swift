@@ -30,3 +30,51 @@ extension Data {
         return ""
     }
 }
+
+extension [String: String] {
+    func formattedCurlString() -> String {
+        return map { "\($0.key): \($0.value)" }.joined(separator: "\\n-H ")
+    }
+}
+
+extension [String: Any] {
+    func formattedCurlString() -> String {
+        return map { "\($0.key): \($0.value)" }.joined(separator: "\\n-H ")
+    }
+}
+
+extension Data {
+    func formattedCurlString() -> String {
+        if let string = String(data: self, encoding: .utf8) {
+            return string.escapedForCurl()
+        } else {
+            return ""
+        }
+    }
+}
+
+extension String {
+    func escapedForCurl() -> String {
+        return replacingOccurrences(of: "'", with: "\\'")
+    }
+}
+
+extension URLRequest {
+    func formattedCurlString() -> String {
+        var curlCommand = "curl -X \(httpMethod ?? "")"
+
+        if let headers = allHTTPHeaderFields, !headers.isEmpty {
+            curlCommand += " -H '\(headers.formattedCurlString())'"
+        }
+
+        if let bodyData = httpBody {
+            curlCommand += " -d '\(bodyData.formattedCurlString())'"
+        }
+
+        if let url = url {
+            curlCommand += " \(url.absoluteString)"
+        }
+
+        return curlCommand
+    }
+}

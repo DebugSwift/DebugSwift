@@ -29,7 +29,10 @@ final class ThreadOperator: NSObject {
     func execute(_ operation: @escaping () -> Void) {
         self.operation = operation
         perform(
-            #selector(operate), on: thread, with: nil, waitUntilDone: true,
+            #selector(operate),
+            on: thread,
+            with: nil,
+            waitUntilDone: true,
             modes: modes.map(\.rawValue)
         )
         self.operation = nil

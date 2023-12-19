@@ -9,7 +9,7 @@
 import Foundation
 
 enum RequestSerializer: UInt {
-    case JSON = 0
+    case json = 0
     case form
 }
 
@@ -30,14 +30,13 @@ class HttpModel: NSObject {
     var responseHeaderFields: [String: Any]?
     var isTag = false
     var isSelected = false
-    var requestSerializer: RequestSerializer = .JSON
+    var requestSerializer: RequestSerializer = .json
     var errorDescription: String?
     var errorLocalizedDescription: String?
     var size: String?
     var index: Int = .zero
     var id: String { String(index) }
 
-    // Default initializer with default property values
     override init() {
         super.init()
         self.statusCode = "0"
