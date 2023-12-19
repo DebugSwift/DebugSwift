@@ -18,7 +18,7 @@ DebugSwift is a comprehensive toolkit designed to simplify and enhance the debug
 - **Device Infos:** Access information about the device running the application.
 - **Custom Info:** Add custom information for quick access during debugging.
 
-TODO:
+*TODO:*
 - [ ] **Server:** Switch between different server environments.
 - [ ] **Crash Reports:** Access detailed crash reports for analysis and debugging.
 - [ ] **Change Location:** Simulate different locations for testing location-based features.
