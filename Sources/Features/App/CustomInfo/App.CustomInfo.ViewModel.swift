@@ -9,11 +9,6 @@ import Foundation
 
 class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
 
-    enum Constants {
-        static let simulatedLocationLatitude = "_simulatedLocationLatitude"
-        static let simulatedLocationLongitude = "_simulatedLocationLongitude"
-    }
-
     private var data: CustomData
     private var filteredInfo = [CustomData.Info]()
 

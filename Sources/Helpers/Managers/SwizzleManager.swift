@@ -9,14 +9,15 @@ import Foundation
 
 struct SwizzleManager {
     static func swizzle(
-        _ classType: AnyClass, originalSelector: Selector, swizzledSelector: Selector
+        _ classType: AnyClass,
+        originalSelector: Selector,
+        swizzledSelector: Selector
     ) {
         let originalMethod = class_getInstanceMethod(classType, originalSelector)
         let swizzledMethod = class_getInstanceMethod(classType, swizzledSelector)
 
         guard let origMethod = originalMethod, let swizzledMethod = swizzledMethod else {
             fatalError("Failed to retrieve methods for swizzling.")
-            return
         }
 
         let didAddMethod = class_addMethod(

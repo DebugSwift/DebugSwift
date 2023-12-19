@@ -56,5 +56,9 @@ extension UITableViewCell {
                 )
             ])
         }
+
+        if image == nil {
+            accessoryView = nil
+        }
     }
 }

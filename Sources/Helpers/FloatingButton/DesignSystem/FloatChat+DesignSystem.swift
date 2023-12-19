@@ -22,8 +22,8 @@ enum DSFloatChat {
     static let minY = screenHeight - bottomViewFloatHeight
     static let ballRect = CGRect(x: screenWidth - 70, y: screenHeight * 0.3, width: 20, height: 20)
     static let padding: CGFloat = 10.0
-    static let topSafeAreaPadding = WindowManager.window.safeAreaInsets.top ?? .zero
-    static let bottomSafeAreaPadding = WindowManager.window.safeAreaInsets.bottom ?? .zero
+    static let topSafeAreaPadding = WindowManager.window.safeAreaInsets.top
+    static let bottomSafeAreaPadding = WindowManager.window.safeAreaInsets.bottom
 
     // Movable view in the middle
     static let kUpBallViewFloatWidth: CGFloat = 60

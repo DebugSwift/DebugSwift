@@ -66,15 +66,20 @@ final class AppViewController: BaseController {
 
 extension AppViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == .zero {
+        switch Sections(rawValue: section) {
+        case .infos:
             return viewModel.infos.count
-        } else {
+        case .customData:
             return viewModel.customInfos.count
+        case .actions:
+            return ActionInfo.allCases.count
+        default:
+            return .zero
         }
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        viewModel.customInfos.isEmpty ? 1 : 2
+        viewModel.customInfos.isEmpty ? 1 : Sections.allCases.count
     }
 
     func tableView(
@@ -85,7 +90,8 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             withIdentifier: .cell,
             for: indexPath
         )
-        if indexPath.section == 0 {
+        switch Sections(rawValue: indexPath.section) {
+        case .infos:
             let info = viewModel.infos[indexPath.row]
             cell.setup(
                 title: info.title,
@@ -93,15 +99,23 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
                 image: nil
             )
             return cell
-        } else {
+        case .actions:
+            cell.setup(
+                title: ActionInfo.allCases[indexPath.row].title
+            )
+        case .customData:
             let info = viewModel.customInfos[indexPath.row]
             cell.setup(title: info.title)
             return cell
+        case nil:
+            break
         }
+
+        return cell
     }
 
     func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        section == 1 ? "Custom Data" : nil
+        Sections(rawValue: section)?.title
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
@@ -109,11 +123,50 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 1 {
+        switch Sections(rawValue: indexPath.section) {
+        case .infos:
             let data = viewModel.customInfos[indexPath.row]
             let viewModel = AppCustomInfoViewModel(data: data)
             let controller = ResourcesGenericController(viewModel: viewModel)
             navigationController?.pushViewController(controller, animated: true)
+
+        case .actions:
+            let controller = LocationViewController()
+            navigationController?.pushViewController(controller, animated: true)
+
+        default:
+            break
+        }
+    }
+}
+
+extension AppViewController {
+    enum Sections: Int, CaseIterable {
+        case infos
+        case actions
+        case customData
+
+        var title: String? {
+            switch self {
+            case .infos:
+                return nil
+            case .actions:
+                return "Actions"
+            case .customData:
+                return "Custom Data"
+            }
+        }
+    }
+}
+extension AppViewController {
+    enum ActionInfo: Int, CaseIterable {
+        case location
+
+        var title: String {
+            switch self {
+            case .location:
+                return "Simulated location"
+            }
         }
     }
 }

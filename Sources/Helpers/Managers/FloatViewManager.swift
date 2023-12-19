@@ -86,9 +86,7 @@ extension FloatViewManager {
     }
 
     private func setupClickEvent() {
-        ballView.ballDidSelect = { [weak self] in
-            guard let self else { return }
-
+        ballView.ballDidSelect = {
             WindowManager.presentDebugger()
         }
     }

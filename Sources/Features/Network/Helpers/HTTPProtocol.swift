@@ -174,8 +174,6 @@ final class CustomHTTPProtocol: URLProtocol {
         model.requestId = request.requestId
         model = ErrorHelper.handle(error, model: model)
         if HttpDatasource.shared.addHttpRequest(model) {
-            let statusCode = model.statusCode ?? "Unknown"
-
             NotificationCenter.default.post(
                 name: NSNotification.Name("reloadHttp_DebugSwift"),
                 object: nil

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E932C3C2B31587800B9D1B8 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E932C3B2B31587800B9D1B8 /* LocationManager.swift */; };
+		2E932C3F2B315E0A00B9D1B8 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E932C3E2B315E0A00B9D1B8 /* RequestManager.swift */; };
 		2EA3B5CF2B2E632B001B59FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA3B5CE2B2E632B001B59FE /* AppDelegate.swift */; };
 		2EA3B5D12B2E632B001B59FE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA3B5D02B2E632B001B59FE /* SceneDelegate.swift */; };
 		2EA3B5D32B2E632B001B59FE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA3B5D22B2E632B001B59FE /* ViewController.swift */; };
@@ -18,6 +20,8 @@
 
 /* Begin PBXFileReference section */
 		05FA6C2986A7C016B4DACEB2 /* Pods-Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example.release.xcconfig"; path = "Target Support Files/Pods-Example/Pods-Example.release.xcconfig"; sourceTree = "<group>"; };
+		2E932C3B2B31587800B9D1B8 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		2E932C3E2B315E0A00B9D1B8 /* RequestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
 		2EA3B5CB2B2E632B001B59FE /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EA3B5CE2B2E632B001B59FE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2EA3B5D02B2E632B001B59FE /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -42,6 +46,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2E932C3D2B315DF600B9D1B8 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				2E932C3B2B31587800B9D1B8 /* LocationManager.swift */,
+				2E932C3E2B315E0A00B9D1B8 /* RequestManager.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		2EA3B5C22B2E632B001B59FE = {
 			isa = PBXGroup;
 			children = (
@@ -63,6 +76,7 @@
 		2EA3B5CD2B2E632B001B59FE /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				2E932C3D2B315DF600B9D1B8 /* Helpers */,
 				2EA3B5CE2B2E632B001B59FE /* AppDelegate.swift */,
 				2EA3B5D02B2E632B001B59FE /* SceneDelegate.swift */,
 				2EA3B5D22B2E632B001B59FE /* ViewController.swift */,
@@ -206,6 +220,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2E932C3F2B315E0A00B9D1B8 /* RequestManager.swift in Sources */,
+				2E932C3C2B31587800B9D1B8 /* LocationManager.swift in Sources */,
 				2EA3B5D32B2E632B001B59FE /* ViewController.swift in Sources */,
 				2EA3B5CF2B2E632B001B59FE /* AppDelegate.swift in Sources */,
 				2EA3B5D12B2E632B001B59FE /* SceneDelegate.swift in Sources */,
@@ -361,6 +377,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9M5ULAY84M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Example/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -389,6 +406,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9M5ULAY84M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Example/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

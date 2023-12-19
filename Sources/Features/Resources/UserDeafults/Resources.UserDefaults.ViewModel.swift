@@ -9,10 +9,6 @@
 import Foundation
 
 class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
-    enum Constants {
-        static let simulatedLocationLatitude = "_simulatedLocationLatitude"
-        static let simulatedLocationLongitude = "_simulatedLocationLongitude"
-    }
 
     private var keys = [String]()
 
@@ -25,10 +21,14 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
 
     private func setupKeys() {
         keys = UserDefaults.standard.dictionaryRepresentation().keys.sorted()
-        if let latitudeIndex = keys.firstIndex(of: Constants.simulatedLocationLatitude) {
+        if let latitudeIndex = keys.firstIndex(
+            of: LocationToolkit.Constants.simulatedLatitude
+        ) {
             keys.remove(at: latitudeIndex)
         }
-        if let longitudeIndex = keys.firstIndex(of: Constants.simulatedLocationLongitude) {
+        if let longitudeIndex = keys.firstIndex(
+            of: LocationToolkit.Constants.simulatedLongitude
+        ) {
             keys.remove(at: longitudeIndex)
         }
     }
