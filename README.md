@@ -88,15 +88,19 @@ func application(
 
 ### Network Configuration
 
-To ingnore some url:
+If you want to ignore specific URLs, use the following code:
+
 ```swift
 DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
 ```
 
-To only get this url:
+If you want to capture only a specific URL, use the following code:
+
 ```swift
 DebugSwift.Network.onlyURLs = ["https://reqres.in/api/users/23"]
 ```
+
+Adjust the URLs in the arrays according to your needs.
 
 ### App Custom Data
 
