@@ -39,7 +39,6 @@ final class NetworkViewControllerDetail: BaseController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .red
 
         setupTableView()
         setupNavigation()
@@ -47,7 +46,6 @@ final class NetworkViewControllerDetail: BaseController {
     }
 
     private func setupNavigation() {
-        let copyButton: UIBarButtonItem
         addRightBarButton(
             actions: [
                 .init(
