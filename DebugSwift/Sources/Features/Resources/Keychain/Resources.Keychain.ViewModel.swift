@@ -38,6 +38,8 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
+    var reloadData: (() -> Void)?
+
     func viewTitle() -> String {
         "Keychain"
     }

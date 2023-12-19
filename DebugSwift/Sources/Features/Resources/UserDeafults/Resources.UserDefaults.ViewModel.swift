@@ -35,6 +35,8 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
+    var reloadData: (() -> Void)?
+
     func viewTitle() -> String {
         "User defaults"
     }

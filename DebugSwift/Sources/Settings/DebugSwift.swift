@@ -14,6 +14,7 @@ public enum DebugSwift {
         UIWindow.db_swizzleMethods()
         URLSessionConfiguration.swizzleMethods()
         CLLocationManager.swizzleMethods()
+        LogIntercepter.shared.start()
 
         LocalizationManager.shared.loadBundle()
         NetworkHelper.shared.enable()
@@ -47,6 +48,12 @@ extension DebugSwift {
     }
 
     public enum Console {
-        public static var logs = [String]()
+        public static var ignoredLogs = [String]()
+        public static var onlyLogs = [String]()
+    }
+
+    public enum Debugger {
+        /// Enable debug logs, default is `true`
+        public static var enable: Bool = true
     }
 }

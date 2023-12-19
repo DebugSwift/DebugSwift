@@ -10,13 +10,13 @@ import Foundation
 class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
 
     private var data: [String] {
-        DebugSwift.Console.logs
+        LogIntercepter.shared.consoleOutput
     }
     private var filteredInfo = [String]()
 
     // MARK: - ViewModel
 
-    var isDeleteEnable: Bool { false }
+    var reloadData: (() -> Void)?
 
     func viewTitle() -> String {
         "actions-console".localized()
@@ -31,9 +31,13 @@ class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
         return (title: info, value: "")
     }
 
-    func handleClearAction() {}
+    func handleClearAction() {
+        LogIntercepter.shared.reset()
+    }
 
-    func handleDeleteItemAction(atIndex index: Int) {}
+    func handleDeleteItemAction(atIndex index: Int) {
+        LogIntercepter.shared.consoleOutput.remove(at: index)
+    }
 
     func emptyListDescriptionString() -> String {
         "empty-data".localized() + "actions-console".localized()
@@ -58,5 +62,11 @@ class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
                 $0.localizedCaseInsensitiveContains(searchText)
             }
         }
+    }
+}
+
+extension AppConsoleViewModel: LogInterceptorDelegate {
+    func logUpdated() {
+        reloadData?()
     }
 }

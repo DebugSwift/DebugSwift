@@ -55,6 +55,8 @@
 
 "empty-data" = "Não foi encontrados dados no ";
 
+"clean" = "Limpar";
+
 // MARK: - ErrorHelper
 
 /* Descrições de Erro */

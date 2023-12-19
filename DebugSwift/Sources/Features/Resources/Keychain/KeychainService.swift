@@ -542,7 +542,7 @@ public final class Keychain {
             return nil
         }
         guard let string = String(data: data, encoding: .utf8) else {
-            print("failed to convert data to string")
+            Debug.print("failed to convert data to string")
             throw Status.conversionError
         }
         return string
@@ -604,7 +604,7 @@ public final class Keychain {
 
     public func set(_ value: String, key: String, ignoringAttributeSynchronizable: Bool = true) throws {
         guard let data = value.data(using: .utf8, allowLossyConversion: false) else {
-            print("failed to convert string to data")
+            Debug.print("failed to convert string to data")
             throw Status.conversionError
         }
         try set(data, key: key, ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
@@ -627,7 +627,7 @@ public final class Keychain {
 
             var (attributes, error) = options.attributes(key: nil, value: value)
             if let error = error {
-                print(error.localizedDescription)
+                Debug.print(error.localizedDescription)
                 throw error
             }
 
@@ -645,7 +645,7 @@ public final class Keychain {
         case errSecItemNotFound:
             var (attributes, error) = options.attributes(key: key, value: value)
             if let error = error {
-                print(error.localizedDescription)
+                Debug.print(error.localizedDescription)
                 throw error
             }
 
@@ -912,7 +912,7 @@ public final class Keychain {
             if let error = error {
                 remoteError = error.error
                 if remoteError?.code != Int(errSecItemNotFound) {
-                    print("error:[\(remoteError!.code)] \(remoteError!.localizedDescription)")
+                    Debug.print("error:[\(remoteError!.code)] \(remoteError!.localizedDescription)")
                 }
             }
             if let credentials = credentials {
@@ -1033,7 +1033,7 @@ public final class Keychain {
     fileprivate class func securityError(status: OSStatus) -> Error {
         let error = Status(status: status)
         if error != .userCanceled {
-            print("OSStatus error:[\(error.errorCode)] \(error.description)")
+            Debug.print("OSStatus error:[\(error.errorCode)] \(error.description)")
         }
 
         return error

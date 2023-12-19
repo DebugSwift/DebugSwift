@@ -8,33 +8,20 @@
 
 import Foundation
 
-enum Debug {
-    public enum DebugLevel {
-        case full
-        case normal
-        case minimal
+public enum Debug {
+    static var enable: Bool {
+        DebugSwift.Debugger.enable
     }
 
-    static func execute(level: DebugLevel, action: () -> Void) {
-        switch level {
-        case .full:
-            action()
-        case .normal:
-            action()
-        case .minimal:
-            break
-        }
+    static func execute(action: () -> Void) {
+        guard enable else { return }
+        action()
     }
 
     static func print(
-        _ message: String,
-        level: DebugLevel = .normal
+        _ message: String
     ) {
-        switch level {
-        case .full, .normal:
-            Swift.print(message)
-        case .minimal:
-            break
-        }
+        guard enable else { return }
+        Swift.print("[DebugSwift] 🚀 → \(message)")
     }
 }

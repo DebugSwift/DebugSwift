@@ -82,7 +82,7 @@ final class CustomHTTPProtocol: URLProtocol {
         if let cache = URLCache.customHttp.validCache(for: request) {
             use(cache)
 
-            Debug.execute(level: .full) {
+            Debug.execute {
                 if let name = request.url?.lastPathComponent {
                     Debug.print("Use cache for \(name)")
                 } else {
@@ -93,7 +93,7 @@ final class CustomHTTPProtocol: URLProtocol {
             return
         }
 
-        Debug.print(request.requestId, level: .minimal)
+        Debug.print(request.requestId)
         threadOperator = ThreadOperator()
         startTime = Date()
         let config = URLSessionConfiguration.default
@@ -190,7 +190,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     ) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
-            Debug.print("willPerformHTTPRedirection", level: .full)
+            Debug.print("willPerformHTTPRedirection")
             self.client?.urlProtocol(self, wasRedirectedTo: request, redirectResponse: response)
             self.response = response
             completionHandler(request)
@@ -205,8 +205,6 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     ) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
-            Debug.print("didReceive response", level: .full)
-
             if let response = response as? HTTPURLResponse, let request = dataTask.originalRequest {
                 self.cachePolicy = CacheHelper.cacheStoragePolicy(for: request, and: response)
             }
@@ -221,7 +219,6 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
-            Debug.print("didReceive data", level: .full)
             if self.cachePolicy == .allowed {
                 self.data.append(data)
             }
@@ -256,14 +253,10 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                     self.dataTask?.resume()
                     return
                 }
-
-                Debug.print("didCompleteWithError ERROR", level: .full)
                 self.delegate?.customHTTPProtocol(self, didFailWithError: error)
                 self.client?.urlProtocol(self, didFailWithError: error)
                 return
             }
-
-            Debug.print("didCompleteWithError SUCCESS", level: .full)
 
             self.delegate?.customHTTPProtocolDidFinishLoading(self)
             self.client?.urlProtocolDidFinishLoading(self)

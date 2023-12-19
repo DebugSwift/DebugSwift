@@ -43,8 +43,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
     }
 }
-
-public func print(_ items: Any..., separator: String = " ", terminator: String = "\n") {
-    let message = items.map { "\($0)" }.joined(separator: separator)
-    DebugSwift.Console.logs.append(message)
-}

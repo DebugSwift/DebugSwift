@@ -21,6 +21,8 @@ class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
+    var reloadData: (() -> Void)?
+
     var isDeleteEnable: Bool { false }
 
     func viewTitle() -> String {

@@ -71,6 +71,10 @@ class ResourcesGenericController: BaseTableController {
                 rightButtonStyle: .cancel
             )
         }
+
+        viewModel.reloadData = { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
 
     func setupSearch() {
@@ -202,6 +206,8 @@ protocol ResourcesGenericListViewModel: AnyObject {
     /// Filters the content based on the search text.
     /// - Parameter searchText: The text to be used for filtering.
     func filterContentForSearchText(_ searchText: String)
+
+    var reloadData: (() -> Void)? { get set }
 }
 
 // Optional
