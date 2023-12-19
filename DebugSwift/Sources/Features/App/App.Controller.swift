@@ -141,6 +141,12 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
                 navigationController?.pushViewController(controller, animated: true)
             default: break
             }
+        case .customData:
+            let data = viewModel.customInfos[indexPath.row]
+            let viewModel = AppCustomInfoViewModel(data: data)
+            let controller = ResourcesGenericController(viewModel: viewModel)
+            navigationController?.pushViewController(controller, animated: true)
+
         default:
             break
         }
