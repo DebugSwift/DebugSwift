@@ -1,25 +1,21 @@
 # DebugSwift Toolkit
 
-DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're a developer troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.
+DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.
 
 ![image1](https://github.com/MaatheusGois/DebugSwift/assets/31082311/03d0e0d0-d2ab-4fc2-8d47-e7089fffc2f6)
-
 ![image2](https://github.com/MaatheusGois/DebugSwift/assets/31082311/994e75c9-948e-486b-9522-4e2a9779de4e)
-
 ![image3](https://github.com/MaatheusGois/DebugSwift/assets/31082311/0aebb4ce-3e0c-4eea-b2a4-4516d916228e)
-
 ![image4](https://github.com/MaatheusGois/DebugSwift/assets/31082311/fecff545-405b-493f-99f8-3ed65d453227)
 
-
-# Features
+## Features
 
 ### App Settings
 
-- **Change Location:** Simulate different locations to test location-based features.
-- **Crash Reports:** Access crash reports for detailed analysis and debugging.
+- **Change Location:** Simulate different locations for testing location-based features.
+- **Crash Reports:** Access detailed crash reports for analysis and debugging.
 - **Console:** Monitor and interact with the application's console logs.
-- **Version:** View the current version of the application.
-- **Build:** Identify the build number of the application.
+- **Version:** View the current application version.
+- **Build:** Identify the application's build number.
 - **Bundle Name:** Retrieve the application's bundle name.
 - **Bundle ID:** Display the unique bundle identifier for the application.
 - **Server:** Switch between different server environments.
@@ -74,8 +70,7 @@ Add the following dependency to your `Package.swift` file:
 
 Then, add `"DebugSwift"` to your target's dependencies.
 
-
-### Using
+### Usage
 
 ```swift
 func application(
@@ -87,7 +82,31 @@ func application(
 
     return true
 }
-``````
+```
+
+## Customization
+
+### Network Configuration
+
+```swift
+DebugSwift.Network.ignoredURLs = ["url1", "url2"]
+DebugSwift.Network.onlyURLs = ["url3", "url4"]
+```
+
+### App Custom Data
+
+```swift
+DebugSwift.App.customInfo = {
+    [
+        .init(
+            title: "Info 1",
+            infos: [
+                .init(title: "title 1", subtitle: "title 2")
+            ]
+        )
+    ]
+}
+```
 
 ## Contributing
 
