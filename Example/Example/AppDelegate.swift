@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 .init(
                     title: "Info 1",
                     infos: [
-                        .init(title: "title 1", subtitle: "title 2")
+                        .init(title: "title 1", subtitle: "subtitle 1")
                     ]
                 )
             ]
