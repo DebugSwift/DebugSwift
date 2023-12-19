@@ -20,6 +20,7 @@ DebugSwift is a comprehensive toolkit designed to simplify and enhance the debug
 - **Bundle ID:** Display the unique bundle identifier for the application.
 - **Server:** Switch between different server environments.
 - **Device Infos:** Access information about the device running the application.
+- **Custom Info:** Add custom information for quick access during debugging.
 
 ### Interface
 
@@ -116,11 +117,10 @@ DebugSwift.App.customInfo = {
     ]
 }
 ```
-
-
+#### Results:
 ![image5](https://github.com/MaatheusGois/DebugSwift/assets/31082311/2481f7b9-2592-46be-b1d7-c0787fcd9110)
 
-
+---
 
 ## Contributing
 
