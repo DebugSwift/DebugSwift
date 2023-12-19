@@ -88,9 +88,14 @@ func application(
 
 ### Network Configuration
 
+To ingnore some url:
 ```swift
-DebugSwift.Network.ignoredURLs = ["url1", "url2"]
-DebugSwift.Network.onlyURLs = ["url3", "url4"]
+DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
+```
+
+To only get this url:
+```swift
+DebugSwift.Network.onlyURLs = ["https://reqres.in/api/users/23"]
 ```
 
 ### App Custom Data
@@ -107,6 +112,11 @@ DebugSwift.App.customInfo = {
     ]
 }
 ```
+
+
+![image5](https://github.com/MaatheusGois/DebugSwift/assets/31082311/2481f7b9-2592-46be-b1d7-c0787fcd9110)
+
+
 
 ## Contributing
 
