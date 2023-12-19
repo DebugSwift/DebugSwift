@@ -24,6 +24,7 @@
 		2CA8C2F501AD98907FC30377D9DEC504 /* DebugSwift-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 53E39F130FCEA761E49A56CB7E472CDF /* DebugSwift-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2E41A5602B31FF3B0006E98D /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E41A55F2B31FF3B0006E98D /* LocalizationManager.swift */; };
 		2E41A5622B31FF600006E98D /* Bundle+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E41A5612B31FF600006E98D /* Bundle+.swift */; };
+		2E41A56B2B32351F0006E98D /* ConsoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E41A56A2B32351F0006E98D /* ConsoleViewModel.swift */; };
 		2F96B7AFC2636D21C47786770685841A /* DebugSwift-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = BF1C40FB4B2E5737A4172A903F5B83FE /* DebugSwift-dummy.m */; };
 		35F8F184C21030DACE4C0146E20D77A8 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77DEAAF6723126A5A6992DAF1ACF9F2F /* Debug.swift */; };
 		39EFC10CF310D2A237E476322E0D76E5 /* HTTPProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5E237FD83978F92FA97358578CFAE9 /* HTTPProtocol.swift */; };
@@ -139,6 +140,7 @@
 		2E41A55F2B31FF3B0006E98D /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
 		2E41A5612B31FF600006E98D /* Bundle+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+.swift"; sourceTree = "<group>"; };
 		2E41A5662B32038D0006E98D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2E41A56A2B32351F0006E98D /* ConsoleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleViewModel.swift; sourceTree = "<group>"; };
 		2EF2766A2B31FE7900AC90BB /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		31C1D37707DFAA5E6A164BCC07834264 /* Pods-Example-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Example-Info.plist"; sourceTree = "<group>"; };
 		33DF98398553AD2D1E7E240C55E74AAD /* Resources.Keychain.ViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Resources.Keychain.ViewModel.swift; sourceTree = "<group>"; };
@@ -280,6 +282,14 @@
 				F328F8837114B6B059DFFFEE13021713 /* SliderTableViewCell.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		2E41A5692B3233FA0006E98D /* Console */ = {
+			isa = PBXGroup;
+			children = (
+				2E41A56A2B32351F0006E98D /* ConsoleViewModel.swift */,
+			);
+			path = Console;
 			sourceTree = "<group>";
 		};
 		30906776493AF3CA1C41D6F5A268CAC7 /* Helpers */ = {
@@ -740,6 +750,7 @@
 			children = (
 				7E1E67725BB98D209A57890573359EED /* App.Controller.swift */,
 				FBAC792E73AE681C9E09B10C36693225 /* App.ViewModel.swift */,
+				2E41A5692B3233FA0006E98D /* Console */,
 				4601993311E3FD3E52048B94A70E3790 /* CustomInfo */,
 				CC8A9121D2DF694D36A7671065DFBD4C /* Location */,
 			);
@@ -969,6 +980,7 @@
 				A753C444B18B58CA7EF18C148CCF81BD /* SwizzleSessionConfiguration.swift in Sources */,
 				BA323FF489466DDAE1CF7CEFABE8738D /* TabBarController.swift in Sources */,
 				28BCD2903E28BC0938CCF3330D7260C8 /* ThreadOperator.swift in Sources */,
+				2E41A56B2B32351F0006E98D /* ConsoleViewModel.swift in Sources */,
 				59A75DCC005A15FAE386CD5BF33DD9DC /* TopUIView.swift in Sources */,
 				3CBDD6715FCC7684E3E97D6E831F8D35 /* TouchIndicatorView.swift in Sources */,
 				DA288062A2937890AFA88F1393D10F7C /* TransitionPop.swift in Sources */,

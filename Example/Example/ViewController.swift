@@ -30,6 +30,7 @@ class ViewController: UIViewController {
     }
 
     @IBAction func seeLocation() {
+        print("debug")
         LocationManager.shared.requestLocation()
     }
 }

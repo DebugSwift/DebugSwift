@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DebugSwift
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?

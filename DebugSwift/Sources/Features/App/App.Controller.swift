@@ -131,9 +131,16 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             navigationController?.pushViewController(controller, animated: true)
 
         case .actions:
-            let controller = LocationViewController()
-            navigationController?.pushViewController(controller, animated: true)
-
+            switch ActionInfo(rawValue: indexPath.row) {
+            case .console:
+                let viewModel = AppConsoleViewModel()
+                let controller = ResourcesGenericController(viewModel: viewModel)
+                navigationController?.pushViewController(controller, animated: true)
+            case .location:
+                let controller = LocationViewController()
+                navigationController?.pushViewController(controller, animated: true)
+            default: break
+            }
         default:
             break
         }
@@ -161,11 +168,14 @@ extension AppViewController {
 extension AppViewController {
     enum ActionInfo: Int, CaseIterable {
         case location
+        case console
 
         var title: String {
             switch self {
             case .location:
                 return "simulated-location".localized()
+            case .console:
+                return "actions-console".localized()
             }
         }
     }

@@ -45,4 +45,8 @@ extension DebugSwift {
     public enum App {
         public static var customInfo: (() -> [CustomData])?
     }
+
+    public enum Console {
+        public static var logs = [String]()
+    }
 }
