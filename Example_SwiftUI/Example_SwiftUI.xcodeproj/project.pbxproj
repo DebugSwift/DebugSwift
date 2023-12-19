@@ -111,11 +111,12 @@
 			};
 			buildConfigurationList = 2EA3B6542B2E7F71001B59FE /* Build configuration list for PBXProject "Example_SwiftUI" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = "pt-BR";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"pt-BR",
 			);
 			mainGroup = 2EA3B6502B2E7F71001B59FE;
 			packageReferences = (

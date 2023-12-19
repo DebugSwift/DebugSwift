@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "DebugSwift",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v12)
     ],
@@ -17,7 +18,10 @@ let package = Package(
         .target(
             name: "DebugSwift",
             dependencies: [],
-            path: "Sources"
+            path: "DebugSwift",
+            resources: [
+                .process("Resources")
+            ]
         )
     ],
     swiftLanguageVersions: [.v5]
