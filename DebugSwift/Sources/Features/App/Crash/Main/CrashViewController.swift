@@ -55,7 +55,7 @@ final class CrashViewController: BaseController {
     }
 
     func setupTabBar() {
-        title = "interface-title".localized()
+        title = "actions-crash".localized()
         tabBarItem = UITabBarItem(
             title: title,
             image: UIImage(named: "square.grid.2x2"),
