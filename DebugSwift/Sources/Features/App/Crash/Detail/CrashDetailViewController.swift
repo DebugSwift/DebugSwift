@@ -134,7 +134,8 @@ extension CrashDetailViewController: UITableViewDataSource, UITableViewDelegate 
             title: data?.title ?? "",
             subtitle: feature != .details ? data?.detail : nil,
             description: feature == .details ? data?.detail : nil,
-            image: feature == .context ? UIImage(named: "chevron.right") : nil
+            image: feature == .context ? UIImage(named: "chevron.right") : nil,
+            scale: feature == .stackTrace ? 0.7 : 1
         )
         return cell
     }

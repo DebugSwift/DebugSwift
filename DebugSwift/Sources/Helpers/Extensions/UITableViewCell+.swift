@@ -13,7 +13,8 @@ extension UITableViewCell {
         title: String,
         subtitle: String? = nil,
         description: String? = nil,
-        image: UIImage? = UIImage(named: "chevron.right")
+        image: UIImage? = UIImage(named: "chevron.right"),
+        scale: CGFloat = 1
     ) {
         // Remove subviews with tag 111
         subviews.filter { $0.tag == 111 }.forEach { $0.removeFromSuperview() }
@@ -25,10 +26,11 @@ extension UITableViewCell {
         textLabel?.text = title
         textLabel?.textColor = .white
         textLabel?.numberOfLines = 0
+        textLabel?.font = .systemFont(ofSize: 16 * scale)
 
         // Set attributed text if subtitle is provided
         if let subtitle = subtitle, !subtitle.isEmpty {
-            textLabel?.setAttributedText(title: title, subtitle: subtitle)
+            textLabel?.setAttributedText(title: title, subtitle: subtitle, scale: scale)
         }
 
         // Configure cell appearance

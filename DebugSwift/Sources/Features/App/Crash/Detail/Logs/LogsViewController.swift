@@ -15,6 +15,7 @@ class LogsViewController: BaseController {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.textColor = .white
+        textView.font = .systemFont(ofSize: 10)
         return textView
     }()
 
@@ -23,10 +24,6 @@ class LogsViewController: BaseController {
     init(text: String) {
         textView.text = text
         super.init()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: - View Lifecycle

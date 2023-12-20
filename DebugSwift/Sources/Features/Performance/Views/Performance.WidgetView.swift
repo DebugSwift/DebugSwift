@@ -106,7 +106,7 @@ class PerformanceWidgetView: TopLevelViewWrapper {
         ])
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.alpha = 0.5
+            self.alpha = 0.7
         }
     }
 
