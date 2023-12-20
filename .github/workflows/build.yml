@@ -1,21 +1,22 @@
-name: Build and Test
+name: Build Example
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
-
+    name: Build default scheme using any available iPhone simulator
     runs-on: macos-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Xcode
-      uses: actions/setup-xcode@v2
+      uses: actions/checkout@v3
       with:
         xcode-version: '15.1'
 
