@@ -59,6 +59,12 @@ final class NetworkViewControllerDetail: BaseController {
                     completion: { [weak self] in
                         self?.copyCurlButtonTapped()
                     }
+                ),
+                .init(
+                    image: .init(named: "square.and.arrow.up"),
+                    completion: { [weak self] in
+                        self?.shareButtonTapped()
+                    }
                 )
             ]
         )
@@ -216,6 +222,34 @@ extension [NetworkViewControllerDetail.Config] {
 extension NetworkViewControllerDetail {
     @objc private func copyButtonTapped() {
         UIPasteboard.general.string = formatLog(model: model)
+    }
+
+    @objc private func shareButtonTapped() {
+        let logText = formatLog(model: model)
+
+        var fileName = model.url?.path.replacingOccurrences(of: "/", with: "-") ?? "-log"
+        fileName.removeFirst()
+
+        let tempURL = URL(
+            fileURLWithPath: NSTemporaryDirectory()
+        ).appendingPathComponent("\(fileName).txt")
+
+        do {
+            try logText.write(to: tempURL, atomically: true, encoding: .utf8)
+
+            let activity = UIActivityViewController(
+                activityItems: [tempURL],
+                applicationActivities: nil
+            )
+
+            if let popover = activity.popoverPresentationController {
+                popover.sourceView = self.view
+                popover.permittedArrowDirections = .up
+            }
+            present(activity, animated: true, completion: nil)
+        } catch {
+            Debug.print("Error: \(error.localizedDescription)")
+        }
     }
 
     @objc private func copyCurlButtonTapped() {

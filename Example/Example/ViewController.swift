@@ -32,4 +32,10 @@ class ViewController: UIViewController {
     @IBAction func seeLocation() {
         LocationManager.shared.requestLocation()
     }
+
+    @IBAction func crash() {
+//        fatalError("batata")
+        var index: Int?
+        print(index!)
+    }
 }

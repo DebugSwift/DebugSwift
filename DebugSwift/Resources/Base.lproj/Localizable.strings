@@ -28,8 +28,10 @@
 "slow-animations" = "Slow animations";
 "simulated-location" = "Simulated location";
 "actions" = "Actions";
+"device-info" = "Device Info";
 "custom-data" = "Custom Data";
 "actions-console" = "Console";
+"actions-crash" = "Crashes";
 
 "search" = "Search";
 "app-title" = "App";

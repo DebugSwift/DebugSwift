@@ -15,50 +15,51 @@ extension UITableViewCell {
         description: String? = nil,
         image: UIImage? = UIImage(named: "chevron.right")
     ) {
+        // Remove subviews with tag 111
+        subviews.filter { $0.tag == 111 }.forEach { $0.removeFromSuperview() }
+
+        // Clean accessoryView
+        accessoryView = nil
+
+        // Configure textLabel
         textLabel?.text = title
         textLabel?.textColor = .white
-        textLabel?.numberOfLines = .zero
+        textLabel?.numberOfLines = 0
 
-        if let subtitle {
+        // Set attributed text if subtitle is provided
+        if let subtitle = subtitle, !subtitle.isEmpty {
             textLabel?.setAttributedText(title: title, subtitle: subtitle)
         }
 
+        // Configure cell appearance
         backgroundColor = .clear
         selectionStyle = .none
 
-        if let image {
+        // Configure accessoryView
+        if let image = image {
             let disclosureIndicator = UIImageView(image: image)
             disclosureIndicator.tintColor = .white
             accessoryView = disclosureIndicator
-            accessoryType = .disclosureIndicator
-        } else if let description {
+        } else if let description = description {
+            // Configure custom label for description
             let label = UILabel()
-            label.text = title
-            label.textColor = .darkGray
-            label.numberOfLines = .zero
-            label.textAlignment = .right
-
             label.text = description
+            label.textColor = .darkGray
+            label.numberOfLines = 0
+            label.textAlignment = .right
             label.translatesAutoresizingMaskIntoConstraints = false
+            label.tag = 111
             addSubview(label)
 
+            // Set constraints for the custom label
             NSLayoutConstraint.activate([
-                label.centerYAnchor.constraint(
-                    equalTo: centerYAnchor
-                ),
-                label.trailingAnchor.constraint(
-                    equalTo: trailingAnchor,
-                    constant: -16
-                ),
-                label.leadingAnchor.constraint(
-                    equalTo: leadingAnchor,
-                    constant: UIScreen.main.bounds.width / 2
-                )
+                label.centerYAnchor.constraint(equalTo: centerYAnchor),
+                label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+                label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: UIScreen.main.bounds.width / 2)
             ])
         }
 
-        if image == nil {
-            accessoryView = nil
-        }
+        // Adjust cell size
+        sizeToFit()
     }
 }

@@ -18,6 +18,8 @@ extension UIWindow {
         static var associatedReusableTouchIndicators: UInt8 = 1
     }
 
+    static var lastTouch: CGPoint?
+
     // MARK: - TouchIndicators property
 
     private var touchIndicators: NSMapTable<UITouch, TouchIndicatorView> {
@@ -111,6 +113,11 @@ extension UIWindow {
     }
 
     func db_handleTouch(_ touch: UITouch) {
+        if touch.phase == .ended {
+            Self.lastTouch = touch.location(in: nil)
+        }
+
+        guard UserInterfaceToolkit.shared.showingTouchesEnabled else { return }
         switch touch.phase {
         case .began:
             db_addTouchIndicator(with: touch)
@@ -124,11 +131,11 @@ extension UIWindow {
     }
 
     func db_addTouchIndicator(with touch: UITouch) {
-        let indicatorView = db_availableTouchIndicatorView()
-        indicatorView?.isHidden = !(UserInterfaceToolkit.shared.showingTouchesEnabled)
+        guard let indicatorView = db_availableTouchIndicatorView() else { return }
+        indicatorView.isHidden = !UserInterfaceToolkit.shared.showingTouchesEnabled
         touchIndicators.setObject(indicatorView, forKey: touch)
-        addSubview(indicatorView!)
-        indicatorView?.center = touch.location(in: self)
+        addSubview(indicatorView)
+        indicatorView.center = touch.location(in: self)
         db_handleTouchForce(touch)
     }
 
@@ -162,8 +169,8 @@ extension UIWindow {
 
             if self.traitCollection.forceTouchCapability == UIForceTouchCapability.available {
                 indicatorViewAlpha =
-                    Constants.touchIndicatorViewMinAlpha + (1.0 - Constants.touchIndicatorViewMinAlpha)
-                        * touch.force / touch.maximumPossibleForce
+                Constants.touchIndicatorViewMinAlpha + (1.0 - Constants.touchIndicatorViewMinAlpha)
+                * touch.force / touch.maximumPossibleForce
             }
             indicatorView.alpha = indicatorViewAlpha
         }
@@ -190,6 +197,48 @@ extension UIWindow {
 
     static var keyWindow: UIWindow? {
         UIApplication.shared.windows.first(where: \.isKeyWindow)
+    }
+
+    var _snapshot: UIImage? {
+        guard Thread.isMainThread else { return nil }
+        UIGraphicsBeginImageContextWithOptions(layer.frame.size, false, .zero)
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+        layer.render(in: context)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
+    }
+
+    var _snapshotWithTouch: UIImage? {
+        guard Thread.isMainThread else { return nil }
+
+        UIGraphicsBeginImageContextWithOptions(layer.frame.size, false, .zero)
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+
+        // Draw the original snapshot
+        layer.render(in: context)
+
+        if let circleCenter = Self.lastTouch {
+            // Draw a circle in the center of the image
+            let circleRadius: CGFloat = 20
+
+            context.setLineWidth(2)
+            context.setStrokeColor(UIColor.red.cgColor)
+            context.addArc(
+                center: circleCenter,
+                radius: circleRadius,
+                startAngle: 0,
+                endAngle: CGFloat.pi * 2,
+                clockwise: true
+            )
+            context.strokePath()
+        }
+
+        // Get the modified image
+        let imageWithCircle = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return imageWithCircle
     }
 }
 

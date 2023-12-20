@@ -27,6 +27,18 @@
 		2489B30EF260E260FB38BB95EB47ABDF /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AA40D434BF769E547B3AF374620FC4 /* NetworkHelper.swift */; };
 		27ED57DD78AFFA7B1610B984DF2883C8 /* Dictionary+.swift in Sources */ = {isa = PBXBuildFile; fileRef = D38664913252E5243F42C66798E8BF5A /* Dictionary+.swift */; };
 		2CCF82B1694CDD7FBE500F4EF1AA7D1C /* Network.Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8957943CF4C94D0281E0D343E62140D6 /* Network.Cell.swift */; };
+		2E60B9F12B326D2B0084C2D9 /* CrashManager+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9F02B326D2B0084C2D9 /* CrashManager+.swift */; };
+		2E60B9F52B3273420084C2D9 /* CrashManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9F42B3273420084C2D9 /* CrashManager.swift */; };
+		2E60B9F82B327CDC0084C2D9 /* CrashViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9F72B327CDC0084C2D9 /* CrashViewModel.swift */; };
+		2E60B9FC2B328A570084C2D9 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9FB2B328A570084C2D9 /* UserInfo.swift */; };
+		2E60B9FE2B3293860084C2D9 /* CrashModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9FD2B3293860084C2D9 /* CrashModel.swift */; };
+		2E60BA022B32A4A10084C2D9 /* CrashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA012B32A4A10084C2D9 /* CrashViewController.swift */; };
+		2E60BA042B32A5390084C2D9 /* CrashDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA032B32A5390084C2D9 /* CrashDetailViewController.swift */; };
+		2E60BA062B32AC4A0084C2D9 /* CrashDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA052B32AC4A0084C2D9 /* CrashDetailViewModel.swift */; };
+		2E60BA0A2B33421E0084C2D9 /* SnapshotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA092B33421E0084C2D9 /* SnapshotViewController.swift */; };
+		2E60BA0C2B334FA50084C2D9 /* PDFManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA0B2B334FA50084C2D9 /* PDFManager.swift */; };
+		2E60BA0E2B336C340084C2D9 /* UserDefaultsAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA0D2B336C340084C2D9 /* UserDefaultsAccess.swift */; };
+		2E60BA102B336EF30084C2D9 /* LogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA0F2B336EF30084C2D9 /* LogsViewController.swift */; };
 		313D7FB738923BC6D166BD1010EE6FB9 /* TransitionPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21723A9F5AF6174D0A7B575FEC0ECE10 /* TransitionPush.swift */; };
 		322E34E789784FA440D295006A658E58 /* Performance.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE2B4F0D37277281CE0FB327EE10529 /* Performance.Controller.swift */; };
 		34EE80E4191B65454B4CB6EA9FDA5FBF /* LaunchTimeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6ECE8E02FBFF41B8FC5882BA5AC827 /* LaunchTimeTracker.swift */; };
@@ -44,7 +56,7 @@
 		517C7D1BC6871681EF682425A852EBCE /* URLCache+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A680B1CDA72348B0F251AC6780F675C /* URLCache+.swift */; };
 		54E502026D611B893AEDD372F2ADD19F /* GridOverlayColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43EC151B5078D94FB56B79EEF255179 /* GridOverlayColorScheme.swift */; };
 		574E6C28718DC1EAD68EEDDB6ADBD08D /* Performance.Toolkit.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADFC66B95C9027E3E08BE7406C0812E9 /* Performance.Toolkit.swift */; };
-		5A0963AC98CF3D0E77697C96FC7E3BFD /* ConsoleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9700EAAB791DBCD30061EE5131A67E54 /* ConsoleController.swift */; };
+		5A0963AC98CF3D0E77697C96FC7E3BFD /* ConsoleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9700EAAB791DBCD30061EE5131A67E54 /* ConsoleViewModel.swift */; };
 		5C291AE3BEE4B2DA90ADA9405E01D489 /* UILabel+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81D971A5581F7BF0BE9411BE61AED389 /* UILabel+.swift */; };
 		5D8D12B7CC0B90541344F6B72F734EFA /* Performance.WidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46B002C3EFA278B315B50CC8A950D23 /* Performance.WidgetView.swift */; };
 		5F549E3CF5574AF1E706B499252B1509 /* DebugSwift-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 02375FF75C7FF7A4E4616AB6A3E47951 /* DebugSwift-dummy.m */; };
@@ -136,6 +148,18 @@
 		243410B9535472556EA4BB6DBC133A0D /* Pods-Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Example.release.xcconfig"; sourceTree = "<group>"; };
 		281E8973BB77A12EBAB8FED2EFE8E23D /* DebugSwift */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = DebugSwift; path = DebugSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A5983025EB37B07CB0010F0070ACE7C /* UIViewController+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIViewController+.swift"; sourceTree = "<group>"; };
+		2E60B9F02B326D2B0084C2D9 /* CrashManager+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CrashManager+.swift"; sourceTree = "<group>"; };
+		2E60B9F42B3273420084C2D9 /* CrashManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashManager.swift; sourceTree = "<group>"; };
+		2E60B9F72B327CDC0084C2D9 /* CrashViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashViewModel.swift; sourceTree = "<group>"; };
+		2E60B9FB2B328A570084C2D9 /* UserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
+		2E60B9FD2B3293860084C2D9 /* CrashModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashModel.swift; sourceTree = "<group>"; };
+		2E60BA012B32A4A10084C2D9 /* CrashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashViewController.swift; sourceTree = "<group>"; };
+		2E60BA032B32A5390084C2D9 /* CrashDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashDetailViewController.swift; sourceTree = "<group>"; };
+		2E60BA052B32AC4A0084C2D9 /* CrashDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashDetailViewModel.swift; sourceTree = "<group>"; };
+		2E60BA092B33421E0084C2D9 /* SnapshotViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotViewController.swift; sourceTree = "<group>"; };
+		2E60BA0B2B334FA50084C2D9 /* PDFManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFManager.swift; sourceTree = "<group>"; };
+		2E60BA0D2B336C340084C2D9 /* UserDefaultsAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsAccess.swift; sourceTree = "<group>"; };
+		2E60BA0F2B336EF30084C2D9 /* LogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsViewController.swift; sourceTree = "<group>"; };
 		2F62A5942FB5A60FF15CF8FBCDEC463F /* DebugSwift.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; path = DebugSwift.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		31C1D37707DFAA5E6A164BCC07834264 /* Pods-Example-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Example-Info.plist"; sourceTree = "<group>"; };
 		31EC80E2B78DE1B7EB20B9730445338C /* ApplicationDirectories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ApplicationDirectories.swift; sourceTree = "<group>"; };
@@ -183,7 +207,7 @@
 		8F78492C5412F1D69347C7E625A04967 /* UIImage+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIImage+.swift"; sourceTree = "<group>"; };
 		90CD8820924383C8AE91F4980934A9DC /* DebugSwift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = DebugSwift.debug.xcconfig; sourceTree = "<group>"; };
 		95912CFC5ACE50116A4BD744A4E66BF3 /* DebugSwift-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "DebugSwift-umbrella.h"; sourceTree = "<group>"; };
-		9700EAAB791DBCD30061EE5131A67E54 /* ConsoleController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConsoleController.swift; sourceTree = "<group>"; };
+		9700EAAB791DBCD30061EE5131A67E54 /* ConsoleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConsoleViewModel.swift; sourceTree = "<group>"; };
 		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		A2927D3933A35BE40AD6EE638BAF314E /* TransitionPop.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TransitionPop.swift; sourceTree = "<group>"; };
 		A39942561129109B0DD43D5713A7DD32 /* Data+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
@@ -324,10 +348,66 @@
 			path = Grid;
 			sourceTree = "<group>";
 		};
+		2E60B9EF2B326D210084C2D9 /* Crash */ = {
+			isa = PBXGroup;
+			children = (
+				2E60B9FF2B32A44A0084C2D9 /* Main */,
+				2E60BA002B32A4530084C2D9 /* Detail */,
+				2E60B9F62B327CCB0084C2D9 /* Helpers */,
+			);
+			path = Crash;
+			sourceTree = "<group>";
+		};
+		2E60B9F62B327CCB0084C2D9 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				2E60B9F42B3273420084C2D9 /* CrashManager.swift */,
+				2E60B9F02B326D2B0084C2D9 /* CrashManager+.swift */,
+				2E60B9FD2B3293860084C2D9 /* CrashModel.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		2E60B9FF2B32A44A0084C2D9 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				2E60B9F72B327CDC0084C2D9 /* CrashViewModel.swift */,
+				2E60BA012B32A4A10084C2D9 /* CrashViewController.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		2E60BA002B32A4530084C2D9 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				2E60BA032B32A5390084C2D9 /* CrashDetailViewController.swift */,
+				2E60BA052B32AC4A0084C2D9 /* CrashDetailViewModel.swift */,
+				2E60BA082B3341C60084C2D9 /* Logs */,
+				2E60BA072B3341BD0084C2D9 /* Snapshot */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		2E60BA072B3341BD0084C2D9 /* Snapshot */ = {
+			isa = PBXGroup;
+			children = (
+				2E60BA092B33421E0084C2D9 /* SnapshotViewController.swift */,
+			);
+			path = Snapshot;
+			sourceTree = "<group>";
+		};
+		2E60BA082B3341C60084C2D9 /* Logs */ = {
+			isa = PBXGroup;
+			children = (
+				2E60BA0F2B336EF30084C2D9 /* LogsViewController.swift */,
+			);
+			path = Logs;
+			sourceTree = "<group>";
+		};
 		307F99D04CDB8AB85B63FFA0568E12D0 /* Console */ = {
 			isa = PBXGroup;
 			children = (
-				9700EAAB791DBCD30061EE5131A67E54 /* ConsoleController.swift */,
+				9700EAAB791DBCD30061EE5131A67E54 /* ConsoleViewModel.swift */,
 				A071EC56EF1D413E61BE25A5A1390D9F /* Helpers */,
 			);
 			path = Console;
@@ -583,6 +663,7 @@
 				EE1B7EF80118A76D398EF6961B1A874E /* Debug.swift */,
 				1A6ECE8E02FBFF41B8FC5882BA5AC827 /* LaunchTimeTracker.swift */,
 				7C185FF8182A092FFA7AB558C25DE415 /* TopUIView.swift */,
+				2E60BA0D2B336C340084C2D9 /* UserDefaultsAccess.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -645,6 +726,8 @@
 				C5368B6F7645E547AB100DC97FE28796 /* LocalizationManager.swift */,
 				6382C38D732B71150383B0BB1C09ABF9 /* SwizzleManager.swift */,
 				E4C92BEF80AA57BB86F1B200C4A42CBF /* WindowManager.swift */,
+				2E60B9FB2B328A570084C2D9 /* UserInfo.swift */,
+				2E60BA0B2B334FA50084C2D9 /* PDFManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -681,6 +764,7 @@
 			children = (
 				1970AAD626698B83A34085FA794F1D14 /* App.Controller.swift */,
 				3CF0723AB27114B55EF7BE189C465791 /* App.ViewModel.swift */,
+				2E60B9EF2B326D210084C2D9 /* Crash */,
 				307F99D04CDB8AB85B63FFA0568E12D0 /* Console */,
 				7294F51CF9AD13E71F8DEE891A8FED34 /* CustomInfo */,
 				C77513C17581D5B964976729E866B960 /* Location */,
@@ -940,18 +1024,22 @@
 				2118EF10795D2612E299ABA186C47E3E /* ChartView.swift in Sources */,
 				AEC9B711F8E64AA2E8EE4AFBC69FE93B /* CLLocationManager.swift in Sources */,
 				180707946083B905401AF1BC481CF02B /* ColorPickerTableViewCell.swift in Sources */,
-				5A0963AC98CF3D0E77697C96FC7E3BFD /* ConsoleController.swift in Sources */,
+				5A0963AC98CF3D0E77697C96FC7E3BFD /* ConsoleViewModel.swift in Sources */,
 				C923BDDE9BE7668F7FA315355278A90D /* Data+.swift in Sources */,
 				DBDBEF46F32E272C3125780845E81B22 /* Date+.swift in Sources */,
 				79D41787012840985D99D7AAD3339E01 /* Debug.swift in Sources */,
 				36F660391BDCB3152FEB24BB050D9F32 /* DebugSwift.swift in Sources */,
 				5F549E3CF5574AF1E706B499252B1509 /* DebugSwift-dummy.m in Sources */,
+				2E60B9FC2B328A570084C2D9 /* UserInfo.swift in Sources */,
 				27ED57DD78AFFA7B1610B984DF2883C8 /* Dictionary+.swift in Sources */,
 				245665CD8B504D7CF7F1C3B63134BB90 /* ErrorHelper.swift in Sources */,
 				B3C41BCC93986B59F85EAA31BA36D623 /* FileManager.swift in Sources */,
+				2E60BA0A2B33421E0084C2D9 /* SnapshotViewController.swift in Sources */,
 				1E3223F0509307B6A294A6CCA88ECBA3 /* FloatBallView.swift in Sources */,
 				0B4690F4D138E0917B0F868CD01CA053 /* FloatChat+DesignSystem.swift in Sources */,
 				20347514E20BDE55A083CC823AFA07BC /* FloatViewManager.swift in Sources */,
+				2E60B9FE2B3293860084C2D9 /* CrashModel.swift in Sources */,
+				2E60BA022B32A4A10084C2D9 /* CrashViewController.swift in Sources */,
 				54E502026D611B893AEDD372F2ADD19F /* GridOverlayColorScheme.swift in Sources */,
 				37A97617732C833FD53398A7139F5DF7 /* GridOverlayView.swift in Sources */,
 				D757FAE9E20372EAD0AF29DC3B3362FE /* HTTP.Datasource.swift in Sources */,
@@ -968,7 +1056,9 @@
 				CD3D783C05CC3086FDE9A723B5F46569 /* Location.ViewController.swift in Sources */,
 				1CAE7F965B1AE9E91DAA467233199BC3 /* Location.ViewModel.swift in Sources */,
 				7E516C69D612532439680705FD282E21 /* LocationToolkit.swift in Sources */,
+				2E60B9F52B3273420084C2D9 /* CrashManager.swift in Sources */,
 				02D2DAB709CCAFA48C5892D496F0F0CA /* MapSelectionViewController.swift in Sources */,
+				2E60BA0E2B336C340084C2D9 /* UserDefaultsAccess.swift in Sources */,
 				79509FA1E1B3A52F5DF3217E64DF0D4D /* MenuChartTableViewCell.swift in Sources */,
 				8231D400B480C21F9146B07DA0A15D45 /* MenuSegmentedControlTableViewCell.swift in Sources */,
 				CC5970F7D2A46934E97244947B686C3C /* MenuSwitchTableViewCell.swift in Sources */,
@@ -982,6 +1072,8 @@
 				322E34E789784FA440D295006A658E58 /* Performance.Controller.swift in Sources */,
 				574E6C28718DC1EAD68EEDDB6ADBD08D /* Performance.Toolkit.swift in Sources */,
 				5D8D12B7CC0B90541344F6B72F734EFA /* Performance.WidgetView.swift in Sources */,
+				2E60B9F12B326D2B0084C2D9 /* CrashManager+.swift in Sources */,
+				2E60BA0C2B334FA50084C2D9 /* PDFManager.swift in Sources */,
 				1597C86DAB70ED006B713A7DCF230ABB /* Resources.Controller.swift in Sources */,
 				3DAF6060C3E6A2916F6C361C1D820ABF /* Resources.Files.Controller.swift in Sources */,
 				1B696DE25B9B6E536BB4B4012064853D /* Resources.Generic.Controller.swift in Sources */,
@@ -989,6 +1081,7 @@
 				C1E49F8B5B845106341F7C6269D1AF30 /* Resources.UserDefaults.ViewModel.swift in Sources */,
 				E91E3286645214B2DB89F7141A3FD122 /* SliderTableViewCell.swift in Sources */,
 				0EBAFF2749E3D82113C6CC1940329355 /* String+.swift in Sources */,
+				2E60BA102B336EF30084C2D9 /* LogsViewController.swift in Sources */,
 				38DB05C2F7BA5FC74853540E42412FBD /* SwizzleManager.swift in Sources */,
 				61E6E4B2AB9B663E6410DDE244FC5E51 /* SwizzleSessionConfiguration.swift in Sources */,
 				4DACB7DC1C1E72D338498A8D3A4AF543 /* TabBarController.swift in Sources */,
@@ -997,6 +1090,8 @@
 				3DC0DEDCCC26073CB05DD2C8D4E7451D /* TouchIndicatorView.swift in Sources */,
 				CC2E236D33060205894997EE9687347C /* TransitionPop.swift in Sources */,
 				313D7FB738923BC6D166BD1010EE6FB9 /* TransitionPush.swift in Sources */,
+				2E60B9F82B327CDC0084C2D9 /* CrashViewModel.swift in Sources */,
+				2E60BA042B32A5390084C2D9 /* CrashDetailViewController.swift in Sources */,
 				DADB82AC4251A8B4EB71ADA1C48201E2 /* UIApplication+.swift in Sources */,
 				B34BE17FD281B4FD5F076FDD0915E82E /* UIColor+.swift in Sources */,
 				E7D40AC12626D614200DC88F39CDF240 /* UIDevice+.swift in Sources */,
@@ -1004,6 +1099,7 @@
 				5C291AE3BEE4B2DA90ADA9405E01D489 /* UILabel+.swift in Sources */,
 				3BBE3C36705EB3B2ABE10D8DFD28E85C /* UINavigationController+.swift in Sources */,
 				C9682804CB37071A104DF66F7B4327B7 /* UITableViewCell+.swift in Sources */,
+				2E60BA062B32AC4A0084C2D9 /* CrashDetailViewModel.swift in Sources */,
 				D102B6C2139A8F915198327292B51B8C /* UIView+.swift in Sources */,
 				FE22BC3972A4E7DA253F91B1AE4B4CD2 /* UIViewController+.swift in Sources */,
 				0D0E073BE0D1B23A62430D70177E21B5 /* UIWindow+.swift in Sources */,

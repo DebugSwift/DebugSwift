@@ -22,10 +22,12 @@
 "colorized-view-borders" = "Bordas de visualização coloridas";
 "slow-animations" = "Animações lentas";
 
+"device-info" = "Informações do Dispositivo";
 "simulated-location" = "Localização simulada";
 "actions-console" = "Console";
 "actions" = "Ações";
 "custom-data" = "Dados personalizados";
+"actions-crash" = "Falhas do Sistema";
 
 "search" = "Pesquisar";
 "app-title" = "App";

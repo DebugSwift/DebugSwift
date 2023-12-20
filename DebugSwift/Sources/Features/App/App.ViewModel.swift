@@ -9,111 +9,11 @@
 import UIKit
 
 class AppViewModel: NSObject {
-    var infos: [Info] {
-        [
-            getAppVersionInfo(),
-            getAppBuildInfo(),
-            getBundleName(),
-            getBundleId(),
-            getScreenResolution(),
-            getDeviceModelInfo(),
-            getIOSVersionInfo(),
-            getMeasureAppStartUpTime()
-        ].compactMap { $0 }
+    var infos: [UserInfo.Info] {
+        UserInfo.infos
     }
 
     var customInfos: [CustomData] {
         DebugSwift.App.customInfo?() ?? []
-    }
-
-    func getAppVersionInfo() -> Info? {
-        guard let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
-            return nil
-        }
-
-        return Info(
-            title: "app-version".localized(),
-            detail: "\(version)"
-        )
-    }
-
-    func getAppBuildInfo() -> Info? {
-        guard let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
-        else {
-            return nil
-        }
-
-        return Info(
-            title: "build-version".localized(),
-            detail: "Build: \(build)"
-        )
-    }
-
-    func getBundleName() -> Info? {
-        guard let bundleName = Bundle.main.infoDictionary?["CFBundleName"] as? String else {
-            return nil
-        }
-
-        return Info(
-            title: "bundle-name".localized(),
-            detail: "\(bundleName)"
-        )
-    }
-
-    func getBundleId() -> Info? {
-        guard let bundleID = Bundle.main.bundleIdentifier else {
-            return nil
-        }
-
-        return Info(
-            title: "bundle-id".localized(),
-            detail: "\(bundleID)"
-        )
-    }
-
-    func getScreenResolution() -> Info {
-        let screen = UIScreen.main
-        let bounds = screen.bounds
-        let scale = screen.scale
-
-        let screenWidth = bounds.size.width * scale
-        let screenHeight = bounds.size.height * scale
-
-        return .init(
-            title: "screen-resolution".localized(),
-            detail: "\(screenWidth) x \(screenHeight) points"
-        )
-    }
-
-    func getDeviceModelInfo() -> Info {
-        let deviceModel = UIDevice.current.modelName
-        return Info(
-            title: "device-model".localized(),
-            detail: deviceModel
-        )
-    }
-
-    func getIOSVersionInfo() -> Info {
-        let iOSVersion = UIDevice.current.systemVersion
-        return Info(
-            title: "ios-version".localized(),
-            detail: iOSVersion
-        )
-    }
-
-    func getMeasureAppStartUpTime() -> Info? {
-        guard let launchStartTime = LaunchTimeTracker.launchStartTime else { return nil }
-
-        return Info(
-            title: "inicialization-time".localized(),
-            detail: String(format: "%.4lf%", launchStartTime) + " (s)"
-        )
-    }
-}
-
-extension AppViewModel {
-    struct Info {
-        let title: String
-        let detail: String
     }
 }

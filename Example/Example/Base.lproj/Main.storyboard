@@ -70,11 +70,26 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qrg-W0-adk">
+                                <rect key="frame" x="28" y="514" width="337" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="QYP-zq-Mrq"/>
+                                </constraints>
+                                <buttonConfiguration key="configuration" style="tinted" title="Crash">
+                                    <color key="baseForegroundColor" systemColor="systemPinkColor"/>
+                                    <color key="baseBackgroundColor" systemColor="systemPinkColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="crash" destination="BYZ-38-t0r" eventType="touchUpInside" id="ldP-lL-Qkm"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="faL-Au-3nb" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="28" id="6F7-e8-Rgm"/>
+                            <constraint firstItem="Qrg-W0-adk" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="28" id="Bfi-xv-DUG"/>
+                            <constraint firstItem="Ilt-ig-idh" firstAttribute="firstBaseline" secondItem="Qrg-W0-adk" secondAttribute="baseline" constant="68" symbolType="layoutAnchor" id="ONE-C2-mdq"/>
                             <constraint firstItem="faL-Au-3nb" firstAttribute="top" secondItem="B3B-A4-ddj" secondAttribute="bottom" constant="8" symbolic="YES" id="Us3-hV-iYl"/>
                             <constraint firstItem="Ilt-ig-idh" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="28" id="W2y-8g-xgz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="faL-Au-3nb" secondAttribute="trailing" constant="28" id="WrZ-3f-eoN"/>
@@ -83,6 +98,7 @@
                             <constraint firstItem="B3B-A4-ddj" firstAttribute="top" secondItem="Ilt-ig-idh" secondAttribute="bottom" constant="8" symbolic="YES" id="ebd-4s-gEO"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="faL-Au-3nb" secondAttribute="bottom" constant="40" id="n8K-Au-zOK"/>
                             <constraint firstItem="B3B-A4-ddj" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="28" id="swr-Ls-ogZ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Qrg-W0-adk" secondAttribute="trailing" constant="28" id="yG5-py-ApP"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="bKo-uX-baO"/>
@@ -98,6 +114,9 @@
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemPinkColor">
+            <color red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

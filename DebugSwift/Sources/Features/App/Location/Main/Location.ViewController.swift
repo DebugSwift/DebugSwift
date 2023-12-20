@@ -14,7 +14,7 @@ final class LocationViewController: BaseController {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .black
-        tableView.separatorColor = .gray
+        tableView.separatorColor = .darkGray
 
         return tableView
     }()

@@ -13,7 +13,7 @@ final class AppViewController: BaseController {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .black
-        tableView.separatorColor = .gray
+        tableView.separatorColor = .darkGray
 
         return tableView
     }()
@@ -124,7 +124,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch Sections(rawValue: indexPath.section) {
-        case .infos:
+        case .customData:
             let data = viewModel.customInfos[indexPath.row]
             let viewModel = AppCustomInfoViewModel(data: data)
             let controller = ResourcesGenericController(viewModel: viewModel)
@@ -139,14 +139,11 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .location:
                 let controller = LocationViewController()
                 navigationController?.pushViewController(controller, animated: true)
+            case .crash:
+                let controller = CrashViewController()
+                navigationController?.pushViewController(controller, animated: true)
             default: break
             }
-        case .customData:
-            let data = viewModel.customInfos[indexPath.row]
-            let viewModel = AppCustomInfoViewModel(data: data)
-            let controller = ResourcesGenericController(viewModel: viewModel)
-            navigationController?.pushViewController(controller, animated: true)
-
         default:
             break
         }
@@ -155,14 +152,14 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension AppViewController {
     enum Sections: Int, CaseIterable {
-        case infos
         case actions
         case customData
+        case infos
 
         var title: String? {
             switch self {
             case .infos:
-                return nil
+                return "device-info".localized()
             case .actions:
                 return "actions".localized()
             case .customData:
@@ -173,8 +170,9 @@ extension AppViewController {
 }
 extension AppViewController {
     enum ActionInfo: Int, CaseIterable {
-        case location
+        case crash
         case console
+        case location
 
         var title: String {
             switch self {
@@ -182,6 +180,8 @@ extension AppViewController {
                 return "simulated-location".localized()
             case .console:
                 return "actions-console".localized()
+            case .crash:
+                return "actions-crash".localized()
             }
         }
     }

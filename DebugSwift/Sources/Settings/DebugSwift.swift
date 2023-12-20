@@ -19,6 +19,10 @@ public enum DebugSwift {
         LocalizationManager.shared.loadBundle()
         NetworkHelper.shared.enable()
 
+        if Crash.enable {
+            CrashManager.register()
+        }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             FloatViewManager.setup(TabBarController())
         }
@@ -53,7 +57,16 @@ extension DebugSwift {
     }
 
     public enum Debugger {
-        /// Enable debug logs, default is `true`
-        public static var enable: Bool = true
+        @UserDefaultAccess(key: .crash, defaultValue: true)
+        public static var enable: Bool
+    }
+
+    public enum Crash {
+        @UserDefaultAccess(key: .crash, defaultValue: false)
+        public static var enable: Bool {
+            didSet {
+                enable ? CrashManager.register() : CrashManager.unregister()
+            }
+        }
     }
 }
