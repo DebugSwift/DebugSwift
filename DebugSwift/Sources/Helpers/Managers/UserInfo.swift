@@ -5,7 +5,7 @@
 //  Created by Matheus Gois on 19/12/23.
 //
 
-import Foundation
+import UIKit
 
 struct UserInfo {
 

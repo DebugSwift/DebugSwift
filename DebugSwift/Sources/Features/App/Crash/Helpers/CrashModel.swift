@@ -5,7 +5,7 @@
 //  Created by Matheus Gois on 20/12/23.
 //
 
-import Foundation
+import UIKit
 
 struct CrashModel: Codable, Equatable {
     let type: CrashType
