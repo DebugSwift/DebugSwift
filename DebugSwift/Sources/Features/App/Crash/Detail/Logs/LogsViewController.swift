@@ -39,7 +39,7 @@ class LogsViewController: BaseController {
     // MARK: - UI Setup
 
     private func setupUI() {
-        title = "Logs"
+        title = "logs".localized()
         view.backgroundColor = .black
 
         view.addSubview(textView)

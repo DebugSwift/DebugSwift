@@ -105,7 +105,7 @@ final class ResourcesFilesViewController: BaseTableController {
         if path == nil { path = NSHomeDirectory() }
 
         backgroundLabel.text =
-            (subdirectories.count + files.count > 0) ? "" : "This directory is empty."
+        (subdirectories.count + files.count > 0) ? "" : "empty-directory".localized()
     }
 }
 

@@ -180,9 +180,9 @@ extension CrashDetailViewController {
         var title: String {
             switch self {
             case .details:
-                return "Details"
+                return "network-details-title".localized()
             case .context:
-                return "Context"
+                return "context".localized()
             case .stackTrace:
                 return "Stack Trace"
             }

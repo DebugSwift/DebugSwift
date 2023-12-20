@@ -39,7 +39,7 @@ class SnapshotViewController: BaseController {
     // MARK: - UI Setup
 
     private func setupUI() {
-        title = "Snapshot"
+        title = "snapshot".localized()
         view.backgroundColor = .black
 
         view.addSubview(imageView)

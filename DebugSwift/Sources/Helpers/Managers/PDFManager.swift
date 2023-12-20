@@ -70,7 +70,7 @@ class PDFManager {
                 height: pdfSize.height
             )
             let titleAnnotation = PDFAnnotation.createTextAnnotation(
-                text: "Screenshot",
+                text: "screenshot".localized(),
                 bounds: titleBounds,
                 fontSize: 20,
                 alignment: .center
@@ -99,7 +99,7 @@ class PDFManager {
                 height: 30
             )
             let titleAnnotation = PDFAnnotation.createTextAnnotation(
-                text: "Logs",
+                text: "logs".localized(),
                 bounds: titleBounds,
                 fontSize: 20,
                 alignment: .center

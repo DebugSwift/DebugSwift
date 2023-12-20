@@ -59,6 +59,21 @@
 
 "clean" = "Clean";
 
+"delete.title" = "Warning";
+"delete.subtitle" = "This action remove all data";
+"delete.action" = "Delete";
+"delete.cancel" = "Cancel";
+
+"date" = "Date";
+"crash-name" = "Error";
+"reason" = "Reason";
+"snapshot" = "Snapshot";
+"logs" = "Logs";
+"context" = "Context";
+"empty-directory" = "This directory is empty.";
+"name" = "Name";
+"user-info" = "User Info";
+
 // MARK: - ErrorHelper
 
 /* Error Descriptions */

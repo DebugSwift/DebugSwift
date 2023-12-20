@@ -61,13 +61,14 @@ class ResourcesGenericController: BaseTableController {
             tintColor: .red
         ) { [weak self] in
             self?.showAlert(
-                with: "This action remove all data", title: "Warning",
-                leftButtonTitle: "delete",
+                with: "delete.title".localized(),
+                title: "delete.subtitle".localized(),
+                leftButtonTitle: "delete.action".localized(),
                 leftButtonStyle: .destructive,
                 leftButtonHandler: { _ in
                     self?.clearAction()
                 },
-                rightButtonTitle: "cancel",
+                rightButtonTitle: "delete.cancel".localized(),
                 rightButtonStyle: .cancel
             )
         }
@@ -100,19 +101,19 @@ class ResourcesGenericController: BaseTableController {
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         let numberOfItems =
-            searchController.isActive ? viewModel.numberOfFilteredItems() : viewModel.numberOfItems()
+        searchController.isActive ? viewModel.numberOfFilteredItems() : viewModel.numberOfItems()
         backgroundLabel.text = numberOfItems == .zero ? viewModel.emptyListDescriptionString() : ""
         return numberOfItems
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
-        -> UITableViewCell {
+    -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
 
         let dataSource =
-            searchController.isActive
-                ? viewModel.filteredDataSourceForItem(atIndex: indexPath.row)
-                : viewModel.dataSourceForItem(atIndex: indexPath.row)
+        searchController.isActive
+        ? viewModel.filteredDataSourceForItem(atIndex: indexPath.row)
+        : viewModel.dataSourceForItem(atIndex: indexPath.row)
 
         cell.setup(
             title: dataSource.title,

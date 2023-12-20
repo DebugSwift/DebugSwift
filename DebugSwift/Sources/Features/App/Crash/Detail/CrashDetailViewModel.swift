@@ -37,21 +37,40 @@ class CrashDetailViewModel: NSObject {
 
     var details: [UserInfo.Info] {
         [
-            .init(title: "Name", detail: data.details.name),
-            .init(title: "Date", detail: data.details.date.formatted()),
-            .init(title: "App Version", detail: data.details.appVersion ?? ""),
-            .init(title: "App Build", detail: data.details.appBuild ?? ""),
-            .init(title: "System Version", detail: data.details.iosVersion)
+            .init(
+                title: "crash-name".localized(),
+                detail: data.details.name
+            ),
+            .init(
+                title: "date".localized(),
+                detail: data.details.date.formatted()
+            ),
+            .init(
+                title: "app-version".localized(),
+                detail: data.details.appVersion ?? ""
+            ),
+            .init(
+                title: "build-version".localized(),
+                detail: data.details.appBuild ?? ""
+            ),
+            .init(
+                title: "ios-version".localized(),
+                detail: data.details.iosVersion
+            ),
+            .init(
+                title: "device-model".localized(),
+                detail: data.details.deviceModel
+            )
         ]
     }
 
     var contexts: [UserInfo.Info] {
         var infos = [UserInfo.Info]()
         if data.context.uiImage != nil {
-            infos.append(.init(title: "Snapshot", detail: ""))
+            infos.append(.init(title: "snapshot".localized(), detail: ""))
         }
         if !data.context.consoleOutput.isEmpty {
-            infos.append(.init(title: "Logs", detail: ""))
+            infos.append(.init(title: "logs".localized(), detail: ""))
         }
         return infos
     }
@@ -70,7 +89,7 @@ class CrashDetailViewModel: NSObject {
     }
 
     func getAllValues() -> String {
-        var result = "Details:\n"
+        var result = "network-details-title".localized() + ":\n"
         for detail in details {
             result += "\(detail.title): \(detail.detail)\n"
         }

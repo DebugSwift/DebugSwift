@@ -25,6 +25,7 @@ extension CrashModel {
         let appVersion: String?
         let appBuild: String?
         let iosVersion: String
+        let deviceModel: String
 
         static func builder(name: String) -> Self {
             .init(
@@ -32,7 +33,8 @@ extension CrashModel {
                 date: .init(),
                 appVersion: UserInfo.getAppVersionInfo()?.detail,
                 appBuild: UserInfo.getAppBuildInfo()?.detail,
-                iosVersion: UserInfo.getIOSVersionInfo().detail
+                iosVersion: UserInfo.getIOSVersionInfo().detail,
+                deviceModel: UserInfo.getDeviceModelInfo().detail
             )
         }
     }
@@ -76,7 +78,11 @@ extension [CrashModel.Trace] {
                 detail += "Class: \(className)\n"
             }
             if let fileInfo = Trace.fileInfoFromSymbol(symbol) {
-                detail += "File: \(fileInfo.file), Line: \(fileInfo.line), Function: \(fileInfo.function)\n"
+                detail += """
+                    File: \(fileInfo.file)\n,
+                    Line: \(fileInfo.line)\n,
+                    Function: \(fileInfo.function)\n
+                """
             }
 
             let trace = CrashModel.Trace(

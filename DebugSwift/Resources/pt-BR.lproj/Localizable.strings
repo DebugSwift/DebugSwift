@@ -59,6 +59,18 @@
 
 "clean" = "Limpar";
 
+"delete.title" = "Alerta";
+"delete.subtitle" = "Essa ação irá remover todos os dados";
+"delete.action" = "Deletar";
+"delete.cancel" = "Cancelar";
+
+"date" = "Data";
+"crash-name" = "Falha";
+"reason" = "Motivo";
+"context" = "Contexto";
+"name" = "Nome";
+"user-info" = "User Info";
+
 // MARK: - ErrorHelper
 
 /* Descrições de Erro */

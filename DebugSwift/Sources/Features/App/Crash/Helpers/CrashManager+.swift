@@ -64,10 +64,9 @@ func nsExceptionHandler(exception: NSException) {
     let userInfo = exception.userInfo ?? [:]
 
     var crash = "NSException Crash:\n"
-    crash += "Name: \(name)\n"
-    crash += "Reason: \(String(describing: reason))"
-
-    crash += "User Info:\n"
+    crash += "\("crash-name".localized()): \(name)\n"
+    crash += "\("reason".localized()): \(String(describing: reason))"
+    crash += "\("user-info".localized()):\n"
     if !userInfo.isEmpty {
         for (key, value) in userInfo {
             crash += "\(key): \(value)\n"

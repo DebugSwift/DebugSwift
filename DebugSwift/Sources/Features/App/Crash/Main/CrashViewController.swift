@@ -68,14 +68,15 @@ final class CrashViewController: BaseController {
             tintColor: .red
         ) { [weak self] in
             self?.showAlert(
-                with: "This action remove all data", title: "Warning",
-                leftButtonTitle: "delete",
+                with: "delete.title".localized(),
+                title: "delete.subtitle".localized(),
+                leftButtonTitle: "delete.action".localized(),
                 leftButtonStyle: .destructive,
                 leftButtonHandler: { _ in
                     self?.viewModel.handleClearAction()
                     self?.tableView.reloadData()
                 },
-                rightButtonTitle: "cancel",
+                rightButtonTitle: "delete.cancel".localized(),
                 rightButtonStyle: .cancel
             )
         }
