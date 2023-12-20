@@ -58,7 +58,7 @@ func unregisterSignalExperimentalHandler() {
 }
 
 func nsExceptionHandler(exception: NSException) {
-    let arr = exception.callStackSymbols
+    let arr = exception.callStackSymbols // TODO: - Review
     let reason = exception.reason ?? "No reason provided"
     let name = exception.name.rawValue
     let userInfo = exception.userInfo ?? [:]

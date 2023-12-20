@@ -39,13 +39,9 @@ extension [String: String] {
 
 extension [String: Any] {
     func formattedCurlString() -> String {
-        var headersString = map { key, value in
+        let headersString = map { key, value in
             return "\(key): \(value)"
         }.joined(separator: "\\n-H ")
-
-        if !contains(where: { $0.key.lowercased() == "content-type" }) {
-            headersString += "\\n-H 'Content-Type: application/json'"
-        }
 
         return headersString
     }
