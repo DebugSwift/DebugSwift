@@ -1,6 +1,7 @@
-# DebugSwift Toolkit
+# DebugSwift
 
-DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.
+| <img width="300" src="https://github.com/MaatheusGois/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.</div> |
+|---|---|
 
 ![image1](https://github.com/MaatheusGois/DebugSwift/assets/31082311/03d0e0d0-d2ab-4fc2-8d47-e7089fffc2f6)
 ![image2](https://github.com/MaatheusGois/DebugSwift/assets/31082311/994e75c9-948e-486b-9522-4e2a9779de4e)
