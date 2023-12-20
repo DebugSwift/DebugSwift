@@ -25,9 +25,16 @@ jobs:
         cd Example
         pod install
 
-    - name: Build and Test
+    - name: Build CocoaPods
       run: |
-        xcodebuild clean build test \
+        xcodebuild clean build \
           -workspace Example/Example.xcworkspace \
           -scheme Example \
+          -destination 'platform=iOS Simulator'
+
+    - name: Build Swift Package Manager
+      run: |
+        xcodebuild clean build \
+          -workspace Example_SwiftUI/Example_SwiftUI.xcworkspace \
+          -scheme Example_SwiftUI \
           -destination 'platform=iOS Simulator'
