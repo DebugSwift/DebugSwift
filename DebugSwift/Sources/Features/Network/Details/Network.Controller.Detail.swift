@@ -188,6 +188,10 @@ extension [NetworkViewControllerDetail.Config] {
     init(model: HttpModel) {
         self = [
             .init(
+                title: "TOTAL TIME",
+                description: model.totalDuration ?? "No data"
+            ),
+            .init(
                 title: "REQUEST HEADER",
                 description: model.requestHeaderFields?.formattedString() ?? "No data"
             ),
@@ -206,10 +210,6 @@ extension [NetworkViewControllerDetail.Config] {
             .init(
                 title: "RESPONSE SIZE",
                 description: model.responseData?.formattedSize() ?? "No data"
-            ),
-            .init(
-                title: "TOTAL TIME",
-                description: model.totalDuration ?? "No data"
             ),
             .init(
                 title: "MIME TYPE",
