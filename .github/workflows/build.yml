@@ -35,6 +35,6 @@ jobs:
     - name: Build Swift Package Manager
       run: |
         xcodebuild clean build \
-          -workspace Example_SwiftUI/Example_SwiftUI.xcodeproj \
+          -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
           -scheme Example_SwiftUI \
           -destination 'platform=iOS Simulator'
