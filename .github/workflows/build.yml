@@ -1,0 +1,32 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Xcode
+      uses: actions/setup-xcode@v2
+      with:
+        xcode-version: '15.1'
+
+    - name: Install CocoaPods
+      run: |
+        cd Example
+        pod install
+
+    - name: Build and Test
+      run: |
+        xcodebuild clean build test \
+          -workspace Example/Example.xcworkspace \
+          -scheme Example \
+          -destination 'platform=iOS Simulator'
