@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct UserInfo {
+enum UserInfo {
 
     struct Info {
         let title: String

@@ -5,8 +5,8 @@
 //  Created by Matheus Gois on 19/12/23.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 
 class LocationToolkit {
 
@@ -47,7 +47,7 @@ class LocationToolkit {
         if let index = presetLocations.firstIndex(
             where: {
                 $0.latitude == simulatedLocation.coordinate.latitude &&
-                $0.longitude == simulatedLocation.coordinate.longitude
+                    $0.longitude == simulatedLocation.coordinate.longitude
             }
         ) {
             return index + 1

@@ -5,8 +5,8 @@
 //  Created by Matheus Gois on 19/12/23.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 
 class LocationViewModel: NSObject {
     var selectedIndex: Int = LocationToolkit.shared.indexSaved

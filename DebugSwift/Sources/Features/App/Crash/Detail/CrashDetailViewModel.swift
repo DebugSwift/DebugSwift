@@ -5,8 +5,8 @@
 //  Created by Matheus Gois on 20/12/23.
 //
 
-import UIKit
 import Foundation
+import UIKit
 
 class CrashDetailViewModel: NSObject {
 
@@ -14,6 +14,7 @@ class CrashDetailViewModel: NSObject {
 
     init(data: CrashModel) {
         self.data = data
+        Debug.print(data.details.name)
     }
 
     // MARK: - ViewModel
@@ -39,7 +40,7 @@ class CrashDetailViewModel: NSObject {
         [
             .init(
                 title: "crash-name".localized(),
-                detail: data.details.name
+                detail: data.type.rawValue
             ),
             .init(
                 title: "date".localized(),

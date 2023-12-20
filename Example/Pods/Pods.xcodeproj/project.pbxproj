@@ -27,7 +27,8 @@
 		2489B30EF260E260FB38BB95EB47ABDF /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AA40D434BF769E547B3AF374620FC4 /* NetworkHelper.swift */; };
 		27ED57DD78AFFA7B1610B984DF2883C8 /* Dictionary+.swift in Sources */ = {isa = PBXBuildFile; fileRef = D38664913252E5243F42C66798E8BF5A /* Dictionary+.swift */; };
 		2CCF82B1694CDD7FBE500F4EF1AA7D1C /* Network.Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8957943CF4C94D0281E0D343E62140D6 /* Network.Cell.swift */; };
-		2E60B9F12B326D2B0084C2D9 /* CrashManager+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9F02B326D2B0084C2D9 /* CrashManager+.swift */; };
+		2E4536492B33A9B6004B5323 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E4536482B33A9B6004B5323 /* CrashHandler.swift */; };
+		2E45364B2B33AFDC004B5323 /* Trace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E45364A2B33AFDC004B5323 /* Trace.swift */; };
 		2E60B9F52B3273420084C2D9 /* CrashManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9F42B3273420084C2D9 /* CrashManager.swift */; };
 		2E60B9F82B327CDC0084C2D9 /* CrashViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9F72B327CDC0084C2D9 /* CrashViewModel.swift */; };
 		2E60B9FC2B328A570084C2D9 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9FB2B328A570084C2D9 /* UserInfo.swift */; };
@@ -148,7 +149,8 @@
 		243410B9535472556EA4BB6DBC133A0D /* Pods-Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Example.release.xcconfig"; sourceTree = "<group>"; };
 		281E8973BB77A12EBAB8FED2EFE8E23D /* DebugSwift */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = DebugSwift; path = DebugSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A5983025EB37B07CB0010F0070ACE7C /* UIViewController+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIViewController+.swift"; sourceTree = "<group>"; };
-		2E60B9F02B326D2B0084C2D9 /* CrashManager+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CrashManager+.swift"; sourceTree = "<group>"; };
+		2E4536482B33A9B6004B5323 /* CrashHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashHandler.swift; sourceTree = "<group>"; };
+		2E45364A2B33AFDC004B5323 /* Trace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trace.swift; sourceTree = "<group>"; };
 		2E60B9F42B3273420084C2D9 /* CrashManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashManager.swift; sourceTree = "<group>"; };
 		2E60B9F72B327CDC0084C2D9 /* CrashViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashViewModel.swift; sourceTree = "<group>"; };
 		2E60B9FB2B328A570084C2D9 /* UserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
@@ -362,8 +364,9 @@
 			isa = PBXGroup;
 			children = (
 				2E60B9F42B3273420084C2D9 /* CrashManager.swift */,
-				2E60B9F02B326D2B0084C2D9 /* CrashManager+.swift */,
 				2E60B9FD2B3293860084C2D9 /* CrashModel.swift */,
+				2E4536482B33A9B6004B5323 /* CrashHandler.swift */,
+				2E45364A2B33AFDC004B5323 /* Trace.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1023,12 +1026,14 @@
 				9F307D5E5DE9011F7659772115AE7FAA /* CacheStoragePolicy.swift in Sources */,
 				2118EF10795D2612E299ABA186C47E3E /* ChartView.swift in Sources */,
 				AEC9B711F8E64AA2E8EE4AFBC69FE93B /* CLLocationManager.swift in Sources */,
+				2E4536492B33A9B6004B5323 /* CrashHandler.swift in Sources */,
 				180707946083B905401AF1BC481CF02B /* ColorPickerTableViewCell.swift in Sources */,
 				5A0963AC98CF3D0E77697C96FC7E3BFD /* ConsoleViewModel.swift in Sources */,
 				C923BDDE9BE7668F7FA315355278A90D /* Data+.swift in Sources */,
 				DBDBEF46F32E272C3125780845E81B22 /* Date+.swift in Sources */,
 				79D41787012840985D99D7AAD3339E01 /* Debug.swift in Sources */,
 				36F660391BDCB3152FEB24BB050D9F32 /* DebugSwift.swift in Sources */,
+				2E45364B2B33AFDC004B5323 /* Trace.swift in Sources */,
 				5F549E3CF5574AF1E706B499252B1509 /* DebugSwift-dummy.m in Sources */,
 				2E60B9FC2B328A570084C2D9 /* UserInfo.swift in Sources */,
 				27ED57DD78AFFA7B1610B984DF2883C8 /* Dictionary+.swift in Sources */,
@@ -1072,7 +1077,6 @@
 				322E34E789784FA440D295006A658E58 /* Performance.Controller.swift in Sources */,
 				574E6C28718DC1EAD68EEDDB6ADBD08D /* Performance.Toolkit.swift in Sources */,
 				5D8D12B7CC0B90541344F6B72F734EFA /* Performance.WidgetView.swift in Sources */,
-				2E60B9F12B326D2B0084C2D9 /* CrashManager+.swift in Sources */,
 				2E60BA0C2B334FA50084C2D9 /* PDFManager.swift in Sources */,
 				1597C86DAB70ED006B713A7DCF230ABB /* Resources.Controller.swift in Sources */,
 				3DAF6060C3E6A2916F6C361C1D820ABF /* Resources.Files.Controller.swift in Sources */,

@@ -134,6 +134,7 @@ extension NetworkViewController: UISearchResultsUpdating {
         tableView.reloadData()
     }
 }
+
 extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
     private func setupTableView() {
         view.addSubview(tableView)

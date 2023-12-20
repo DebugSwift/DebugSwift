@@ -1,5 +1,5 @@
 //
-//  Log.swift
+//  LogIntercepter.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/12/23.
@@ -36,7 +36,7 @@ class LogIntercepter {
     // MARK: - Lifecycle Methods
 
     func start() {
-        if let logUrl = logUrl {
+        if let logUrl {
             do {
                 let header =
                     """
@@ -62,7 +62,7 @@ class LogIntercepter {
         inputPipe = Pipe()
         outputPipe = Pipe()
 
-        guard let inputPipe = inputPipe, let outputPipe = outputPipe else {
+        guard let inputPipe, let outputPipe else {
             return
         }
 
@@ -93,7 +93,6 @@ class LogIntercepter {
 
         // state that you want to be notified of any data coming across the pipe
         pipeReadHandle.readInBackgroundAndNotify()
-
     }
 
     @objc
@@ -102,7 +101,7 @@ class LogIntercepter {
 
         if let data = notification.userInfo?[NSFileHandleNotificationDataItem] as? Data,
            let str = String(data: data, encoding: String.Encoding.utf8),
-           let logUrl = logUrl {
+           let logUrl {
             /// write the data back into the output pipe. the output pipe's write
             /// file descriptor points to STDOUT. this allows the logs to show up
             /// on the xcode console
@@ -121,7 +120,7 @@ class LogIntercepter {
     private func appendConsoleOutput(_ consoleOutput: String?) {
         guard let output = consoleOutput else { return }
 
-        if !shouldIgnoreLog(output) && shouldIncludeLog(output) {
+        if !shouldIgnoreLog(output), shouldIncludeLog(output) {
             queue.async { [weak self] in
                 self?.consoleOutput.append(output)
                 self?.delegate?.logUpdated()
@@ -130,7 +129,7 @@ class LogIntercepter {
     }
 
     private func shouldIgnoreLog(_ log: String) -> Bool {
-        return DebugSwift.Console.ignoredLogs.contains { log.contains($0) }
+        DebugSwift.Console.ignoredLogs.contains { log.contains($0) }
     }
 
     private func shouldIncludeLog(_ log: String) -> Bool {

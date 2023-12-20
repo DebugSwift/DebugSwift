@@ -33,14 +33,14 @@ extension Data {
 
 extension [String: String] {
     func formattedCurlString() -> String {
-        return map { "\($0.key): \($0.value)" }.joined(separator: "\\n-H ")
+        map { "\($0.key): \($0.value)" }.joined(separator: "\\n-H ")
     }
 }
 
 extension [String: Any] {
     func formattedCurlString() -> String {
         let headersString = map { key, value in
-            return "\(key): \(value)"
+            "\(key): \(value)"
         }.joined(separator: "\\n-H ")
 
         return headersString
@@ -59,7 +59,7 @@ extension Data {
 
 extension String {
     func escapedForCurl() -> String {
-        return replacingOccurrences(of: "'", with: "\\'")
+        replacingOccurrences(of: "'", with: "\\'")
     }
 }
 
@@ -75,7 +75,7 @@ extension URLRequest {
             curlCommand += " -d '\(bodyData.formattedCurlString())'"
         }
 
-        if let url = url {
+        if let url {
             curlCommand += " \(url.absoluteString)"
         }
 

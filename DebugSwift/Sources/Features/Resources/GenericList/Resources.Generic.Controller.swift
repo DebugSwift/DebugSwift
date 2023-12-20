@@ -101,19 +101,19 @@ class ResourcesGenericController: BaseTableController {
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         let numberOfItems =
-        searchController.isActive ? viewModel.numberOfFilteredItems() : viewModel.numberOfItems()
+            searchController.isActive ? viewModel.numberOfFilteredItems() : viewModel.numberOfItems()
         backgroundLabel.text = numberOfItems == .zero ? viewModel.emptyListDescriptionString() : ""
         return numberOfItems
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
-    -> UITableViewCell {
+        -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
 
         let dataSource =
-        searchController.isActive
-        ? viewModel.filteredDataSourceForItem(atIndex: indexPath.row)
-        : viewModel.dataSourceForItem(atIndex: indexPath.row)
+            searchController.isActive
+                ? viewModel.filteredDataSourceForItem(atIndex: indexPath.row)
+                : viewModel.dataSourceForItem(atIndex: indexPath.row)
 
         cell.setup(
             title: dataSource.title,

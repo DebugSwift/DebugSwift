@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RequestManager {
+enum RequestManager {
     static func mockRequest(url: String) {
         let url = URL(string: url)!
 

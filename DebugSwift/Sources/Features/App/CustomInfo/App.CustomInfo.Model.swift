@@ -1,5 +1,5 @@
 //
-//  CustomInfo.swift
+//  App.CustomInfo.Model.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 18/12/23.

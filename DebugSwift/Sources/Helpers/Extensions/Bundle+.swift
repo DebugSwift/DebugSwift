@@ -12,7 +12,8 @@ extension Bundle {
     static let module: Bundle = {
         let myBundle = Bundle(for: FloatViewManager.self)
         guard let resourceBundleURL = myBundle.url(
-            forResource: "DebugSwift", withExtension: "bundle")
+            forResource: "DebugSwift", withExtension: "bundle"
+        )
         else { fatalError("DebugSwift.bundle not found!") }
 
         guard let resourceBundle = Bundle(url: resourceBundleURL)
@@ -21,5 +22,4 @@ extension Bundle {
         return resourceBundle
     }()
     #endif
-
 }

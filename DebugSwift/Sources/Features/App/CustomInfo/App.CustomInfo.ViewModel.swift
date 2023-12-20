@@ -63,7 +63,7 @@ class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
         } else {
             filteredInfo = data.infos.filter {
                 $0.title.localizedCaseInsensitiveContains(searchText) ||
-                $0.subtitle.localizedCaseInsensitiveContains(searchText)
+                    $0.subtitle.localizedCaseInsensitiveContains(searchText)
             }
         }
     }

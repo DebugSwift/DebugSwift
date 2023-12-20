@@ -64,7 +64,7 @@ extension UIViewController {
         actions: [ButtonAction]
     ) {
         let rightButtons = actions.map { action in
-            return CustomBarButtonItem(
+            CustomBarButtonItem(
                 image: action.image,
                 tintColor: action.tintColor,
                 style: .plain

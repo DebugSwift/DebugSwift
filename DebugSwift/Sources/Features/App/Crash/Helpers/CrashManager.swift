@@ -1,5 +1,5 @@
 //
-//  ApplicationCrashManager.swift
+//  CrashManager.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/12/23.
@@ -7,16 +7,10 @@
 
 import Foundation
 
-struct CrashManager {
+enum CrashManager {
 
     static func register() {
-        registerSignalHandler()
-        registerSignalExperimentalHandler()
-    }
-
-    static func unregister() {
-        unregisterSignalHandler()
-        unregisterSignalExperimentalHandler()
+        CrashHandler.shared.prepare()
     }
 
     static func save(crash: CrashModel) {
@@ -85,6 +79,13 @@ struct CrashManager {
     }
 
     private static func getDocumentsDirectory() -> URL {
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
+}
+
+enum CrashType: String, Codable {
+    case nsexception
+    case signal
+
+    var fileName: String { "\(rawValue)_crashes.json" }
 }

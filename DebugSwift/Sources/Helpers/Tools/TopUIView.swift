@@ -34,6 +34,6 @@ class TopLevelViewWrapper: UIView {
     }
 
     func removeWidgetWindow() {
-        self.removeFromSuperview()
+        removeFromSuperview()
     }
 }

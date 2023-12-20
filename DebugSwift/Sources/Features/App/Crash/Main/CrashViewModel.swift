@@ -1,18 +1,18 @@
 //
-//  CrashViewController.swift
+//  CrashViewModel.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/12/23.
 //
 
-import UIKit
 import Foundation
+import UIKit
 
 class CrashViewModel: NSObject {
 
     var data: [CrashModel] {
         CrashManager.recover(ofType: .nsexception) +
-        CrashManager.recover(ofType: .signal)
+            CrashManager.recover(ofType: .signal)
     }
 
     // MARK: - ViewModel
@@ -27,7 +27,10 @@ class CrashViewModel: NSObject {
 
     func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
         let trace = data[index]
-        return (title: trace.details.name, value: "")
+        return (
+            title: trace.details.name,
+            value: "\n     \(trace.details.date.formatted())"
+        )
     }
 
     func handleClearAction() {

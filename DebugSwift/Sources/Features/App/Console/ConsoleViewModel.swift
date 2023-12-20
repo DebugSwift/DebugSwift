@@ -1,5 +1,5 @@
 //
-//  Generic.swift
+//  ConsoleViewModel.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/12/23.
@@ -12,6 +12,7 @@ class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
     private var data: [String] {
         LogIntercepter.shared.consoleOutput
     }
+
     private var filteredInfo = [String]()
 
     // MARK: - ViewModel

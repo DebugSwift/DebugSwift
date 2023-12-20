@@ -12,17 +12,13 @@ class LocalizationManager {
 
     private let supportedLanguages = ["pt_BR", "en"]
 
-    private init() {
-
-    }
+    private init() {}
 
     var currentLanguage: String {
-        get {
-            if Locale.current.languageCode?.contains("pt") == true {
-                return supportedLanguages[0]
-            } else {
-                return supportedLanguages[1]
-            }
+        if Locale.current.languageCode?.contains("pt") == true {
+            return supportedLanguages[0]
+        } else {
+            return supportedLanguages[1]
         }
     }
 
@@ -52,6 +48,6 @@ class LocalizationManager {
 
 extension String {
     func localized(_ args: CVarArg...) -> String {
-        return LocalizationManager.shared.localizedString(self, args)
+        LocalizationManager.shared.localizedString(self, args)
     }
 }

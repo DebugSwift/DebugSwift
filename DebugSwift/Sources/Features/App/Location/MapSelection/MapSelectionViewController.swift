@@ -1,12 +1,12 @@
 //
-//  CustomLocationViewController.swift
+//  MapSelectionViewController.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/12/23.
 //
 
-import UIKit
 import MapKit
+import UIKit
 
 protocol LocationSelectionDelegate: AnyObject {
     func didSelectLocation(_ location: CLLocation)
@@ -95,7 +95,7 @@ class MapSelectionViewController: BaseController {
         let locationInView = gestureRecognizer.location(in: mapView)
         let coordinate = mapView.convert(locationInView, toCoordinateFrom: mapView)
 
-        if let selectedLocationAnnotation = selectedLocationAnnotation {
+        if let selectedLocationAnnotation {
             selectedLocationAnnotation.coordinate = coordinate
         } else {
             selectedLocationAnnotation = MKPointAnnotation()

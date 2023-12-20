@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct WindowManager {
+enum WindowManager {
     static var rootNavigation: UINavigationController? {
         window.rootViewController as? UINavigationController
     }

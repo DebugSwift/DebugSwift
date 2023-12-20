@@ -5,8 +5,8 @@
 //  Created by Matheus Gois on 16/12/23.
 //
 
-import UIKit
 import CoreLocation
+import UIKit
 
 public enum DebugSwift {
     public static func setup() {
@@ -19,9 +19,7 @@ public enum DebugSwift {
         LocalizationManager.shared.loadBundle()
         NetworkHelper.shared.enable()
 
-        if Crash.enable {
-            CrashManager.register()
-        }
+        CrashManager.register()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             FloatViewManager.setup(TabBarController())
@@ -57,16 +55,7 @@ extension DebugSwift {
     }
 
     public enum Debugger {
-        @UserDefaultAccess(key: .crash, defaultValue: true)
+        @UserDefaultAccess(key: .debugger, defaultValue: true)
         public static var enable: Bool
-    }
-
-    public enum Crash {
-        @UserDefaultAccess(key: .crash, defaultValue: false)
-        public static var enable: Bool {
-            didSet {
-                enable ? CrashManager.register() : CrashManager.unregister()
-            }
-        }
     }
 }

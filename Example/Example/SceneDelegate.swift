@@ -5,8 +5,8 @@
 //  Created by Matheus Gois on 16/12/23.
 //
 
-import UIKit
 import DebugSwift
+import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?

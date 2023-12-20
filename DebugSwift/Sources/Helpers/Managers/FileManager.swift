@@ -1,5 +1,5 @@
 //
-//  FileManaging.swift
+//  FileManager.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 15/12/23.

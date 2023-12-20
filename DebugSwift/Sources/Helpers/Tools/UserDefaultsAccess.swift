@@ -14,7 +14,7 @@ public protocol UserDefaultsService {
 
 extension UserDefaults {
     public enum Key: String {
-        case crash
+        case debugger
     }
 }
 
@@ -42,7 +42,7 @@ extension UserDefaults {
 // MARK: - Extensions
 
 extension UserDefaults: UserDefaultsService {
-    public func set<T: Encodable>(encodable: T, forKey key: String) {
+    public func set(encodable: some Encodable, forKey key: String) {
         if let data = try? JSONEncoder().encode(encodable) {
             set(data, forKey: key)
         }
@@ -59,7 +59,7 @@ extension UserDefaults: UserDefaultsService {
 // MARK: - Extensions
 
 extension Keychain: UserDefaultsService {
-    public func set<T: Encodable>(encodable: T, forKey key: String) {
+    public func set(encodable: some Encodable, forKey key: String) {
         if let data = try? JSONEncoder().encode(encodable) {
             try? set(data, key: key)
         }

@@ -168,6 +168,7 @@ extension AppViewController {
         }
     }
 }
+
 extension AppViewController {
     enum ActionInfo: Int, CaseIterable {
         case crash

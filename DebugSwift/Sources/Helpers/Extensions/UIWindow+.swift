@@ -53,8 +53,7 @@ extension UIWindow {
                 let reusableTouchIndicators = objc_getAssociatedObject(
                     self,
                     &Constants.associatedReusableTouchIndicators
-                ) as? NSMutableSet
-            {
+                ) as? NSMutableSet {
                 return reusableTouchIndicators
             } else {
                 let reusableTouchIndicators = NSMutableSet()
@@ -167,10 +166,10 @@ extension UIWindow {
         if let indicatorView = touchIndicators.object(forKey: touch) {
             var indicatorViewAlpha: CGFloat = 1.0
 
-            if self.traitCollection.forceTouchCapability == UIForceTouchCapability.available {
+            if traitCollection.forceTouchCapability == UIForceTouchCapability.available {
                 indicatorViewAlpha =
-                Constants.touchIndicatorViewMinAlpha + (1.0 - Constants.touchIndicatorViewMinAlpha)
-                * touch.force / touch.maximumPossibleForce
+                    Constants.touchIndicatorViewMinAlpha + (1.0 - Constants.touchIndicatorViewMinAlpha)
+                        * touch.force / touch.maximumPossibleForce
             }
             indicatorView.alpha = indicatorViewAlpha
         }
@@ -210,8 +209,6 @@ extension UIWindow {
     }
 
     var _snapshotWithTouch: UIImage? {
-        guard Thread.isMainThread else { return nil }
-
         UIGraphicsBeginImageContextWithOptions(layer.frame.size, false, .zero)
         guard let context = UIGraphicsGetCurrentContext() else { return nil }
 

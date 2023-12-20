@@ -1,13 +1,13 @@
 //
-//  LocationViewController.swift
+//  Location.ViewController.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/12/23.
 //
 
+import CoreLocation
 import Foundation
 import UIKit
-import CoreLocation
 
 final class LocationViewController: BaseController {
     private let tableView: UITableView = {

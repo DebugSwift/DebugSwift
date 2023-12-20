@@ -1,5 +1,5 @@
 //
-//  CrashManagerModel.swift
+//  CrashModel.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 20/12/23.
@@ -12,6 +12,18 @@ struct CrashModel: Codable, Equatable {
     let details: Details
     let context: Context
     let traces: [Trace]
+
+    init(
+        type: CrashType,
+        details: Details,
+        context: Context = .builder(),
+        traces: [Trace] = .builder()
+    ) {
+        self.type = type
+        self.details = details
+        self.context = context
+        self.traces = traces
+    }
 
     static func == (lhs: CrashModel, rhs: CrashModel) -> Bool {
         lhs.details.name == rhs.details.name
@@ -39,6 +51,7 @@ extension CrashModel {
         }
     }
 }
+
 extension CrashModel {
     struct Context: Codable {
         let image: Data?
@@ -73,7 +86,7 @@ extension [CrashModel.Trace] {
     static func builder() -> Self {
         var traces = [CrashModel.Trace]()
         for symbol in Thread.callStackSymbols {
-            var detail: String = ""
+            var detail = ""
             if let className = Trace.classNameFromSymbol(symbol) {
                 detail += "Class: \(className)\n"
             }

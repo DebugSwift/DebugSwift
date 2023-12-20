@@ -5,10 +5,10 @@
 //  Created by Matheus Gois on 20/12/23.
 //
 
-import UIKit
 import PDFKit
+import UIKit
 
-class PDFManager {
+enum PDFManager {
 
     static func generatePDF(
         title: String,
@@ -154,7 +154,8 @@ private final class ImageAnnotation: PDFAnnotation {
         super.init(bounds: imageBounds, forType: .stamp, withProperties: nil)
     }
 
-    required public init?(coder aDecoder: NSCoder) {
+    @available(*, unavailable)
+    public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -176,7 +177,7 @@ private final class ImageAnnotation: PDFAnnotation {
 
         // Add a border around the image
         let borderWidth: CGFloat = 10
-        context.setStrokeColor(UIColor.black.cgColor)  // Set border color
+        context.setStrokeColor(UIColor.black.cgColor) // Set border color
         context.setLineWidth(borderWidth)
         context.addRect(imageBounds.insetBy(dx: -borderWidth / 2, dy: -borderWidth / 2))
         context.strokePath()

@@ -89,7 +89,7 @@ extension CrashViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        section == 0 ? 1 : viewModel.numberOfItems()
+        viewModel.numberOfItems()
     }
 
     func tableView(
@@ -97,14 +97,8 @@ extension CrashViewController: UITableViewDataSource, UITableViewDelegate {
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
         let feature = Features(rawValue: indexPath.section)
-        let title = feature?.title ?? ""
 
         switch feature {
-        case .active:
-            return toggleCell(
-                title: title,
-                index: indexPath.row
-            )
         case .crashes:
             let data = viewModel.dataSourceForItem(atIndex: indexPath.row)
             let cell = tableView.dequeueReusableCell(
@@ -142,41 +136,8 @@ extension CrashViewController: UITableViewDataSource, UITableViewDelegate {
     }
 }
 
-extension CrashViewController: MenuSwitchTableViewCellDelegate {
-    func menuSwitchTableViewCell(
-        _ cell: MenuSwitchTableViewCell,
-        didSetOn isOn: Bool
-    ) {
-        DebugSwift.Crash.enable = isOn
-    }
-
-    private func toggleCell(
-        title: String?,
-        index: Int
-    ) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: MenuSwitchTableViewCell.identifier
-        ) as? MenuSwitchTableViewCell ?? .init()
-        cell.titleLabel.text = title
-        cell.tag = index
-        cell.valueSwitch.isOn = DebugSwift.Crash.enable
-        cell.delegate = self
-        return cell
-    }
-}
-
 extension CrashViewController {
     enum Features: Int, CaseIterable {
-        case active
         case crashes
-
-        var title: String {
-            switch self {
-            case .active:
-                return "Active Crash"
-            case .crashes:
-                return ""
-            }
-        }
     }
 }

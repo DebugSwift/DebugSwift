@@ -84,7 +84,7 @@ final class CrashDetailViewController: BaseController {
         guard let fileURL = PDFManager.savePDFData(
             pdf,
             fileName: "Crash-\(UUID().uuidString).pdf"
-        )  else {
+        ) else {
             Debug.print("Failure to save PDF")
             return
         }
@@ -100,7 +100,6 @@ final class CrashDetailViewController: BaseController {
         }
         present(activity, animated: true, completion: nil)
     }
-
 }
 
 extension CrashDetailViewController: UITableViewDataSource, UITableViewDelegate {
@@ -116,7 +115,7 @@ extension CrashDetailViewController: UITableViewDataSource, UITableViewDelegate 
         _ tableView: UITableView,
         heightForHeaderInSection section: Int
     ) -> CGFloat {
-        return 20.0
+        20.0
     }
 
     func tableView(
@@ -149,11 +148,11 @@ extension CrashDetailViewController: UITableViewDataSource, UITableViewDelegate 
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return .init()
+        .init()
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 20
+        20
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

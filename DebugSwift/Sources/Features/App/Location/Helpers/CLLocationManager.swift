@@ -5,8 +5,8 @@
 //  Created by Matheus Gois on 19/12/23.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 
 extension CLLocationManager {
     static func swizzleMethods() {
@@ -32,7 +32,7 @@ extension CLLocationManager {
     @objc func swizzledStartLocation() {}
 
     @objc func swizzedRequestLocation() {
-        if let simulatedLocation = simulatedLocation {
+        if let simulatedLocation {
             delegate?.locationManager?(self, didUpdateLocations: [simulatedLocation])
         } else {
             swizzedRequestLocation()

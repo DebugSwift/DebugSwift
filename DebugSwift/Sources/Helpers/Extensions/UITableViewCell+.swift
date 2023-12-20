@@ -29,7 +29,7 @@ extension UITableViewCell {
         textLabel?.font = .systemFont(ofSize: 16 * scale)
 
         // Set attributed text if subtitle is provided
-        if let subtitle = subtitle, !subtitle.isEmpty {
+        if let subtitle, !subtitle.isEmpty {
             textLabel?.setAttributedText(title: title, subtitle: subtitle, scale: scale)
         }
 
@@ -38,11 +38,11 @@ extension UITableViewCell {
         selectionStyle = .none
 
         // Configure accessoryView
-        if let image = image {
+        if let image {
             let disclosureIndicator = UIImageView(image: image)
             disclosureIndicator.tintColor = .white
             accessoryView = disclosureIndicator
-        } else if let description = description {
+        } else if let description {
             // Configure custom label for description
             let label = UILabel()
             label.text = description

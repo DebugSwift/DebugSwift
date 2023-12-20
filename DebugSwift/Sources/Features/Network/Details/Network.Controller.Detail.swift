@@ -243,7 +243,7 @@ extension NetworkViewControllerDetail {
             )
 
             if let popover = activity.popoverPresentationController {
-                popover.sourceView = self.view
+                popover.sourceView = view
                 popover.permittedArrowDirections = .up
             }
             present(activity, animated: true, completion: nil)

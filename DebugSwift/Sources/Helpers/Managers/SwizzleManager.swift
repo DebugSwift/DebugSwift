@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SwizzleManager {
+enum SwizzleManager {
     static func swizzle(
         _ classType: AnyClass,
         originalSelector: Selector,
@@ -16,7 +16,7 @@ struct SwizzleManager {
         let originalMethod = class_getInstanceMethod(classType, originalSelector)
         let swizzledMethod = class_getInstanceMethod(classType, swizzledSelector)
 
-        guard let origMethod = originalMethod, let swizzledMethod = swizzledMethod else {
+        guard let origMethod = originalMethod, let swizzledMethod else {
             fatalError("Failed to retrieve methods for swizzling.")
         }
 

@@ -26,8 +26,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
-            CLGeocoder().reverseGeocodeLocation(location) { (placemarks, error) in
-                if let error = error {
+            CLGeocoder().reverseGeocodeLocation(location) { placemarks, error in
+                if let error {
                     print("Error: " + error.localizedDescription)
                     return
                 }

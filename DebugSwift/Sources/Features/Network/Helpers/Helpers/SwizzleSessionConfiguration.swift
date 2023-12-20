@@ -1,5 +1,5 @@
 //
-//  _QNSURLSessionDemux.swift
+//  SwizzleSessionConfiguration.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 18/12/23.
