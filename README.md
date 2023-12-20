@@ -6,6 +6,8 @@ DebugSwift is a comprehensive toolkit designed to simplify and enhance the debug
 ![image2](https://github.com/MaatheusGois/DebugSwift/assets/31082311/994e75c9-948e-486b-9522-4e2a9779de4e)
 ![image3](https://github.com/MaatheusGois/DebugSwift/assets/31082311/0aebb4ce-3e0c-4eea-b2a4-4516d916228e)
 ![image4](https://github.com/MaatheusGois/DebugSwift/assets/31082311/fecff545-405b-493f-99f8-3ed65d453227)
+![image5](https://github.com/MaatheusGois/DebugSwift/assets/31082311/7e558c50-6634-4e26-9788-b1b355f121f4)
+![image6](https://github.com/MaatheusGois/DebugSwift/assets/31082311/d0512b4e-afbd-427f-b8e0-f125afb92416)
 
 ## Features
 
