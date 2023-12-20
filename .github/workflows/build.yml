@@ -30,11 +30,11 @@ jobs:
         xcodebuild clean build \
           -workspace Example/Example.xcworkspace \
           -scheme Example \
-          -destination 'platform=iOS Simulator'
+          -destination 'platform=iOS Simulator, name:iPhone 14 Plus'
 
     - name: Build Swift Package Manager
       run: |
         xcodebuild clean build \
           -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
           -scheme Example_SwiftUI \
-          -destination 'platform=iOS Simulator'
+          -destination 'platform=iOS Simulator, name:iPhone 14 Plus'
