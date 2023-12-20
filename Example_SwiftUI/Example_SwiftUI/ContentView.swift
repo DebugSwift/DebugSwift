@@ -72,7 +72,3 @@ struct MockRequestView_Previews: PreviewProvider {
         MockRequestView(endpoint: "https://reqres.in/api/users/1")
     }
 }
-
-#Preview {
-    ContentView()
-}
