@@ -13,17 +13,17 @@ public protocol UserDefaultsService {
 }
 
 extension UserDefaults {
-    public enum Key: String {
+    enum Key: String {
         case debugger
     }
 }
 
-@propertyWrapper public struct UserDefaultAccess<T: Codable> {
+@propertyWrapper struct UserDefaultAccess<T: Codable> {
     let key: String
     let defaultValue: T
     let userDefaults: UserDefaultsService
 
-    public init(
+    init(
         key: UserDefaults.Key,
         defaultValue: T,
         userDefaults: UserDefaultsService = UserDefaults.standard
