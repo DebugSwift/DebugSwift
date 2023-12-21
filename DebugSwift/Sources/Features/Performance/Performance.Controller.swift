@@ -29,13 +29,13 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
 
     override init() {
         super.init()
+        performanceToolkit.delegate = self
         setup()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
-        performanceToolkit.delegate = self
     }
 
     // MARK: - Setup Methods
