@@ -19,7 +19,7 @@ public enum Debug {
     }
 
     static func print(
-        _ message: String
+        _ message: Any
     ) {
         guard enable else { return }
         Swift.print("[DebugSwift] 🚀 → \(message)")

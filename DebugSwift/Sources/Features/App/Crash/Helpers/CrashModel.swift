@@ -65,7 +65,7 @@ extension CrashModel {
         static func builder() -> Self {
             .init(
                 image: UIWindow.keyWindow?._snapshotWithTouch?.pngData(),
-                consoleOutput: LogIntercepter.shared.consoleOutput.joined(separator: "\n")
+                consoleOutput: LogIntercepter.shared.consoleOutput.reversed().joined(separator: "\n")
             )
         }
     }

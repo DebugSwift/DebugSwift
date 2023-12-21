@@ -67,6 +67,7 @@
 "date" = "Date";
 "crash-name" = "Error";
 "reason" = "Reason";
+"no-reason" = "No Reason";
 "context" = "Context";
 "name" = "Name";
 "user-info" = "User Info";

@@ -67,6 +67,7 @@
 "date" = "Data";
 "crash-name" = "Falha";
 "reason" = "Motivo";
+"no-reason" = "Não encontrado";
 "context" = "Contexto";
 "name" = "Nome";
 "user-info" = "User Info";
