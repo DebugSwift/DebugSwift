@@ -25,8 +25,9 @@ jobs:
         versionSpec: '5.x'
 
     - name: Determine Version
+      id: gitversion
       uses: gittools/actions/gitversion/execute@v0
 
     - name: Display GitVersion
       run: |
-        echo "SemVer: ${{ steps.gitversion.outputs.GitVersion_SemVer }}"
+        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
