@@ -1,5 +1,5 @@
 
-name: GitVersion
+name: Versioning
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
 
     - name: Display GitVersion
       run: |
-        NEW_TAG="v${{ steps.gitversion.outputs.semVer }}"
+        NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
         echo "SemVer: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
         
@@ -62,6 +62,6 @@ jobs:
         tag_name: ${{ needs.git_version.outputs.semVer }}
         release_name: Release ${{ needs.git_version.outputs.semVer }}
         body: |
-          See full changelog: [$(git describe --abbrev=0 --tags --exclude="*alpha*")]...[needs.git_version.outputs.semVer]
+          See full changelog: [${{ needs.git_version.outputs.latestVersion }}]...[${{ needs.git_version.outputs.semVer }}]()
         draft: false
         prerelease: false
