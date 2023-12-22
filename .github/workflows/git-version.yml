@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       branchName: ${{ steps.gitversion.outputs.semVer }} # To use an output in another job, you have to map it to a job output.
+      latestTag: ${{ steps.getTag.outputs.latestTag }}
 
     steps:
 
@@ -35,6 +36,13 @@ jobs:
         NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
         echo "SemVer: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+
+    - name: Get latest tag
+      id: getTag
+      run: |
+        LATEST_TAG=$(git describe --tags --abbrev=0 --match="+([0-9])\.+([0-9])\.+([0-9])"
+        echo "Latest tag: $LATEST_TAG)"
+        echo "::set-output name=latestTag::$(LATEST_TAG)"
         
     - name: Push Git Tag
       run: |
@@ -46,7 +54,7 @@ jobs:
   release:
     needs: git_version
     runs-on: ubuntu-latest
-    if: contains('github.ref', 'refs/heads/main')
+    if: contains(github.ref, 'refs/heads/main')
 
     steps:
 
@@ -62,6 +70,6 @@ jobs:
         tag_name: ${{ needs.git_version.outputs.semVer }}
         release_name: Release ${{ needs.git_version.outputs.semVer }}
         body: |
-          See full changelog: [${{ needs.git_version.outputs.latestVersion }}]...[${{ needs.git_version.outputs.semVer }}]()
+          See full changelog: [${{ needs.git_version.outputs.latestTag }}]...[${{ needs.git_version.outputs.semVer }}]()
         draft: false
         prerelease: false
