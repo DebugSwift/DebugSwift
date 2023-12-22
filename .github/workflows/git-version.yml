@@ -9,7 +9,8 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    name: Git Version
+    runs-on: ubuntu-latest
 
     steps:
 
@@ -28,4 +29,4 @@ jobs:
 
     - name: Display GitVersion
       run: |
-        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+        echo "SemVer: ${{ steps.gitversion.outputs.GitVersion_SemVer }}"
