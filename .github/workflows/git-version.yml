@@ -11,6 +11,8 @@ jobs:
   git_version:
     name: Git Version
     runs-on: ubuntu-latest
+    outputs:
+      branchName: ${{ steps.gitversion.outputs.semVer }} # To use an output in another job, you have to map it to a job output.
 
     steps:
 
@@ -40,3 +42,26 @@ jobs:
         git config user.email "github-actions@users.noreply.github.com"
         git tag $NEW_TAG
         git push origin $NEW_TAG
+
+  release:
+    needs: git_version
+    runs-on: ubuntu-latest
+    if: contains('github.ref', 'refs/heads/main')
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ needs.git_version.outputs.semVer }}
+        release_name: Release ${{ needs.git_version.outputs.semVer }}
+        body: |
+          See full changelog: [$(git describe --abbrev=0 --tags --exclude="*rc*")]...[needs.git_version.outputs.semVer]
+        draft: false
+        prerelease: false
