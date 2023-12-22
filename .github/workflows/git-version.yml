@@ -1,0 +1,31 @@
+
+name: GitVersion
+
+on:
+  push:
+    branches: 
+      - "main"
+      - "develop"
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '5.x'
+        
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v0
+      
+    - name: Display GitVersion
+      run: |
+        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
