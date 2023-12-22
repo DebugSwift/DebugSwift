@@ -12,7 +12,7 @@ jobs:
     name: Git Version
     runs-on: ubuntu-latest
     outputs:
-      branchName: ${{ steps.gitversion.outputs.semVer }} # To use an output in another job, you have to map it to a job output.
+      semVer: ${{ steps.gitversion.outputs.semVer }} # To use an output in another job, you have to map it to a job output.
       latestTag: ${{ steps.getTag.outputs.latestTag }}
 
     steps:
