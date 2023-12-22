@@ -8,7 +8,7 @@ on:
       - "develop"
 
 jobs:
-  build:
+  git_version:
     name: Git Version
     runs-on: ubuntu-latest
 
@@ -30,4 +30,13 @@ jobs:
 
     - name: Display GitVersion
       run: |
-        echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+        NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
+        echo "SemVer: $NEW_TAG"
+        echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+        
+    - name: Push Git Tag
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
