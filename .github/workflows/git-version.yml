@@ -46,7 +46,7 @@ jobs:
   release:
     needs: git_version
     runs-on: ubuntu-latest
-    if: contains('github.ref', 'refs/heads/main')
+    if: contains('github.ref', 'main')
 
     steps:
 
