@@ -49,7 +49,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Get podspec version
+    - name: Validate podspec version
       #if: github.event_name == 'pull_request'
       run: |
         VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
@@ -65,9 +65,10 @@ jobs:
       if: ${{ failure() }}
       run: |
         PODSPEC="DebugSwift.podspec"
-        sed -i '' "s/s\.version *=.*/s.version = '${{ steps.getTag.outputs.majorMinorPatch }}'/g" $PODSPEC
-        git add $PODSPEC
-        git commit -m 'feat: Update Podspec'
+        VERSION='${{ steps.getTag.outputs.majorMinorPatch }}'
+        sed -i '' "s/s\.version *=.*/s.version = '$VERSION'/g" "$PODSPEC"
+        git add "$PODSPEC"
+        git commit -m 'feat: Update Podspec with version $VERSION'
         git push
 
   latest_release:
