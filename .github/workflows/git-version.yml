@@ -64,10 +64,10 @@ jobs:
     - name: Update podspec
       if: ${{ failure() }}
       run: |
-        PODSPEC="DebugSwift.podspec"
+        PODSPEC_FILE="DebugSwift.podspec"
         VERSION='${{ steps.getTag.outputs.majorMinorPatch }}'
-        sed -i '' "s/s\.version *=.*/s.version = '$VERSION'/g" "$PODSPEC"
-        git add "$PODSPEC"
+        sed -i '' -E "s/(s\.version *= *')([^']+)(.*)/\1$VERSION\3/g" "$PODSPEC_FILE"
+        git add "$PODSPEC_FILE"
         git commit -m 'feat: Update Podspec with version $VERSION'
         git push
 
