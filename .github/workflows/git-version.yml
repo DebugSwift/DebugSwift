@@ -1,0 +1,110 @@
+
+name: Release
+
+on:
+  push:
+    branches: 
+      - "main"
+      - "develop"
+
+jobs:
+  git_version:
+    name: Determine current version
+    runs-on: ubuntu-latest
+    outputs:
+      semVer: ${{ steps.gitversion.outputs.semVer }}
+    
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0
+      with:
+        versionSpec: '5.x'
+
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0
+
+    - name: Display GitVersion
+      run: |
+        NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
+        echo "Semantic Version: $NEW_TAG"
+        echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+
+  latest_release:
+    name: Get latest version
+    runs-on: ubuntu-latest
+    outputs:
+      latestTag: ${{ steps.getTag.outputs.latestTag }}
+
+    steps:
+
+    - name: Get latest release
+      uses: octokit/request-action@v2.x
+      id: get_release
+      with:
+        route: GET /repos/:repository/releases/latest
+        repository: ${{ github.repository }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Display latest release tag
+      id: getTag
+      run: |
+        json='${{ steps.get_release.outputs.data }}'
+        tag="$(echo $json | jq -r '.tag_name')"
+        echo $tag
+        echo "::set-output name=latestTag::$tag"
+        
+    - name: Display error if exists
+      run: "echo Release could not be found. Request failed with status '${{ steps.get_release.outputs.status }}'"
+      if: ${{ failure() }}
+
+  tag:
+    name: Create tag
+    needs: git_version
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Push Git Tag
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        git tag ${{ needs.git_version.outputs.semVer }}
+        git push origin ${{ needs.git_version.outputs.semVer }}
+
+  release:
+    name: Create release
+    needs: 
+      - git_version
+      - latest_release
+      - tag
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'refs/heads/main')
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ needs.git_version.outputs.semVer }}
+        release_name: Release ${{ needs.git_version.outputs.semVer }}
+        body: |
+          Full changelog: [${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }}](https://github.com/${{ github.repository }}/compare/${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }})
+        draft: false
+        prerelease: false
