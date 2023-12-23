@@ -64,19 +64,22 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Validate podspec version
+    - name: Display version
+      run: |
+        PODSPEC_VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
+        echo Podspec version: "$PODSPEC_VERSION"
+        echo "PODSPEC_VERSION=$PODSPEC_VERSION" >> $GITHUB_ENV
+
+    - name: Validate version
       if: github.event_name == 'pull_request'
       run: |
-        VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
-        echo Podspec version: "$VERSION"
-
-        if [ "$VERSION" != "${{ steps.getTag.outputs.majorMinorPatch }}" ]; then
+        if [ "$PODSPEC_VERSION" != "${{ steps.getTag.outputs.majorMinorPatch }}" ]; then
           echo Podspec and current version are divergent
           echo Current version: '${{ needs.git_version.outputs.majorMinorPatch }}'
           exit 1
         fi
 
-    - name: Update podspec
+    - name: Update version
       if: ${{ failure() }}
       run: |
         PODSPEC_FILE="DebugSwift.podspec"
