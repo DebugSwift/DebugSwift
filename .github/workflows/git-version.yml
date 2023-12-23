@@ -13,8 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }} # To use an output in another job, you have to map it to a job output.
-      latestTag: ${{ steps.getTag.outputs.latestTag }}
-
+    
     steps:
 
     - name: Checkout
@@ -33,10 +32,17 @@ jobs:
 
     - name: Display GitVersion
       run: |
-        NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
+        NEW_TAG="${{ steps.gitversion.outputs.semVer }}
         echo "Semantic Version: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
+  latest_release:
+    name: Get latest release
+    runs-on: ubuntu-latest
+    outputs:
+      latestTag: ${{ steps.getTag.outputs.latestTag }}
+
+    steps:
 
     - name: Get latest release
       uses: octokit/request-action@v2.x
@@ -55,19 +61,29 @@ jobs:
         echo $tag
         echo "::set-output name=latestTag::$tag"
         
-    - run: "echo Release could not be found. Request failed with status '${{ steps.get_release.outputs.status }}'"
+    - name: Display error if exists
+      run: "echo Release could not be found. Request failed with status '${{ steps.get_release.outputs.status }}'"
       if: ${{ failure() }}
+
+  tag:
+    name: Tag
+    needs: git_version
+    runs-on: ubuntu-latest
+
+    steps:
 
     - name: Push Git Tag
       run: |
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
-        git tag $NEW_TAG
-        git push origin $NEW_TAG
+        git tag ${{ needs.git_version.outputs.semVer }}
+        git push origin ${{ needs.git_version.outputs.semVer }}
 
   release:
     name: Release
-    needs: git_version
+    needs: 
+      - git_version
+      - latest_release
     runs-on: ubuntu-latest
     if: contains(github.ref, 'refs/heads/main')
 
@@ -85,6 +101,6 @@ jobs:
         tag_name: ${{ needs.git_version.outputs.semVer }}
         release_name: Release ${{ needs.git_version.outputs.semVer }}
         body: |
-          See full changelog: [${{ needs.git_version.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }}](https://github.com/${{ github.repository }}/compare/${{ needs.git_version.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }})
+          See full changelog: [${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }}](https://github.com/${{ github.repository }}/compare/${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }})
         draft: false
         prerelease: false
