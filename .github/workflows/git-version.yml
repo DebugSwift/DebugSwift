@@ -105,6 +105,6 @@ jobs:
         tag_name: ${{ needs.git_version.outputs.semVer }}
         release_name: Release ${{ needs.git_version.outputs.semVer }}
         body: |
-          See full changelog: [${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }}](https://github.com/${{ github.repository }}/compare/${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }})
+          Full changelog: [${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }}](https://github.com/${{ github.repository }}/compare/${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }})
         draft: false
         prerelease: false
