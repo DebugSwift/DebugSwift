@@ -46,7 +46,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - run: |
-        TAG=$(${{ steps.get_release.outputs.data }} | jq .tag_name)
+        TAG=$(${{ steps.get_release.outputs.data }} | jq --raw-output '.tag_name')
         echo "Release number: $TAG"
         
     - name: Push Git Tag
