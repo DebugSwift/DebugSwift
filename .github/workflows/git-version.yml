@@ -48,7 +48,7 @@ jobs:
     - name: Display latest release tag
       run: |
         json='${{ steps.get_release.outputs.data }}'
-        tag="$(jq -r '.tag_name' <<< '${json}')"
+        tag="$(echo $json | jq -r '.tag_name')"
         echo $tag
         
     - name: Push Git Tag
