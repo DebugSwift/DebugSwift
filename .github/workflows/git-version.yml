@@ -47,7 +47,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Display latest release tag
       run: |
-        jq -r '.tag_name' <<< ${{ steps.get_release.outputs.data }}
+        json="${{ steps.get_release.outputs.data }}"
+        echo jq -r '.tag_name' <<< "${json}"
         
     - name: Push Git Tag
       run: |
