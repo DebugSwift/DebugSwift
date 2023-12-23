@@ -87,6 +87,7 @@ jobs:
     needs: 
       - git_version
       - latest_release
+      - tag
     runs-on: ubuntu-latest
     if: contains(github.ref, 'refs/heads/main')
 
