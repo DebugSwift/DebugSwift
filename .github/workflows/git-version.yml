@@ -67,6 +67,9 @@ jobs:
         PODSPEC_FILE="DebugSwift.podspec"
         VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
         sed -i -E "s/(s\.version *= *')([^']+)(.*)/\1$VERSION\3/g" "$PODSPEC_FILE"
+        
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
         git add "$PODSPEC_FILE"
         git commit -m 'feat: Update Podspec with version $VERSION'
         git push
