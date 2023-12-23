@@ -45,10 +45,7 @@ jobs:
         repository: ${{ github.repository }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - run: |
-        #json="${{ steps.get_release.outputs.data }}"
-        #tag=$(jq -r '.tag_name' <<< ${json})
-        echo "Release: ${{ steps.get_release.outputs.data }}"
+    - run: "echo Release: '${{ steps.get_release.outputs.data }}'"
         
     - name: Push Git Tag
       run: |
