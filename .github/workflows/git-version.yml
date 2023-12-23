@@ -83,9 +83,7 @@ jobs:
   tag:
     name: Create tag
     if: github.event_name != 'pull_request'
-    needs: 
-      - git_version
-      - update_podspec
+    needs: git_version
     runs-on: ubuntu-latest
 
     steps:
