@@ -46,7 +46,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - run: |
-        echo Release: ${{ steps.get_release.outputs.data }}
+        echo Release: "${{ steps.get_release.outputs.data }}"
         
     - name: Push Git Tag
       run: |
