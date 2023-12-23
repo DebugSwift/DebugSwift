@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }}
+      majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
     
     steps:
 
@@ -49,15 +50,21 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Get podspec version
-      run: |
-        VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
-        echo $VERSION
-
-    - name: Update podspec
       if: github.event_name == 'pull_request'
       run: |
+        VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
+        echo Podspec version: "$VERSION"
+
+        if [ "$VERSION" != "${{ steps.getTag.outputs.majorMinorPatch }}" ]; then
+          echo Current and next version is divergent
+          exit 1
+        fi
+
+
+    - name: Update podspec
+      if: ${{ failure() }}
+      run: |
         echo To do
-        #exit 1 
 
   latest_release:
     name: Get latest version
