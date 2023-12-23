@@ -6,9 +6,9 @@ on:
     branches: 
       - "main"
       - "develop"
-  pull_request:
-    branches:
-      - "*"
+  #pull_request:
+    #branches:
+      #- "*"
 
 jobs:
   git_version:
