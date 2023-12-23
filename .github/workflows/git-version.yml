@@ -38,7 +38,8 @@ jobs:
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
 
-    - uses: octokit/request-action@v2.x
+    - name: Get latest release
+      uses: octokit/request-action@v2.x
       id: get_release
       with:
         route: GET /repos/:repository/releases/latest
