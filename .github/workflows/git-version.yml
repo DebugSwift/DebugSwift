@@ -37,13 +37,15 @@ jobs:
         echo "SemVer: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
-    - name: Get latest tag
-      id: getTag
-      continue-on-error: true
-      run: |
-        LATEST_TAG=$(git describe --tags --abbrev=0 --match="+([0-9])\.+([0-9])\.+([0-9])")
-        echo "Latest tag: $LATEST_TAG)"
-        echo "::set-output name=latestTag::$(LATEST_TAG)"
+
+    - uses: octokit/request-action@v2.x
+      id: get_release
+      with:
+        route: GET /repos/repository/releases/latest
+        repository: ${{ github.repository }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - run: "echo Release found: '${{ steps.get_release.outputs.data }}'"
         
     - name: Push Git Tag
       run: |
