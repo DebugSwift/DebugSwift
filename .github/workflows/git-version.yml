@@ -45,7 +45,8 @@ jobs:
         repository: ${{ github.repository }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - run: |
+    - name: Display latest release tag
+      run: |
         echo Release: "${{ steps.get_release.outputs.data }}"
         
     - name: Push Git Tag
