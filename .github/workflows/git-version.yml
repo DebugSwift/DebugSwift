@@ -64,7 +64,11 @@ jobs:
     - name: Update podspec
       if: ${{ failure() }}
       run: |
-        echo To do
+        PODSPEC="DebugSwift.podspec"
+        sed -i '' "s/s\.version *=.*/s.version = '${{ steps.getTag.outputs.majorMinorPatch }}'/g" $PODSPEC
+        git add $PODSPEC
+        git commit -m 'feat: Update Podspec'
+        git push
 
   latest_release:
     name: Get latest version
