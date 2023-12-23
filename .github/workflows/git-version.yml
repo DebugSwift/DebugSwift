@@ -50,6 +50,7 @@ jobs:
         json='${{ steps.get_release.outputs.data }}'
         tag="$(echo $json | jq -r '.tag_name')"
         echo $tag
+        echo "::set-output name=latestTag::$tag"
         
     - name: Push Git Tag
       run: |
