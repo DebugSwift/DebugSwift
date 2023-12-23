@@ -46,6 +46,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Display latest release tag
+      id: getTag
       run: |
         json='${{ steps.get_release.outputs.data }}'
         tag="$(echo $json | jq -r '.tag_name')"
