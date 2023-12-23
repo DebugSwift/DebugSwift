@@ -42,11 +42,12 @@ jobs:
   update_podspec:
     name: Update podspec
     needs: git_version
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
     
-    - run: |
+    - name: Update podspec
+      if: github.event_name == 'pull_request'
+      run: |
         echo To do
         exit 1 
 
@@ -83,7 +84,9 @@ jobs:
   tag:
     name: Create tag
     if: github.event_name != 'pull_request'
-    needs: git_version
+    needs: 
+      - git_version
+      - update_podspec
     runs-on: ubuntu-latest
 
     steps:
