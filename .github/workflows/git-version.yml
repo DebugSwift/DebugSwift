@@ -9,7 +9,7 @@ on:
 
 jobs:
   git_version:
-    name: Git Version
+    name: Determine current version
     runs-on: ubuntu-latest
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }} # To use an output in another job, you have to map it to a job output.
@@ -37,7 +37,7 @@ jobs:
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
   latest_release:
-    name: Get latest release
+    name: Get latest version
     runs-on: ubuntu-latest
     outputs:
       latestTag: ${{ steps.getTag.outputs.latestTag }}
@@ -66,7 +66,7 @@ jobs:
       if: ${{ failure() }}
 
   tag:
-    name: Tag
+    name: Create tag
     needs: git_version
     runs-on: ubuntu-latest
 
@@ -83,7 +83,7 @@ jobs:
         git push origin ${{ needs.git_version.outputs.semVer }}
 
   release:
-    name: Release
+    name: Create release
     needs: 
       - git_version
       - latest_release
