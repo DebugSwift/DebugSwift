@@ -71,10 +71,10 @@ jobs:
         echo Podspec version: "$VERSION"
 
         if [ "$VERSION" != "${{ steps.getTag.outputs.majorMinorPatch }}" ]; then
-          echo Current and next version are divergent
+          echo Podspec and current version are divergent
+          echo Current version: '${{ needs.git_version.outputs.majorMinorPatch }}'
           exit 1
         fi
-
 
     - name: Update podspec
       if: ${{ failure() }}
