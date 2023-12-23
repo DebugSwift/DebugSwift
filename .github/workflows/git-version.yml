@@ -45,11 +45,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Get podspec version
+      run: |
+        VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
+        echo $VERSION
+
     - name: Update podspec
       if: github.event_name == 'pull_request'
       run: |
         echo To do
-        exit 1 
+        #exit 1 
 
   latest_release:
     name: Get latest version
