@@ -32,7 +32,7 @@ jobs:
 
     - name: Display GitVersion
       run: |
-        NEW_TAG="${{ steps.gitversion.outputs.semVer }}
+        NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
         echo "Semantic Version: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
