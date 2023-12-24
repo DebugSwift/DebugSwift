@@ -6,12 +6,6 @@ on:
     branches: 
       - "main"
       - "develop"
-  pull_request:
-    branches:
-      - "**"
-      - "*/*"
-      - "*"
-      - "!main"
 
 permissions:
    actions: write
@@ -67,34 +61,29 @@ jobs:
     - name: Display version
       run: |
         PODSPEC_VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
-        echo Podspec version: "$PODSPEC_VERSION"
         echo "PODSPEC_VERSION=$PODSPEC_VERSION" >> $GITHUB_ENV
-
-    - name: Validate version
-      #if: github.event_name == 'pull_request'
-      run: |
-        if [ "$PODSPEC_VERSION" != "${{ steps.getTag.outputs.majorMinorPatch }}" ]; then
-          echo Podspec and current version are divergent
-          echo Current version: '${{ needs.git_version.outputs.majorMinorPatch }}'
-          exit 1
-        fi
+        echo Current version: '${{ needs.git_version.outputs.majorMinorPatch }}'
+        echo Podspec version: "$PODSPEC_VERSION"
 
     - name: Update version
-      if: ${{ failure() }}
       run: |
-        PODSPEC_FILE="DebugSwift.podspec"
-        VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
-        sed -i -E "s/(s\.version *= *')([^']+)(.*)/\1$VERSION\3/g" "$PODSPEC_FILE"
-        
-        git config user.name "GitHub Actions"
-        git config user.email "github-actions@users.noreply.github.com"
-        git add "$PODSPEC_FILE"
-        git commit -m 'feat: Update Podspec version'
-        git push
+        if [ "$PODSPEC_VERSION" == "${{ steps.getTag.outputs.majorMinorPatch }}" ]; then
+          echo Podspec version is updated.
+        else
+          echo Updating Podspec version...
+          PODSPEC_FILE="DebugSwift.podspec"
+          VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
+          sed -i -E "s/(s\.version *= *')([^']+)(.*)/\1$VERSION\3/g" "$PODSPEC_FILE"
+          
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add "$PODSPEC_FILE"
+          git commit -m 'feat: Update Podspec version'
+          git push
+        fi
 
   latest_release:
     name: Get latest version
-    #if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     outputs:
       latestTag: ${{ steps.getTag.outputs.latestTag }}
@@ -124,7 +113,6 @@ jobs:
 
   tag:
     name: Create tag
-    #if: github.event_name != 'pull_request'
     needs: 
       - git_version
       - update_podspec
@@ -144,7 +132,6 @@ jobs:
 
   release:
     name: Create release
-    #if: github.event_name != 'pull_request' && contains(github.ref, 'refs/heads/main')
     needs: 
       - git_version
       - latest_release
