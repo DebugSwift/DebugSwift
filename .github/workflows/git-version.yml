@@ -134,6 +134,7 @@ jobs:
 
   release:
     name: Create release
+    if: contains(github.ref, 'refs/heads/main')
     needs: 
       - git_version
       - latest_release
