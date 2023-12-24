@@ -67,9 +67,7 @@ jobs:
 
     - name: Update version
       run: |
-        if [ "$PODSPEC_VERSION" == "${{ steps.getTag.outputs.majorMinorPatch }}" ]; then
-          echo Podspec version is updated.
-        else
+        if [ "$PODSPEC_VERSION" != "${{ steps.getTag.outputs.majorMinorPatch }}" ]; then
           echo Updating Podspec version...
           PODSPEC_FILE="DebugSwift.podspec"
           VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
@@ -80,6 +78,8 @@ jobs:
           git add "$PODSPEC_FILE"
           git commit -m 'feat: Update Podspec version'
           git push
+        else
+          echo Podspec version is updated.
         fi
 
   latest_release:
