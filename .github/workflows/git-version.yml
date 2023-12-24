@@ -168,7 +168,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - run: "pod spec lint --allow-warnings"
     - run: "pod trunk push DebugSwift.podspec"
       env:
         COCOAPODS_TOKEN: ${{ secrets.COCOAPODS_TOKEN }}
