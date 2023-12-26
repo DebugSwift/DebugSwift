@@ -59,6 +59,10 @@ class FloatBallView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUp()
+    }
+
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
         addGesture()
     }
 
@@ -158,10 +162,7 @@ extension FloatBallView {
 
 extension FloatBallView {
     @objc private func tapGesture() {
-        guard let ballDidSelect else {
-            return
-        }
-        ballDidSelect()
+        ballDidSelect?()
     }
 }
 
