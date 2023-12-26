@@ -6,7 +6,7 @@
 //  Copyright © 2023 apple. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 extension String {
     static var cell = "cell"
