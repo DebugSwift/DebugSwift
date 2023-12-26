@@ -128,7 +128,7 @@ class LogIntercepter {
             queue.async { [weak self] in
                 self?.consoleOutput.append(output)
                 DispatchQueue.main.async {
-//                    self?.delegate?.logUpdated()
+                    self?.delegate?.logUpdated()
                 }
             }
         }
