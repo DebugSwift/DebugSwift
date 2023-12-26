@@ -171,3 +171,4 @@ jobs:
     - run: "pod trunk push DebugSwift.podspec"
       env:
         COCOAPODS_TOKEN: ${{ secrets.COCOAPODS_TOKEN }}
+    - run: "pod trunk me clean-sessions --all"
