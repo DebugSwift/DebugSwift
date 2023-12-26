@@ -58,7 +58,7 @@ final class AppViewController: BaseController {
         title = "app-title".localized()
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: "app"),
+            image: .named("app"),
             tag: 4
         )
     }

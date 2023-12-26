@@ -9,11 +9,11 @@
 import UIKit
 
 extension UIImage {
-    convenience init?(named imageName: String) {
+    static func named(_ imageName: String, default: String? = nil) -> UIImage? {
         if #available(iOS 13.0, *) {
-            self.init(systemName: imageName)
+            return UIImage.init(systemName: imageName)
         } else {
-            return nil
+            return `default`?.image(with: [.foregroundColor: UIColor.white])
         }
     }
 }

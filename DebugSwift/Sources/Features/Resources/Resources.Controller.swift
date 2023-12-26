@@ -58,7 +58,7 @@ final class ResourcesViewController: BaseController {
         title = "resources-title".localized()
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: "filemenu.and.selection"),
+            image: .named("filemenu.and.selection"),
             tag: 2
         )
     }

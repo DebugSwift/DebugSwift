@@ -60,7 +60,7 @@ final class LocationViewController: BaseController {
         ])
 
         addRightBarButton(
-            image: .init(named: "clear"),
+            image: .named("clear", default: "clean".localized()),
             tintColor: .red
         ) { [weak self] in
             self?.resetLocation()
@@ -89,7 +89,7 @@ extension LocationViewController: UITableViewDataSource, UITableViewDelegate {
             withIdentifier: .cell,
             for: indexPath
         )
-        let image = UIImage(named: "checkmark.circle")
+        let image = UIImage.named("checkmark.circle")
         if indexPath.row == 0 {
             cell.setup(
                 title: "custom".localized(),

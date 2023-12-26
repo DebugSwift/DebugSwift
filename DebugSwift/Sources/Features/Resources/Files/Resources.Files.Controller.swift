@@ -147,7 +147,7 @@ extension ResourcesFilesViewController {
             cell.setup(
                 title: fileName,
                 subtitle: "Size: \(fileSize)",
-                image: .init(named: "square.and.arrow.up")
+                image: .named("square.and.arrow.up", default: "Share")
             )
 
             return cell

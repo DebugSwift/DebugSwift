@@ -70,7 +70,6 @@ enum Trace {
     }
 
     static func slideAddressForImageIndex(_ index: UInt32) -> Int64 {
-        let header = _dyld_get_image_header(index).pointee
         return Int64(_dyld_get_image_vmaddr_slide(index))
     }
 }
