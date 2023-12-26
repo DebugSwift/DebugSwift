@@ -25,13 +25,17 @@ class LogIntercepter {
 
     weak var delegate: LogInterceptorDelegate?
 
-    var logUrl: URL? {
-        if let path = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first {
+    let logUrl: URL? = {
+        if let path = NSSearchPathForDirectoriesInDomains(
+            .cachesDirectory,
+            .userDomainMask,
+            true
+        ).first {
             let documentsDirectory = URL(fileURLWithPath: path)
             return documentsDirectory.appendingPathComponent("\(Bundle.main.bundleIdentifier ?? "app")-output.log")
         }
         return nil
-    }
+    }()
 
     // MARK: - Lifecycle Methods
 
@@ -56,7 +60,8 @@ class LogIntercepter {
 
     private func openConsolePipe() {
         setvbuf(stdout, nil, _IONBF, 0)
-        setvbuf(stderr, nil, _IONBF, 0)
+        // FIX-ME: - Get errors from logs, but lock the UI when the error occurs on main thread.
+//        setvbuf(stderr, nil, _IONBF, 0)
 
         // open a new Pipe to consume the messages on STDOUT and STDERR
         inputPipe = Pipe()
@@ -79,9 +84,8 @@ class LogIntercepter {
 
         /// In this case, the newFileDescriptor is the pipe's file descriptor
         /// and the old file descriptor is STDOUT_FILENO and STDERR_FILENO
-
         dup2(inputPipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
-        dup2(inputPipe.fileHandleForWriting.fileDescriptor, STDERR_FILENO)
+//        dup2(inputPipe.fileHandleForWriting.fileDescriptor, STDERR_FILENO)
 
         // listen in to the readHandle notification
         NotificationCenter.default.addObserver(
@@ -123,7 +127,9 @@ class LogIntercepter {
         if !shouldIgnoreLog(output), shouldIncludeLog(output) {
             queue.async { [weak self] in
                 self?.consoleOutput.append(output)
-                self?.delegate?.logUpdated()
+                DispatchQueue.main.async {
+                    self?.delegate?.logUpdated()
+                }
             }
         }
     }
