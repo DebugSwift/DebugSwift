@@ -79,7 +79,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        viewModel.customInfos.isEmpty ? 1 : Sections.allCases.count
+        viewModel.customInfos.isEmpty ? Sections.allCases.count - 1 : Sections.allCases.count
     }
 
     func tableView(
