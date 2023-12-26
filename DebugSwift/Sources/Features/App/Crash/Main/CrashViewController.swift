@@ -58,13 +58,16 @@ final class CrashViewController: BaseController {
         title = "actions-crash".localized()
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: "square.grid.2x2"),
+            image: .named(
+                "square.grid.2x2",
+                default: title ?? ""
+            ),
             tag: 3
         )
 
         guard viewModel.numberOfItems() != .zero else { return }
         addRightBarButton(
-            image: .init(named: "trash.circle"),
+            image: .named("trash.circle", default: "clean".localized()),
             tintColor: .red
         ) { [weak self] in
             self?.showAlert(

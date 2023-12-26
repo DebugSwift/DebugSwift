@@ -16,4 +16,14 @@ class AppViewModel: NSObject {
     var customInfos: [CustomData] {
         DebugSwift.App.customInfo?() ?? []
     }
+
+    func getTitle(for section: Int) -> String? {
+        let data = AppViewController.Sections(rawValue: section)
+        switch data {
+        case .customData:
+            return customInfos.isEmpty ? nil : data?.title
+        default:
+            return data?.title
+        }
+    }
 }

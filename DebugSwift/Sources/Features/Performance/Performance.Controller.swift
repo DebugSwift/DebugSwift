@@ -44,7 +44,7 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
         title = "performance-title".localized()
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: "speedometer"),
+            image: .named("speedometer"),
             tag: 1
         )
     }

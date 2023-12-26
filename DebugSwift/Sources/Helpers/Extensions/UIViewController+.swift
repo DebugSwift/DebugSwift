@@ -42,6 +42,25 @@ extension UIViewController {
     }
 
     func addRightBarButton(
+        title: String?,
+        tintColor: UIColor? = nil,
+        completion: (() -> Void)? = nil
+    ) {
+        let rightButton = CustomBarButtonItem(
+            title: title,
+            style: .plain
+        ) { _ in
+            if let completion {
+                completion()
+            }
+        }
+        if let tintColor {
+            rightButton.tintColor = tintColor
+        }
+        navigationItem.rightBarButtonItem = rightButton
+    }
+
+    func addRightBarButton(
         image: UIImage?,
         tintColor: UIColor? = nil,
         completion: (() -> Void)? = nil
