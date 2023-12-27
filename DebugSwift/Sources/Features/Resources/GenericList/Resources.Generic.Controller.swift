@@ -57,7 +57,7 @@ class ResourcesGenericController: BaseTableController {
         tableView.backgroundColor = .black
         guard viewModel.numberOfItems() != .zero, viewModel.isDeleteEnable else { return }
         addRightBarButton(
-            image: .init(named: "trash.circle"),
+            image: .named("trash.circle", default: "delete.action".localized()),
             tintColor: .red
         ) { [weak self] in
             self?.showAlert(
@@ -118,7 +118,7 @@ class ResourcesGenericController: BaseTableController {
         cell.setup(
             title: dataSource.title,
             subtitle: dataSource.value,
-            image: .init(named: "doc.on.doc")
+            image: .named("doc.on.doc", default: "copy".localized())
         )
 
         return cell

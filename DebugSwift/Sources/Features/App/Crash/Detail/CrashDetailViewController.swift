@@ -62,7 +62,7 @@ final class CrashDetailViewController: BaseController {
 
     private func setupShare() {
         addRightBarButton(
-            image: .named("square.and.arrow.up", default: "Share")
+            image: .named("square.and.arrow.up", default: "share".localized())
         ) { [weak self] in
             self?.share()
         }

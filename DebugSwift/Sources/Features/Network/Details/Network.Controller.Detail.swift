@@ -49,7 +49,7 @@ final class NetworkViewControllerDetail: BaseController {
         addRightBarButton(
             actions: [
                 .init(
-                    image: .named("doc.on.doc", default: "Copy"),
+                    image: .named("doc.on.doc", default: "copy".localized()),
                     completion: { [weak self] in
                         self?.copyButtonTapped()
                     }
@@ -61,7 +61,7 @@ final class NetworkViewControllerDetail: BaseController {
                     }
                 ),
                 .init(
-                    image: .named("square.and.arrow.up", default: "Share"),
+                    image: .named("square.and.arrow.up", default: "share".localized()),
                     completion: { [weak self] in
                         self?.shareButtonTapped()
                     }
