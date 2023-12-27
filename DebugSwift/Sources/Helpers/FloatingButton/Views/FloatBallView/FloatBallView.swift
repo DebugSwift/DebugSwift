@@ -23,6 +23,7 @@ class FloatBallView: UIView {
     var changeStatusInNextTransaction = true
 
     lazy var label: UILabel = buildLabel()
+    lazy var ballView: UIView = buildBallView()
 
     var show = false {
         didSet {
@@ -75,7 +76,7 @@ class FloatBallView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        layer.cornerRadius = bounds.width * 0.5
+        ballView.layer.cornerRadius = DSFloatChat.ballViewSize.width / 2
     }
 
     @available(*, unavailable)
@@ -107,12 +108,7 @@ extension FloatBallView {
     }
 
     private func setUp() {
-        backgroundColor = .black
-        layer.masksToBounds = true
-        layer.borderColor = UIColor.white.cgColor
-        layer.borderWidth = 0.3
-        alpha = 0.0
-        label.text = .init(0)
+
     }
 
     private func buildLabel() -> UILabel {
@@ -121,12 +117,33 @@ extension FloatBallView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .white
         label.font = .systemFont(ofSize: 8)
-        addSubview(label)
+        label.text = .init(0)
+        ballView.addSubview(label)
         NSLayoutConstraint.activate([
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
             label.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
         return label
+    }
+
+    private func buildBallView() -> UIView {
+        let padding: CGFloat = (DSFloatChat.ballRect.width - DSFloatChat.ballViewSize.width) / 2
+        let view = UIView()
+        view.backgroundColor = .black
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.borderColor = UIColor.white.cgColor
+        view.layer.borderWidth = 0.6
+
+        addSubview(view)
+        NSLayoutConstraint.activate([
+            view.widthAnchor.constraint(equalToConstant: DSFloatChat.ballViewSize.width),
+            view.heightAnchor.constraint(equalToConstant: DSFloatChat.ballViewSize.height),
+            view.topAnchor.constraint(equalTo: topAnchor, constant: padding),
+            view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
+            view.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding)
+        ])
+        return view
     }
 
     private func startAnimation() {
