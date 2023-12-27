@@ -51,7 +51,10 @@ class TabBarController: UITabBarController {
     private func configureNavigation() {
         navigationItem.hidesBackButton = true
         addRightBarButton(
-            image: .named("xmark", default: "close".localized()),
+            image: .named(
+                "arrow.up.right.and.arrow.down.left",
+                default: "close".localized()
+            ),
             tintColor: .white
         ) { [weak self] in
             self?.closeButtonTapped()
