@@ -38,6 +38,8 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
+    var isSearchActived: Bool = false
+
     var reloadData: (() -> Void)?
 
     func viewTitle() -> String {
@@ -45,23 +47,27 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func numberOfItems() -> Int {
-        keys.count
+        isSearchActived ? filteredKeys.count : keys.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
-        let key = keys[index]
+        let key = isSearchActived ? filteredKeys[index] : keys[index]
         let value = (try? keychain.get(key)) ?? ""
         return (title: key, value: value)
     }
 
     func handleClearAction() {
         try? keychain.removeAll()
+        filteredKeys.removeAll()
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
-        let key = keys[index]
+        let key = isSearchActived ? filteredKeys.remove(at: index) : keys.remove(at: index)
         try? keychain.remove(key)
-        keys.remove(at: index)
+
+        if isSearchActived {
+            keys.removeAll(where: { $0 == key })
+        }
     }
 
     func emptyListDescriptionString() -> String {
@@ -71,16 +77,6 @@ class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
     // MARK: - Search Functionality
 
     private var filteredKeys = [String]()
-
-    func numberOfFilteredItems() -> Int {
-        filteredKeys.count
-    }
-
-    func filteredDataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
-        let key = filteredKeys[index]
-        let value = (try? keychain.get(key)) ?? ""
-        return (title: key, value: value)
-    }
 
     func filterContentForSearchText(_ searchText: String) {
         if searchText.isEmpty {

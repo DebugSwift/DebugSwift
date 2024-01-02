@@ -35,6 +35,8 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
+    var isSearchActived: Bool = false
+
     var reloadData: (() -> Void)?
 
     func viewTitle() -> String {
@@ -42,11 +44,11 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func numberOfItems() -> Int {
-        keys.count
+        isSearchActived ? filteredKeys.count : keys.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
-        let key = keys[index]
+        let key = isSearchActived ? filteredKeys[index] : keys[index]
         let value = "\(UserDefaults.standard.object(forKey: key) ?? "")"
         return (title: key, value: value)
     }
@@ -57,13 +59,17 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
         }
         UserDefaults.standard.synchronize()
         keys.removeAll()
+        filteredKeys.removeAll()
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
-        let key = keys[index]
+        let key = isSearchActived ? filteredKeys.remove(at: index) : keys.remove(at: index)
         UserDefaults.standard.removeObject(forKey: key)
         UserDefaults.standard.synchronize()
-        keys.remove(at: index)
+
+        if isSearchActived {
+            keys.removeAll(where: { $0 == key })
+        }
     }
 
     func emptyListDescriptionString() -> String {
@@ -73,16 +79,6 @@ class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
     // MARK: - Search Functionality
 
     private var filteredKeys = [String]()
-
-    func numberOfFilteredItems() -> Int {
-        filteredKeys.count
-    }
-
-    func filteredDataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
-        let key = filteredKeys[index]
-        let value = "\(UserDefaults.standard.object(forKey: key) ?? "")"
-        return (title: key, value: value)
-    }
 
     func filterContentForSearchText(_ searchText: String) {
         if searchText.isEmpty {

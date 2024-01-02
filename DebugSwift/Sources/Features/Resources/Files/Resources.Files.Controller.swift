@@ -227,7 +227,7 @@ extension ResourcesFilesViewController {
 
     func removeElementFromDataSource(with indexPath: IndexPath) {
         var affectedArray = indexPath.section == 0 ? subdirectories : files
-        affectedArray.remove(at: indexPath.row)
+        files.remove(at: indexPath.row)
     }
 
     // MARK: - Alert
