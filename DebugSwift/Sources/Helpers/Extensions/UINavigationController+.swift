@@ -18,7 +18,17 @@ extension UINavigationController {
             navigationBar.scrollEdgeAppearance = appearance
             navigationBar.compactAppearance = appearance
         } else {
-            navigationBar.barTintColor = color
+            if color == .clear {
+                navigationBar.setBackgroundImage(UIImage(), for: .default)
+                navigationBar.shadowImage = UIImage()
+                navigationBar.isTranslucent = true
+                navigationBar.barTintColor = .clear
+            } else {
+                navigationBar.barTintColor = color
+                navigationBar.setBackgroundImage(nil, for: .default)
+                navigationBar.shadowImage = nil
+                navigationBar.isTranslucent = false
+            }
         }
     }
 }
