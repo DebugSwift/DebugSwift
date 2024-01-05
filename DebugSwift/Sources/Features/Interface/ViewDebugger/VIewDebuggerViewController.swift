@@ -30,7 +30,7 @@ final class ViewDebuggerViewController:
         let navigationController = UINavigationController(
             rootViewController: debugSnapshotViewController
         )
-        navigationController.navigationBar.isHidden = true
+        navigationController.navigationBar.isHidden = false
         navigationController.title = NSLocalizedString(
             "Snapshot",
             comment: "The title for the Snapshot tab"
