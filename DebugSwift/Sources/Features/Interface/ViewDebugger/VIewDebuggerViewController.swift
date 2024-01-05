@@ -198,6 +198,6 @@ final class ViewDebuggerViewController:
 
     @objc private func done(sender: UIBarButtonItem) {
         FloatViewManager.isShowingDebuggerView = false
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true)
     }
 }

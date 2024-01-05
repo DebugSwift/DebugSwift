@@ -94,7 +94,6 @@ import UIKit
         configuration: Configuration? = nil,
         completion: (() -> Void)? = nil
     ) {
-        FloatViewManager.isShowingDebuggerView = true
         guard let rootViewController = rootViewController else {
             return
         }

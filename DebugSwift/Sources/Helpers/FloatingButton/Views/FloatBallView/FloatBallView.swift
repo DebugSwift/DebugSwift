@@ -184,42 +184,7 @@ extension FloatBallView {
     }
 
     @objc private func handleLongPress() {
-        guard !FloatViewManager.isShowingDebuggerView else { return }
-        let alertController = UIAlertController(
-            title: "Select a Window",
-            message: nil,
-            preferredStyle: .actionSheet
-        )
-
-        let filteredWindows = UIApplication.shared.windows.filter { window in
-            String(describing: type(of: window)) != "UITextEffectsWindow"
-            && window.windowLevel < UIWindow.Level.alert
-        }
-
-        guard filteredWindows.count > 1 else {
-            InAppViewDebugger.presentForWindow(filteredWindows.first)
-            return
-        }
-
-        // Add an action for each window
-        for window in filteredWindows {
-            let className = NSStringFromClass(type(of: window))
-            let moduleName = Bundle(for: type(of: window)).bundleIdentifier ?? "Unknown Module"
-
-            let actionTitle = "\(className)"
-            let action = UIAlertAction(title: actionTitle, style: .default) { _ in
-                // Handle the selected window here
-                InAppViewDebugger.presentForWindow(window)
-            }
-            alertController.addAction(action)
-        }
-
-        // Add a cancel action
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
-
-        // Present the UIAlertController
-        WindowManager.rootNavigation?.present(alertController, animated: true, completion: nil)
+        WindowManager.presentViewDebugger()
     }
 }
 
