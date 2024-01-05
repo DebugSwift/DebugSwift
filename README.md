@@ -1,15 +1,12 @@
 # DebugSwift
 
+<p align="center">
 <img src="https://img.shields.io/github/v/release/maatheusgois/DebugSwift?style=flat&label=CocoaPods"/>
-
 <img src="https://img.shields.io/github/v/release/maatheusgois/DebugSwift?style=flat&label=Swift%20Package%20Index&color=red"/>
-
 <img src="https://img.shields.io/github/license/maatheusgois/DebugSwift?style=flat"/>
-
 <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fmaatheusgois%2FDebugSwift%2Fbadge%3Ftype%3Dplatforms"/>
-
 <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fmaatheusgois%2FDebugSwift%2Fbadge%3Ftype%3Dswift-versions"/>
-
+</p>
 
 | <img width="300" src="https://github.com/MaatheusGois/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.</div> |
 |---|---|
