@@ -52,7 +52,7 @@ class TabBarController: UITabBarController {
         navigationItem.hidesBackButton = true
         addRightBarButton(
             image: .named(
-                "arrow.up.right.and.arrow.down.left",
+                getTabBarImageName(),
                 default: "close".localized()
             ),
             tintColor: .white
@@ -63,5 +63,18 @@ class TabBarController: UITabBarController {
 
     @objc private func closeButtonTapped() {
         WindowManager.removeDebugger()
+    }
+}
+
+// MARK: - Helper
+
+extension TabBarController {
+    /// Get `SF Symbols` image name for `TabBar` based on `iOS` version
+    /// - Returns: image name
+    private func getTabBarImageName() -> String {
+        if #available(iOS 17.0, *) {
+            return "arrow.up.right.and.arrow.down.left"
+        }
+        return "xmark.circle"
     }
 }
