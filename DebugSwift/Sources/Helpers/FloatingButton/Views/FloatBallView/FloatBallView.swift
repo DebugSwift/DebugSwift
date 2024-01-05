@@ -105,6 +105,11 @@ extension FloatBallView {
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapGesture))
         tap.delaysTouchesBegan = true
         addGestureRecognizer(tap)
+
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapGesture))
+        doubleTap.delaysTouchesBegan = true
+        doubleTap.numberOfTapsRequired = 2
+        addGestureRecognizer(doubleTap)
     }
 
     private func setUp() {
@@ -179,7 +184,14 @@ extension FloatBallView {
 
 extension FloatBallView {
     @objc private func tapGesture() {
-        ballDidSelect?()
+        InAppViewDebugger.presentForWindow(UIApplication.shared.windows.first)
+//        InAppViewDebugger.present()
+
+//        ballDidSelect?()
+    }
+
+    @objc private func doubleTapGesture() {
+        InAppViewDebugger.present()
     }
 }
 
