@@ -1,237 +1,287 @@
-//
-//  RangeSlider.swift
-//  InAppViewDebugger
-//
-//  Created by Indragie Karunaratne on 4/2/19.
-//  Copyright © 2019 Indragie Karunaratne. All rights reserved.
-//
+// https://github.com/warchimede/RangeSlider
 
 import UIKit
+import QuartzCore
 
-/// A slider with two handles that allows for defining a range of values rather
-/// than UISlider, which only allows for a single value.
+class RangeSliderTrackLayer: CALayer {
+    weak var rangeSlider: RangeSlider?
+
+    override func draw(in ctx: CGContext) {
+        guard let slider = rangeSlider else {
+            return
+        }
+
+        // Clip
+        let cornerRadius = bounds.height * slider.curvaceousness / 2.0
+        let path = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius)
+        ctx.addPath(path.cgPath)
+
+        // Fill the track
+        ctx.setFillColor(slider.trackTintColor.cgColor)
+        ctx.addPath(path.cgPath)
+        ctx.fillPath()
+
+        // Fill the highlighted range
+        ctx.setFillColor(slider.trackHighlightTintColor.cgColor)
+        let lowerValuePosition = CGFloat(slider.positionForValue(slider.lowerValue))
+        let upperValuePosition = CGFloat(slider.positionForValue(slider.upperValue))
+        let rect = CGRect(x: lowerValuePosition, y: 0.0, width: upperValuePosition - lowerValuePosition, height: bounds.height)
+        ctx.fill(rect)
+    }
+}
+
+class RangeSliderThumbLayer: CALayer {
+
+    var highlighted: Bool = false {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+
+    weak var rangeSlider: RangeSlider?
+
+    var strokeColor: UIColor = UIColor.lightGray {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    var lineWidth: CGFloat = 0.3 {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+
+    override func draw(in ctx: CGContext) {
+        guard let slider = rangeSlider else {
+            return
+        }
+
+        let thumbFrame = bounds.insetBy(dx: 2.0, dy: 2.0)
+        let cornerRadius = thumbFrame.height * slider.curvaceousness / 2.0
+        let thumbPath = UIBezierPath(roundedRect: thumbFrame, cornerRadius: cornerRadius)
+
+        // Fill
+        ctx.setFillColor(slider.thumbTintColor.cgColor)
+        ctx.addPath(thumbPath.cgPath)
+        ctx.fillPath()
+
+        // Outline
+        ctx.setStrokeColor(strokeColor.cgColor)
+        ctx.setLineWidth(lineWidth)
+        ctx.addPath(thumbPath.cgPath)
+        ctx.strokePath()
+
+        if highlighted {
+            ctx.setFillColor(UIColor(white: 0.0, alpha: 0.1).cgColor)
+            ctx.addPath(thumbPath.cgPath)
+            ctx.fillPath()
+        }
+    }
+}
+
 final class RangeSlider: UIControl {
-    private let trackImageView = UIImageView()
-    private let fillImageView = UIImageView()
-    private let leftHandleImageView = UIImageView()
-    private let rightHandleImageView = UIImageView()
 
-    private var isTrackingLeftHandle = false
-    private var isTrackingRightHandle = false
-
-    var allowableMinimumValue: Float = .zero {
+    var minimumValue: Double = 0.0 {
+        willSet(newValue) {
+            assert(newValue < maximumValue, "RangeSlider: minimumValue should be lower than maximumValue")
+        }
         didSet {
-            if minimumValue < allowableMaximumValue {
-                minimumValue = allowableMaximumValue
+            updateLayerFrames()
+        }
+    }
+
+    var maximumValue: Double = 1.0 {
+        willSet(newValue) {
+            assert(newValue > minimumValue, "RangeSlider: maximumValue should be greater than minimumValue")
+        }
+        didSet {
+            updateLayerFrames()
+        }
+    }
+
+    var lowerValue: Double = 0.2 {
+        didSet {
+            if lowerValue < minimumValue {
+                lowerValue = minimumValue
             }
-            setNeedsLayout()
+            updateLayerFrames()
         }
     }
 
-    var allowableMaximumValue: Float = 1.0 {
+    var upperValue: Double = 0.8 {
         didSet {
-            if maximumValue > allowableMaximumValue {
-                maximumValue = allowableMaximumValue
+            if upperValue > maximumValue {
+                upperValue = maximumValue
             }
-            setNeedsLayout()
+            updateLayerFrames()
         }
     }
 
-    var minimumValue: Float = .zero {
+    var gapBetweenThumbs: Double {
+        return 0.5 * Double(thumbWidth) * (maximumValue - minimumValue) / Double(bounds.width)
+    }
+
+    var trackTintColor: UIColor = UIColor(white: 0.9, alpha: 1.0) {
         didSet {
-            sendActions(for: .valueChanged)
-            setNeedsLayout()
+            trackLayer.setNeedsDisplay()
         }
     }
 
-    var maximumValue: Float = 1.0 {
+    var trackHighlightTintColor: UIColor = UIColor(red: 0.0, green: 0.45, blue: 0.94, alpha: 1.0) {
         didSet {
-            sendActions(for: .valueChanged)
-            setNeedsLayout()
+            trackLayer.setNeedsDisplay()
+        }
+    }
+
+    var thumbTintColor: UIColor = UIColor.white {
+        didSet {
+            lowerThumbLayer.setNeedsDisplay()
+            upperThumbLayer.setNeedsDisplay()
+        }
+    }
+
+    var thumbBorderColor: UIColor = UIColor.lightGray {
+        didSet {
+            lowerThumbLayer.strokeColor = thumbBorderColor
+            upperThumbLayer.strokeColor = thumbBorderColor
+        }
+    }
+
+    var thumbBorderWidth: CGFloat = 0.1 {
+        didSet {
+            lowerThumbLayer.lineWidth = thumbBorderWidth
+            upperThumbLayer.lineWidth = thumbBorderWidth
+        }
+    }
+
+    var curvaceousness: CGFloat = 0.3 {
+        didSet {
+            if curvaceousness < 0.0 {
+                curvaceousness = 0.0
+            }
+
+            if curvaceousness > 1.0 {
+                curvaceousness = 1.0
+            }
+
+            trackLayer.setNeedsDisplay()
+            lowerThumbLayer.setNeedsDisplay()
+            upperThumbLayer.setNeedsDisplay()
+        }
+    }
+
+    fileprivate var previouslocation = CGPoint()
+
+    fileprivate let trackLayer = RangeSliderTrackLayer()
+    fileprivate let lowerThumbLayer = RangeSliderThumbLayer()
+    fileprivate let upperThumbLayer = RangeSliderThumbLayer()
+
+    fileprivate var thumbWidth: CGFloat {
+        return CGFloat(bounds.height)
+    }
+
+    override public var frame: CGRect {
+        didSet {
+            updateLayerFrames()
         }
     }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        isUserInteractionEnabled = true
-
-        addSubview(fillImageView)
-        addSubview(leftHandleImageView)
-        addSubview(rightHandleImageView)
-
-        configureTrackImageView()
-        configureFillImageView()
-        configureLeftHandleImageView()
-        configureRightHandleImageView()
+        initializeLayers()
     }
 
-    private func configureTrackImageView() {
-        trackImageView.image = trackImage()
-        trackImageView.isUserInteractionEnabled = false
-        trackImageView.autoresizingMask = []
-        addSubview(trackImageView)
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        initializeLayers()
     }
 
-    private func configureFillImageView() {
-        fillImageView.image = fillImage()
-        fillImageView.isUserInteractionEnabled = false
-        addSubview(fillImageView)
+    override func layoutSublayers(of: CALayer) {
+        super.layoutSublayers(of: layer)
+        updateLayerFrames()
     }
 
-    private func configureLeftHandleImageView() {
-        leftHandleImageView.image = leftHandleImage()
-        leftHandleImageView.isUserInteractionEnabled = false
-        addSubview(leftHandleImageView)
+    fileprivate func initializeLayers() {
+        layer.backgroundColor = UIColor.clear.cgColor
+
+        trackLayer.rangeSlider = self
+        trackLayer.contentsScale = UIScreen.main.scale
+        layer.addSublayer(trackLayer)
+
+        lowerThumbLayer.rangeSlider = self
+        lowerThumbLayer.contentsScale = UIScreen.main.scale
+        layer.addSublayer(lowerThumbLayer)
+
+        upperThumbLayer.rangeSlider = self
+        upperThumbLayer.contentsScale = UIScreen.main.scale
+        layer.addSublayer(upperThumbLayer)
     }
 
-    private func configureRightHandleImageView() {
-        rightHandleImageView.image = rightHandleImage()
-        rightHandleImageView.isUserInteractionEnabled = false
-        addSubview(rightHandleImageView)
+    func updateLayerFrames() {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+
+        trackLayer.frame = bounds.insetBy(dx: 0.0, dy: bounds.height/2.3)
+        trackLayer.setNeedsDisplay()
+
+        let lowerThumbCenter = CGFloat(positionForValue(lowerValue))
+        lowerThumbLayer.frame = CGRect(x: lowerThumbCenter - thumbWidth/2.0, y: 0.0, width: thumbWidth, height: thumbWidth)
+        lowerThumbLayer.setNeedsDisplay()
+
+        let upperThumbCenter = CGFloat(positionForValue(upperValue))
+        upperThumbLayer.frame = CGRect(x: upperThumbCenter - thumbWidth/2.0, y: 0.0, width: thumbWidth, height: thumbWidth)
+        upperThumbLayer.setNeedsDisplay()
+
+        CATransaction.commit()
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    func positionForValue(_ value: Double) -> Double {
+        return Double(bounds.width - thumbWidth) * (value - minimumValue) /
+        (maximumValue - minimumValue) + Double(thumbWidth/2.0)
     }
 
-    // MARK: UIView
-
-    override var intrinsicContentSize: CGSize {
-        return CGSize(width: UIView.noIntrinsicMetric, height: leftHandleImageView.image?.size.height ?? .zero)
+    func boundValue(_ value: Double, toLowerValue lowerValue: Double, upperValue: Double) -> Double {
+        return min(max(value, lowerValue), upperValue)
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    // MARK: - Touches
 
-        let leftHandleSize = leftHandleImageSize()
-        let rightHandleSize = rightHandleImageSize()
-        let trackSize = trackImageView.image?.size ?? .zero
+    override public func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+        previouslocation = touch.location(in: self)
 
-        trackImageView.frame = CGRect(
-            x: leftHandleSize.width / 2.0,
-            y: bounds.midY - (trackSize.height / 2.0),
-            width: bounds.width - (leftHandleSize.width / 2.0) - (rightHandleSize.width / 2.0),
-            height: trackSize.height
-        )
-
-        let delta = allowableMaximumValue - allowableMinimumValue
-        let minPercentage: Float
-        let maxPercentage: Float
-        if delta <= .zero {
-            minPercentage = .zero
-            maxPercentage = .zero
-        } else {
-            minPercentage = max(.zero, (minimumValue - allowableMinimumValue) / delta)
-            maxPercentage = max(minPercentage, (maximumValue - allowableMinimumValue) / delta)
+        // Hit test the thumb layers
+        if lowerThumbLayer.frame.contains(previouslocation) {
+            lowerThumbLayer.highlighted = true
+        } else if upperThumbLayer.frame.contains(previouslocation) {
+            upperThumbLayer.highlighted = true
         }
 
-        let sliderRangeWidth = bounds.width - leftHandleSize.width - rightHandleSize.width
-
-        leftHandleImageView.frame = CGRect(
-            x: roundToNearestPixel(sliderRangeWidth * CGFloat(minPercentage)),
-            y: bounds.midY - (leftHandleSize.height / 2.0),
-            width: leftHandleSize.width,
-            height: leftHandleSize.height)
-
-        rightHandleImageView.frame = CGRect(
-            x: roundToNearestPixel(leftHandleSize.width + sliderRangeWidth * CGFloat(maxPercentage)),
-            y: bounds.midY - (rightHandleSize.height / 2.0),
-            width: rightHandleSize.width,
-            height: rightHandleSize.height)
-
-        fillImageView.frame = CGRect(
-            x: leftHandleImageView.frame.midX,
-            y: trackImageView.frame.minY,
-            width: rightHandleImageView.frame.midX - leftHandleImageView.frame.midX,
-            height: trackImageView.frame.height
-        )
+        return lowerThumbLayer.highlighted || upperThumbLayer.highlighted
     }
 
-    // MARK: UIControl
-
-    override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+    override public func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
         let location = touch.location(in: self)
-        if leftHandleImageView.frame.contains(location) {
-            isTrackingLeftHandle = true
-            isTrackingRightHandle = false
-            return true
-        } else if rightHandleImageView.frame.contains(location) {
-            isTrackingRightHandle = true
-            isTrackingLeftHandle = false
-            return true
+
+        // Determine by how much the user has dragged
+        let deltaLocation = Double(location.x - previouslocation.x)
+        let deltaValue = (maximumValue - minimumValue) * deltaLocation / Double(bounds.width - bounds.height)
+
+        previouslocation = location
+
+        // Update the values
+        if lowerThumbLayer.highlighted {
+            lowerValue = boundValue(lowerValue + deltaValue, toLowerValue: minimumValue, upperValue: upperValue - gapBetweenThumbs)
+        } else if upperThumbLayer.highlighted {
+            upperValue = boundValue(upperValue + deltaValue, toLowerValue: lowerValue + gapBetweenThumbs, upperValue: maximumValue)
         }
-        return false
+
+        sendActions(for: .valueChanged)
+
+        return true
     }
 
-    override func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
-        let location = touch.location(in: self)
-        if isTrackingLeftHandle {
-            minimumValue = min(max(allowableMinimumValue, valueAtX(location.x)), maximumValue)
-            setNeedsLayout()
-            layoutIfNeeded()
-            return true
-        } else if isTrackingRightHandle {
-            maximumValue = max(min(allowableMaximumValue, valueAtX(location.x)), minimumValue)
-            setNeedsLayout()
-            layoutIfNeeded()
-            return true
-        }
-        return false
+    override public func endTracking(_ touch: UITouch?, with event: UIEvent?) {
+        lowerThumbLayer.highlighted = false
+        upperThumbLayer.highlighted = false
     }
-
-    override func endTracking(_ touch: UITouch?, with event: UIEvent?) {
-        isTrackingLeftHandle = false
-        isTrackingRightHandle = false
-    }
-
-    // MARK: UIGestureRecognizerDelegate
-
-    override func gestureRecognizerShouldBegin(_ gesture: UIGestureRecognizer) -> Bool {
-        return false
-    }
-
-    // MARK: Private
-
-    private func valueAtX(_ x: CGFloat) -> Float {
-        let minX = leftHandleImageSize().width
-        let maxX = bounds.width - rightHandleImageSize().width
-        let cappedX = min(max(x, minX), maxX)
-        let delta = maxX - minX
-        return Float((delta > .zero) ? (cappedX - minX) / delta : .zero) * (allowableMaximumValue - allowableMinimumValue) + allowableMinimumValue
-    }
-
-    private func leftHandleImageSize() -> CGSize {
-        return leftHandleImageView.image?.size ?? .zero
-    }
-
-    private func rightHandleImageSize() -> CGSize {
-        return rightHandleImageView.image?.size ?? .zero
-    }
-
-    private func roundToNearestPixel(_ value: CGFloat) -> CGFloat {
-        let scale = window?.contentScaleFactor ?? UIScreen.main.scale
-        return (scale > .zero) ? (round(value * scale) / scale) : .zero
-    }
-}
-
-private func imageNamed(_ name: String) -> UIImage? {
-    return UIImage(named: name, in: Bundle(for: RangeSlider.self), compatibleWith: nil)
-}
-
-private func trackImage() -> UIImage? {
-    let insets = UIEdgeInsets(top: .zero, left: 5.0, bottom: .zero, right: 4.0)
-    return imageNamed("RangeSliderTrack")?.resizableImage(withCapInsets: insets)
-}
-
-private func fillImage() -> UIImage? {
-    let insets = UIEdgeInsets(top: .zero, left: 5.0, bottom: .zero, right: 4.0)
-    return imageNamed("RangeSliderFill")?.resizableImage(withCapInsets: insets)
-}
-
-private func leftHandleImage() -> UIImage? {
-    return imageNamed("RangeSliderLeftHandle")
-}
-
-private func rightHandleImage() -> UIImage? {
-    return imageNamed("RangeSliderRightHandle")
 }

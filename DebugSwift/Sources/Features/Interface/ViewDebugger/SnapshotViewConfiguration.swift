@@ -27,7 +27,7 @@ final class SnapshotViewConfiguration: NSObject {
     }
 
     /// The spacing between layers along the z-axis.
-    var zSpacing: Float = 50.0
+    var zSpacing: Float = 20.0
 
     /// The minimum spacing between layers along the z-axis.
     var minimumZSpacing: Float = .zero

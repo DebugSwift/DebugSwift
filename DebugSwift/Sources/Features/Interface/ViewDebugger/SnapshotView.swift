@@ -34,15 +34,16 @@ final class SnapshotView: UIView {
     private let snapshot: Snapshot
     private let sceneView = SCNView()
     private let spacingSlider = UISlider()
-    private let depthSlider = RangeSlider()
+    private lazy var depthSlider = RangeSlider()
     private let descriptionLabel = UILabel()
 
     private var snapshotIdentifierToNodesMap = [String: SnapshotNodes]()
     private var maximumDepth: Int = .zero {
         didSet {
+            guard !isLeft else { return }
             let maxDepthFloat = Float(maximumDepth)
-            depthSlider.allowableMaximumValue = maxDepthFloat
-            depthSlider.maximumValue = maxDepthFloat
+            depthSlider.upperValue = Double(maxDepthFloat)
+            depthSlider.maximumValue = Double(maxDepthFloat)
             depthSlider.minimumValue = .zero
         }
     }
@@ -50,6 +51,8 @@ final class SnapshotView: UIView {
     private var hideHeaderNodes: Bool
     private var hideBorderNodes: Bool = false
     private var suppressSelectionEvents = false
+
+    private var isLeft: Bool { snapshot.children.first?.children.isEmpty != false }
 
     // MARK: Initialization
 
@@ -64,6 +67,7 @@ final class SnapshotView: UIView {
         super.init(frame: .zero)
 
         configureSceneView()
+        configureCamera()
         configureSpacingSlider()
         configureDepthSlider()
         configureDescriptionLabel()
@@ -100,7 +104,26 @@ final class SnapshotView: UIView {
         ])
     }
 
+    private func configureCamera() {
+        let camera = SCNCamera()
+        camera.zFar = 5000
+
+        let cameraNode = SCNNode()
+        cameraNode.camera = camera
+        let nodePos = sceneView.scene?.rootNode.childNodes.last?.position.y ?? 760
+        cameraNode.position = .init(
+            x: -700,
+            y: nodePos / 2,
+            z: 1000
+        )
+        cameraNode.eulerAngles.y = -.pi / 4
+
+        sceneView.scene?.rootNode.addChildNode(cameraNode)
+        sceneView.pointOfView = cameraNode
+    }
+
     private func configureSpacingSlider() {
+        guard !isLeft else { return }
         spacingSlider.minimumValue = configuration.minimumZSpacing
         spacingSlider.maximumValue = configuration.maximumZSpacing
         spacingSlider.isContinuous = true
@@ -116,11 +139,12 @@ final class SnapshotView: UIView {
     }
 
     private func configureDepthSlider() {
+        guard !isLeft else { return }
         let maxDepthFloat = Float(maximumDepth)
-        depthSlider.allowableMinimumValue = .zero
-        depthSlider.allowableMaximumValue = maxDepthFloat
+        depthSlider.lowerValue = .zero
+        depthSlider.upperValue = Double(maxDepthFloat)
         depthSlider.minimumValue = .zero
-        depthSlider.maximumValue = maxDepthFloat
+        depthSlider.maximumValue = Double(maxDepthFloat)
         depthSlider.addTarget(
             self,
             action: #selector(depthSliderChanged(sender:)),
@@ -133,7 +157,8 @@ final class SnapshotView: UIView {
             depthSlider.leadingAnchor.constraint(equalTo: spacingSlider.trailingAnchor, constant: 10.0),
             depthSlider.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -3.0),
             depthSlider.centerYAnchor.constraint(equalTo: spacingSlider.centerYAnchor, constant: 1.0),
-            depthSlider.widthAnchor.constraint(equalTo: spacingSlider.widthAnchor, constant: .zero)
+            depthSlider.widthAnchor.constraint(equalTo: spacingSlider.widthAnchor, constant: .zero),
+            depthSlider.heightAnchor.constraint(equalTo: spacingSlider.heightAnchor, constant: .zero)
         ])
     }
 
@@ -145,7 +170,7 @@ final class SnapshotView: UIView {
         addSubview(descriptionLabel)
 
         NSLayoutConstraint.activate([
-            descriptionLabel.bottomAnchor.constraint(equalTo: spacingSlider.topAnchor, constant: -5.0),
+            descriptionLabel.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -60.0),
             descriptionLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 5.0),
             descriptionLabel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -5.0)
         ])
@@ -246,9 +271,9 @@ final class SnapshotView: UIView {
     }
 
     @objc private func depthSliderChanged(sender: RangeSlider) {
-        let range = Int(floor(sender.minimumValue))...Int(ceil(sender.maximumValue))
+        let range = Int(floor(sender.lowerValue))...Int(ceil(sender.upperValue))
         for (_, nodes) in snapshotIdentifierToNodesMap {
-            nodes.snapshotNode?.isHidden = !range.contains(maximumDepth - nodes.depth)
+            nodes.snapshotNode?.isHidden = !range.contains(nodes.depth)
         }
     }
 
@@ -457,8 +482,9 @@ private func snapshotNode(snapshot: Snapshot,
     node.addChildNode(border)
     nodes.borderNode = border
 
-    if let header = headerNode(snapshot: snapshot,
-                               attributes: headerAttributes) {
+    if
+        snapshot.label.classification == .important,
+        let header = headerNode(snapshot: snapshot, attributes: headerAttributes) {
         node.addChildNode(header)
         nodes.headerNode = header
         if hideHeaderNodes {

@@ -44,6 +44,7 @@
 		2E05C7242B4762DA00269F07 /* HierarchyViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C70F2B4762D900269F07 /* HierarchyViewConfiguration.swift */; };
 		2E05C7262B4762DA00269F07 /* SnapshotViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7112B4762DA00269F07 /* SnapshotViewConfiguration.swift */; };
 		2E05C7282B4762DA00269F07 /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7132B4762DA00269F07 /* Snapshot.swift */; };
+		2E05C72E2B487EA200269F07 /* DebuggerDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C72D2B487EA200269F07 /* DebuggerDetailViewController.swift */; };
 		2E4536492B33A9B6004B5323 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E4536482B33A9B6004B5323 /* CrashHandler.swift */; };
 		2E45364B2B33AFDC004B5323 /* Trace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E45364A2B33AFDC004B5323 /* Trace.swift */; };
 		2E60B9F52B3273420084C2D9 /* CrashManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9F42B3273420084C2D9 /* CrashManager.swift */; };
@@ -183,6 +184,7 @@
 		2E05C70F2B4762D900269F07 /* HierarchyViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HierarchyViewConfiguration.swift; sourceTree = "<group>"; };
 		2E05C7112B4762DA00269F07 /* SnapshotViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotViewConfiguration.swift; sourceTree = "<group>"; };
 		2E05C7132B4762DA00269F07 /* Snapshot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Snapshot.swift; sourceTree = "<group>"; };
+		2E05C72D2B487EA200269F07 /* DebuggerDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebuggerDetailViewController.swift; sourceTree = "<group>"; };
 		2E4536482B33A9B6004B5323 /* CrashHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashHandler.swift; sourceTree = "<group>"; };
 		2E45364A2B33AFDC004B5323 /* Trace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trace.swift; sourceTree = "<group>"; };
 		2E60B9F42B3273420084C2D9 /* CrashManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashManager.swift; sourceTree = "<group>"; };
@@ -404,6 +406,7 @@
 				2E05C70D2B4762D900269F07 /* ViewControllerUtils.swift */,
 				2E05C7012B4762D900269F07 /* VIewDebuggerViewController.swift */,
 				2E05C7062B4762D900269F07 /* ViewElement.swift */,
+				2E05C72D2B487EA200269F07 /* DebuggerDetailViewController.swift */,
 			);
 			path = ViewDebugger;
 			sourceTree = "<group>";
@@ -1086,6 +1089,7 @@
 				82929E08C9E0160FB997D136B5C05AE0 /* BottomFloatView.swift in Sources */,
 				B46D143967771E8FB7003080C92DCE9B /* Bundle+.swift in Sources */,
 				9F307D5E5DE9011F7659772115AE7FAA /* CacheStoragePolicy.swift in Sources */,
+				2E05C72E2B487EA200269F07 /* DebuggerDetailViewController.swift in Sources */,
 				2118EF10795D2612E299ABA186C47E3E /* ChartView.swift in Sources */,
 				AEC9B711F8E64AA2E8EE4AFBC69FE93B /* CLLocationManager.swift in Sources */,
 				2E4536492B33A9B6004B5323 /* CrashHandler.swift in Sources */,

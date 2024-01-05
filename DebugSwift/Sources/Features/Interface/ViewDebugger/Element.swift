@@ -50,6 +50,9 @@ protocol Element {
     var shortDescription: String { get }
 
     /// The full length description of the element.
+    var title: String { get }
+
+    /// The full length description of the element.
     var description: String { get }
 
     /// The frame of the element in its parent's coordinate space.

@@ -45,19 +45,214 @@ final class ViewElement: NSObject, Element {
         return view.subviews.map { ViewElement(view: $0) }
     }
 
+    var title: String {
+        guard let view = view else { return "No view available" }
+        return NSStringFromClass(type(of: view))
+    }
+
     var shortDescription: String {
-        guard let view = view else {
-            return ""
-        }
+        guard let view = view else { return "No view available" }
+
         let frame = view.frame
-        return String(format: "%@: %p (%.1f, %.1f, %.1f, %.1f)", String(describing: type(of: view)), view, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height)
+        let className = NSStringFromClass(type(of: view))
+
+        let description = String(
+            format: "Class: %@, Frame: (%.1f, %.1f, %.1f, %.1f)",
+            className,
+            frame.origin.x,
+            frame.origin.y,
+            frame.size.width,
+            frame.size.height
+        )
+
+        return description
     }
 
     override var description: String {
-        guard let view = view else {
-            return ""
+        guard let view = view else { return "No view available" }
+
+        let frame = view.frame
+        let className = NSStringFromClass(type(of: view))
+        let alpha = view.alpha
+        let backgroundColor = view.backgroundColor?.hexString ?? "No background color"
+        let tag = view.tag
+        var additionalInfo = ""
+
+        // 1. Accessibility Information
+        if let accessibilityLabel = view.accessibilityLabel {
+            additionalInfo += "\nAccessibility Label: \(accessibilityLabel)"
         }
-        return view.description
+        if let accessibilityHint = view.accessibilityHint {
+            additionalInfo += "\nAccessibility Hint: \(accessibilityHint)"
+        }
+        if view.isAccessibilityElement {
+            additionalInfo += "\nAccessibility Traits: \(view.accessibilityTraits.rawValue)"
+        }
+
+        // 2. Subviews and Hierarchy
+        if !view.subviews.isEmpty {
+            let subviewsInfo = view.subviews.map { NSStringFromClass(type(of: $0)) }.joined(separator: ", ")
+            additionalInfo += "\nSubviews: \(subviewsInfo)"
+        }
+
+        // 3. Gesture Recognizers
+        if let gestureRecognizers = view.gestureRecognizers, !gestureRecognizers.isEmpty {
+            let gestureTypes = gestureRecognizers.map { NSStringFromClass(type(of: $0)) }.joined(separator: ", ")
+            additionalInfo += "\nGesture Recognizers: \(gestureTypes)"
+        }
+
+        // 4. Control State
+        if let control = view as? UIControl {
+            let stateInfo = "Current State: \(control.state.rawValue)"
+            additionalInfo += "\n\(stateInfo)"
+        }
+
+        // 5. Content Mode
+        additionalInfo += "\nContent Mode: \(view.contentMode.rawValue)"
+
+        // 6. Layer Information (customize based on your needs)
+        let layer = view.layer
+        let layerInfo = """
+            Border Width: \(layer.borderWidth)
+            Corner Radius: \(layer.cornerRadius)
+            Shadow Opacity: \(layer.shadowOpacity)
+            """
+        additionalInfo += "\n\n- Layer Info: \n\(layerInfo)\n"
+
+        if let tintColor = view.tintColor?.hexString {
+            additionalInfo += "\nTint: \(tintColor)"
+        }
+
+        // Check if the view is a UIButton
+        if let button = view as? UIButton {
+            // Additional UIButton information
+            var buttonInfo = """
+            Title: \(button.title(for: .normal) ?? "No title")
+            Title Color: \((button.titleColor(for: .normal) ?? UIColor.black).hexString)
+            """
+
+            // Check if the button has an image
+            if let buttonImage = button.image(for: .normal) {
+                buttonInfo += "\nImage: \(buttonImage)"
+            } else {
+                buttonInfo += "\nNo Image"
+            }
+
+            // Include the state information
+            let stateInfo = "Current State: \(button.state.rawValue)"
+            buttonInfo += "\n\(stateInfo)"
+
+            additionalInfo += "\n\n- UIButton Info: \n\(buttonInfo)\n"
+        }
+
+        // Check if the view is a UILabel
+        if let label = view as? UILabel {
+            // Additional UILabel information
+            let labelInfo = """
+            Text: \(label.text ?? "No text")
+            Font: \(label.font.fontName) - Size: \(label.font.pointSize)
+            Text Color: \(label.textColor?.hexString ?? "No color")
+            """
+
+            additionalInfo += "\n\n- UILabel Info: \n\(labelInfo)\n"
+        }
+
+        if let imageView = view as? UIImageView {
+            // Additional UIImageView information
+            let imageViewInfo = """
+            Image: \(imageView.image?.description ?? "No image")
+            Content Mode: \(imageView.contentMode.rawValue)
+            Is Animating: \(imageView.isAnimating)
+            """
+
+            additionalInfo += "\n\n- UIImageView Info: \n\(imageViewInfo)\n"
+        }
+
+        if let textView = view as? UITextView {
+            // Additional UITextView information
+            let textViewInfo = """
+            Text: \(textView.text ?? "No text")
+            Font: \(textView.font?.description ?? "No font")
+            Text Color: \(textView.textColor?.description ?? "No color")
+            Is Editable: \(textView.isEditable)
+            """
+
+            additionalInfo += "\n\n- UITextView Info: \n\(textViewInfo)\n"
+        }
+
+        if let textField = view as? UITextField {
+            let textFieldInfo = """
+            Text: \(textField.text ?? "No text")
+            Placeholder: \(textField.placeholder ?? "No placeholder")
+            Font: \(textField.font?.description ?? "No font")
+            Text Color: \(textField.textColor?.description ?? "No color")
+            Is Editing: \(textField.isEditing)
+            """
+
+            additionalInfo += "\n\n- UITextField Info: \n\(textFieldInfo)\n"
+        }
+
+        // Additional UISearchBar information
+        if let searchBar = view as? UISearchBar {
+            let searchBarInfo = """
+            Text: \(searchBar.text ?? "No text")
+            Placeholder: \(searchBar.placeholder ?? "No placeholder")
+            """
+
+            additionalInfo += "\n\n- UISearchBar Info: \n\(searchBarInfo)\n"
+        }
+
+        // Additional UITableView information
+        if let tableView = view as? UITableView {
+            let tableViewInfo = """
+            Number of Sections: \(tableView.numberOfSections)
+            Number of Rows in Section 0: \(tableView.numberOfRows(inSection: 0))
+            """
+
+            additionalInfo += "\n\n- UITableView Info: \n\(tableViewInfo)\n"
+        }
+
+        // Additional UICollectionView information
+        if let collectionView = view as? UICollectionView {
+            let collectionViewInfo = """
+            Number of Sections: \(collectionView.numberOfSections)
+            Number of Items in Section 0: \(collectionView.numberOfItems(inSection: 0))
+            """
+
+            additionalInfo += "\n\n- UICollectionView Info: \n\(collectionViewInfo)\n"
+        }
+
+        // Additional UIScrollView information
+        if let scrollView = view as? UIScrollView {
+            let scrollViewInfo = """
+            Content Size: \(scrollView.contentSize)
+            Content Offset: \(scrollView.contentOffset)
+            """
+
+            additionalInfo += "\n\n- UIScrollView Info: \n\(scrollViewInfo)\n"
+        }
+
+        let description = String(
+            format: """
+                Class: %@
+                Frame: (%.1f, %.1f, %.1f, %.1f)
+                Alpha: %.2f
+                Background Color: %@
+                Tag: %d
+                %@
+                """,
+            className,
+            frame.origin.x,
+            frame.origin.y,
+            frame.size.width,
+            frame.size.height,
+            alpha,
+            backgroundColor,
+            tag,
+            additionalInfo
+        )
+
+        return description
     }
 
     private weak var view: UIView?
