@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TouchIndicatorView: UIView {
+final class TouchIndicatorView: UIView {
     enum Constants {
         static let size = CGSize(width: 40.0, height: 40.0)
     }

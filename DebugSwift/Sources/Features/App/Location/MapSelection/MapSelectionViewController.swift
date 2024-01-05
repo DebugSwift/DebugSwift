@@ -12,7 +12,7 @@ protocol LocationSelectionDelegate: AnyObject {
     func didSelectLocation(_ location: CLLocation)
 }
 
-class MapSelectionViewController: BaseController {
+final class MapSelectionViewController: BaseController {
 
     private var mapView: MKMapView?
 

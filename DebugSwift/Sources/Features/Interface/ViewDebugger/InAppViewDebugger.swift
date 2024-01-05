@@ -9,10 +9,10 @@
 import UIKit
 
 /// Exposes APIs for presenting the view debugger.
-@objc public final class InAppViewDebugger: NSObject {
+final class InAppViewDebugger: NSObject {
     /// Takes a snapshot of the application's key window and presents the debugger
     /// view controller from the root view controller.
-    @objc public class func present() {
+    class func present() {
         presentForWindow(UIApplication.shared.keyWindow)
     }
 
@@ -24,7 +24,7 @@ import UIKit
     ///   - configuration: Optional configuration for the view debugger.
     ///   - completion: Completion block to be called once the view debugger has
     ///   been presented.
-    @objc public class func presentForWindow(
+    class func presentForWindow(
         _ window: UIWindow?,
         configuration: Configuration? = nil,
         completion: (() -> Void)? = nil
@@ -50,7 +50,7 @@ import UIKit
     ///   - configuration: Optional configuration for the view debugger.
     ///   - completion: Completion block to be called once the view debugger has
     ///   been presented.
-    @objc public class func presentForView(
+    class func presentForView(
         _ view: UIView?,
         configuration: Configuration? = nil,
         completion: (() -> Void)? = nil
@@ -70,7 +70,7 @@ import UIKit
     ///   - configuration: Optional configuration for the view debugger.
     ///   - completion: Completion block to be called once the view debugger has
     ///   been presented.
-    @objc public class func presentForViewController(_ viewController: UIViewController?, configuration: Configuration? = nil, completion: (() -> Void)? = nil) {
+    class func presentForViewController(_ viewController: UIViewController?, configuration: Configuration? = nil, completion: (() -> Void)? = nil) {
         guard let view = viewController?.view else {
             return
         }
@@ -88,7 +88,7 @@ import UIKit
     ///   - configuration: Optional configuration for the view debugger.
     ///   - completion: Completion block to be called once the view debugger has
     ///   been presented.
-    @objc public class func presentWithSnapshot(
+    class func presentWithSnapshot(
         _ snapshot: Snapshot,
         rootViewController: UIViewController?,
         configuration: Configuration? = nil,
@@ -103,7 +103,7 @@ import UIKit
         )
         let navigationController = UINavigationController(rootViewController: debuggerViewController)
         navigationController.modalPresentationStyle = .fullScreen
-        UIApplication.topViewController(rootViewController)?.present(
+        WindowManager.rootNavigation?.present(
             navigationController,
             animated: true,
             completion: completion

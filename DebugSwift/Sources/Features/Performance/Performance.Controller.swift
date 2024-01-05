@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate {
+final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate {
     var selectedSection: PerformanceSection = .CPU
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)
 

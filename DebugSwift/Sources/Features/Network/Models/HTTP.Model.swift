@@ -13,7 +13,7 @@ enum RequestSerializer: UInt {
     case form
 }
 
-class HttpModel: NSObject {
+final class HttpModel: NSObject {
     var url: URL?
     var requestData: Data?
     var responseData: Data?

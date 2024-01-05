@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class PerformanceToolkit {
+final class PerformanceToolkit {
     let widget: PerformanceWidgetView
     var measurementsTimer: Timer?
     var fpsCounter = FPSCounter()

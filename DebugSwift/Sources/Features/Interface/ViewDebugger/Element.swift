@@ -11,10 +11,10 @@ import CoreGraphics
 
 /// Provides identifying information for an element that is displayed in the
 /// view debugger.
-public final class ElementLabel: NSObject {
+final class ElementLabel: NSObject {
     /// Classification for an element that determines how it is represented
     /// in the view debugger.
-    public enum Classification: Int {
+    enum Classification: Int {
         /// An element of normal importance.
         case normal
 
@@ -23,11 +23,11 @@ public final class ElementLabel: NSObject {
     }
 
     /// A human readable name for the element.
-    public let name: String?
+    let name: String?
 
     /// Classification for an element that determines how it is represented
     /// in the view debugger.
-    public let classification: Classification
+    let classification: Classification
 
     /// Constructs a new `Element`
     ///
@@ -35,14 +35,14 @@ public final class ElementLabel: NSObject {
     ///   - name: A human readable name for the element
     ///   - classification: Classification for an element that determines how it
     /// is represented in the view debugger.
-    public init(name: String?, classification: Classification = .normal) {
+    init(name: String?, classification: Classification = .normal) {
         self.name = name
         self.classification = classification
     }
 }
 
 /// A UI element that can be snapshotted.
-public protocol Element {
+protocol Element {
     /// Identifying information for the element, like its name and classification.
     var label: ElementLabel { get }
 

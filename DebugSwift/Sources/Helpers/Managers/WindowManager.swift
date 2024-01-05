@@ -118,7 +118,9 @@ final class CustomWindow: UIWindow {
         let ballView = FloatViewManager.shared.ballView
         if
             !ballView.isShowing ||
-            ballView.point(inside: convert(point, to: ballView), with: event) {
+            ballView.point(inside: convert(point, to: ballView), with: event) ||
+            FloatViewManager.isShowingDebuggerView
+        {
             return true
         }
 

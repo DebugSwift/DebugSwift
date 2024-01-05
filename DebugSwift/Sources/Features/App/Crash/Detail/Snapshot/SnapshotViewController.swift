@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SnapshotViewController: BaseController {
+final class SnapshotViewController: BaseController {
 
     // MARK: - Properties
 

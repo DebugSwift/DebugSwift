@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NetworkViewController: BaseController {
+final class NetworkViewController: BaseController {
 
     let tableView: UITableView = {
         let tableView = UITableView()

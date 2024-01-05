@@ -7,7 +7,7 @@
 
 import UIKit
 
-class LogIntercepter {
+final class LogIntercepter {
 
     public static let shared = LogIntercepter()
 

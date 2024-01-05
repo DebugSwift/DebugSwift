@@ -8,7 +8,7 @@
 
 import UIKit
 
-class GridOverlayView: TopLevelViewWrapper {
+final class GridOverlayView: TopLevelViewWrapper {
     let GridOverlayViewMinHorizontalMiddlePartSize: NSInteger = 8
     let GridOverlayViewMinVerticalMiddlePartSize: NSInteger = 8
     let GridOverlayViewLabelFontSize: CGFloat = 9.0

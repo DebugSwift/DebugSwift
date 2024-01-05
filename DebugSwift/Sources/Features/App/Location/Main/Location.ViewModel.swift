@@ -8,7 +8,7 @@
 import CoreLocation
 import Foundation
 
-class LocationViewModel: NSObject {
+final class LocationViewModel: NSObject {
     var selectedIndex: Int = LocationToolkit.shared.indexSaved
 
     var numberOfRows: Int {

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class LogsViewController: BaseController {
+final class LogsViewController: BaseController {
 
     // MARK: - Properties
 

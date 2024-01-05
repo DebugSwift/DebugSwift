@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AppViewModel: NSObject {
+final class AppViewModel: NSObject {
     var infos: [UserInfo.Info] {
         UserInfo.infos
     }

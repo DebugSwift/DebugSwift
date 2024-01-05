@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ApplicationDirectories {
+final class ApplicationDirectories {
     static let shared = ApplicationDirectories()
 
     var support: URL {

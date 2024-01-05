@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NetworkTableViewCellDetail: UITableViewCell {
+final class NetworkTableViewCellDetail: UITableViewCell {
     let details: UITextView = {
         let textView = UITextView()
         textView.font = UIFont.systemFont(

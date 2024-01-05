@@ -28,7 +28,7 @@ protocol SnapshotViewDelegate: AnyObject {
 /// A view that renders an interactive 3D representation of a UI element
 /// hierarchy snapshot.
 final class SnapshotView: UIView {
-    public weak var delegate: SnapshotViewDelegate?
+    weak var delegate: SnapshotViewDelegate?
 
     private let configuration: SnapshotViewConfiguration
     private let snapshot: Snapshot
@@ -53,7 +53,7 @@ final class SnapshotView: UIView {
 
     // MARK: Initialization
 
-    public init(
+    init(
         snapshot: Snapshot,
         configuration: SnapshotViewConfiguration = SnapshotViewConfiguration()
     ) {

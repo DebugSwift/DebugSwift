@@ -9,26 +9,26 @@
 import UIKit
 
 /// Configuration options for the hierarchy (tree) view.
-public final class HierarchyViewConfiguration: NSObject {
+final class HierarchyViewConfiguration: NSObject {
     /// The maximum depth that is rendered in the tree view. If the
     /// depth of the item exceeds this value, it will be hidden from
     /// view and can only be accessed by tapping the "Subtree" button
     /// of its parent node.
     ///
     /// Setting this to `nil` means there's no maximum.
-    @objc public var maxDepth: NSNumber? = 5
+    @objc var maxDepth: NSNumber? = 5
 
     /// The font used to render the names of the elements.
-    @objc public var nameFont = UIFont.preferredFont(forTextStyle: .body)
+    @objc var nameFont = UIFont.preferredFont(forTextStyle: .body)
 
     /// The font used to render the frames of the elements.
-    @objc public var frameFont = UIFont.preferredFont(forTextStyle: .caption1)
+    @objc var frameFont = UIFont.preferredFont(forTextStyle: .caption1)
 
     /// The colors of the lines displayed to show the depth of the tree.
     ///
     /// If the depth of a node exceeds the number of colors in this array,
     /// the colors will repeat from the beginning.
-    @objc public var lineColors = [
+    @objc var lineColors = [
         UIColor(white: 0.2, alpha: 1.0),
         UIColor(white: 0.4, alpha: 1.0),
         UIColor(white: 0.6, alpha: 1.0),
@@ -38,8 +38,8 @@ public final class HierarchyViewConfiguration: NSObject {
     ]
 
     /// The width of the lines drawn to show the depth of the tree.
-    @objc public var lineWidth: CGFloat = 1.0
+    @objc var lineWidth: CGFloat = 1.0
 
     /// The spacing between the lines drawn to show the depth of the three.
-    @objc public var lineSpacing: CGFloat = 12.0
+    @objc var lineSpacing: CGFloat = 12.0
 }

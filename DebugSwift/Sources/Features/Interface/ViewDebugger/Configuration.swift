@@ -9,10 +9,10 @@
 import Foundation
 
 /// Configuration options for the in app view debugger.
-public final class Configuration: NSObject {
+final class Configuration: NSObject {
     /// Configuration for the 3D snapshot view.
-    @objc public var snapshotViewConfiguration = SnapshotViewConfiguration()
+    @objc var snapshotViewConfiguration = SnapshotViewConfiguration()
 
     /// Configuration for the hierarchy (tree) view.
-    @objc public var hierarchyViewConfiguration = HierarchyViewConfiguration()
+    @objc var hierarchyViewConfiguration = HierarchyViewConfiguration()
 }

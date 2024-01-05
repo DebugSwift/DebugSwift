@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
+final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
 
     private var keys = [String]()
 

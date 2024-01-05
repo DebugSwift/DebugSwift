@@ -7,7 +7,7 @@
 
 import Foundation
 
-class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
+final class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
 
     private var data: CustomData
     private var filteredInfo = [CustomData.Info]()

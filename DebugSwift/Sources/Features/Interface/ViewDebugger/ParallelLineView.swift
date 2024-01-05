@@ -11,23 +11,23 @@ import CoreGraphics
 
 /// A view that draws one or more parallel vertical lines.
 final class ParallelLineView: UIView {
-    public var lineColors = [UIColor.black]
+    var lineColors = [UIColor.black]
 
-    public var lineWidth: CGFloat = 1.0 {
+    var lineWidth: CGFloat = 1.0 {
         didSet {
             setNeedsDisplay()
             invalidateIntrinsicContentSize()
         }
     }
 
-    public var lineSpacing: CGFloat = 12.0 {
+    var lineSpacing: CGFloat = 12.0 {
         didSet {
             setNeedsDisplay()
             invalidateIntrinsicContentSize()
         }
     }
 
-    public var lineCount: Int = .zero {
+    var lineCount: Int = .zero {
         didSet {
             setNeedsDisplay()
             invalidateIntrinsicContentSize()

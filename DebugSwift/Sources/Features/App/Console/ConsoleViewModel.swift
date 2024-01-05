@@ -7,7 +7,7 @@
 
 import Foundation
 
-class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
+final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
 
     private var data: [String] {
         LogIntercepter.shared.consoleOutput

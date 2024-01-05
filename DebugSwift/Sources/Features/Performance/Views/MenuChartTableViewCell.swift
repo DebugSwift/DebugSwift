@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MenuChartTableViewCell: UITableViewCell {
+final class MenuChartTableViewCell: UITableViewCell {
     let chartView: ChartView = {
         let chartView = ChartView()
         chartView.graphHeight = 200.0

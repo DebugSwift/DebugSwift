@@ -25,7 +25,7 @@ final class TreeTableViewDataSource<TreeType: Tree>: NSObject, UITableViewDataSo
         self.flattenedTree = flatten(tree: tree, depth: 0, maxDepth: maxDepth)
     }
 
-    public func value(atIndexPath indexPath: IndexPath) -> TreeType {
+    func value(atIndexPath indexPath: IndexPath) -> TreeType {
         return flattenedTree[indexPath.row].value
     }
 

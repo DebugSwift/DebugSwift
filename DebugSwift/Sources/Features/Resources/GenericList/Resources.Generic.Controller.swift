@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ResourcesGenericController: BaseTableController {
+final class ResourcesGenericController: BaseTableController {
     let viewModel: ResourcesGenericListViewModel
 
     init(viewModel: ResourcesGenericListViewModel) {

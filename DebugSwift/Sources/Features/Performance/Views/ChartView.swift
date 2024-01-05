@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ChartView: UIView {
+final class ChartView: UIView {
     var measurements: [CGFloat] = [] {
         didSet {
             setNeedsDisplay()

@@ -9,7 +9,7 @@
 import Foundation
 import Security
 
-class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
+final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
 
     private var keys = [String]()
     private var keychain = Keychain()

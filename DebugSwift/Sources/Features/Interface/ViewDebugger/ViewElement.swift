@@ -9,8 +9,8 @@
 import UIKit
 
 /// An element that represents a UIView.
-public final class ViewElement: NSObject, Element {
-    public var label: ElementLabel {
+final class ViewElement: NSObject, Element {
+    var label: ElementLabel {
         guard let view = view else {
             return ElementLabel(name: nil)
         }
@@ -22,30 +22,30 @@ public final class ViewElement: NSObject, Element {
         }
     }
 
-    public var frame: CGRect {
+    var frame: CGRect {
         let offset = contentOffsetForView(view)
         return view?.frame.offsetBy(dx: offset.x, dy: offset.y) ?? .zero
     }
 
-    public var isHidden: Bool {
+    var isHidden: Bool {
         return view?.isHidden ?? false
     }
 
-    public var snapshotImage: CGImage? {
+    var snapshotImage: CGImage? {
         guard let view = view else {
             return nil
         }
         return snapshotView(view)
     }
 
-    public var children: [Element] {
+    var children: [Element] {
         guard let view = view else {
             return []
         }
         return view.subviews.map { ViewElement(view: $0) }
     }
 
-    public var shortDescription: String {
+    var shortDescription: String {
         guard let view = view else {
             return ""
         }
@@ -53,7 +53,7 @@ public final class ViewElement: NSObject, Element {
         return String(format: "%@: %p (%.1f, %.1f, %.1f, %.1f)", String(describing: type(of: view)), view, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height)
     }
 
-    override public var description: String {
+    override var description: String {
         guard let view = view else {
             return ""
         }
@@ -65,7 +65,7 @@ public final class ViewElement: NSObject, Element {
     /// Constructs a new `ViewElement`
     ///
     /// - Parameter view: The `UIView` to create the element for.
-    @objc public init(view: UIView) {
+    @objc init(view: UIView) {
         self.view = view
     }
 }

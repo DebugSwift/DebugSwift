@@ -19,7 +19,7 @@ final class RangeSlider: UIControl {
     private var isTrackingLeftHandle = false
     private var isTrackingRightHandle = false
 
-    public var allowableMinimumValue: Float = .zero {
+    var allowableMinimumValue: Float = .zero {
         didSet {
             if minimumValue < allowableMaximumValue {
                 minimumValue = allowableMaximumValue
@@ -28,7 +28,7 @@ final class RangeSlider: UIControl {
         }
     }
 
-    public var allowableMaximumValue: Float = 1.0 {
+    var allowableMaximumValue: Float = 1.0 {
         didSet {
             if maximumValue > allowableMaximumValue {
                 maximumValue = allowableMaximumValue
@@ -37,14 +37,14 @@ final class RangeSlider: UIControl {
         }
     }
 
-    public var minimumValue: Float = .zero {
+    var minimumValue: Float = .zero {
         didSet {
             sendActions(for: .valueChanged)
             setNeedsLayout()
         }
     }
 
-    public var maximumValue: Float = 1.0 {
+    var maximumValue: Float = 1.0 {
         didSet {
             sendActions(for: .valueChanged)
             setNeedsLayout()

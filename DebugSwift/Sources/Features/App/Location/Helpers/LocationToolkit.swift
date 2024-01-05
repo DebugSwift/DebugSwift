@@ -8,7 +8,7 @@
 import CoreLocation
 import Foundation
 
-class LocationToolkit {
+final class LocationToolkit {
 
     static let shared = LocationToolkit()
 
@@ -147,7 +147,7 @@ class LocationToolkit {
     }()
 }
 
-class PresetLocation {
+final class PresetLocation {
     var title: String
     var latitude: Double
     var longitude: Double

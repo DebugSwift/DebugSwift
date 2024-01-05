@@ -14,7 +14,7 @@ enum PerformanceSection: Int {
     case FPS
 }
 
-class PerformanceWidgetView: TopLevelViewWrapper {
+final class PerformanceWidgetView: TopLevelViewWrapper {
     private let widgetMinimalOffset: CGFloat = 10
     private var tapGestureRecognizer: UITapGestureRecognizer!
     private var panGestureRecognizer: UIPanGestureRecognizer!
