@@ -52,7 +52,7 @@ class TabBarController: UITabBarController {
         navigationItem.hidesBackButton = true
         addRightBarButton(
             image: .named(
-                "arrow.up.right.and.arrow.down.left",
+                "arrow.down.right.and.arrow.up.left",
                 default: "close".localized()
             ),
             tintColor: .white
