@@ -57,7 +57,7 @@ final class InterfaceViewController: BaseController {
         title = "interface-title".localized()
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: "square.grid.2x2"),
+            image: .named("square.grid.2x2"),
             tag: 3
         )
     }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate {
+final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate {
     var selectedSection: PerformanceSection = .CPU
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)
 
@@ -44,7 +44,7 @@ class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate
         title = "performance-title".localized()
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: "speedometer"),
+            image: .named("speedometer"),
             tag: 1
         )
     }

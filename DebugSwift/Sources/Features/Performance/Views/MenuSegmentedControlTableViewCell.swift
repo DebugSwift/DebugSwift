@@ -15,7 +15,7 @@ protocol MenuSegmentedControlTableViewCellDelegate: AnyObject {
     )
 }
 
-class MenuSegmentedControlTableViewCell: UITableViewCell {
+final class MenuSegmentedControlTableViewCell: UITableViewCell {
     weak var delegate: MenuSegmentedControlTableViewCellDelegate?
 
     lazy var segmentedControl: UISegmentedControl = {

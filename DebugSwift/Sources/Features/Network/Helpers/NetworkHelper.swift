@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NetworkHelper {
+final class NetworkHelper {
     static let shared = NetworkHelper()
 
     var mainColor: UIColor

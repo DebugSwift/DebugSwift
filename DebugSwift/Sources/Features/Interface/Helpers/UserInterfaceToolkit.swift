@@ -8,7 +8,7 @@
 
 import UIKit
 
-class UserInterfaceToolkit {
+final class UserInterfaceToolkit {
     // MARK: - Properties
 
     static let shared = UserInterfaceToolkit()

@@ -14,7 +14,7 @@ protocol SliderTableViewCellDelegate: AnyObject {
     func sliderCellDidEndEditingValue(_ sliderCell: SliderTableViewCell)
 }
 
-class SliderTableViewCell: UITableViewCell {
+final class SliderTableViewCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white

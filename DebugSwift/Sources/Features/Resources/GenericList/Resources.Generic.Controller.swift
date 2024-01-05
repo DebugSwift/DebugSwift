@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ResourcesGenericController: BaseTableController {
+final class ResourcesGenericController: BaseTableController {
     let viewModel: ResourcesGenericListViewModel
 
     init(viewModel: ResourcesGenericListViewModel) {
@@ -57,7 +57,7 @@ class ResourcesGenericController: BaseTableController {
         tableView.backgroundColor = .black
         guard viewModel.numberOfItems() != .zero, viewModel.isDeleteEnable else { return }
         addRightBarButton(
-            image: .init(named: "trash.circle"),
+            image: .named("trash.circle", default: "delete.action".localized()),
             tintColor: .red
         ) { [weak self] in
             self?.showAlert(
@@ -100,9 +100,10 @@ class ResourcesGenericController: BaseTableController {
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        let numberOfItems =
-            searchController.isActive ? viewModel.numberOfFilteredItems() : viewModel.numberOfItems()
+        let numberOfItems = viewModel.numberOfItems()
+
         backgroundLabel.text = numberOfItems == .zero ? viewModel.emptyListDescriptionString() : ""
+
         return numberOfItems
     }
 
@@ -110,15 +111,12 @@ class ResourcesGenericController: BaseTableController {
         -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
 
-        let dataSource =
-            searchController.isActive
-                ? viewModel.filteredDataSourceForItem(atIndex: indexPath.row)
-                : viewModel.dataSourceForItem(atIndex: indexPath.row)
+        let dataSource = viewModel.dataSourceForItem(atIndex: indexPath.row)
 
         cell.setup(
             title: dataSource.title,
             subtitle: dataSource.value,
-            image: .init(named: "doc.on.doc")
+            image: .named("doc.on.doc", default: "copy".localized())
         )
 
         return cell
@@ -141,7 +139,7 @@ class ResourcesGenericController: BaseTableController {
     override func tableView(
         _: UITableView, titleForDeleteConfirmationButtonForRowAt _: IndexPath
     ) -> String? {
-        viewModel.isDeleteEnable ? "Delete" : nil
+        viewModel.isDeleteEnable ? "delete.action".localized() : nil
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -170,18 +168,18 @@ extension ResourcesGenericController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let searchText = searchController.searchBar.text ?? ""
         viewModel.filterContentForSearchText(searchText)
+        viewModel.isSearchActived = !searchText.isEmpty
         tableView.reloadData()
     }
 }
 
 protocol ResourcesGenericListViewModel: AnyObject {
+    var isSearchActived: Bool { get set }
+
     var isDeleteEnable: Bool { get }
 
     /// Returns the number of title-value pairs.
     func numberOfItems() -> Int
-
-    /// Returns the number of filtered title-value pairs for search.
-    func numberOfFilteredItems() -> Int
 
     /// Returns a `String` instance that will be used as a title for `Controller` instance.
     func viewTitle() -> String
@@ -199,10 +197,6 @@ protocol ResourcesGenericListViewModel: AnyObject {
 
     /// Returns a `String` instance that will be used as text in the background label of the table view.
     func emptyListDescriptionString() -> String
-
-    /// Provides the filtered data source object for a cell at the given index for search.
-    /// - Parameter index: The index of the cell that needs the data source.
-    func filteredDataSourceForItem(atIndex index: Int) -> (title: String, value: String)
 
     /// Filters the content based on the search text.
     /// - Parameter searchText: The text to be used for filtering.

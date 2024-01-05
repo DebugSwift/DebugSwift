@@ -8,7 +8,7 @@
 
 import Foundation
 
-class NetworkViewModel {
+final class NetworkViewModel {
 
     var reachEnd = true
     var firstIn = true

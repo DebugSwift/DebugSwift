@@ -75,6 +75,10 @@
 "name" = "Name";
 "user-info" = "User Info";
 
+"copy" = "Copy";
+"close" = "Close";
+"share" = "Share";
+
 // MARK: - ErrorHelper
 
 /* Error Descriptions */

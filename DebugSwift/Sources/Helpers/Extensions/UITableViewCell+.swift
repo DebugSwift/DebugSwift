@@ -13,7 +13,7 @@ extension UITableViewCell {
         title: String,
         subtitle: String? = nil,
         description: String? = nil,
-        image: UIImage? = UIImage(named: "chevron.right"),
+        image: UIImage? = .named("chevron.right", default: "→"),
         scale: CGFloat = 1
     ) {
         // Remove subviews with tag 111

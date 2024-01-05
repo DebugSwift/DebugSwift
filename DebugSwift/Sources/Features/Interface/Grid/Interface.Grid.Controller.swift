@@ -19,7 +19,7 @@ enum GridOverlaySettingsRow: Int {
     case color
 }
 
-class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDelegate,
+final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCellDelegate,
     SliderTableViewCellDelegate, ColorPickerTableViewCellDelegate {
     private let switchCellIdentifier = "MenuSwitchTableViewCell"
     private let sliderCellIdentifier = "SliderTableViewCell"

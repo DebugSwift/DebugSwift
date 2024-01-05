@@ -12,7 +12,7 @@ protocol MenuSwitchTableViewCellDelegate: AnyObject {
     func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool)
 }
 
-class MenuSwitchTableViewCell: UITableViewCell {
+final class MenuSwitchTableViewCell: UITableViewCell {
     weak var delegate: MenuSwitchTableViewCellDelegate?
 
     lazy var titleLabel: UILabel = {

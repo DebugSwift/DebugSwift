@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class CrashDetailViewModel: NSObject {
+final class CrashDetailViewModel: NSObject {
 
     private(set) var data: CrashModel
 

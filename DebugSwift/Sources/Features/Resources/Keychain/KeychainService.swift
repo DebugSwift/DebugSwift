@@ -1751,20 +1751,12 @@ extension Accessibility: RawRepresentable, CustomStringConvertible {
                 self = .whenUnlocked
             case String(kSecAttrAccessibleAfterFirstUnlock):
                 self = .afterFirstUnlock
-            #if !targetEnvironment(macCatalyst)
-            case String(kSecAttrAccessibleAlways):
-                self = .always
-            #endif
             case String(kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly):
                 self = .whenPasscodeSetThisDeviceOnly
             case String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly):
                 self = .whenUnlockedThisDeviceOnly
             case String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly):
                 self = .afterFirstUnlockThisDeviceOnly
-            #if !targetEnvironment(macCatalyst)
-            case String(kSecAttrAccessibleAlwaysThisDeviceOnly):
-                self = .alwaysThisDeviceOnly
-            #endif
             default:
                 return nil
             }
@@ -1798,10 +1790,6 @@ extension Accessibility: RawRepresentable, CustomStringConvertible {
             return String(kSecAttrAccessibleWhenUnlocked)
         case .afterFirstUnlock:
             return String(kSecAttrAccessibleAfterFirstUnlock)
-        #if !targetEnvironment(macCatalyst)
-        case .always:
-            return String(kSecAttrAccessibleAlways)
-        #endif
         case .whenPasscodeSetThisDeviceOnly:
             if #available(OSX 10.10, *) {
                 return String(kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly)
@@ -1812,10 +1800,8 @@ extension Accessibility: RawRepresentable, CustomStringConvertible {
             return String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly)
         case .afterFirstUnlockThisDeviceOnly:
             return String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly)
-        #if !targetEnvironment(macCatalyst)
-        case .alwaysThisDeviceOnly:
-            return String(kSecAttrAccessibleAlwaysThisDeviceOnly)
-        #endif
+        default:
+            return String(kSecAttrAccessibleWhenUnlocked)
         }
     }
 

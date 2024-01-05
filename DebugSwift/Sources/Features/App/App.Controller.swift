@@ -58,7 +58,7 @@ final class AppViewController: BaseController {
         title = "app-title".localized()
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: "app"),
+            image: .named("app"),
             tag: 4
         )
     }
@@ -79,7 +79,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        viewModel.customInfos.isEmpty ? 1 : Sections.allCases.count
+        Sections.allCases.count
     }
 
     func tableView(
@@ -115,7 +115,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        Sections(rawValue: section)?.title
+        viewModel.getTitle(for: section)
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {

@@ -1,5 +1,13 @@
 # DebugSwift
 
+<p align="center">
+<img src="https://img.shields.io/github/v/release/maatheusgois/DebugSwift?style=flat&label=CocoaPods"/>
+<img src="https://img.shields.io/github/v/release/maatheusgois/DebugSwift?style=flat&label=Swift%20Package%20Index&color=red"/>
+<img src="https://img.shields.io/github/license/maatheusgois/DebugSwift?style=flat"/>
+<img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fmaatheusgois%2FDebugSwift%2Fbadge%3Ftype%3Dplatforms"/>
+<img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fmaatheusgois%2FDebugSwift%2Fbadge%3Ftype%3Dswift-versions"/>
+</p>
+
 | <img width="300" src="https://github.com/MaatheusGois/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.</div> |
 |---|---|
 
@@ -87,6 +95,19 @@ func application(
 }
 ```
 
+### Usage to show or hide with shake.
+```swift
+extension UIWindow {
+    open override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        super.motionEnded(motion, with: event)
+        
+        if motion == .motionShake {
+            DebugSwift.toggle()
+        }
+    }
+}
+```
+
 ## Customization
 
 ### Network Configuration
@@ -132,3 +153,8 @@ Contributions are welcome! If you have suggestions, improvements, or bug fixes, 
 
 DebugSwift is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## References
+
+[InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger)
+[CocoaDebug](https://github.com/CocoaDebug/CocoaDebug)
+[DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)

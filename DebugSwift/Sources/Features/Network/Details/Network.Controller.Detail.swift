@@ -49,19 +49,19 @@ final class NetworkViewControllerDetail: BaseController {
         addRightBarButton(
             actions: [
                 .init(
-                    image: UIImage(named: "doc.on.doc"),
+                    image: .named("doc.on.doc", default: "copy".localized()),
                     completion: { [weak self] in
                         self?.copyButtonTapped()
                     }
                 ),
                 .init(
-                    image: UIImage(named: "ellipsis.curlybraces"),
+                    image: .named("ellipsis.curlybraces", default: "Curl"),
                     completion: { [weak self] in
                         self?.copyCurlButtonTapped()
                     }
                 ),
                 .init(
-                    image: .init(named: "square.and.arrow.up"),
+                    image: .named("square.and.arrow.up", default: "share".localized()),
                     completion: { [weak self] in
                         self?.shareButtonTapped()
                     }

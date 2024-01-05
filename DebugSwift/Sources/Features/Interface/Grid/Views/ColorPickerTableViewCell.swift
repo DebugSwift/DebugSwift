@@ -14,7 +14,7 @@ protocol ColorPickerTableViewCellDelegate: AnyObject {
     )
 }
 
-class ColorPickerTableViewCell: UITableViewCell {
+final class ColorPickerTableViewCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white

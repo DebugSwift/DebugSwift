@@ -55,6 +55,12 @@ final class FloatViewManager: NSObject {
         FloatViewManager.shared.ballView.show.toggle()
     }
 
+    static var isShowingDebuggerView = false {
+        didSet {
+            shared.ballView.isHidden = isShowingDebuggerView
+        }
+    }
+
     func observers() {
         NotificationCenter.default.addObserver(
             forName: NSNotification.Name(rawValue: "reloadHttp_DebugSwift"),

@@ -27,6 +27,24 @@
 		2489B30EF260E260FB38BB95EB47ABDF /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AA40D434BF769E547B3AF374620FC4 /* NetworkHelper.swift */; };
 		27ED57DD78AFFA7B1610B984DF2883C8 /* Dictionary+.swift in Sources */ = {isa = PBXBuildFile; fileRef = D38664913252E5243F42C66798E8BF5A /* Dictionary+.swift */; };
 		2CCF82B1694CDD7FBE500F4EF1AA7D1C /* Network.Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8957943CF4C94D0281E0D343E62140D6 /* Network.Cell.swift */; };
+		2E05C7142B4762DA00269F07 /* SnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C6FF2B4762D800269F07 /* SnapshotView.swift */; };
+		2E05C7152B4762DA00269F07 /* TreeTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7002B4762D900269F07 /* TreeTableViewDataSource.swift */; };
+		2E05C7162B4762DA00269F07 /* VIewDebuggerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7012B4762D900269F07 /* VIewDebuggerViewController.swift */; };
+		2E05C7172B4762DA00269F07 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7022B4762D900269F07 /* Configuration.swift */; };
+		2E05C7182B4762DA00269F07 /* SnapshotActionSheetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7032B4762D900269F07 /* SnapshotActionSheetUtils.swift */; };
+		2E05C7192B4762DA00269F07 /* DebugSnapshotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7042B4762D900269F07 /* DebugSnapshotViewController.swift */; };
+		2E05C71A2B4762DA00269F07 /* HierarchyTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7052B4762D900269F07 /* HierarchyTableViewController.swift */; };
+		2E05C71B2B4762DA00269F07 /* ViewElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7062B4762D900269F07 /* ViewElement.swift */; };
+		2E05C71D2B4762DA00269F07 /* InAppViewDebugger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7082B4762D900269F07 /* InAppViewDebugger.swift */; };
+		2E05C71E2B4762DA00269F07 /* HierarchyTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7092B4762D900269F07 /* HierarchyTableViewCell.swift */; };
+		2E05C71F2B4762DA00269F07 /* ParallelLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C70A2B4762D900269F07 /* ParallelLineView.swift */; };
+		2E05C7202B4762DA00269F07 /* RangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C70B2B4762D900269F07 /* RangeSlider.swift */; };
+		2E05C7212B4762DA00269F07 /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C70C2B4762D900269F07 /* Element.swift */; };
+		2E05C7222B4762DA00269F07 /* ViewControllerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C70D2B4762D900269F07 /* ViewControllerUtils.swift */; };
+		2E05C7242B4762DA00269F07 /* HierarchyViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C70F2B4762D900269F07 /* HierarchyViewConfiguration.swift */; };
+		2E05C7262B4762DA00269F07 /* SnapshotViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7112B4762DA00269F07 /* SnapshotViewConfiguration.swift */; };
+		2E05C7282B4762DA00269F07 /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C7132B4762DA00269F07 /* Snapshot.swift */; };
+		2E05C72E2B487EA200269F07 /* DebuggerDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E05C72D2B487EA200269F07 /* DebuggerDetailViewController.swift */; };
 		2E4536492B33A9B6004B5323 /* CrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E4536482B33A9B6004B5323 /* CrashHandler.swift */; };
 		2E45364B2B33AFDC004B5323 /* Trace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E45364A2B33AFDC004B5323 /* Trace.swift */; };
 		2E60B9F52B3273420084C2D9 /* CrashManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60B9F42B3273420084C2D9 /* CrashManager.swift */; };
@@ -80,7 +98,7 @@
 		9F307D5E5DE9011F7659772115AE7FAA /* CacheStoragePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2ECDAEED97631BD8E5880D27EBEA2C8 /* CacheStoragePolicy.swift */; };
 		9FC4EB89883D762E734F4EE721EC7F06 /* BaseController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D230430ACC1EFFAA843CE91F3D4898 /* BaseController.swift */; };
 		A43A020F0349787EBE7E79943B4BE865 /* Performace.FPSCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE11AE47B395E91AEB1719CE5907160A /* Performace.FPSCalculator.swift */; };
-		A5F66AE7368D25F6E39182AD6B454BC0 /* DebugSwift-DebugSwift in Resources */ = {isa = PBXBuildFile; fileRef = D8DE9417B0E927C0CAF7E2FBC1E27F4F /* DebugSwift-DebugSwift */; };
+		A5F66AE7368D25F6E39182AD6B454BC0 /* DebugSwift.bundle in Resources */ = {isa = PBXBuildFile; fileRef = D8DE9417B0E927C0CAF7E2FBC1E27F4F /* DebugSwift.bundle */; };
 		AEC9B711F8E64AA2E8EE4AFBC69FE93B /* CLLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9B553320F5BACAC967B9E611B830643 /* CLLocationManager.swift */; };
 		AF5A73A038AF1858581F407F799618D3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */; };
 		B34BE17FD281B4FD5F076FDD0915E82E /* UIColor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = A69732787B96A3DA16FD8FA9DE341DC6 /* UIColor+.swift */; };
@@ -142,13 +160,31 @@
 		185D825DF6A7D3518FF4BCBA349F74B5 /* HTTPURLResponse+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "HTTPURLResponse+.swift"; sourceTree = "<group>"; };
 		1970AAD626698B83A34085FA794F1D14 /* App.Controller.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = App.Controller.swift; sourceTree = "<group>"; };
 		1A6ECE8E02FBFF41B8FC5882BA5AC827 /* LaunchTimeTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaunchTimeTracker.swift; sourceTree = "<group>"; };
-		1F667CC0E19EAF34E5A4119E2121F585 /* Pods-Example */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-Example"; path = Pods_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F667CC0E19EAF34E5A4119E2121F585 /* Pods_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		204FA57C9B6F888D4FA51C6692C6E36F /* Location.ViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Location.ViewController.swift; sourceTree = "<group>"; };
 		20B6A0CEC15733593B6286CC9A47EBCB /* TouchIndicatorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TouchIndicatorView.swift; sourceTree = "<group>"; };
 		21723A9F5AF6174D0A7B575FEC0ECE10 /* TransitionPush.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TransitionPush.swift; sourceTree = "<group>"; };
 		243410B9535472556EA4BB6DBC133A0D /* Pods-Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Example.release.xcconfig"; sourceTree = "<group>"; };
-		281E8973BB77A12EBAB8FED2EFE8E23D /* DebugSwift */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = DebugSwift; path = DebugSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		281E8973BB77A12EBAB8FED2EFE8E23D /* DebugSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DebugSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A5983025EB37B07CB0010F0070ACE7C /* UIViewController+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIViewController+.swift"; sourceTree = "<group>"; };
+		2E05C6FF2B4762D800269F07 /* SnapshotView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotView.swift; sourceTree = "<group>"; };
+		2E05C7002B4762D900269F07 /* TreeTableViewDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TreeTableViewDataSource.swift; sourceTree = "<group>"; };
+		2E05C7012B4762D900269F07 /* VIewDebuggerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VIewDebuggerViewController.swift; sourceTree = "<group>"; };
+		2E05C7022B4762D900269F07 /* Configuration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
+		2E05C7032B4762D900269F07 /* SnapshotActionSheetUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotActionSheetUtils.swift; sourceTree = "<group>"; };
+		2E05C7042B4762D900269F07 /* DebugSnapshotViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugSnapshotViewController.swift; sourceTree = "<group>"; };
+		2E05C7052B4762D900269F07 /* HierarchyTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HierarchyTableViewController.swift; sourceTree = "<group>"; };
+		2E05C7062B4762D900269F07 /* ViewElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewElement.swift; sourceTree = "<group>"; };
+		2E05C7082B4762D900269F07 /* InAppViewDebugger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAppViewDebugger.swift; sourceTree = "<group>"; };
+		2E05C7092B4762D900269F07 /* HierarchyTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HierarchyTableViewCell.swift; sourceTree = "<group>"; };
+		2E05C70A2B4762D900269F07 /* ParallelLineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParallelLineView.swift; sourceTree = "<group>"; };
+		2E05C70B2B4762D900269F07 /* RangeSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeSlider.swift; sourceTree = "<group>"; };
+		2E05C70C2B4762D900269F07 /* Element.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Element.swift; sourceTree = "<group>"; };
+		2E05C70D2B4762D900269F07 /* ViewControllerUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewControllerUtils.swift; sourceTree = "<group>"; };
+		2E05C70F2B4762D900269F07 /* HierarchyViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HierarchyViewConfiguration.swift; sourceTree = "<group>"; };
+		2E05C7112B4762DA00269F07 /* SnapshotViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotViewConfiguration.swift; sourceTree = "<group>"; };
+		2E05C7132B4762DA00269F07 /* Snapshot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Snapshot.swift; sourceTree = "<group>"; };
+		2E05C72D2B487EA200269F07 /* DebuggerDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebuggerDetailViewController.swift; sourceTree = "<group>"; };
 		2E4536482B33A9B6004B5323 /* CrashHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashHandler.swift; sourceTree = "<group>"; };
 		2E45364A2B33AFDC004B5323 /* Trace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trace.swift; sourceTree = "<group>"; };
 		2E60B9F42B3273420084C2D9 /* CrashManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashManager.swift; sourceTree = "<group>"; };
@@ -244,7 +280,7 @@
 		D38664913252E5243F42C66798E8BF5A /* Dictionary+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Dictionary+.swift"; sourceTree = "<group>"; };
 		D43EC151B5078D94FB56B79EEF255179 /* GridOverlayColorScheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GridOverlayColorScheme.swift; sourceTree = "<group>"; };
 		D6D7C498FA339E02BD53ECB8916CEA8E /* Pods-Example-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Example-dummy.m"; sourceTree = "<group>"; };
-		D8DE9417B0E927C0CAF7E2FBC1E27F4F /* DebugSwift-DebugSwift */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "DebugSwift-DebugSwift"; path = DebugSwift.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8DE9417B0E927C0CAF7E2FBC1E27F4F /* DebugSwift.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DebugSwift.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E46B002C3EFA278B315B50CC8A950D23 /* Performance.WidgetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Performance.WidgetView.swift; sourceTree = "<group>"; };
 		E4C92BEF80AA57BB86F1B200C4A42CBF /* WindowManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
 		E7A048FC5B1B87EA6FC89EB38D6EF165 /* Interface.Controller.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Interface.Controller.swift; sourceTree = "<group>"; };
@@ -348,6 +384,31 @@
 				1DBEA1ED662B4AB48643D963571A0B14 /* Views */,
 			);
 			path = Grid;
+			sourceTree = "<group>";
+		};
+		2E05C6FE2B4762C000269F07 /* ViewDebugger */ = {
+			isa = PBXGroup;
+			children = (
+				2E05C7022B4762D900269F07 /* Configuration.swift */,
+				2E05C70C2B4762D900269F07 /* Element.swift */,
+				2E05C7092B4762D900269F07 /* HierarchyTableViewCell.swift */,
+				2E05C7052B4762D900269F07 /* HierarchyTableViewController.swift */,
+				2E05C70F2B4762D900269F07 /* HierarchyViewConfiguration.swift */,
+				2E05C7082B4762D900269F07 /* InAppViewDebugger.swift */,
+				2E05C70A2B4762D900269F07 /* ParallelLineView.swift */,
+				2E05C70B2B4762D900269F07 /* RangeSlider.swift */,
+				2E05C7132B4762DA00269F07 /* Snapshot.swift */,
+				2E05C7032B4762D900269F07 /* SnapshotActionSheetUtils.swift */,
+				2E05C6FF2B4762D800269F07 /* SnapshotView.swift */,
+				2E05C7112B4762DA00269F07 /* SnapshotViewConfiguration.swift */,
+				2E05C7042B4762D900269F07 /* DebugSnapshotViewController.swift */,
+				2E05C7002B4762D900269F07 /* TreeTableViewDataSource.swift */,
+				2E05C70D2B4762D900269F07 /* ViewControllerUtils.swift */,
+				2E05C7012B4762D900269F07 /* VIewDebuggerViewController.swift */,
+				2E05C7062B4762D900269F07 /* ViewElement.swift */,
+				2E05C72D2B487EA200269F07 /* DebuggerDetailViewController.swift */,
+			);
+			path = ViewDebugger;
 			sourceTree = "<group>";
 		};
 		2E60B9EF2B326D210084C2D9 /* Crash */ = {
@@ -475,6 +536,7 @@
 			isa = PBXGroup;
 			children = (
 				E7A048FC5B1B87EA6FC89EB38D6EF165 /* Interface.Controller.swift */,
+				2E05C6FE2B4762C000269F07 /* ViewDebugger */,
 				29E1254ED20724F99872F0650C6EB3E7 /* Grid */,
 				5B5B05D6CCD3A0698AF42104E33FD666 /* Helpers */,
 				79866B152F42E0693FA2E09CA40882C7 /* TouchIndicator */,
@@ -590,9 +652,9 @@
 		9326B9B1A35967E3BADCCE15BFEE9CC6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				281E8973BB77A12EBAB8FED2EFE8E23D /* DebugSwift */,
-				D8DE9417B0E927C0CAF7E2FBC1E27F4F /* DebugSwift-DebugSwift */,
-				1F667CC0E19EAF34E5A4119E2121F585 /* Pods-Example */,
+				281E8973BB77A12EBAB8FED2EFE8E23D /* DebugSwift.framework */,
+				D8DE9417B0E927C0CAF7E2FBC1E27F4F /* DebugSwift.bundle */,
+				1F667CC0E19EAF34E5A4119E2121F585 /* Pods_Example.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -913,7 +975,7 @@
 			);
 			name = "Pods-Example";
 			productName = Pods_Example;
-			productReference = 1F667CC0E19EAF34E5A4119E2121F585 /* Pods-Example */;
+			productReference = 1F667CC0E19EAF34E5A4119E2121F585 /* Pods_Example.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		1208CDB6CD72D80260D7D38BF9B40E29 /* DebugSwift-DebugSwift */ = {
@@ -930,7 +992,7 @@
 			);
 			name = "DebugSwift-DebugSwift";
 			productName = DebugSwift;
-			productReference = D8DE9417B0E927C0CAF7E2FBC1E27F4F /* DebugSwift-DebugSwift */;
+			productReference = D8DE9417B0E927C0CAF7E2FBC1E27F4F /* DebugSwift.bundle */;
 			productType = "com.apple.product-type.bundle";
 		};
 		ECE17400E4C31C2F1A3C71B643B2CD26 /* DebugSwift */ = {
@@ -949,7 +1011,7 @@
 			);
 			name = DebugSwift;
 			productName = DebugSwift;
-			productReference = 281E8973BB77A12EBAB8FED2EFE8E23D /* DebugSwift */;
+			productReference = 281E8973BB77A12EBAB8FED2EFE8E23D /* DebugSwift.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -958,8 +1020,9 @@
 		BFDFE7DC352907FC980B868725387E98 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1510;
 			};
 			buildConfigurationList = 4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -1002,7 +1065,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A5F66AE7368D25F6E39182AD6B454BC0 /* DebugSwift-DebugSwift in Resources */,
+				A5F66AE7368D25F6E39182AD6B454BC0 /* DebugSwift.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1013,8 +1076,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2E05C7172B4762DA00269F07 /* Configuration.swift in Sources */,
 				F3A7A2D073D768EB8DA7615A08B71318 /* App.Controller.swift in Sources */,
 				73DF436B3023151F2C96FF35ECA30CCE /* App.CustomInfo.Model.swift in Sources */,
+				2E05C7262B4762DA00269F07 /* SnapshotViewConfiguration.swift in Sources */,
 				9C5DAF3F4E8EAA5B704AFD0E9A2CDD4B /* App.CustomInfo.ViewModel.swift in Sources */,
 				187C86B0A40AA2E766DDD7C37E5E35D8 /* App.ViewModel.swift in Sources */,
 				1534879A9268BFAB0520D938B2A8A4FD /* ApplicationDirectories.swift in Sources */,
@@ -1024,12 +1089,15 @@
 				82929E08C9E0160FB997D136B5C05AE0 /* BottomFloatView.swift in Sources */,
 				B46D143967771E8FB7003080C92DCE9B /* Bundle+.swift in Sources */,
 				9F307D5E5DE9011F7659772115AE7FAA /* CacheStoragePolicy.swift in Sources */,
+				2E05C72E2B487EA200269F07 /* DebuggerDetailViewController.swift in Sources */,
 				2118EF10795D2612E299ABA186C47E3E /* ChartView.swift in Sources */,
 				AEC9B711F8E64AA2E8EE4AFBC69FE93B /* CLLocationManager.swift in Sources */,
 				2E4536492B33A9B6004B5323 /* CrashHandler.swift in Sources */,
 				180707946083B905401AF1BC481CF02B /* ColorPickerTableViewCell.swift in Sources */,
 				5A0963AC98CF3D0E77697C96FC7E3BFD /* ConsoleViewModel.swift in Sources */,
 				C923BDDE9BE7668F7FA315355278A90D /* Data+.swift in Sources */,
+				2E05C71E2B4762DA00269F07 /* HierarchyTableViewCell.swift in Sources */,
+				2E05C71D2B4762DA00269F07 /* InAppViewDebugger.swift in Sources */,
 				DBDBEF46F32E272C3125780845E81B22 /* Date+.swift in Sources */,
 				79D41787012840985D99D7AAD3339E01 /* Debug.swift in Sources */,
 				36F660391BDCB3152FEB24BB050D9F32 /* DebugSwift.swift in Sources */,
@@ -1037,6 +1105,7 @@
 				5F549E3CF5574AF1E706B499252B1509 /* DebugSwift-dummy.m in Sources */,
 				2E60B9FC2B328A570084C2D9 /* UserInfo.swift in Sources */,
 				27ED57DD78AFFA7B1610B984DF2883C8 /* Dictionary+.swift in Sources */,
+				2E05C7162B4762DA00269F07 /* VIewDebuggerViewController.swift in Sources */,
 				245665CD8B504D7CF7F1C3B63134BB90 /* ErrorHelper.swift in Sources */,
 				B3C41BCC93986B59F85EAA31BA36D623 /* FileManager.swift in Sources */,
 				2E60BA0A2B33421E0084C2D9 /* SnapshotViewController.swift in Sources */,
@@ -1050,6 +1119,8 @@
 				D757FAE9E20372EAD0AF29DC3B3362FE /* HTTP.Datasource.swift in Sources */,
 				8D5DD8E42C2F915EC3AC1E5FB20CEA0B /* HTTP.Model.swift in Sources */,
 				202FAA5C08C4E38288A773850FC82363 /* HTTPProtocol.swift in Sources */,
+				2E05C7182B4762DA00269F07 /* SnapshotActionSheetUtils.swift in Sources */,
+				2E05C7242B4762DA00269F07 /* HierarchyViewConfiguration.swift in Sources */,
 				F95FB7C104383E858D38A67DB79BEF86 /* HTTPProtocolDelegate.swift in Sources */,
 				BA51010DD460232B736EFB76DE3C539C /* HTTPURLResponse+.swift in Sources */,
 				7CC2DBD4BECB485035E868B66EA90D40 /* InputStream+.swift in Sources */,
@@ -1069,17 +1140,23 @@
 				CC5970F7D2A46934E97244947B686C3C /* MenuSwitchTableViewCell.swift in Sources */,
 				2CCF82B1694CDD7FBE500F4EF1AA7D1C /* Network.Cell.swift in Sources */,
 				C42889CC25B2177511CE2B232A831B69 /* Network.Cell.Detail.swift in Sources */,
+				2E05C71F2B4762DA00269F07 /* ParallelLineView.swift in Sources */,
+				2E05C7142B4762DA00269F07 /* SnapshotView.swift in Sources */,
+				2E05C7192B4762DA00269F07 /* DebugSnapshotViewController.swift in Sources */,
 				C9CE9379C52567F503391131989FE79A /* Network.Controller.swift in Sources */,
 				66AD787E0C72DFA3AC761F39B6FBAE33 /* Network.Controller.Detail.swift in Sources */,
 				4747046B35865D589B6ECCA4AE5F0411 /* Network.ViewModel.swift in Sources */,
+				2E05C7282B4762DA00269F07 /* Snapshot.swift in Sources */,
 				2489B30EF260E260FB38BB95EB47ABDF /* NetworkHelper.swift in Sources */,
 				A43A020F0349787EBE7E79943B4BE865 /* Performace.FPSCalculator.swift in Sources */,
 				322E34E789784FA440D295006A658E58 /* Performance.Controller.swift in Sources */,
 				574E6C28718DC1EAD68EEDDB6ADBD08D /* Performance.Toolkit.swift in Sources */,
+				2E05C7222B4762DA00269F07 /* ViewControllerUtils.swift in Sources */,
 				5D8D12B7CC0B90541344F6B72F734EFA /* Performance.WidgetView.swift in Sources */,
 				2E60BA0C2B334FA50084C2D9 /* PDFManager.swift in Sources */,
 				1597C86DAB70ED006B713A7DCF230ABB /* Resources.Controller.swift in Sources */,
 				3DAF6060C3E6A2916F6C361C1D820ABF /* Resources.Files.Controller.swift in Sources */,
+				2E05C7152B4762DA00269F07 /* TreeTableViewDataSource.swift in Sources */,
 				1B696DE25B9B6E536BB4B4012064853D /* Resources.Generic.Controller.swift in Sources */,
 				70474917776D060621D94C58F65F1D2A /* Resources.Keychain.ViewModel.swift in Sources */,
 				C1E49F8B5B845106341F7C6269D1AF30 /* Resources.UserDefaults.ViewModel.swift in Sources */,
@@ -1089,12 +1166,16 @@
 				38DB05C2F7BA5FC74853540E42412FBD /* SwizzleManager.swift in Sources */,
 				61E6E4B2AB9B663E6410DDE244FC5E51 /* SwizzleSessionConfiguration.swift in Sources */,
 				4DACB7DC1C1E72D338498A8D3A4AF543 /* TabBarController.swift in Sources */,
+				2E05C71B2B4762DA00269F07 /* ViewElement.swift in Sources */,
 				39391115E2C9C1078D4161F9721BF47C /* ThreadOperator.swift in Sources */,
 				E3909A37C8DD9425BA721995ADFFE5E6 /* TopUIView.swift in Sources */,
 				3DC0DEDCCC26073CB05DD2C8D4E7451D /* TouchIndicatorView.swift in Sources */,
 				CC2E236D33060205894997EE9687347C /* TransitionPop.swift in Sources */,
 				313D7FB738923BC6D166BD1010EE6FB9 /* TransitionPush.swift in Sources */,
+				2E05C7202B4762DA00269F07 /* RangeSlider.swift in Sources */,
+				2E05C71A2B4762DA00269F07 /* HierarchyTableViewController.swift in Sources */,
 				2E60B9F82B327CDC0084C2D9 /* CrashViewModel.swift in Sources */,
+				2E05C7212B4762DA00269F07 /* Element.swift in Sources */,
 				2E60BA042B32A5390084C2D9 /* CrashDetailViewController.swift in Sources */,
 				DADB82AC4251A8B4EB71ADA1C48201E2 /* UIApplication+.swift in Sources */,
 				B34BE17FD281B4FD5F076FDD0915E82E /* UIColor+.swift in Sources */,
@@ -1195,9 +1276,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1218,7 +1301,6 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1248,14 +1330,13 @@
 			baseConfigurationReference = 90CD8820924383C8AE91F4980934A9DC /* DebugSwift.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GCC_PREFIX_HEADER = "Target Support Files/DebugSwift/DebugSwift-prefix.pch";
 				INFOPLIST_FILE = "Target Support Files/DebugSwift/DebugSwift-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1266,6 +1347,8 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_FILE = "Target Support Files/DebugSwift/DebugSwift.modulemap";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				PRODUCT_MODULE_NAME = DebugSwift;
 				PRODUCT_NAME = DebugSwift;
 				SDKROOT = iphoneos;
@@ -1313,9 +1396,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1332,7 +1417,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -1346,14 +1430,13 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				INFOPLIST_FILE = "Target Support Files/Pods-Example/Pods-Example-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1364,6 +1447,8 @@
 				);
 				MACH_O_TYPE = staticlib;
 				MODULEMAP_FILE = "Target Support Files/Pods-Example/Pods-Example.modulemap";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PODS_ROOT = "$(SRCROOT)";
@@ -1383,14 +1468,13 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				INFOPLIST_FILE = "Target Support Files/Pods-Example/Pods-Example-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1401,6 +1485,8 @@
 				);
 				MACH_O_TYPE = staticlib;
 				MODULEMAP_FILE = "Target Support Files/Pods-Example/Pods-Example.modulemap";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PODS_ROOT = "$(SRCROOT)";
@@ -1420,14 +1506,13 @@
 			baseConfigurationReference = A6CEA2CC8449FDB700DB0E9923FADF1E /* DebugSwift.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GCC_PREFIX_HEADER = "Target Support Files/DebugSwift/DebugSwift-prefix.pch";
 				INFOPLIST_FILE = "Target Support Files/DebugSwift/DebugSwift-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1438,6 +1523,8 @@
 					"@loader_path/Frameworks",
 				);
 				MODULEMAP_FILE = "Target Support Files/DebugSwift/DebugSwift.modulemap";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				PRODUCT_MODULE_NAME = DebugSwift;
 				PRODUCT_NAME = DebugSwift;
 				SDKROOT = iphoneos;

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class GridOverlayColorScheme: Equatable {
+final class GridOverlayColorScheme: Equatable {
     static func == (lhs: GridOverlayColorScheme, rhs: GridOverlayColorScheme) -> Bool {
         lhs.primaryColor == rhs.primaryColor && rhs.secondaryColor == lhs.secondaryColor
     }

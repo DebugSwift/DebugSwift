@@ -147,7 +147,7 @@ extension ResourcesFilesViewController {
             cell.setup(
                 title: fileName,
                 subtitle: "Size: \(fileSize)",
-                image: .init(named: "square.and.arrow.up")
+                image: .named("square.and.arrow.up", default: "share".localized())
             )
 
             return cell
@@ -226,8 +226,7 @@ extension ResourcesFilesViewController {
     }
 
     func removeElementFromDataSource(with indexPath: IndexPath) {
-        var affectedArray = indexPath.section == 0 ? subdirectories : files
-        affectedArray.remove(at: indexPath.row)
+        files.remove(at: indexPath.row)
     }
 
     // MARK: - Alert

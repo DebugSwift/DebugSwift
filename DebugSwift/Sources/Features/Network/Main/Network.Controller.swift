@@ -8,12 +8,13 @@
 
 import UIKit
 
-class NetworkViewController: BaseController {
+final class NetworkViewController: BaseController {
 
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .black
+        tableView.estimatedRowHeight = 80
         return tableView
     }()
 
@@ -53,7 +54,7 @@ class NetworkViewController: BaseController {
         title = "network-title".localized()
         tabBarItem = UITabBarItem(
             title: title,
-            image: UIImage(named: "network"),
+            image: .named("network"),
             tag: 0
         )
         view.backgroundColor = .black
@@ -103,7 +104,7 @@ class NetworkViewController: BaseController {
     private func addDeleteButton() {
         guard !viewModel.models.isEmpty else { return }
         addRightBarButton(
-            image: .init(named: "trash.circle"),
+            image: .named("trash.circle", default: "clean".localized()),
             tintColor: .red
         ) { [weak self] in
             self?.showAlert(

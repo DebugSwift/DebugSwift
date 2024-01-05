@@ -37,6 +37,10 @@ public enum DebugSwift {
     public static func hide() {
         FloatViewManager.remove()
     }
+
+    public static func toggle() {
+        FloatViewManager.toggle()
+    }
 }
 
 extension DebugSwift {
