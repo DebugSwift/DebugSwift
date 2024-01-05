@@ -95,6 +95,19 @@ func application(
 }
 ```
 
+### Usage to show or hide with shake.
+```swift
+extension UIWindow {
+    open override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        super.motionEnded(motion, with: event)
+        
+        if motion == .motionShake {
+            DebugSwift.toggle()
+        }
+    }
+}
+```
+
 ## Customization
 
 ### Network Configuration

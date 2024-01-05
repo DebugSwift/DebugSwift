@@ -32,6 +32,8 @@ enum WindowManager {
     }()
 
     static func presentDebugger() {
+        guard !FloatViewManager.isShowingDebuggerView else { return }
+        FloatViewManager.isShowingDebuggerView = true
         if let viewController = FloatViewManager.shared.floatViewController {
             // Prevent clicks
             UIApplication.shared.beginIgnoringInteractionEvents()
@@ -47,6 +49,7 @@ enum WindowManager {
     }
 
     static func removeDebugger() {
+        FloatViewManager.isShowingDebuggerView = false
         removeNavigationBar()
         rootNavigation?.popViewController(animated: true)
     }
@@ -117,7 +120,6 @@ final class CustomWindow: UIWindow {
 
         let ballView = FloatViewManager.shared.ballView
         if
-            !ballView.isShowing ||
             ballView.point(inside: convert(point, to: ballView), with: event) ||
             FloatViewManager.isShowingDebuggerView
         {
