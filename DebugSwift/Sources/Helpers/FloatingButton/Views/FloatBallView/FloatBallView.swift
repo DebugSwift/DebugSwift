@@ -59,7 +59,6 @@ class FloatBallView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setUp()
     }
 
     override func didMoveToSuperview() {
@@ -106,14 +105,11 @@ extension FloatBallView {
         tap.delaysTouchesBegan = true
         addGestureRecognizer(tap)
 
-        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapGesture))
-        doubleTap.delaysTouchesBegan = true
-        doubleTap.numberOfTapsRequired = 2
-        addGestureRecognizer(doubleTap)
-    }
-
-    private func setUp() {
-
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(
+            target: self,
+            action: #selector(handleLongPress)
+        )
+        addGestureRecognizer(longPressGestureRecognizer)
     }
 
     private func buildLabel() -> UILabel {
@@ -184,14 +180,46 @@ extension FloatBallView {
 
 extension FloatBallView {
     @objc private func tapGesture() {
-        InAppViewDebugger.presentForWindow(UIApplication.shared.windows.first)
-//        InAppViewDebugger.present()
-
-//        ballDidSelect?()
+        ballDidSelect?()
     }
 
-    @objc private func doubleTapGesture() {
-        InAppViewDebugger.present()
+    @objc private func handleLongPress() {
+        guard !FloatViewManager.isShowingDebuggerView else { return }
+        let alertController = UIAlertController(
+            title: "Select a Window",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        let filteredWindows = UIApplication.shared.windows.filter { window in
+            String(describing: type(of: window)) != "UITextEffectsWindow"
+            && window.windowLevel < UIWindow.Level.alert
+        }
+
+        guard filteredWindows.count > 1 else {
+            InAppViewDebugger.presentForWindow(filteredWindows.first)
+            return
+        }
+
+        // Add an action for each window
+        for window in filteredWindows {
+            let className = NSStringFromClass(type(of: window))
+            let moduleName = Bundle(for: type(of: window)).bundleIdentifier ?? "Unknown Module"
+
+            let actionTitle = "\(className)"
+            let action = UIAlertAction(title: actionTitle, style: .default) { _ in
+                // Handle the selected window here
+                InAppViewDebugger.presentForWindow(window)
+            }
+            alertController.addAction(action)
+        }
+
+        // Add a cancel action
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+
+        // Present the UIAlertController
+        WindowManager.rootNavigation?.present(alertController, animated: true, completion: nil)
     }
 }
 

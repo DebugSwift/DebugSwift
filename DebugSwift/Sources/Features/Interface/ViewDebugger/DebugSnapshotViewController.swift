@@ -19,10 +19,10 @@ protocol DebugSnapshotViewControllerDelegate: AnyObject {
 final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate, DebugSnapshotViewControllerDelegate {
     private let snapshot: Snapshot
     private let configuration: SnapshotViewConfiguration
-    
+
     private var snapshotView: SnapshotView?
     weak var delegate: DebugSnapshotViewControllerDelegate?
-    
+
     init(
         snapshot: Snapshot,
         configuration: SnapshotViewConfiguration = SnapshotViewConfiguration(),
@@ -33,10 +33,10 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
         self.delegate = delegate
 
         super.init(nibName: nil, bundle: nil)
-        
+        view.backgroundColor = .white
         navigationItem.title = snapshot.element.label.name
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
@@ -55,9 +55,9 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
             delegate?.debugSnapshotViewControllerWillNavigateBackToPreviousSnapshot(self)
         }
     }
-    
+
     // MARK: API
-    
+
     func select(snapshot: Snapshot) {
         let topViewController = topDebugSnapshotViewController()
         if topViewController == self {
@@ -66,7 +66,7 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
             topViewController.select(snapshot: snapshot)
         }
     }
-    
+
     func deselect(snapshot: Snapshot) {
         let topViewController = topDebugSnapshotViewController()
         if topViewController == self {
@@ -75,17 +75,17 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
             topViewController.deselect(snapshot: snapshot)
         }
     }
-    
+
     func focus(snapshot: Snapshot) {
         focus(snapshot: snapshot, callDelegate: false)
     }
-    
+
     // MARK: SnapshotViewDelegate
-    
+
     func snapshotView(_ snapshotView: SnapshotView, didSelectSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didSelectSnapshot: snapshot)
     }
-    
+
     func snapshotView(_ snapshotView: SnapshotView, didDeselectSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didDeselectSnapshot: snapshot)
     }
@@ -96,31 +96,31 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
         }
         present(actionSheet, animated: true, completion: nil)
     }
-    
+
     func snapshotView(_ snapshotView: SnapshotView, showAlertController alertController: UIAlertController) {
         present(alertController, animated: true, completion: nil)
     }
 
     // MARK: DebugSnapshotViewControllerDelegate
-    
+
     func debugSnapshotViewController(_ viewController: DebugSnapshotViewController, didSelectSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didSelectSnapshot: snapshot)
     }
-    
+
     func debugSnapshotViewController(_ viewController: DebugSnapshotViewController, didDeselectSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didDeselectSnapshot: snapshot)
     }
-    
+
     func debugSnapshotViewController(_ viewController: DebugSnapshotViewController, didFocusOnSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didFocusOnSnapshot: snapshot)
     }
-    
+
     func debugSnapshotViewControllerWillNavigateBackToPreviousSnapshot(_ viewController: DebugSnapshotViewController) {
         delegate?.debugSnapshotViewControllerWillNavigateBackToPreviousSnapshot(self)
     }
-    
+
     // MARK: Private
-    
+
     private func focus(snapshot: Snapshot, callDelegate: Bool) {
         let topViewController = topDebugSnapshotViewController()
         if topViewController == self {
@@ -138,7 +138,7 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
             topViewController.focus(snapshot: snapshot)
         }
     }
-    
+
     private func topDebugSnapshotViewController() -> DebugSnapshotViewController {
         if let DebugSnapshotViewController = navigationController?.topViewController as? DebugSnapshotViewController {
             return DebugSnapshotViewController

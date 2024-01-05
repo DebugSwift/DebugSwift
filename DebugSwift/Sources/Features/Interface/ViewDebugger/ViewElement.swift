@@ -21,16 +21,16 @@ public final class ViewElement: NSObject, Element {
             return ElementLabel(name: String(describing: Swift.type(of: view)))
         }
     }
-    
+
     public var frame: CGRect {
         let offset = contentOffsetForView(view)
         return view?.frame.offsetBy(dx: offset.x, dy: offset.y) ?? .zero
     }
-    
+
     public var isHidden: Bool {
         return view?.isHidden ?? false
     }
-    
+
     public var snapshotImage: CGImage? {
         guard let view = view else {
             return nil
@@ -44,7 +44,7 @@ public final class ViewElement: NSObject, Element {
         }
         return view.subviews.map { ViewElement(view: $0) }
     }
-    
+
     public var shortDescription: String {
         guard let view = view else {
             return ""
@@ -52,16 +52,16 @@ public final class ViewElement: NSObject, Element {
         let frame = view.frame
         return String(format: "%@: %p (%.1f, %.1f, %.1f, %.1f)", String(describing: type(of: view)), view, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height)
     }
-    
+
     override public var description: String {
         guard let view = view else {
             return ""
         }
         return view.description
     }
-    
+
     private weak var view: UIView?
-    
+
     /// Constructs a new `ViewElement`
     ///
     /// - Parameter view: The `UIView` to create the element for.
@@ -70,22 +70,22 @@ public final class ViewElement: NSObject, Element {
     }
 }
 
-fileprivate func getViewController(view: UIView) -> UIViewController? {
+private func getViewController(view: UIView) -> UIViewController? {
     if let viewController = getNearestAncestorViewController(responder: view), viewController.viewIfLoaded == view {
         return viewController
     }
     return nil
 }
 
-fileprivate func drawView(_ view: UIView) -> CGImage? {
+private func drawView(_ view: UIView) -> CGImage? {
     let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
-    let image = renderer.image { context in
+    let image = renderer.image { _ in
         view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
     }
     return image.cgImage
 }
 
-fileprivate func hideViewsOnTopOf(view: UIView, root: UIView, hiddenViews: inout [UIView]) -> Bool {
+private func hideViewsOnTopOf(view: UIView, root: UIView, hiddenViews: inout [UIView]) -> Bool {
     if root == view {
         return true
     }
@@ -105,8 +105,7 @@ fileprivate func hideViewsOnTopOf(view: UIView, root: UIView, hiddenViews: inout
     return foundView
 }
 
-fileprivate func snapshotVisualEffectBackdropView(_ view: UIView) -> CGImage?
-{
+private func snapshotVisualEffectBackdropView(_ view: UIView) -> CGImage? {
     guard let window = view.window else {
         return nil
     }
@@ -139,9 +138,9 @@ fileprivate func snapshotVisualEffectBackdropView(_ view: UIView) -> CGImage?
     return nil
 }
 
-fileprivate func snapshotView(_ view: UIView) -> CGImage? {
+private func snapshotView(_ view: UIView) -> CGImage? {
     if let superview = view.superview, let _ = superview as? UIVisualEffectView,
-        superview.subviews.first == view {
+       superview.subviews.first == view {
         return snapshotVisualEffectBackdropView(view)
     }
     var subviewHidden = [Bool]()
@@ -157,7 +156,7 @@ fileprivate func snapshotView(_ view: UIView) -> CGImage? {
     return image
 }
 
-fileprivate func contentOffsetForView(_ view: UIView?) -> CGPoint {
+private func contentOffsetForView(_ view: UIView?) -> CGPoint {
     guard let scrollView = view?.superview as? UIScrollView else { return .zero }
     let contentOffset = scrollView.contentOffset
     return CGPoint(x: -contentOffset.x, y: -contentOffset.y)

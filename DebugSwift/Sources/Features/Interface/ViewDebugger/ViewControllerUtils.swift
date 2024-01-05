@@ -16,20 +16,3 @@ func getNearestAncestorViewController(responder: UIResponder) -> UIViewControlle
     }
     return nil
 }
-
-func topViewController(rootViewController: UIViewController?) -> UIViewController? {
-    guard let rootViewController = rootViewController else {
-        return nil
-    }
-    guard let presentedViewController = rootViewController.presentedViewController else {
-        return rootViewController
-    }
-    
-    if let navigationController = presentedViewController as? UINavigationController {
-        return topViewController(rootViewController: navigationController.viewControllers.last)
-    } else if let tabBarController = presentedViewController as? UITabBarController {
-        return topViewController(rootViewController: tabBarController.selectedViewController)
-    } else {
-        return topViewController(rootViewController: presentedViewController)
-    }
-}

@@ -88,7 +88,13 @@ import UIKit
     ///   - configuration: Optional configuration for the view debugger.
     ///   - completion: Completion block to be called once the view debugger has
     ///   been presented.
-    @objc public class func presentWithSnapshot(_ snapshot: Snapshot, rootViewController: UIViewController?, configuration: Configuration? = nil, completion: (() -> Void)? = nil) {
+    @objc public class func presentWithSnapshot(
+        _ snapshot: Snapshot,
+        rootViewController: UIViewController?,
+        configuration: Configuration? = nil,
+        completion: (() -> Void)? = nil
+    ) {
+        FloatViewManager.isShowingDebuggerView = true
         guard let rootViewController = rootViewController else {
             return
         }
@@ -98,7 +104,7 @@ import UIKit
         )
         let navigationController = UINavigationController(rootViewController: debuggerViewController)
         navigationController.modalPresentationStyle = .fullScreen
-        topViewController(rootViewController: rootViewController)?.present(
+        UIApplication.topViewController(rootViewController)?.present(
             navigationController,
             animated: true,
             completion: completion

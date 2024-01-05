@@ -24,32 +24,39 @@ final class HierarchyTableViewCell: UITableViewCell {
         stackView.addArrangedSubview(frameLabel)
         return stackView
     }()
-    
+
     let lineView: ParallelLineView = {
         let lineView = ParallelLineView()
         lineView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         lineView.translatesAutoresizingMaskIntoConstraints = false
         return lineView
     }()
-    
+
     let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .body)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     let frameLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .caption1)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
+    private lazy var horizontalScrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsHorizontalScrollIndicator = false
+        return scrollView
+    }()
+
     private lazy var subtreeButton: UIButton = { [unowned self] in
         let button = UIButton(type: .custom)
         let color = UIColor(white: 0.2, alpha: 1.0)
-        button.setBackgroundImage(colorImage(color: UIColor(white: 0.0, alpha: 0.1)), for: .highlighted)
+        button.setBackgroundImage(colorImage(color: UIColor(white: .zero, alpha: 0.1)), for: .highlighted)
         button.setTitle(NSLocalizedString("Subtree", comment: "Show the subtree starting at this element"), for: .normal)
         button.setTitleColor(color, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 15.0)
@@ -59,62 +66,73 @@ final class HierarchyTableViewCell: UITableViewCell {
         button.layer.borderWidth = 1.0
         button.layer.borderColor = color.cgColor
         button.layer.masksToBounds = true
-        
+
         let imageTextSpacing: CGFloat = 4.0
         let imageTextInset = imageTextSpacing / 2.0
         button.imageEdgeInsets = UIEdgeInsets(top: 1.0, left: imageTextInset, bottom: 0, right: -imageTextInset)
-        button.titleEdgeInsets = UIEdgeInsets(top: 0.0, left: -imageTextInset, bottom: 0.0, right: imageTextInset)
+        button.titleEdgeInsets = UIEdgeInsets(top: .zero, left: -imageTextInset, bottom: .zero, right: imageTextInset)
         button.contentEdgeInsets = UIEdgeInsets(top: 4.0, left:
-            4.0 + imageTextInset, bottom: 4.0, right: 4.0 + imageTextInset)
+                                                    4.0 + imageTextInset, bottom: 4.0, right: 4.0 + imageTextInset)
         button.semanticContentAttribute = .forceRightToLeft
-        
+
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        
+
         button.addTarget(self, action: #selector(didTapSubtree(sender:)), for: .touchUpInside)
-        
+
         return button
     }()
-    
+
     // Used to hide/unhide the subtree button.
     private var subtreeLabelWidthConstraint: NSLayoutConstraint?
-    
+
     var showSubtreeButton = false {
         didSet {
             subtreeLabelWidthConstraint?.isActive = !showSubtreeButton
         }
     }
-    
+
     var indexPath: IndexPath?
-    
+
     weak var delegate: HierarchyTableViewCellDelegate?
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+
         selectedBackgroundView = {
             let backgroundView = UIView()
             backgroundView.backgroundColor = UIColor(white: 0.9, alpha: 1.0)
             return backgroundView
         }()
-        
-        contentView.addSubview(lineView)
-        contentView.addSubview(labelStackView)
-        contentView.addSubview(subtreeButton)
+
+        // Add horizontalScrollView to contentView
+        contentView.addSubview(horizontalScrollView)
+
+        // Add labelStackView and subtreeButton to horizontalScrollView
+        horizontalScrollView.addSubview(lineView)
+        horizontalScrollView.addSubview(labelStackView)
+        horizontalScrollView.addSubview(subtreeButton)
 
         let marginsGuide = contentView.layoutMarginsGuide
         NSLayoutConstraint.activate([
-            lineView.leadingAnchor.constraint(equalTo: marginsGuide.leadingAnchor),
+            horizontalScrollView.leadingAnchor.constraint(equalTo: marginsGuide.leadingAnchor),
+            horizontalScrollView.trailingAnchor.constraint(equalTo: marginsGuide.trailingAnchor),
+            horizontalScrollView.topAnchor.constraint(equalTo: topAnchor),
+            horizontalScrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            lineView.leadingAnchor.constraint(equalTo: horizontalScrollView.leadingAnchor),
             lineView.topAnchor.constraint(equalTo: topAnchor),
             lineView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
             labelStackView.leadingAnchor.constraint(equalTo: lineView.trailingAnchor, constant: 5.0),
             labelStackView.centerYAnchor.constraint(equalTo: marginsGuide.centerYAnchor),
+
             subtreeButton.leadingAnchor.constraint(equalTo: labelStackView.trailingAnchor, constant: 5.0),
             subtreeButton.centerYAnchor.constraint(equalTo: marginsGuide.centerYAnchor),
-            subtreeButton.trailingAnchor.constraint(equalTo: marginsGuide.trailingAnchor),
+            subtreeButton.trailingAnchor.constraint(equalTo: horizontalScrollView.trailingAnchor)
         ])
-        subtreeLabelWidthConstraint = subtreeButton.widthAnchor.constraint(equalToConstant: 0.0)
-        
+        subtreeLabelWidthConstraint = subtreeButton.widthAnchor.constraint(equalToConstant: .zero)
+
         let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(sender:)))
         contentView.addGestureRecognizer(longPressGestureRecognizer)
     }
@@ -122,18 +140,18 @@ final class HierarchyTableViewCell: UITableViewCell {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: Actions
-    
+
     @objc private func didTapSubtree(sender: UIButton) {
         delegate?.hierarchyTableViewCellDidTapSubtree(cell: self)
     }
-    
+
     @objc private func handleLongPress(sender: UILongPressGestureRecognizer) {
         guard sender.state == .began else {
             return
         }
-        let point = sender.location(ofTouch: 0, in: self)
+        let point = sender.location(ofTouch: .zero, in: self)
         delegate?.hierarchyTableViewCellDidLongPress(cell: self, point: point)
     }
 }
@@ -141,7 +159,7 @@ final class HierarchyTableViewCell: UITableViewCell {
 private func colorImage(color: UIColor) -> UIImage? {
     UIGraphicsBeginImageContext(CGSize(width: 1.0, height: 1.0))
     color.setFill()
-    UIRectFill(CGRect(x: 0.0, y: 0.0, width: 1.0, height: 1.0))
+    UIRectFill(CGRect(x: .zero, y: .zero, width: 1.0, height: 1.0))
     let image = UIGraphicsGetImageFromCurrentImageContext()
     UIGraphicsEndImageContext()
     return image

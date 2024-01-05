@@ -20,10 +20,10 @@ public final class HierarchyViewConfiguration: NSObject {
 
     /// The font used to render the names of the elements.
     @objc public var nameFont = UIFont.preferredFont(forTextStyle: .body)
-    
+
     /// The font used to render the frames of the elements.
     @objc public var frameFont = UIFont.preferredFont(forTextStyle: .caption1)
-    
+
     /// The colors of the lines displayed to show the depth of the tree.
     ///
     /// If the depth of a node exceeds the number of colors in this array,
@@ -36,10 +36,10 @@ public final class HierarchyViewConfiguration: NSObject {
         UIColor(white: 0.9, alpha: 1.0),
         UIColor(white: 0.95, alpha: 1.0)
     ]
-    
+
     /// The width of the lines drawn to show the depth of the tree.
     @objc public var lineWidth: CGFloat = 1.0
-    
+
     /// The spacing between the lines drawn to show the depth of the three.
     @objc public var lineSpacing: CGFloat = 12.0
 }
