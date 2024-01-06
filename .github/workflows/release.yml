@@ -68,7 +68,7 @@ jobs:
         echo Podspec version: "$PODSPEC_VERSION"
 
     - name: Update version
-      if: github.event_name == "pull_request"
+      if: ${{ github.event_name == "pull_request" }}
       run: |
         VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
 
