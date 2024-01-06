@@ -58,7 +58,7 @@ jobs:
     steps:
     
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3543r5
       with:
         fetch-depth: 0
 
@@ -84,9 +84,10 @@ jobs:
           echo Committing and pushing...
           git config user.name "GitHub Actions"
           git config user.email "github-actions@users.noreply.github.com"
+          git checkout "$GITHUB_HEAD_REF"
           git add "$PODSPEC_FILE"
           git commit -m 'feat: Update Podspec version'
-          git push -u origin "$GITHUB_HEAD_REF"
+          git push
         fi
 
   latest_release:
