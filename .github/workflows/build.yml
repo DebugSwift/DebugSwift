@@ -1,0 +1,40 @@
+name: Build Example
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build default scheme using any available iPhone simulator
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Xcode
+      uses: actions/checkout@v3
+      with:
+        xcode-version: '15.1'
+
+    - name: Install CocoaPods
+      run: |
+        cd Example
+        pod install
+
+    - name: Build CocoaPods
+      run: |
+        xcodebuild clean build \
+          -workspace Example/Example.xcworkspace \
+          -scheme Example \
+          -destination 'platform=iOS Simulator,name=iPhone 14 Plus'
+
+    - name: Build Swift Package Manager
+      run: |
+        xcodebuild clean build \
+          -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
+          -scheme Example_SwiftUI \
+          -destination 'platform=iOS Simulator,name=iPhone 14 Plus'

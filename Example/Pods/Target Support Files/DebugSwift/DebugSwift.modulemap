@@ -1,0 +1,6 @@
+framework module DebugSwift {
+  umbrella header "DebugSwift-umbrella.h"
+
+  export *
+  module * { export * }
+}
