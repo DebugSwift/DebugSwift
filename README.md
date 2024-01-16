@@ -141,7 +141,7 @@ DebugSwift.App.customInfo = {
 }
 ```
 #### Results:
-![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/2481f7b9-2592-46be-b1d7-c0787fcd9110)
+![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/2a38e758-1418-4f14-805f-432d124ad071)
 
 ---
 
@@ -162,7 +162,7 @@ DebugSwift.App.customAction = {
 }
 ```
 #### Results:
-![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/2481f7b9-2592-46be-b1d7-c0787fcd9110)
+![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/f9c23835-e17e-49a8-b971-4b9880403b15)
 
 ---
 
