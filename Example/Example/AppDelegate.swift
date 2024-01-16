@@ -26,6 +26,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
+        DebugSwift.App.customAction = {
+            [
+                .init(
+                    title: "Action 1",
+                    actions: [
+                        .init(title: "action 1") { // [weak self] in
+                            print("Action 1")
+                        }
+                    ]
+                )
+            ]
+        }
+
         // DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
 //        DebugSwift.Console.onlyLogs = ["DebugSwift"]
         DebugSwift.show()

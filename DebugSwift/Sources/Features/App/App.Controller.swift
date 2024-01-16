@@ -73,7 +73,9 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             return viewModel.customInfos.count
         case .actions:
             return ActionInfo.allCases.count
-        default:
+        case .customAction:
+            return viewModel.customActions.count
+        case nil:
             return .zero
         }
     }
@@ -107,6 +109,12 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             let info = viewModel.customInfos[indexPath.row]
             cell.setup(title: info.title)
             return cell
+
+        case .customAction:
+            let info = viewModel.customActions[indexPath.row]
+            cell.setup(title: info.title)
+            return cell
+
         case nil:
             break
         }
@@ -127,6 +135,12 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
         case .customData:
             let data = viewModel.customInfos[indexPath.row]
             let viewModel = AppCustomInfoViewModel(data: data)
+            let controller = ResourcesGenericController(viewModel: viewModel)
+            navigationController?.pushViewController(controller, animated: true)
+
+        case .customAction:
+            let data = viewModel.customActions[indexPath.row]
+            let viewModel = AppCustomActionViewModel(data: data)
             let controller = ResourcesGenericController(viewModel: viewModel)
             navigationController?.pushViewController(controller, animated: true)
 
@@ -153,6 +167,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
 extension AppViewController {
     enum Sections: Int, CaseIterable {
         case actions
+        case customAction
         case customData
         case infos
 
@@ -164,6 +179,8 @@ extension AppViewController {
                 return "actions".localized()
             case .customData:
                 return "custom-data".localized()
+            case .customAction:
+                return "custom-action".localized()
             }
         }
     }

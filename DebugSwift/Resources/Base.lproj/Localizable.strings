@@ -27,9 +27,11 @@
 "colorized-view-borders" = "Colorized view borders";
 "slow-animations" = "Slow animations";
 "simulated-location" = "Simulated location";
+"action" = "Action";
 "actions" = "Actions";
 "device-info" = "Device Info";
 "custom-data" = "Custom Data";
+"custom-action" = "Custom Actions";
 "actions-console" = "Console";
 "actions-crash" = "Crashes";
 

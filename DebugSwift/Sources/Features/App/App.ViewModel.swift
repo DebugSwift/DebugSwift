@@ -17,11 +17,17 @@ final class AppViewModel: NSObject {
         DebugSwift.App.customInfo?() ?? []
     }
 
+    var customActions: [CustomAction] {
+        DebugSwift.App.customAction?() ?? []
+    }
+
     func getTitle(for section: Int) -> String? {
         let data = AppViewController.Sections(rawValue: section)
         switch data {
         case .customData:
             return customInfos.isEmpty ? nil : data?.title
+        case .customAction:
+            return customActions.isEmpty ? nil : data?.title
         default:
             return data?.title
         }

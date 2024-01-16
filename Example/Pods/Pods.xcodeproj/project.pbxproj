@@ -58,6 +58,8 @@
 		2E60BA0C2B334FA50084C2D9 /* PDFManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA0B2B334FA50084C2D9 /* PDFManager.swift */; };
 		2E60BA0E2B336C340084C2D9 /* UserDefaultsAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA0D2B336C340084C2D9 /* UserDefaultsAccess.swift */; };
 		2E60BA102B336EF30084C2D9 /* LogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA0F2B336EF30084C2D9 /* LogsViewController.swift */; };
+		2EA909DC2B57304B00820FC5 /* App.CustomAction.Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA909DB2B57304B00820FC5 /* App.CustomAction.Model.swift */; };
+		2EA909DE2B57305400820FC5 /* App.CustomAction.ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA909DD2B57305400820FC5 /* App.CustomAction.ViewModel.swift */; };
 		313D7FB738923BC6D166BD1010EE6FB9 /* TransitionPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21723A9F5AF6174D0A7B575FEC0ECE10 /* TransitionPush.swift */; };
 		322E34E789784FA440D295006A658E58 /* Performance.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE2B4F0D37277281CE0FB327EE10529 /* Performance.Controller.swift */; };
 		34EE80E4191B65454B4CB6EA9FDA5FBF /* LaunchTimeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6ECE8E02FBFF41B8FC5882BA5AC827 /* LaunchTimeTracker.swift */; };
@@ -198,6 +200,8 @@
 		2E60BA0B2B334FA50084C2D9 /* PDFManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFManager.swift; sourceTree = "<group>"; };
 		2E60BA0D2B336C340084C2D9 /* UserDefaultsAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsAccess.swift; sourceTree = "<group>"; };
 		2E60BA0F2B336EF30084C2D9 /* LogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsViewController.swift; sourceTree = "<group>"; };
+		2EA909DB2B57304B00820FC5 /* App.CustomAction.Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.CustomAction.Model.swift; sourceTree = "<group>"; };
+		2EA909DD2B57305400820FC5 /* App.CustomAction.ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.CustomAction.ViewModel.swift; sourceTree = "<group>"; };
 		2F62A5942FB5A60FF15CF8FBCDEC463F /* DebugSwift.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; path = DebugSwift.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		31C1D37707DFAA5E6A164BCC07834264 /* Pods-Example-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Example-Info.plist"; sourceTree = "<group>"; };
 		31EC80E2B78DE1B7EB20B9730445338C /* ApplicationDirectories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ApplicationDirectories.swift; sourceTree = "<group>"; };
@@ -466,6 +470,15 @@
 				2E60BA0F2B336EF30084C2D9 /* LogsViewController.swift */,
 			);
 			path = Logs;
+			sourceTree = "<group>";
+		};
+		2EA909DA2B57303100820FC5 /* CustomAction */ = {
+			isa = PBXGroup;
+			children = (
+				2EA909DB2B57304B00820FC5 /* App.CustomAction.Model.swift */,
+				2EA909DD2B57305400820FC5 /* App.CustomAction.ViewModel.swift */,
+			);
+			path = CustomAction;
 			sourceTree = "<group>";
 		};
 		307F99D04CDB8AB85B63FFA0568E12D0 /* Console */ = {
@@ -829,6 +842,7 @@
 			children = (
 				1970AAD626698B83A34085FA794F1D14 /* App.Controller.swift */,
 				3CF0723AB27114B55EF7BE189C465791 /* App.ViewModel.swift */,
+				2EA909DA2B57303100820FC5 /* CustomAction */,
 				2E60B9EF2B326D210084C2D9 /* Crash */,
 				307F99D04CDB8AB85B63FFA0568E12D0 /* Console */,
 				7294F51CF9AD13E71F8DEE891A8FED34 /* CustomInfo */,
@@ -1094,7 +1108,9 @@
 				AEC9B711F8E64AA2E8EE4AFBC69FE93B /* CLLocationManager.swift in Sources */,
 				2E4536492B33A9B6004B5323 /* CrashHandler.swift in Sources */,
 				180707946083B905401AF1BC481CF02B /* ColorPickerTableViewCell.swift in Sources */,
+				2EA909DC2B57304B00820FC5 /* App.CustomAction.Model.swift in Sources */,
 				5A0963AC98CF3D0E77697C96FC7E3BFD /* ConsoleViewModel.swift in Sources */,
+				2EA909DE2B57305400820FC5 /* App.CustomAction.ViewModel.swift in Sources */,
 				C923BDDE9BE7668F7FA315355278A90D /* Data+.swift in Sources */,
 				2E05C71E2B4762DA00269F07 /* HierarchyTableViewCell.swift in Sources */,
 				2E05C71D2B4762DA00269F07 /* InAppViewDebugger.swift in Sources */,

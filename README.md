@@ -145,6 +145,27 @@ DebugSwift.App.customInfo = {
 
 ---
 
+### App Custom Action
+
+```swift
+DebugSwift.App.customAction = {
+    [
+        .init(
+            title: "Action 1",
+            actions: [
+                .init(title: "action 1") { [weak self] in // Important if use self
+                    print("Action 1")
+                }
+            ]
+        )
+    ]
+}
+```
+#### Results:
+![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/2481f7b9-2592-46be-b1d7-c0787fcd9110)
+
+---
+
 ## Contributing
 
 Contributions are welcome! If you have suggestions, improvements, or bug fixes, please submit a pull request. Let's make DebugSwift even more powerful together!

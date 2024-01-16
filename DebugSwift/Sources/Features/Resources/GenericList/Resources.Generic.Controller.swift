@@ -116,7 +116,9 @@ final class ResourcesGenericController: BaseTableController {
         cell.setup(
             title: dataSource.title,
             subtitle: dataSource.value,
-            image: .named("doc.on.doc", default: "copy".localized())
+            image: viewModel.isCustomActionEnable ?
+                    .named("chevron.right.square", default: "action".localized()):
+                    .named("doc.on.doc", default: "copy".localized())
         )
 
         return cell
@@ -147,10 +149,6 @@ final class ResourcesGenericController: BaseTableController {
             return
         }
 
-        let title = cell.textLabel?.text ?? ""
-        let contentToCopy = "\(title)"
-        UIPasteboard.general.string = contentToCopy
-
         UIView.animate(
             withDuration: 0.3,
             animations: {
@@ -160,6 +158,14 @@ final class ResourcesGenericController: BaseTableController {
             UIView.animate(withDuration: 0.3) {
                 cell.alpha = 1.0
             }
+        }
+
+        if viewModel.isCustomActionEnable {
+            viewModel.didTapItem(index: indexPath.row)
+        } else {
+            let title = cell.textLabel?.text ?? ""
+            let contentToCopy = "\(title)"
+            UIPasteboard.general.string = contentToCopy
         }
     }
 }
@@ -177,6 +183,9 @@ protocol ResourcesGenericListViewModel: AnyObject {
     var isSearchActived: Bool { get set }
 
     var isDeleteEnable: Bool { get }
+    var isCustomActionEnable: Bool { get }
+
+    var reloadData: (() -> Void)? { get set }
 
     /// Returns the number of title-value pairs.
     func numberOfItems() -> Int
@@ -202,11 +211,15 @@ protocol ResourcesGenericListViewModel: AnyObject {
     /// - Parameter searchText: The text to be used for filtering.
     func filterContentForSearchText(_ searchText: String)
 
-    var reloadData: (() -> Void)? { get set }
+    func didTapItem(index: Int)
 }
 
 // Optional
 
 extension ResourcesGenericListViewModel {
     var isDeleteEnable: Bool { true }
+
+    var isCustomActionEnable: Bool { false }
+
+    func didTapItem(index: Int) {}
 }
