@@ -367,7 +367,7 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/MaatheusGois/DebugSwift";
+			repositoryURL = "https://github.com/DebugSwift/DebugSwift";
 			requirement = {
 				branch = main;
 				kind = branch;
