@@ -76,11 +76,15 @@ class FloatBallView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func animate() {
+    func animate(success: Bool) {
         guard isShowing else { return }
 
         label.text = .init(HttpDatasource.shared.httpModels.count)
-        startAnimation()
+        startAnimation(text: success ? "🚀" : "❌")
+
+        if !success {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
     }
 
     func updateText() {
@@ -140,9 +144,9 @@ extension FloatBallView {
         return view
     }
 
-    private func startAnimation() {
+    private func startAnimation(text: String) {
         let label = UILabel()
-        label.text = "🚀"
+        label.text = text
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false

@@ -67,15 +67,20 @@ final class NetworkViewController: BaseController {
             forName: NSNotification.Name(rawValue: "reloadHttp_DebugSwift"),
             object: nil,
             queue: .main
-        ) { [weak self] _ in
-            self?.reloadHttp(needScrollToEnd: self?.viewModel.reachEnd ?? true)
+        ) { [weak self] notification in
+            if let success = notification.object as? Bool {
+                self?.reloadHttp(
+                    needScrollToEnd: self?.viewModel.reachEnd ?? true,
+                    success: success
+                )
+            }
         }
     }
 
-    func reloadHttp(needScrollToEnd: Bool = false) {
+    func reloadHttp(needScrollToEnd: Bool = false, success: Bool = true) {
         guard viewModel.reloadDataFinish else { return }
 
-        FloatViewManager.animate()
+        FloatViewManager.animate(success: success)
         viewModel.applyFilter()
         tableView.reloadData()
 

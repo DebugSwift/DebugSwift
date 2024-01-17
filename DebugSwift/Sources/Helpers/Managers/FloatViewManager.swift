@@ -31,8 +31,8 @@ final class FloatViewManager: NSObject {
         shared.floatViewController = viewController
     }
 
-    static func animate() {
-        shared.ballView.animate()
+    static func animate(success: Bool) {
+        shared.ballView.animate(success: success)
     }
 
     static func reset() {
@@ -66,8 +66,10 @@ final class FloatViewManager: NSObject {
             forName: NSNotification.Name(rawValue: "reloadHttp_DebugSwift"),
             object: nil,
             queue: .main
-        ) { _ in
-            Self.animate()
+        ) { notification in
+            if let success = notification.object as? Bool {
+                Self.animate(success: success)
+            }
         }
     }
 }

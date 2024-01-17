@@ -176,7 +176,7 @@ final class CustomHTTPProtocol: URLProtocol {
         if HttpDatasource.shared.addHttpRequest(model) {
             NotificationCenter.default.post(
                 name: NSNotification.Name("reloadHttp_DebugSwift"),
-                object: nil
+                object: model.isSuccess
             )
         }
     }
