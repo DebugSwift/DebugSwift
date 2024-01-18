@@ -55,6 +55,7 @@
 "device-model" = "Device Model:";
 "ios-version" = "iOS Version:";
 "inicialization-time" = "Initialization Time:";
+"reachability-status" = "Connection Type:";
 "custom" = "Custom...";
 
 "empty-data" = "No data found in the ";
@@ -80,6 +81,13 @@
 "copy" = "Copy";
 "close" = "Close";
 "share" = "Share";
+
+// MARK: - Reachability
+
+"cellular" = "Cellular";
+"wifi" = "WiFi";
+"noConnection" = "No Connection";
+"unavailable" = "Unavailable";
 
 // MARK: - ErrorHelper
 

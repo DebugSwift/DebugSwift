@@ -38,6 +38,7 @@ extension CrashModel {
         let appBuild: String?
         let iosVersion: String
         let deviceModel: String
+        let reachability: String
 
         static func builder(name: String) -> Self {
             .init(
@@ -46,7 +47,8 @@ extension CrashModel {
                 appVersion: UserInfo.getAppVersionInfo()?.detail,
                 appBuild: UserInfo.getAppBuildInfo()?.detail,
                 iosVersion: UserInfo.getIOSVersionInfo().detail,
-                deviceModel: UserInfo.getDeviceModelInfo().detail
+                deviceModel: UserInfo.getDeviceModelInfo().detail,
+                reachability: UserInfo.getReachability().detail
             )
         }
     }

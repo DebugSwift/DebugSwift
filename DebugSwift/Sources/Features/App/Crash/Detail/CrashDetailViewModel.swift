@@ -61,6 +61,10 @@ final class CrashDetailViewModel: NSObject {
             .init(
                 title: "device-model".localized(),
                 detail: data.details.deviceModel
+            ),
+            .init(
+                title: "reachability-status".localized(),
+                detail: data.details.reachability
             )
         ]
     }

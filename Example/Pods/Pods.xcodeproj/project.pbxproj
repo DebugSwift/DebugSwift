@@ -60,6 +60,8 @@
 		2E60BA102B336EF30084C2D9 /* LogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E60BA0F2B336EF30084C2D9 /* LogsViewController.swift */; };
 		2EA909DC2B57304B00820FC5 /* App.CustomAction.Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA909DB2B57304B00820FC5 /* App.CustomAction.Model.swift */; };
 		2EA909DE2B57305400820FC5 /* App.CustomAction.ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA909DD2B57305400820FC5 /* App.CustomAction.ViewModel.swift */; };
+		2EB283382B599BF400F5399C /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB283372B599BF400F5399C /* Reachability.swift */; };
+		2EB2833A2B599C3500F5399C /* ReachabilityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB283392B599C3500F5399C /* ReachabilityManager.swift */; };
 		313D7FB738923BC6D166BD1010EE6FB9 /* TransitionPush.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21723A9F5AF6174D0A7B575FEC0ECE10 /* TransitionPush.swift */; };
 		322E34E789784FA440D295006A658E58 /* Performance.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE2B4F0D37277281CE0FB327EE10529 /* Performance.Controller.swift */; };
 		34EE80E4191B65454B4CB6EA9FDA5FBF /* LaunchTimeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6ECE8E02FBFF41B8FC5882BA5AC827 /* LaunchTimeTracker.swift */; };
@@ -202,6 +204,8 @@
 		2E60BA0F2B336EF30084C2D9 /* LogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsViewController.swift; sourceTree = "<group>"; };
 		2EA909DB2B57304B00820FC5 /* App.CustomAction.Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.CustomAction.Model.swift; sourceTree = "<group>"; };
 		2EA909DD2B57305400820FC5 /* App.CustomAction.ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.CustomAction.ViewModel.swift; sourceTree = "<group>"; };
+		2EB283372B599BF400F5399C /* Reachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		2EB283392B599C3500F5399C /* ReachabilityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReachabilityManager.swift; sourceTree = "<group>"; };
 		2F62A5942FB5A60FF15CF8FBCDEC463F /* DebugSwift.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; path = DebugSwift.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		31C1D37707DFAA5E6A164BCC07834264 /* Pods-Example-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Example-Info.plist"; sourceTree = "<group>"; };
 		31EC80E2B78DE1B7EB20B9730445338C /* ApplicationDirectories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ApplicationDirectories.swift; sourceTree = "<group>"; };
@@ -742,6 +746,7 @@
 				1A6ECE8E02FBFF41B8FC5882BA5AC827 /* LaunchTimeTracker.swift */,
 				7C185FF8182A092FFA7AB558C25DE415 /* TopUIView.swift */,
 				2E60BA0D2B336C340084C2D9 /* UserDefaultsAccess.swift */,
+				2EB283372B599BF400F5399C /* Reachability.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -806,6 +811,7 @@
 				E4C92BEF80AA57BB86F1B200C4A42CBF /* WindowManager.swift */,
 				2E60B9FB2B328A570084C2D9 /* UserInfo.swift */,
 				2E60BA0B2B334FA50084C2D9 /* PDFManager.swift */,
+				2EB283392B599C3500F5399C /* ReachabilityManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -1162,6 +1168,7 @@
 				C9CE9379C52567F503391131989FE79A /* Network.Controller.swift in Sources */,
 				66AD787E0C72DFA3AC761F39B6FBAE33 /* Network.Controller.Detail.swift in Sources */,
 				4747046B35865D589B6ECCA4AE5F0411 /* Network.ViewModel.swift in Sources */,
+				2EB283382B599BF400F5399C /* Reachability.swift in Sources */,
 				2E05C7282B4762DA00269F07 /* Snapshot.swift in Sources */,
 				2489B30EF260E260FB38BB95EB47ABDF /* NetworkHelper.swift in Sources */,
 				A43A020F0349787EBE7E79943B4BE865 /* Performace.FPSCalculator.swift in Sources */,
@@ -1175,6 +1182,7 @@
 				2E05C7152B4762DA00269F07 /* TreeTableViewDataSource.swift in Sources */,
 				1B696DE25B9B6E536BB4B4012064853D /* Resources.Generic.Controller.swift in Sources */,
 				70474917776D060621D94C58F65F1D2A /* Resources.Keychain.ViewModel.swift in Sources */,
+				2EB2833A2B599C3500F5399C /* ReachabilityManager.swift in Sources */,
 				C1E49F8B5B845106341F7C6269D1AF30 /* Resources.UserDefaults.ViewModel.swift in Sources */,
 				E91E3286645214B2DB89F7141A3FD122 /* SliderTableViewCell.swift in Sources */,
 				0EBAFF2749E3D82113C6CC1940329355 /* String+.swift in Sources */,

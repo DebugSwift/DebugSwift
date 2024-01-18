@@ -23,7 +23,8 @@ enum UserInfo {
             getScreenResolution(),
             getDeviceModelInfo(),
             getIOSVersionInfo(),
-            getMeasureAppStartUpTime()
+            getMeasureAppStartUpTime(),
+            getReachability()
         ].compactMap { $0 }
     }
 
@@ -108,6 +109,13 @@ enum UserInfo {
         return Info(
             title: "inicialization-time".localized(),
             detail: String(format: "%.4lf%", launchStartTime) + " (s)"
+        )
+    }
+
+    static func getReachability() -> Info {
+        return Info(
+            title: "reachability-status".localized(),
+            detail: ReachabilityManager.connection.description
         )
     }
 }
