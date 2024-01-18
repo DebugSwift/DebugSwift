@@ -29,6 +29,7 @@
 
 import Foundation
 import SystemConfiguration
+import CoreTelephony
 
 enum ReachabilityError: Error {
     case failedToCreateWithAddress(sockaddr, Int32)
@@ -78,20 +79,11 @@ class Reachability {
     var whenReachable: NetworkReachable?
     var whenUnreachable: NetworkUnreachable?
 
-    @available(*, deprecated, renamed: "allowsCellularConnection")
-    let reachableOnWWAN = true
-
     /// Set to `false` to force Reachability.connection to .none when on cellular connection (default value `true`)
     var allowsCellularConnection: Bool
 
     // The notification center on which "reachability changed" events are being posted
     var notificationCenter = NotificationCenter.default
-
-    @available(*, deprecated, renamed: "connection.description")
-    var currentReachabilityString: String { "\(connection)" }
-
-    @available(*, unavailable, renamed: "connection")
-    var currentReachabilityStatus: Connection { connection }
 
     var connection: Connection {
         if flags == nil {
@@ -257,18 +249,6 @@ extension Reachability {
 
     // MARK: - *** Connection test methods ***
 
-    @available(*, deprecated, message: "Please use `connection != .none`")
-    var isReachable: Bool { connection != .unavailable }
-
-    @available(*, deprecated, message: "Please use `connection == .cellular`")
-    var isReachableViaWWAN: Bool {
-        // Check we're not on the simulator, we're REACHABLE and check we're on WWAN
-        connection == .cellular
-    }
-
-    @available(*, deprecated, message: "Please use `connection == .wifi`")
-    var isReachableViaWiFi: Bool { connection == .wifi }
-
     var description: String { flags?.description ?? "unavailable flags" }
 }
 
@@ -414,3 +394,142 @@ private class ReachabilityWeakifier {
         self.reachability = reachability
     }
 }
+
+enum NetworkType: Int, CaseIterable {
+    case unknown
+    case noConnection
+    case wifi
+    case cellular
+    case ethernet
+    case wwan2g
+    case wwan3g
+    case wwan4g
+    case wwan5g
+    case unknownTechnology
+
+    var description: String {
+        switch self {
+        case .noConnection:
+            return "noConnection".localized()
+        case .wifi:
+            return "wifi".localized()
+        case .cellular:
+            return "cellular".localized()
+        case .ethernet:
+            return "Ethernet"
+        case .wwan2g:
+            return "2G"
+        case .wwan3g:
+            return "3G"
+        case .wwan4g:
+            return "4G"
+        case .wwan5g:
+            return "5G"
+        case .unknown, .unknownTechnology:
+            return "unavailable".localized()
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .unknown, .unknownTechnology:
+            return "mdi:help-circle"
+        case .noConnection:
+            return "mdi:sim-off"
+        case .wifi:
+            return "mdi:wifi"
+        case .cellular:
+            return "mdi:signal"
+        case .ethernet:
+            return "mdi:ethernet"
+        case .wwan2g:
+            return "mdi:signal-2g"
+        case .wwan3g:
+            return "mdi:signal-3g"
+        case .wwan4g:
+            return "mdi:signal-4g"
+        case .wwan5g:
+            return "mdi:signal-5g"
+        }
+    }
+
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+    init(_ radioTech: String) {
+        if #available(iOS 14.1, *) {
+            if [CTRadioAccessTechnologyNR, CTRadioAccessTechnologyNRNSA].contains(radioTech) {
+                // although these are declared available in 14.0, they will crash on use before 14.1
+                self = .wwan5g
+                return
+            }
+        }
+
+        switch radioTech {
+        case CTRadioAccessTechnologyGPRS,
+             CTRadioAccessTechnologyEdge,
+             CTRadioAccessTechnologyCDMA1x:
+            self = .wwan2g
+        case CTRadioAccessTechnologyWCDMA,
+             CTRadioAccessTechnologyHSDPA,
+             CTRadioAccessTechnologyHSUPA,
+             CTRadioAccessTechnologyCDMAEVDORev0,
+             CTRadioAccessTechnologyCDMAEVDORevA,
+             CTRadioAccessTechnologyCDMAEVDORevB,
+             CTRadioAccessTechnologyeHRPD:
+            self = .wwan3g
+        case CTRadioAccessTechnologyLTE:
+            self = .wwan4g
+        default:
+            self = .unknownTechnology
+        }
+    }
+    #endif
+}
+
+#if os(iOS)
+extension Reachability {
+    func getSimpleNetworkType() -> NetworkType {
+        try? startNotifier()
+
+        switch connection {
+        case .none:
+            return .noConnection
+        case .wifi:
+            return .wifi
+        case .cellular:
+            return .cellular
+        case .unavailable:
+            return .noConnection
+        }
+    }
+
+    func getNetworkType() -> NetworkType {
+        try? startNotifier()
+
+        switch connection {
+        case .none:
+            return .noConnection
+        case .wifi:
+            return .wifi
+        case .cellular:
+            #if !targetEnvironment(macCatalyst)
+            return Reachability.getWWANNetworkType()
+            #else
+            return .cellular
+            #endif
+        case .unavailable:
+            return .noConnection
+        }
+    }
+
+    #if !targetEnvironment(macCatalyst)
+    static func getWWANNetworkType() -> NetworkType {
+        let networkTypes = (CTTelephonyNetworkInfo().serviceCurrentRadioAccessTechnology ?? [:])
+            .sorted(by: { $0.key < $1.key })
+            .map(\.value)
+            .map(NetworkType.init(_:))
+
+        return networkTypes.first(where: { $0 != .unknownTechnology }) ?? .unknown
+    }
+    #endif
+}
+#endif

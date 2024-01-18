@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import CoreTelephony
 
 struct ReachabilityManager {
 
     private static var reachability = try? Reachability()
 
-    static var connection: Reachability.Connection {
-        reachability?.connection ?? .none
+    static var connection: NetworkType {
+        reachability?.getNetworkType() ?? .unknownTechnology
     }
 }
