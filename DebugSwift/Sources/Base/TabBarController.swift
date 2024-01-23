@@ -33,7 +33,7 @@ class TabBarController: UITabBarController {
             InterfaceViewController(),
             ResourcesViewController(),
             AppViewController()
-        ]
+        ] + (DebugSwift.App.customControllers?() ?? [])
 
         viewControllers = controllers.map {
             UINavigationController(rootViewController: $0)

@@ -27,6 +27,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         DebugSwift.setup()
         DebugSwift.show()
+        DebugSwift.App.customControllers = {
+            self.additionalViewControllers()
+        }
         return true
+    }
+
+    func additionalViewControllers() -> [UIViewController] {
+        let viewController = UITableViewController()
+        viewController.title = "PURE"
+        return [viewController]
     }
 }
