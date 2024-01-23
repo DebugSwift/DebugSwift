@@ -5,21 +5,16 @@
 //  Created by Matheus Gois on 16/12/23.
 //
 
-import CoreLocation
 import UIKit
 
 public enum DebugSwift {
+    public static func hideFeatureByIndexAndSetup(indexArr: [Int]?) {
+        FeatureHandling.shared.hideFeatureByIndex(indexArr: indexArr)
+    }
+
     public static func setup() {
-        UIView.swizzleMethods()
-        UIWindow.db_swizzleMethods()
-        URLSessionConfiguration.swizzleMethods()
-        CLLocationManager.swizzleMethods()
-        LogIntercepter.shared.start()
-
         LocalizationManager.shared.loadBundle()
-        NetworkHelper.shared.enable()
-
-        CrashManager.register()
+        FeatureHandling.shared.selectedFeatureHandler(viewController : nil)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             FloatViewManager.setup(TabBarController())

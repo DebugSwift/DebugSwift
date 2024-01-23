@@ -14,6 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        // Remove comment below if u want to hide some features and don't forget to comment DebugSwift.setup()
+        // DebugSwift.hideFeatureByIndexAndSetup(indexArr: [1,2,3,4])
         DebugSwift.setup()
         DebugSwift.App.customInfo = {
             [
