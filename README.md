@@ -141,6 +141,9 @@ DebugSwift.App.customInfo = {
 }
 ```
 
+#### Results:
+![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/2a38e758-1418-4f14-805f-432d124ad071)
+
 ### App Custom ViewControllers in Tab Bar
 
 ```swift
@@ -153,9 +156,6 @@ DebugSwift.App.customControllers = {
     return [controller1, controller2]
 }
 ```
-
-#### Results:
-![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/2a38e758-1418-4f14-805f-432d124ad071)
 
 ---
 
