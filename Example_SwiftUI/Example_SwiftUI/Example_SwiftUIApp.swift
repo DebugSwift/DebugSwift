@@ -26,7 +26,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         // Remove comment below if you want to specific which features that will be removed. and don't forget to comment DebugSwift.setup()
-        // DebugSwift.hide(features: [.interface,.app,.resources,.performance])
+        // DebugSwift.setup(hideFeatures: [.interface, .app, .resources, .performance])
         DebugSwift.setup()
         DebugSwift.show()
         return true

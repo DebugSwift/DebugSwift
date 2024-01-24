@@ -175,7 +175,7 @@ func application(
     _: UIApplication,
     didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
 ) -> Bool {
-    DebugSwift.hide(features: [.network]) //Example for hide network
+    DebugSwift.setup(hideFeatures: [.network]) //Example usage for hide network
     DebugSwift.show()
 
     return true

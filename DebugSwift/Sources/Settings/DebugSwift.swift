@@ -18,6 +18,10 @@ public enum DebugSwift {
 
         LaunchTimeTracker.measureAppStartUpTime()
     }
+    
+    public static func setup(hideFeatures: [DebugSwiftFeatures]) {
+        FeatureHandling.shared.hide(features: hideFeatures)
+    }
 
     public static func show() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -27,10 +31,6 @@ public enum DebugSwift {
 
     public static func hide() {
         FloatViewManager.remove()
-    }
-    
-    public static func hide(features: [DebugSwiftFeatures]) {
-        FeatureHandling.shared.hide(features: features)
     }
 
     public static func toggle() {
