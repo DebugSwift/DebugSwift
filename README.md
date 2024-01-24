@@ -144,19 +144,6 @@ DebugSwift.App.customInfo = {
 #### Results:
 ![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/2a38e758-1418-4f14-805f-432d124ad071)
 
-### App Custom ViewControllers in Tab Bar
-
-```swift
-DebugSwift.App.customControllers = {
-    let controller1 = UITableViewController()
-    controller1.title = "Custom TableVC 1"
-
-    let controller2 = UITableViewController()
-    controller2.title = "Custom TableVC 2"
-    return [controller1, controller2]
-}
-```
-
 ---
 
 ### App Custom Action
@@ -175,8 +162,24 @@ DebugSwift.App.customAction = {
     ]
 }
 ```
+
 #### Results:
 ![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/f9c23835-e17e-49a8-b971-4b9880403b15)
+
+---
+
+### App Custom ViewControllers in Tab Bar
+
+```swift
+DebugSwift.App.customControllers = {
+    let controller1 = UITableViewController()
+    controller1.title = "Custom TableVC 1"
+
+    let controller2 = UITableViewController()
+    controller2.title = "Custom TableVC 2"
+    return [controller1, controller2]
+}
+```
 
 ---
 
