@@ -175,13 +175,12 @@ func application(
     _: UIApplication,
     didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
 ) -> Bool {
-    DebugSwift.hideFeatureByIndexAndSetup(indexArr: [1,2,3,4])
+    DebugSwift.hide(features: [.network]) //Example for hide network
     DebugSwift.show()
 
     return true
 }
 ```
-If you enter the wrong index (index out of bounds), it will automatically execute DebugSwift.setup().
 
 ---
 

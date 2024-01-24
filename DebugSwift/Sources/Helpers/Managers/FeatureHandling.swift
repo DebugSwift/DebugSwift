@@ -8,6 +8,18 @@
 import UIKit
 import CoreLocation
 
+public enum DebugSwiftFeatures: String {
+    case network = "network-title"
+    case performance = "performance-title"
+    case interface = "interface-title"
+    case resources = "resources-title"
+    case app = "app-title"
+    
+    var localized: String {
+        return rawValue.localized()
+    }
+}
+
 final class FeatureHandling {
     static let shared = FeatureHandling()
     
@@ -25,7 +37,7 @@ final class FeatureHandling {
     
     func selectedFeatureHandler(viewController: String?) {
         switch viewController {
-        case "network-title":
+        case "network-title".localized():
             URLSessionConfiguration.swizzleMethods()
             NetworkHelper.shared.enable()
         case "":
@@ -35,20 +47,26 @@ final class FeatureHandling {
         }
     }
     
-    func hideFeatureByIndex(indexArr: [Int]?) {
-        guard let indexArr = indexArr else { return DebugSwift.setup()}
-        LocalizationManager.shared.loadBundle()
+    func getIndexFeature(titleVC: [UIViewController], debugSwiftFeature: String) -> Int {
+        for (idx,value) in titleVC.enumerated() {
+            if value.title?.contains(debugSwiftFeature) == true {
+                return idx
+            }
+        }
+        return -1
+    }
+    
+    func hide(features: [DebugSwiftFeatures]?) {
+        guard let features = features else { return DebugSwift.setup()}
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             var featureHandler: String = ""
             let tabBar = TabBarController()
-            guard let tabBarVC = tabBar.viewControllers else { return DebugSwift.setup()}
-            for (idx,value) in indexArr.enumerated() {
-                if value >= tabBarVC.count {
-                    DebugSwift.setup()
-                    return
+            features.forEach {
+                guard let tabBarVC = tabBar.viewControllers else { return DebugSwift.setup()}
+                let index = self.getIndexFeature(titleVC: tabBarVC, debugSwiftFeature: $0.localized)
+                if index != -1 {
+                    tabBar.viewControllers?.remove(at: index)
                 }
-                let values = idx == .zero ? value : value - (1 * idx)
-                tabBar.viewControllers?.remove(at: values)
             }
             tabBar.viewControllers?.forEach {
                 featureHandler += $0.title ?? ""
@@ -56,6 +74,7 @@ final class FeatureHandling {
             FeatureHandling.shared.selectedFeatureHandler(viewController: featureHandler)
             FloatViewManager.setup(tabBar)
         }
+        LocalizationManager.shared.loadBundle()
         LaunchTimeTracker.measureAppStartUpTime()
     }
 }

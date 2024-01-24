@@ -8,10 +8,6 @@
 import UIKit
 
 public enum DebugSwift {
-    public static func hideFeatureByIndexAndSetup(indexArr: [Int]?) {
-        FeatureHandling.shared.hideFeatureByIndex(indexArr: indexArr)
-    }
-
     public static func setup() {
         LocalizationManager.shared.loadBundle()
         FeatureHandling.shared.selectedFeatureHandler(viewController : nil)
@@ -31,6 +27,10 @@ public enum DebugSwift {
 
     public static func hide() {
         FloatViewManager.remove()
+    }
+    
+    public static func hide(features: [DebugSwiftFeatures]) {
+        FeatureHandling.shared.hide(features: features)
     }
 
     public static func toggle() {
