@@ -39,6 +39,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
+        DebugSwift.App.customControllers = {
+            let controller1 = UITableViewController()
+            controller1.title = "Custom TableVC 1"
+
+            let controller2 = UITableViewController()
+            controller2.title = "Custom TableVC 2"
+            return [controller1, controller2]
+        }
+
         // DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
 //        DebugSwift.Console.onlyLogs = ["DebugSwift"]
         DebugSwift.show()
