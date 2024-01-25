@@ -117,7 +117,6 @@ jobs:
     name: Create tag
     needs: 
       - git_version
-      - update_podspec
     runs-on: ubuntu-latest
 
     steps:
