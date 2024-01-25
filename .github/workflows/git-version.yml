@@ -49,40 +49,46 @@ jobs:
         echo "Semantic Version: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
-  # update_podspec:
-  #   name: Update podspec
-  #   needs: git_version
-  #   runs-on: ubuntu-latest
-  #   steps:
+  update_podspec:
+    name: Update podspec
+    needs: git_version
+    runs-on: ubuntu-latest
+    steps:
     
-  #   - name: Checkout
-  #     uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-    # - name: Display version
-    #   run: |
-    #     PODSPEC_VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
-    #     echo "PODSPEC_VERSION=$PODSPEC_VERSION" >> $GITHUB_ENV
-    #     echo Current version: '${{ needs.git_version.outputs.majorMinorPatch }}'
-    #     echo Podspec version: "$PODSPEC_VERSION"
+    - name: Display version
+      run: |
+        PODSPEC_VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
+        echo "PODSPEC_VERSION=$PODSPEC_VERSION" >> $GITHUB_ENV
+        echo Current version: '${{ needs.git_version.outputs.majorMinorPatch }}'
+        echo Podspec version: "$PODSPEC_VERSION"
 
-    # - name: Update version
-    #   run: |
-    #     VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
+    - name: Update version
+      run: |
+        VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
 
-    #     if [ "$PODSPEC_VERSION" == "$VERSION" ]; then
-    #       echo Podspec version is updated.
-    #     else
-    #       echo Updating Podspec version...
-    #       PODSPEC_FILE="DebugSwift.podspec"
-    #       sed -i -E "s/(s\.version *= *')([^']+)(.*)/\1$VERSION\3/g" "$PODSPEC_FILE"
+        if [ "$PODSPEC_VERSION" == "$VERSION" ]; then
+          echo Podspec version is updated.
+        else
+          echo Updating Podspec version...
+          PODSPEC_FILE="DebugSwift.podspec"
+          sed -i -E "s/(s\.version *= *')([^']+)(.*)/\1$VERSION\3/g" "$PODSPEC_FILE"
           
-    #       echo Committing and pushing...
-    #       git config user.name "GitHub Actions"
-    #       git config user.email "github-actions@users.noreply.github.com"
-    #       git add "$PODSPEC_FILE"
-    #       git commit -m 'feat: Update Podspec version'
-    #       git push
-    #     fi
+          echo Committing and pushing...
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add "$PODSPEC_FILE"
+          git commit -m 'feat: Update Podspec version'
+          git push
+        fi
+        
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact
+        path: DebugSwift.podspec
 
   latest_release:
     name: Get latest version
@@ -117,6 +123,7 @@ jobs:
     name: Create tag
     needs: 
       - git_version
+      - update_podspec
     runs-on: ubuntu-latest
 
     steps:
@@ -162,38 +169,22 @@ jobs:
     needs: 
       - tag
       - release
-      - git_version
     runs-on: macos-latest
     steps:
     
     - name: Checkout
       uses: actions/checkout@v3
-    
-    - name: Display podspec version
-      run: |
-        PODSPEC_VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
-        echo "PODSPEC_VERSION=$PODSPEC_VERSION" >> $GITHUB_ENV
-        echo Current version: '${{ needs.git_version.outputs.majorMinorPatch }}'
-        echo Podspec version: "$PODSPEC_VERSION"
 
-    - name: Update podspec version
+    - name: Delete old Podspec
       run: |
-        VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
-
-        if [ "$PODSPEC_VERSION" == "$VERSION" ]; then
-          echo Podspec version is updated.
-        else
-          echo Updating Podspec version...
-          PODSPEC_FILE="DebugSwift.podspec"
-          perl -pi -e "s/\(s\.version *= *'\)\([^']+\)\(.*\)/\1$VERSION\3/g" "$PODSPEC_FILE"
-          
-          echo Committing and pushing...
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          git add "$PODSPEC_FILE"
-          git commit -m 'feat: Update Podspec version'
-          git push
+        if [ -e DebugSwift.podspec ]; then
+          rm DebugSwift.podspec
         fi
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: artifact
 
     - run: "pod trunk push DebugSwift.podspec --allow-warnings"
       env:
