@@ -15,6 +15,7 @@
 		2EA3B5D62B2E632B001B59FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B5D42B2E632B001B59FE /* Main.storyboard */; };
 		2EA3B5D82B2E632C001B59FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B5D72B2E632C001B59FE /* Assets.xcassets */; };
 		2EA3B5DB2B2E632C001B59FE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B5D92B2E632C001B59FE /* LaunchScreen.storyboard */; };
+		2EB283802B59BFCE00F5399C /* PeiChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB2837F2B59BFCE00F5399C /* PeiChartView.swift */; };
 		F6536DD09E7457E3BC218603 /* Pods_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0FFDD17090A536EFD8207C6 /* Pods_Example.framework */; };
 /* End PBXBuildFile section */
 
@@ -33,6 +34,7 @@
 		2EA3B5D72B2E632C001B59FE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EA3B5DA2B2E632C001B59FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2EA3B5DC2B2E632C001B59FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2EB2837F2B59BFCE00F5399C /* PeiChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeiChartView.swift; sourceTree = "<group>"; };
 		316BB96A40AC6EDB92D2B332 /* Pods-Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example.debug.xcconfig"; path = "Target Support Files/Pods-Example/Pods-Example.debug.xcconfig"; sourceTree = "<group>"; };
 		E0FFDD17090A536EFD8207C6 /* Pods_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -54,6 +56,7 @@
 			children = (
 				2E932C3B2B31587800B9D1B8 /* LocationManager.swift */,
 				2E932C3E2B315E0A00B9D1B8 /* RequestManager.swift */,
+				2EB2837F2B59BFCE00F5399C /* PeiChartView.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -249,6 +252,7 @@
 				2E932C3C2B31587800B9D1B8 /* LocationManager.swift in Sources */,
 				2EA3B5D32B2E632B001B59FE /* ViewController.swift in Sources */,
 				2EA3B5CF2B2E632B001B59FE /* AppDelegate.swift in Sources */,
+				2EB283802B59BFCE00F5399C /* PeiChartView.swift in Sources */,
 				2EA3B5D12B2E632B001B59FE /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

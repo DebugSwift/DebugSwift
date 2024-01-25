@@ -16,12 +16,23 @@ class ViewController: UIViewController {
         }
     }
 
+    let speedTestManager = SpeedTestManager()
+
     @IBOutlet var text: UILabel!
 
     @IBAction func successMocked() {
         let random: Int = .random(in: 1...5)
         let url = "https://reqres.in/api/users?page=\(random)"
         RequestManager.mockRequest(url: url)
+
+        speedTestManager.testSpeed { result in
+            switch result {
+            case .success(let speed):
+                print(speed.formattedString())
+            case .failure(let error):
+                print("Speed test failed with error: \(error)")
+            }
+        }
     }
 
     @IBAction func failureRequest() {
