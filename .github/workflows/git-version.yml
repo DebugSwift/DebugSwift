@@ -163,6 +163,7 @@ jobs:
     needs: 
       - tag
       - release
+      - git_version
     runs-on: macos-latest
     steps:
     
