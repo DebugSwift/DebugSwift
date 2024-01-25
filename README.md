@@ -165,6 +165,24 @@ DebugSwift.App.customAction = {
 ![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/f9c23835-e17e-49a8-b971-4b9880403b15)
 
 ---
+### Hide Some Features
+If you prefer to selectively disable certain features, DebugSwift can now deactivate unnecessary functionalities. This can assist you in development across various environments.
+
+#### Usage
+
+```swift
+func application(
+    _: UIApplication,
+    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
+) -> Bool {
+    DebugSwift.setup(hideFeatures: [.network]) //Example usage for hide network
+    DebugSwift.show()
+
+    return true
+}
+```
+
+---
 
 ## Contributing
 
