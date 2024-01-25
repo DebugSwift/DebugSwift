@@ -185,7 +185,7 @@ jobs:
         else
           echo Updating Podspec version...
           PODSPEC_FILE="DebugSwift.podspec"
-          sed -i.bak "s/\(s\.version *= *'\)\([^']+\)\(.*\)/\1$VERSION\3/g" "$PODSPEC_FILE"
+          sed -i "s/\(s\.version *= *'\)\([^']+\)\(.*\)/\1$VERSION\3/g" "$PODSPEC_FILE"
           
           echo Committing and pushing...
           git config user.name "GitHub Actions"
