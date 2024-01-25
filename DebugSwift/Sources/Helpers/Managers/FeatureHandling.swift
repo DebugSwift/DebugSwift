@@ -57,9 +57,14 @@ final class FeatureHandling {
     }
     
     func hide(features: [DebugSwiftFeatures]?) {
+        var featureHandler: String = ""
         guard let features = features else { return DebugSwift.setup()}
+        
+        features.forEach {
+            featureHandler += $0.localized
+        }
+        FeatureHandling.shared.selectedFeatureHandler(viewController: featureHandler)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            var featureHandler: String = ""
             let tabBar = TabBarController()
             features.forEach {
                 guard let tabBarVC = tabBar.viewControllers else { return DebugSwift.setup()}
@@ -68,14 +73,9 @@ final class FeatureHandling {
                     tabBar.viewControllers?.remove(at: index)
                 }
             }
-            tabBar.viewControllers?.forEach {
-                featureHandler += $0.title ?? ""
-            }
-            FeatureHandling.shared.selectedFeatureHandler(viewController: featureHandler)
             FloatViewManager.setup(tabBar)
         }
         LocalizationManager.shared.loadBundle()
         LaunchTimeTracker.measureAppStartUpTime()
     }
 }
-
