@@ -83,6 +83,12 @@ jobs:
           git commit -m 'feat: Update Podspec version'
           git push
         fi
+        
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact
+        path: DebugSwift.podspec
 
   latest_release:
     name: Get latest version
@@ -140,7 +146,6 @@ jobs:
       - latest_release
       - tag
     runs-on: ubuntu-latest
-
     steps:
 
     - name: Checkout
@@ -166,10 +171,23 @@ jobs:
       - release
     runs-on: macos-latest
     steps:
+    
     - name: Checkout
       uses: actions/checkout@v3
-    - run: "pod trunk push DebugSwift.podspec" --allow-warnings
+
+    - name: Delete old Podspec
+      run: |
+        if [ -e DebugSwift.podspec ]; then
+          rm DebugSwift.podspec
+        fi
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: artifact
+
+    - run: "pod trunk push DebugSwift.podspec --allow-warnings"
       env:
         COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-    - run: "pod trunk me clean-sessions --all"
+    # - run: "pod trunk me clean-sessions --all"
     
