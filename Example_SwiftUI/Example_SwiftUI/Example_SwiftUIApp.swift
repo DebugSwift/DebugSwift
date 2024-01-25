@@ -29,6 +29,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // DebugSwift.setup(hideFeatures: [.interface, .app, .resources, .performance])
         DebugSwift.setup()
         DebugSwift.show()
+        DebugSwift.App.customControllers = {
+            self.additionalViewControllers()
+        }
         return true
+    }
+
+    func additionalViewControllers() -> [UIViewController] {
+        let viewController = UITableViewController()
+        viewController.title = "PURE"
+        return [viewController]
     }
 }

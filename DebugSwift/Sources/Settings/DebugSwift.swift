@@ -47,6 +47,7 @@ extension DebugSwift {
     public enum App {
         public static var customInfo: (() -> [CustomData])?
         public static var customAction: (() -> [CustomAction])?
+        public static var customControllers: (() -> [UIViewController])?
     }
 
     public enum Console {
