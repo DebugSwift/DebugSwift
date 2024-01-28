@@ -191,12 +191,14 @@ func application(
     _: UIApplication,
     didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
 ) -> Bool {
-    DebugSwift.setup(hideFeatures: [.network]) //Example usage for hide network
+    DebugSwift.setup(hideFeatures: [.resources,.performance,.interface,.app]) //Example usage for hide resources, performance, interface & app
     DebugSwift.show()
 
     return true
 }
 ```
+#### Results:
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/b59fb2ef-4709-4a96-bc08-23ee64969608" width="150" height="300">
 
 ---
 ### Change Appearance
