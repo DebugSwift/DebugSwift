@@ -5,7 +5,7 @@
 //  Created by Mochamad Rakha Luthfi Fahsya on 26/01/24.
 //
 
-import Foundation
+import UIKit
 
 public enum Appearance {
     case dark
