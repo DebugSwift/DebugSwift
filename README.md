@@ -218,11 +218,11 @@ func application(
 ```
 
 #### Results:
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/e4bfd72e-7b10-41f6-bb3b-b0e3e1d62fc7" width="100" height="200">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/03268977-e24d-4687-bd0a-bafbd117bfb1" width="100" height="200">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/a384f39e-b1e0-4be4-9410-4a989fecf3df" width="100" height="200">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/0c23a169-e8f2-4f67-8fdb-c7c746860967" width="100" height="200">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/7a74d92c-1fde-4212-8b3d-59d993aecb2c" width="100" height="200">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/e4bfd72e-7b10-41f6-bb3b-b0e3e1d62fc7" width="150" height="300">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/03268977-e24d-4687-bd0a-bafbd117bfb1" width="150" height="300">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/a384f39e-b1e0-4be4-9410-4a989fecf3df" width="150" height="300">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/0c23a169-e8f2-4f67-8fdb-c7c746860967" width="150" height="300">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/7a74d92c-1fde-4212-8b3d-59d993aecb2c" width="150" height="300">
 
 ---
 ### Hierarchy Tree (Snapshot & Hierarchy)
@@ -232,8 +232,8 @@ Utilize Visual Information from the iOS Hierarchy Tree to Gain Deeper Insights i
 Press and hold the circle button; then, Snapshot and Hierarchy will be displayed.
 
 #### Results:
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/74466993-d07d-4828-8d66-154ad645a100" width="100" height="200">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/7b70c0c3-7213-402c-912c-8afd79b4c1fb" width="100" height="200">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/74466993-d07d-4828-8d66-154ad645a100" width="150" height="300">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/7b70c0c3-7213-402c-912c-8afd79b4c1fb" width="150" height="300">
 
 ---
 ## Contributing
