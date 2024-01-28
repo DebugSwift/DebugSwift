@@ -13,7 +13,7 @@ final class NetworkViewController: BaseController {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = .black
+        tableView.backgroundColor = Theme.shared.setupBackgroundColor()
         tableView.estimatedRowHeight = 80
         return tableView
     }()
@@ -57,7 +57,7 @@ final class NetworkViewController: BaseController {
             image: .named("network"),
             tag: 0
         )
-        view.backgroundColor = .black
+        view.backgroundColor = Theme.shared.setupBackgroundColor()
         setupKeyboardDismissGesture()
         observers()
     }

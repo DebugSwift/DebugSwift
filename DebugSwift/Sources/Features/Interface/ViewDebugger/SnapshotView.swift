@@ -531,7 +531,7 @@ private func snapshotNode(snapshot: Snapshot) -> SCNNode {
     if let snapshot = snapshot.snapshotImage {
         material.diffuse.contents = snapshot
     } else {
-        material.diffuse.contents = UIColor.white
+        material.diffuse.contents = Theme.shared.setupFontColor()
     }
     shape.insertMaterial(material, at: .zero)
     return SCNNode(geometry: shape)

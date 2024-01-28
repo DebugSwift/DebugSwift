@@ -167,6 +167,20 @@ DebugSwift.App.customAction = {
 ![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/f9c23835-e17e-49a8-b971-4b9880403b15)
 
 ---
+### App Custom ViewControllers in Tab Bar
+
+```swift
+DebugSwift.App.customControllers = {
+    let controller1 = UITableViewController()
+    controller1.title = "Custom TableVC 1"
+
+    let controller2 = UITableViewController()
+    controller2.title = "Custom TableVC 2"
+    return [controller1, controller2]
+}
+```
+
+---
 ### Hide Some Features
 If you prefer to selectively disable certain features, DebugSwift can now deactivate unnecessary functionalities. This can assist you in development across various environments.
 
@@ -185,22 +199,43 @@ func application(
 ```
 
 ---
+### Change Appearance
+Dynamic Theme: Easily Change the Interface Appearance from Dark to Light, Customize According to Your Needs.
 
-### App Custom ViewControllers in Tab Bar
+#### Usage
 
 ```swift
-DebugSwift.App.customControllers = {
-    let controller1 = UITableViewController()
-    controller1.title = "Custom TableVC 1"
+func application(
+    _: UIApplication,
+    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
+) -> Bool {
+    DebugSwift.theme(appearance: .light)
+    DebugSwift.setup()
+    DebugSwift.show()
 
-    let controller2 = UITableViewController()
-    controller2.title = "Custom TableVC 2"
-    return [controller1, controller2]
+    return true
 }
 ```
 
----
+#### Results:
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/e4bfd72e-7b10-41f6-bb3b-b0e3e1d62fc7" width="100" height="200">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/03268977-e24d-4687-bd0a-bafbd117bfb1" width="100" height="200">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/a384f39e-b1e0-4be4-9410-4a989fecf3df" width="100" height="200">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/0c23a169-e8f2-4f67-8fdb-c7c746860967" width="100" height="200">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/7a74d92c-1fde-4212-8b3d-59d993aecb2c" width="100" height="200">
 
+---
+### Hierarchy Tree (Snapshot & Hierarchy)
+Utilize Visual Information from the iOS Hierarchy Tree to Gain Deeper Insights into the Layout and Relationships Among Elements in Your Application.
+
+#### Usage
+Press and hold the circle button; then, Snapshot and Hierarchy will be displayed.
+
+#### Results:
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/74466993-d07d-4828-8d66-154ad645a100" width="100" height="200">
+<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/7b70c0c3-7213-402c-912c-8afd79b4c1fb" width="100" height="200">
+
+---
 ## Contributing
 
 Contributions are welcome! If you have suggestions, improvements, or bug fixes, please submit a pull request. Let's make DebugSwift even more powerful together!

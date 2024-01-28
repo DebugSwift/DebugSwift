@@ -36,6 +36,10 @@ public enum DebugSwift {
     public static func toggle() {
         FloatViewManager.toggle()
     }
+    
+    public static func theme(appearance: Appearance) {
+        Theme.shared.setAppearance(appearance: appearance)
+    }
 }
 
 extension DebugSwift {

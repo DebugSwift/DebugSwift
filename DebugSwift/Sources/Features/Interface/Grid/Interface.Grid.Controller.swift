@@ -50,7 +50,7 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = .black
+        tableView.backgroundColor = Theme.shared.setupBackgroundColor()
         tableView.separatorStyle = .singleLine
 
         setupGridColors()
