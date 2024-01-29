@@ -58,6 +58,8 @@ final class CustomHTTPProtocol: URLProtocol {
     private var startTime = Date()
     private var response: HTTPURLResponse?
     private var error: Error?
+    private var prevUrl: URL?
+    private var prevStartTime: Date?
 
     private var threadOperator: ThreadOperator?
 
@@ -96,6 +98,8 @@ final class CustomHTTPProtocol: URLProtocol {
         Debug.print(request.requestId)
         threadOperator = ThreadOperator()
         startTime = Date()
+        prevUrl = request.url
+        prevStartTime = startTime
         let config = URLSessionConfiguration.default
         session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         dataTask = session?.dataTask(with: newRequest as URLRequest)
@@ -231,7 +235,11 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
             self.delegate?.customHTTPProtocol(self, didReceive: data)
             self.client?.urlProtocol(self, didLoad: data)
             self.didReceiveData = true
-            self.data = data
+            if prevUrl == response?.url && prevStartTime == startTime {
+                self.data.append(data)
+            } else {
+                self.data = data
+            }
         }
     }
 
