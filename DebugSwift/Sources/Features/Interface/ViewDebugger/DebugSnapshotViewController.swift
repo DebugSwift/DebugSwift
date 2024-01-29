@@ -33,7 +33,7 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
         self.delegate = delegate
 
         super.init(nibName: nil, bundle: nil)
-        view.backgroundColor = .white
+        view.backgroundColor = Theme.shared.setupBackgroundColor()
         navigationItem.title = snapshot.element.label.name
     }
 

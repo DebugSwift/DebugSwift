@@ -23,21 +23,21 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
     let cpuValueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: labelFontSize)
-        label.textColor = .white
+        label.textColor = Theme.shared.setupFontColor()
         return label
     }()
 
     let memoryValueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: labelFontSize)
-        label.textColor = .white
+        label.textColor = Theme.shared.setupFontColor()
         return label
     }()
 
     let fpsValueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: labelFontSize)
-        label.textColor = .white
+        label.textColor = Theme.shared.setupFontColor()
         return label
     }()
 
@@ -77,7 +77,7 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
             heightAnchor.constraint(equalToConstant: 30)
         ])
 
-        backgroundColor = .black
+        backgroundColor = Theme.shared.setupBackgroundColor()
 
         layer.borderWidth = 3.0 / UIScreen.main.scale
         layer.borderColor = UIColor.lightGray.cgColor

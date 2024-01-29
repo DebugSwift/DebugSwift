@@ -36,7 +36,7 @@ final class ResourcesFilesViewController: BaseTableController {
     private let backgroundLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .headline)
-        label.textColor = .white
+        label.textColor = Theme.shared.setupFontColor()
         label.textAlignment = .center
         label.numberOfLines = .zero
         return label
@@ -96,7 +96,7 @@ final class ResourcesFilesViewController: BaseTableController {
         if title == nil {
             title = "files-title".localized()
         }
-        view.backgroundColor = .black
+        view.backgroundColor = Theme.shared.setupBackgroundColor()
     }
 
     private func refreshLabels() {

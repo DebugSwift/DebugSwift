@@ -24,7 +24,7 @@ extension UITableViewCell {
 
         // Configure textLabel
         textLabel?.text = title
-        textLabel?.textColor = .white
+        textLabel?.textColor = Theme.shared.setupFontColor()
         textLabel?.numberOfLines = 0
         textLabel?.font = .systemFont(ofSize: 16 * scale)
 
@@ -40,7 +40,7 @@ extension UITableViewCell {
         // Configure accessoryView
         if let image {
             let disclosureIndicator = UIImageView(image: image)
-            disclosureIndicator.tintColor = .white
+            disclosureIndicator.tintColor = Theme.shared.setupFontColor()
             accessoryView = disclosureIndicator
         } else if let description {
             // Configure custom label for description

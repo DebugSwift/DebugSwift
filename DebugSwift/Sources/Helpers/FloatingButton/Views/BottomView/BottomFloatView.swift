@@ -49,7 +49,7 @@ class BottomFloatView: UIView {
         layer.mask = maskLayer
 
         tipsLab.font = UIFont.systemFont(ofSize: 15)
-        tipsLab.textColor = UIColor.white
+        tipsLab.textColor = Theme.shared.setupFontColor()
         tipsLab.textAlignment = NSTextAlignment.right
         addSubview(tipsLab)
     }
@@ -77,7 +77,7 @@ class BottomFloatView: UIView {
                 startAngle: 0, endAngle: CGFloat(Double.pi * 2.0), clockwise: true
             )
             circleB1.lineWidth = 3.0
-            UIColor.white.setStroke()
+            Theme.shared.setupFontColor().setStroke()
             circleB1.stroke()
         }
     }

@@ -12,7 +12,7 @@ final class InterfaceViewController: BaseController {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = .black
+        tableView.backgroundColor = Theme.shared.setupBackgroundColor()
         tableView.separatorColor = .darkGray
 
         return tableView
@@ -42,7 +42,7 @@ final class InterfaceViewController: BaseController {
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
 
-        view.backgroundColor = .black
+        view.backgroundColor = Theme.shared.setupBackgroundColor()
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -116,7 +116,6 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
         switch Features(rawValue: cell.tag) {
         case .colorize:
             UserInterfaceToolkit.colorizedViewBordersEnabled = isOn
-
         case .animations:
             UserInterfaceToolkit.shared.slowAnimationsEnabled = isOn
 

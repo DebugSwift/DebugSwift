@@ -25,7 +25,7 @@ final class NetworkTableViewCell: UITableViewCell {
             ofSize: 18,
             weight: .medium
         )
-        label.textColor = .white
+        label.textColor = Theme.shared.setupFontColor()
         label.backgroundColor = .clear
         label.textAlignment = .center
         label.layer.cornerRadius = 1
@@ -49,7 +49,7 @@ final class NetworkTableViewCell: UITableViewCell {
         label.font = .systemFont(
             ofSize: 13
         )
-        label.textColor = .white
+        label.textColor = Theme.shared.setupFontColor()
         label.numberOfLines = 0
         return label
     }()
@@ -60,7 +60,7 @@ final class NetworkTableViewCell: UITableViewCell {
             ofSize: 12,
             weight: .semibold
         )
-        label.textColor = .white
+        label.textColor = Theme.shared.setupFontColor()
         label.textColor = .green
         return label
     }()
@@ -84,7 +84,7 @@ final class NetworkTableViewCell: UITableViewCell {
 
         let textColor: UIColor
         if model.isSuccess {
-            textColor = .green
+            textColor = Theme.shared.setupStatusFetchColor()
         } else {
             textColor = .red
         }
@@ -105,8 +105,8 @@ final class NetworkTableViewCell: UITableViewCell {
         contentView.addSubview(descriptionLabel)
         contentView.addSubview(timestampLabel)
 
-        contentView.backgroundColor = .black
-        backgroundColor = .black
+        contentView.backgroundColor = Theme.shared.setupBackgroundColor()
+        backgroundColor = Theme.shared.setupBackgroundColor()
         selectionStyle = .none
     }
 

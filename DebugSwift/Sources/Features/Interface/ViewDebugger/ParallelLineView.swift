@@ -11,7 +11,7 @@ import CoreGraphics
 
 /// A view that draws one or more parallel vertical lines.
 final class ParallelLineView: UIView {
-    var lineColors = [UIColor.black]
+    var lineColors = [Theme.shared.setupBackgroundColor()]
 
     var lineWidth: CGFloat = 1.0 {
         didSet {
@@ -36,7 +36,7 @@ final class ParallelLineView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .white
+        backgroundColor = Theme.shared.setupBackgroundColor()
     }
 
     required init?(coder aDecoder: NSCoder) {
