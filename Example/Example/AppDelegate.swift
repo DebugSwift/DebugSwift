@@ -14,11 +14,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        // Remove comment below if you want to using light appearance
-        // DebugSwift.theme(appearance: .light)
-        // Remove comment below if you want to specific which features that will be removed. and don't forget to comment DebugSwift.setup()
-        // DebugSwift.setup(hideFeatures: [.resources, .network, .app, .interface, .interface])
+
+//        DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
         DebugSwift.setup()
+
+        /// setup .light or dark mode, `default is .dark`.
+        DebugSwift.theme(appearance: .light)
+
+        // MARK: - Custom Info
+
         DebugSwift.App.customInfo = {
             [
                 .init(
@@ -29,6 +33,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 )
             ]
         }
+
+        // MARK: - Custom Actions
 
         DebugSwift.App.customAction = {
             [
@@ -43,33 +49,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
+        // MARK: - Custom Controllers
+
         DebugSwift.App.customControllers = {
             let controller1 = UITableViewController()
             controller1.title = "Custom TableVC 1"
 
             let controller2 = UITableViewController()
             controller2.title = "Custom TableVC 2"
+
             return [controller1, controller2]
         }
 
-        // DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
+        // MARK: - Customs
+
+//        DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
 //        DebugSwift.Console.onlyLogs = ["DebugSwift"]
+
         DebugSwift.show()
 
         return true
     }
-
-    func application(
-        _: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession,
-        options _: UIScene.ConnectionOptions
-    ) -> UISceneConfiguration {
-        // Called when a new scene session is being created.
-        // Use this method to select a configuration to create the new scene with.
-        UISceneConfiguration(
-            name: "Default Configuration", sessionRole: connectingSceneSession.role
-        )
-    }
 }
+
+// MARK: - Enable motion detection example.
 
 extension UIWindow {
     open override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {

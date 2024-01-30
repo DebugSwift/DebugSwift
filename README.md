@@ -191,14 +191,14 @@ func application(
     _: UIApplication,
     didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
 ) -> Bool {
-    DebugSwift.setup(hideFeatures: [.resources,.performance,.interface,.app]) //Example usage for hide resources, performance, interface & app
+    DebugSwift.setup(hideFeatures: [.resources,.performance,.interface,.app]) // Example usage for hide resources, performance, interface & app
     DebugSwift.show()
 
     return true
 }
 ```
 #### Results:
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/b59fb2ef-4709-4a96-bc08-23ee64969608" width="150" height="300">
+![image9](https://github.com/DebugSwift/DebugSwift/assets/31082311/a1261022-c193-40c9-999f-80129b34dda0)
 
 ---
 ### Change Appearance
@@ -220,22 +220,29 @@ func application(
 ```
 
 #### Results:
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/e4bfd72e-7b10-41f6-bb3b-b0e3e1d62fc7" width="150" height="300">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/03268977-e24d-4687-bd0a-bafbd117bfb1" width="150" height="300">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/a384f39e-b1e0-4be4-9410-4a989fecf3df" width="150" height="300">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/0c23a169-e8f2-4f67-8fdb-c7c746860967" width="150" height="300">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/7a74d92c-1fde-4212-8b3d-59d993aecb2c" width="150" height="300">
+![image7](https://github.com/DebugSwift/DebugSwift/assets/31082311/457590ce-0070-4c7a-a588-cc0825af2738)
 
 ---
-### Hierarchy Tree (Snapshot & Hierarchy)
-Utilize Visual Information from the iOS Hierarchy Tree to Gain Deeper Insights into the Layout and Relationships Among Elements in Your Application.
 
-#### Usage
-Press and hold the circle button; then, Snapshot and Hierarchy will be displayed.
+### Enhanced Hierarchy Tree for Deeper Application Insights (Beta)
+Harness the Power of Visual Information within the iOS Hierarchy Tree to Uncover Intricate Layouts and Element Relationships in Your Application.
+
+#### How to Use
+Simply press and hold the circle button to reveal the Snapshot and Hierarchy for a comprehensive overview.
 
 #### Results:
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/74466993-d07d-4828-8d66-154ad645a100" width="150" height="300">
-<img src="https://github.com/DebugSwift/DebugSwift/assets/53569723/7b70c0c3-7213-402c-912c-8afd79b4c1fb" width="150" height="300">
+![image8](https://github.com/DebugSwift/DebugSwift/assets/31082311/fdc117a2-e9f9-4246-9e9e-fcae818b7ea1)
+
+#### Explore Additional Details
+
+Enhance your understanding by pressing and holding on a specific view to reveal information such as:
+- Class
+- Subviews
+- Background Color
+- Specific attributes based on the type (e.g., UILabel: Text, Font, and TextColor).
+
+#### Results:
+![image10](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e9c3a8b-3d26-4b7c-b671-1894cb32e562)
 
 ---
 ## Contributing
@@ -248,6 +255,6 @@ DebugSwift is licensed under the MIT License - see the [LICENSE](LICENSE) file f
 
 ## References
 
-[InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger)
-[CocoaDebug](https://github.com/CocoaDebug/CocoaDebug)
-[DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)
+- [InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger) 
+- [CocoaDebug](https://github.com/CocoaDebug/CocoaDebug) 
+- [DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)
