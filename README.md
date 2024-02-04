@@ -245,9 +245,20 @@ Enhance your understanding by pressing and holding on a specific view to reveal 
 ![image10](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e9c3a8b-3d26-4b7c-b671-1894cb32e562)
 
 ---
+
+## Contributors
+
+Our contributors have made this project possible. Thank you!
+
+<a href="https://github.com/DebugSwift/DebugSwift/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=DebugSwift/DebugSwift" />
+</a>
+
 ## Contributing
 
 Contributions are welcome! If you have suggestions, improvements, or bug fixes, please submit a pull request. Let's make DebugSwift even more powerful together!
+
+---
 
 ## License
 
