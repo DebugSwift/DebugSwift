@@ -40,6 +40,7 @@ class Theme {
     func setAppearance(appearance: Appearance?) {
         let defaultAppearance = appearance
         self.appearance = defaultAppearance == .dark ? .dark : .light
+        setupInterfaceStyle()
         setupBackgroundColor()
         setupFontColor()
         setupStatusFetchColor()
