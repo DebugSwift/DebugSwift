@@ -21,8 +21,8 @@ class Theme {
     var statusFetchColor: UIColor = .green
     var appearance: Appearance = .dark
     
-    func setupInterfaceStyle() -> UIUserInterfaceStyle {
-        return appearance == .dark ? .dark : .light
+    func setupInterfaceStyle() {
+        interfaceStyleColor = appearance == .dark ? .dark : .light
     }
     
     func setupBackgroundColor() {

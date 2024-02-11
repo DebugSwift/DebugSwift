@@ -26,7 +26,7 @@ final class MenuSegmentedControlTableViewCell: UITableViewCell {
             self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged
         )
         if #available(iOS 13.0, *) {
-            segmentedControl.overrideUserInterfaceStyle = Theme.shared.setupInterfaceStyle()
+            segmentedControl.overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
         }
         return segmentedControl
     }()

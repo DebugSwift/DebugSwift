@@ -28,7 +28,7 @@ final class MenuSwitchTableViewCell: UITableViewCell {
         switchControl.addTarget(self, action: #selector(switchValueChanged(_:)), for: .valueChanged)
 
         if #available(iOS 13.0, *) {
-            switchControl.overrideUserInterfaceStyle = Theme.shared.setupInterfaceStyle()
+            switchControl.overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
         }
         switchControl.thumbTintColor = .white
 
