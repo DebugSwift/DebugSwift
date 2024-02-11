@@ -11,7 +11,7 @@ final class CrashDetailViewController: BaseController {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.setupBackgroundColor()
+        tableView.backgroundColor = Theme.shared.backgroundColor
         tableView.separatorColor = .darkGray
 
         return tableView
@@ -45,7 +45,7 @@ final class CrashDetailViewController: BaseController {
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
 
-        view.backgroundColor = Theme.shared.setupBackgroundColor()
+        view.backgroundColor = Theme.shared.backgroundColor
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([

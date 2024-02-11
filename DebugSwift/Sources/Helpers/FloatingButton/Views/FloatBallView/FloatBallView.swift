@@ -113,7 +113,7 @@ extension FloatBallView {
         let label = UILabel()
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = Theme.shared.setupFontColor()
+        label.textColor = Theme.shared.fontColor
         label.font = .systemFont(ofSize: 8)
         label.text = .init(0)
         ballView.addSubview(label)
@@ -127,9 +127,9 @@ extension FloatBallView {
     private func buildBallView() -> UIView {
         let padding: CGFloat = (DSFloatChat.ballRect.width - DSFloatChat.ballViewSize.width) / 2
         let view = UIView()
-        view.backgroundColor = Theme.shared.setupBackgroundColor()
+        view.backgroundColor = Theme.shared.backgroundColor
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.borderColor = Theme.shared.setupFontColor().cgColor
+        view.layer.borderColor = Theme.shared.fontColor.cgColor
         view.layer.borderWidth = 0.6
 
         addSubview(view)

@@ -24,7 +24,7 @@ final class ResourcesGenericController: BaseTableController {
     private let backgroundLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .headline)
-        label.textColor = Theme.shared.setupFontColor()
+        label.textColor = Theme.shared.fontColor
         label.textAlignment = .center
         label.numberOfLines = .zero
         return label
@@ -54,7 +54,7 @@ final class ResourcesGenericController: BaseTableController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = Theme.shared.setupBackgroundColor()
+        tableView.backgroundColor = Theme.shared.backgroundColor
         guard viewModel.numberOfItems() != .zero, viewModel.isDeleteEnable else { return }
         addRightBarButton(
             image: .named("trash.circle", default: "delete.action".localized()),

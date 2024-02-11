@@ -17,7 +17,7 @@ final class MenuSwitchTableViewCell: UITableViewCell {
 
     lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Theme.shared.setupFontColor()
+        label.textColor = Theme.shared.fontColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -49,8 +49,8 @@ final class MenuSwitchTableViewCell: UITableViewCell {
     func setupViews() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(valueSwitch)
-        contentView.backgroundColor = Theme.shared.setupBackgroundColor()
-        backgroundColor = Theme.shared.setupBackgroundColor()
+        contentView.backgroundColor = Theme.shared.backgroundColor
+        backgroundColor = Theme.shared.backgroundColor
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
