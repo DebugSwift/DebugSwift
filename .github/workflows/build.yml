@@ -5,8 +5,6 @@ on:
     branches:
       - "main"
       - "develop"
-env:
-  DEVELOPER_DIR: /Applications/Xcode_15.1.0.app/Contents/Developer
 
 jobs:
   build:
@@ -20,7 +18,7 @@ jobs:
     - name: Set up Xcode
       uses: actions/checkout@v3
       with:
-        xcode-version: '15.1'
+        xcode-version: '15.2'
 
     - name: Install CocoaPods
       run: |
