@@ -128,7 +128,7 @@ final class ViewElement: NSObject, Element {
             // Additional UIButton information
             var buttonInfo = """
             Title: \(button.title(for: .normal) ?? "No title")
-            Title Color: \((button.titleColor(for: .normal) ?? Theme.shared.setupBackgroundColor()).hexString)
+            Title Color: \((button.titleColor(for: .normal) ?? Theme.shared.backgroundColor).hexString)
             """
 
             // Check if the button has an image

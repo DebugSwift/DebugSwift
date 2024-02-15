@@ -17,7 +17,7 @@ final class MenuSwitchTableViewCell: UITableViewCell {
 
     lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Theme.shared.setupFontColor()
+        label.textColor = Theme.shared.fontColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -28,7 +28,7 @@ final class MenuSwitchTableViewCell: UITableViewCell {
         switchControl.addTarget(self, action: #selector(switchValueChanged(_:)), for: .valueChanged)
 
         if #available(iOS 13.0, *) {
-            switchControl.overrideUserInterfaceStyle = Theme.shared.setupInterfaceStyle()
+            switchControl.overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
         }
         switchControl.thumbTintColor = .white
 
@@ -49,8 +49,8 @@ final class MenuSwitchTableViewCell: UITableViewCell {
     func setupViews() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(valueSwitch)
-        contentView.backgroundColor = Theme.shared.setupBackgroundColor()
-        backgroundColor = Theme.shared.setupBackgroundColor()
+        contentView.backgroundColor = Theme.shared.backgroundColor
+        backgroundColor = Theme.shared.backgroundColor
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),

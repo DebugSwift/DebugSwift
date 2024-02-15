@@ -17,7 +17,7 @@ final class NetworkViewControllerDetail: BaseController {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.setupBackgroundColor()
+        tableView.backgroundColor = Theme.shared.backgroundColor
 
         return tableView
     }()
@@ -98,7 +98,7 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
             NetworkTableViewCellDetail.self,
             forCellReuseIdentifier: "NetworkCellDetail"
         )
-        view.backgroundColor = Theme.shared.setupBackgroundColor()
+        view.backgroundColor = Theme.shared.backgroundColor
 
         // Configure constraints for the tableView
         NSLayoutConstraint.activate([
@@ -130,7 +130,7 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
             return nil
         } else {
             let label = UILabel()
-            label.backgroundColor = Theme.shared.setupBackgroundColor()
+            label.backgroundColor = Theme.shared.backgroundColor
 
             label.text = "    \(_infos[section - 1].title)"
             label.textColor = .gray

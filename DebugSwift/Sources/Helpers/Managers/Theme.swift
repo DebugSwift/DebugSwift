@@ -14,33 +14,35 @@ public enum Appearance {
 
 class Theme {
     static var shared = Theme()
-    
+
+    var interfaceStyleColor: UIUserInterfaceStyle = .dark
+    var backgroundColor: UIColor = .black
+    var fontColor: UIColor = .white
+    var statusFetchColor: UIColor = .green
     var appearance: Appearance = .dark
-    var fontColor: String = ""
-    var backgroundColor: String = ""
-    
-    func setupInterfaceStyle() -> UIUserInterfaceStyle {
-        return appearance == .dark ? .dark : .light
+
+    func setupInterfaceStyle() {
+        interfaceStyleColor = appearance == .dark ? .dark : .light
     }
-    
-    func setupBackgroundColor() -> UIColor {
-        return appearance == .dark ? .black : .white
+
+    func setupBackgroundColor() {
+        backgroundColor = appearance == .dark ? .black : .white
     }
-    
-    func setupFontColor() -> UIColor {
-        return appearance == .dark ? .white : .black
+
+    func setupFontColor() {
+        fontColor = appearance == .dark ? .white : .black
     }
-    
-    func setupStatusFetchColor() -> UIColor {
-        return appearance == .dark ? .green : UIColor(hexString: "#32CD32") ?? .green
+
+    func setupStatusFetchColor() {
+        statusFetchColor = appearance == .dark ? .green : UIColor(hexString: "#32CD32") ?? .green
     }
-    
+
     func setAppearance(appearance: Appearance?) {
         let defaultAppearance = appearance
         self.appearance = defaultAppearance == .dark ? .dark : .light
-    }
-    
-    func setCustomAppearance(backgroundColor: String, fontColor: String) {
-        
+        setupInterfaceStyle()
+        setupBackgroundColor()
+        setupFontColor()
+        setupStatusFetchColor()
     }
 }
