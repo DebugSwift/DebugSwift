@@ -37,7 +37,7 @@ final class SnapshotViewConfiguration: NSObject {
 
     /// The scene's background color, which gets rendered behind
     /// all content.
-    var backgroundColor = Theme.shared.setupBackgroundColor()
+    var backgroundColor = UIColor.white
 
     /// The color of the highlight overlaid on top of a UI element when it
     /// is selected.

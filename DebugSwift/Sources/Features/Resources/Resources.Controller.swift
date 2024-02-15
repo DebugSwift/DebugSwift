@@ -12,7 +12,7 @@ final class ResourcesViewController: BaseController {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.setupBackgroundColor()
+        tableView.backgroundColor = Theme.shared.backgroundColor
         tableView.separatorColor = .darkGray
 
         return tableView

@@ -40,9 +40,9 @@ final class DebuggerDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = Theme.shared.setupBackgroundColor()
-        textView.backgroundColor = Theme.shared.setupBackgroundColor()
-        textView.textColor = Theme.shared.setupFontColor()
+        view.backgroundColor = Theme.shared.backgroundColor
+        textView.backgroundColor = Theme.shared.backgroundColor
+        textView.textColor = Theme.shared.fontColor
 
         // Adiciona a UIImageView
         view.addSubview(imageView)

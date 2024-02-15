@@ -58,8 +58,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             MenuSegmentedControlTableViewCell.self, forCellReuseIdentifier: segmentedControlCellIdentifier
         )
         tableView.register(MenuChartTableViewCell.self, forCellReuseIdentifier: chartCellIdentifier)
-        tableView.backgroundColor = Theme.shared.setupBackgroundColor()
-        view.backgroundColor = Theme.shared.setupBackgroundColor()
+        tableView.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = Theme.shared.backgroundColor
     }
 
     // MARK: - Updating section
@@ -220,9 +220,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             tableView.dequeueReusableCell(withIdentifier: valueCellIdentifier)
                 ?? UITableViewCell(style: .value1, reuseIdentifier: valueCellIdentifier)
         cell.selectionStyle = .none
-        cell.backgroundColor = Theme.shared.setupBackgroundColor()
-        cell.textLabel?.textColor = Theme.shared.setupFontColor()
-        cell.detailTextLabel?.textColor = Theme.shared.setupFontColor()
+        cell.backgroundColor = Theme.shared.backgroundColor
+        cell.textLabel?.textColor = Theme.shared.fontColor
+        cell.detailTextLabel?.textColor = Theme.shared.fontColor
         return cell
     }
 

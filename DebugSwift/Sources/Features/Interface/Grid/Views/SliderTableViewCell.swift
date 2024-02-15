@@ -17,14 +17,14 @@ protocol SliderTableViewCellDelegate: AnyObject {
 final class SliderTableViewCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Theme.shared.setupFontColor()
+        label.textColor = Theme.shared.fontColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     let valueLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Theme.shared.setupFontColor()
+        label.textColor = Theme.shared.fontColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -51,7 +51,7 @@ final class SliderTableViewCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(valueLabel)
         contentView.addSubview(slider)
-        contentView.backgroundColor = Theme.shared.setupBackgroundColor()
+        contentView.backgroundColor = Theme.shared.backgroundColor
 
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),

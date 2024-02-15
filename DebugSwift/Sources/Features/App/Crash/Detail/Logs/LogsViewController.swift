@@ -14,7 +14,7 @@ final class LogsViewController: BaseController {
     private let textView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.textColor = Theme.shared.setupFontColor()
+        textView.textColor = Theme.shared.fontColor
         textView.font = .systemFont(ofSize: 10)
         return textView
     }()
@@ -37,7 +37,7 @@ final class LogsViewController: BaseController {
 
     private func setupUI() {
         title = "logs".localized()
-        view.backgroundColor = Theme.shared.setupBackgroundColor()
+        view.backgroundColor = Theme.shared.backgroundColor
 
         view.addSubview(textView)
 
