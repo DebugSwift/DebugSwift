@@ -27,7 +27,7 @@ final class ChartView: UIView {
         }
     }
 
-    var axisColor: UIColor = .white {
+    var axisColor: UIColor = Theme.shared.fontColor {
         didSet {
             setNeedsDisplay()
         }
@@ -88,6 +88,9 @@ final class ChartView: UIView {
 
         // Clear previous drawings
         context.clear(rect)
+        
+        context.setFillColor(Theme.shared.backgroundColor.cgColor)
+        context.fill(rect)
 
         // Set up coordinate system
         let xAxisHeight: CGFloat = 30.0
@@ -182,13 +185,13 @@ final class ChartView: UIView {
             // Draw Y-axis line only up to the top of the graph
             context.move(to: CGPoint(x: x, y: y))
             context.addLine(to: CGPoint(x: x, y: graphRect.minY))
-            context.setStrokeColor(UIColor.white.cgColor)
+            context.setStrokeColor(Theme.shared.fontColor.cgColor)
             context.setLineWidth(1.0)
             context.strokePath()
 
             let formattedText = String(format: markedValueFormat, markedValue)
             let attributes: [NSAttributedString.Key: Any] = [
-                .foregroundColor: UIColor.white,
+                .foregroundColor: Theme.shared.fontColor,
                 .font: UIFont.systemFont(ofSize: 12)
             ]
             let textSize = formattedText.size(withAttributes: attributes)

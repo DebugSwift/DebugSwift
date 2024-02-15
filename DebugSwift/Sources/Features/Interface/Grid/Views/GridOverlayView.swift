@@ -35,7 +35,7 @@ final class GridOverlayView: TopLevelViewWrapper {
 
     var colorScheme: GridOverlayColorScheme? = .init(
         primaryColor: .red,
-        secondaryColor: .white
+        secondaryColor: Theme.shared.fontColor
     ) {
         didSet {
             setNeedsDisplay()
@@ -79,7 +79,7 @@ final class GridOverlayView: TopLevelViewWrapper {
     private func newMiddlePartLabel() -> UILabel {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: GridOverlayViewLabelFontSize)
-        label.textColor = .white
+        label.textColor = Theme.shared.fontColor
         label.backgroundColor = .purple
         label.textAlignment = .center
         return label

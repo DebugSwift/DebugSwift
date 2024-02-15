@@ -13,7 +13,7 @@ extension UIImage {
         if #available(iOS 13.0, *) {
             return UIImage.init(systemName: imageName)
         } else {
-            return `default`?.image(with: [.foregroundColor: UIColor.white])
+            return `default`?.image(with: [.foregroundColor: Theme.shared.fontColor])
         }
     }
 
@@ -29,7 +29,7 @@ extension UIImage {
         self.draw(in: rect, blendMode: .normal, alpha: 1.0)
 
         // Set the stroke color and width
-        context.setStrokeColor(UIColor.black.cgColor)
+        context.setStrokeColor(Theme.shared.fontColor.cgColor)
         let strokeWidth = Double(cgImage.height) * 0.01
         context.setLineWidth(strokeWidth)
 

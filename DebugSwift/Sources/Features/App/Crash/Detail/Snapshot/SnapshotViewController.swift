@@ -36,7 +36,7 @@ final class SnapshotViewController: BaseController {
 
     private func setupUI() {
         title = "snapshot".localized()
-        view.backgroundColor = .black
+        view.backgroundColor = Theme.shared.backgroundColor
 
         view.addSubview(imageView)
 

@@ -167,25 +167,6 @@ DebugSwift.App.customAction = {
 ![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/f9c23835-e17e-49a8-b971-4b9880403b15)
 
 ---
-### Hide Some Features
-If you prefer to selectively disable certain features, DebugSwift can now deactivate unnecessary functionalities. This can assist you in development across various environments.
-
-#### Usage
-
-```swift
-func application(
-    _: UIApplication,
-    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
-) -> Bool {
-    DebugSwift.setup(hideFeatures: [.network]) //Example usage for hide network
-    DebugSwift.show()
-
-    return true
-}
-```
-
----
-
 ### App Custom ViewControllers in Tab Bar
 
 ```swift
@@ -200,10 +181,84 @@ DebugSwift.App.customControllers = {
 ```
 
 ---
+### Hide Some Features
+If you prefer to selectively disable certain features, DebugSwift can now deactivate unnecessary functionalities. This can assist you in development across various environments.
+
+#### Usage
+
+```swift
+func application(
+    _: UIApplication,
+    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
+) -> Bool {
+    DebugSwift.setup(hideFeatures: [.resources,.performance,.interface,.app]) // Example usage for hide resources, performance, interface & app
+    DebugSwift.show()
+
+    return true
+}
+```
+#### Results:
+![image9](https://github.com/DebugSwift/DebugSwift/assets/31082311/a1261022-c193-40c9-999f-80129b34dda0)
+
+---
+### Change Appearance
+Dynamic Theme: Easily Change the Interface Appearance from Dark to Light, Customize According to Your Needs.
+
+#### Usage
+
+```swift
+func application(
+    _: UIApplication,
+    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
+) -> Bool {
+    DebugSwift.theme(appearance: .light)
+    DebugSwift.setup()
+    DebugSwift.show()
+
+    return true
+}
+```
+
+#### Results:
+![image7](https://github.com/DebugSwift/DebugSwift/assets/31082311/457590ce-0070-4c7a-a588-cc0825af2738)
+
+---
+
+### Enhanced Hierarchy Tree for Deeper Application Insights (Beta)
+Harness the Power of Visual Information within the iOS Hierarchy Tree to Uncover Intricate Layouts and Element Relationships in Your Application.
+
+#### How to Use
+Simply press and hold the circle button to reveal the Snapshot and Hierarchy for a comprehensive overview.
+
+#### Results:
+![image8](https://github.com/DebugSwift/DebugSwift/assets/31082311/fdc117a2-e9f9-4246-9e9e-fcae818b7ea1)
+
+#### Explore Additional Details
+
+Enhance your understanding by pressing and holding on a specific view to reveal information such as:
+- Class
+- Subviews
+- Background Color
+- Specific attributes based on the type (e.g., UILabel: Text, Font, and TextColor).
+
+#### Results:
+![image10](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e9c3a8b-3d26-4b7c-b671-1894cb32e562)
+
+---
+
+## Contributors
+
+Our contributors have made this project possible. Thank you!
+
+<a href="https://github.com/DebugSwift/DebugSwift/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=DebugSwift/DebugSwift" />
+</a>
 
 ## Contributing
 
 Contributions are welcome! If you have suggestions, improvements, or bug fixes, please submit a pull request. Let's make DebugSwift even more powerful together!
+
+---
 
 ## License
 
@@ -211,6 +266,6 @@ DebugSwift is licensed under the MIT License - see the [LICENSE](LICENSE) file f
 
 ## References
 
-[InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger)
-[CocoaDebug](https://github.com/CocoaDebug/CocoaDebug)
-[DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)
+- [InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger) 
+- [CocoaDebug](https://github.com/CocoaDebug/CocoaDebug) 
+- [DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)

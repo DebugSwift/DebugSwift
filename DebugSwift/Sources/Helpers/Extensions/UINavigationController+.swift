@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 extension UINavigationController {
-    func setBackgroundColor(color: UIColor = .black) {
+    func setBackgroundColor(color: UIColor = Theme.shared.backgroundColor) {
         if #available(iOS 13.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithTransparentBackground()
@@ -34,7 +34,7 @@ extension UINavigationController {
 }
 
 extension UITabBar {
-    func setBackgroundColor(color: UIColor = .black) {
+    func setBackgroundColor(color: UIColor = Theme.shared.backgroundColor) {
         if #available(iOS 13.0, *) {
             let appearance = UITabBarAppearance()
             appearance.configureWithTransparentBackground()

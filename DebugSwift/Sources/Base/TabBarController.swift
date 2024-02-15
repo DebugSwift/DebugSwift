@@ -39,12 +39,12 @@ class TabBarController: UITabBarController {
             UINavigationController(rootViewController: $0)
         }
 
-        tabBar.tintColor = .white
+        tabBar.tintColor = Theme.shared.fontColor
         tabBar.unselectedItemTintColor = .gray
-        tabBar.setBackgroundColor(color: .black)
+        tabBar.setBackgroundColor(color: Theme.shared.backgroundColor)
         tabBar.addTopBorderWithColor(color: .gray, thickness: 0.3)
         if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = .dark
+            overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
         }
     }
 
@@ -55,7 +55,7 @@ class TabBarController: UITabBarController {
                 "arrow.down.right.and.arrow.up.left",
                 default: "close".localized()
             ),
-            tintColor: .white
+            tintColor: Theme.shared.fontColor
         ) { [weak self] in
             self?.closeButtonTapped()
         }

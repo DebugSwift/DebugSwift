@@ -26,7 +26,7 @@ final class MenuSegmentedControlTableViewCell: UITableViewCell {
             self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged
         )
         if #available(iOS 13.0, *) {
-            segmentedControl.overrideUserInterfaceStyle = .dark
+            segmentedControl.overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
         }
         return segmentedControl
     }()
@@ -44,8 +44,8 @@ final class MenuSegmentedControlTableViewCell: UITableViewCell {
     func setupViews() {
         selectionStyle = .none
         contentView.addSubview(segmentedControl)
-        contentView.backgroundColor = .black
-        backgroundColor = .black
+        contentView.backgroundColor = Theme.shared.backgroundColor
+        backgroundColor = Theme.shared.backgroundColor
         NSLayoutConstraint.activate([
             segmentedControl.leadingAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16

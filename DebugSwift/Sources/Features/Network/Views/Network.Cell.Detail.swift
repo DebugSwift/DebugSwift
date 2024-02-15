@@ -17,7 +17,7 @@ final class NetworkTableViewCellDetail: UITableViewCell {
         )
         textView.isScrollEnabled = false
 
-        textView.textColor = .white
+        textView.textColor = Theme.shared.fontColor
         textView.backgroundColor = .clear
         textView.isSelectable = true
         textView.isEditable = false
@@ -51,11 +51,11 @@ final class NetworkTableViewCellDetail: UITableViewCell {
         let highlightedWords = searched.split(separator: " ")
         let fullRange = NSRange(location: 0, length: (description as NSString).length)
 
-        attributedString.addAttribute(.foregroundColor, value: UIColor.white, range: fullRange)
+        attributedString.addAttribute(.foregroundColor, value: Theme.shared.fontColor, range: fullRange)
 
         for word in highlightedWords {
             let range = (description as NSString).range(of: String(word), options: .caseInsensitive)
-            attributedString.addAttribute(.foregroundColor, value: UIColor.black, range: range)
+            attributedString.addAttribute(.foregroundColor, value: Theme.shared.backgroundColor, range: range)
             attributedString.addAttribute(.backgroundColor, value: UIColor.yellow, range: range)
             attributedString.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: 14), range: range)
         }
@@ -67,8 +67,8 @@ final class NetworkTableViewCellDetail: UITableViewCell {
         setupViews()
         setupConstraints()
 
-        contentView.backgroundColor = .black
-        backgroundColor = .black
+        contentView.backgroundColor = Theme.shared.backgroundColor
+        backgroundColor = Theme.shared.backgroundColor
     }
 
     func setupViews() {

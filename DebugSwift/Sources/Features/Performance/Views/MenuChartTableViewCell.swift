@@ -30,8 +30,8 @@ final class MenuChartTableViewCell: UITableViewCell {
         selectionStyle = .none
         // Add and configure the chart view
         contentView.addSubview(chartView)
-        contentView.backgroundColor = .black
-        backgroundColor = .black
+        contentView.backgroundColor = Theme.shared.backgroundColor
+        backgroundColor = Theme.shared.backgroundColor
         chartView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             chartView.topAnchor.constraint(equalTo: topAnchor, constant: 28),

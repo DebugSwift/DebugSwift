@@ -58,6 +58,8 @@ final class CustomHTTPProtocol: URLProtocol {
     private var startTime = Date()
     private var response: HTTPURLResponse?
     private var error: Error?
+    private var prevUrl: URL?
+    private var prevStartTime: Date?
 
     private var threadOperator: ThreadOperator?
 
@@ -96,6 +98,8 @@ final class CustomHTTPProtocol: URLProtocol {
         Debug.print(request.requestId)
         threadOperator = ThreadOperator()
         startTime = Date()
+        prevUrl = request.url
+        prevStartTime = startTime
         let config = URLSessionConfiguration.default
         session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         dataTask = session?.dataTask(with: newRequest as URLRequest)
@@ -151,6 +155,11 @@ final class CustomHTTPProtocol: URLProtocol {
 
         if let response {
             model.responseHeaderFields = response.allHeaderFields.convertKeysToString()
+            model.responseHeaderFields?.updateValue(getCachePolicy(value: request.cachePolicy.rawValue), forKey: "Cache-Policy")
+        }
+        
+        if let responseDate = model.endTime {
+            model.responseHeaderFields?.updateValue(responseDate, forKey: "Response-Date")
         }
 
         if response?.mimeType == nil {
@@ -226,7 +235,11 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
             self.delegate?.customHTTPProtocol(self, didReceive: data)
             self.client?.urlProtocol(self, didLoad: data)
             self.didReceiveData = true
-            self.data = data
+            if prevUrl == response?.url && prevStartTime == startTime {
+                self.data.append(data)
+            } else {
+                self.data = data
+            }
         }
     }
 
@@ -240,6 +253,25 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
 
         Debug.print("Retry download...")
         return true
+    }
+    
+    private func getCachePolicy(value: UInt?) -> String {
+        switch value {
+        case 0:
+            return "useProtocolCachePolicy"
+        case 1:
+            return "reloadIgnoringLocalCacheData"
+        case 4:
+            return "reloadIgnoringLocalAndRemoteCacheData"
+        case 3:
+            return "returnCacheDataDontLoad"
+        case 2:
+            return "returnCacheDataElseLoad"
+        case 5:
+            return "reloadRevalidatingCacheData"
+        default:
+            return "reloadIgnoringCacheData"
+        }
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
