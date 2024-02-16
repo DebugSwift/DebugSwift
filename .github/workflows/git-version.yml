@@ -34,6 +34,11 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0
       with:
