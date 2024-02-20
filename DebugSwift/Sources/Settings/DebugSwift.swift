@@ -59,7 +59,7 @@ extension DebugSwift {
         public static var onlyLogs = [String]()
     }
 
-    enum Debugger {
+    public enum Debugger {
         @UserDefaultAccess(key: .debugger, defaultValue: true)
         public static var enable: Bool
     }
