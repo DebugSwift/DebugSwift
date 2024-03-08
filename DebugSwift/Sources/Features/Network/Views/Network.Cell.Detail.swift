@@ -38,14 +38,14 @@ final class NetworkTableViewCellDetail: UITableViewCell {
         setupUI()
     }
 
-    func setup(_ description: String, _ searched: String?, _ index: Int) {
+    func setup(_ description: String, _ searched: String?) {
         details.text = description
 
-        setupHighlighted(description, searched, index)
+        setupHighlighted(description, searched)
     }
 
-    private func setupHighlighted(_ description: String, _ searched: String?, _ index: Int) {
-        guard let searched = searched, !searched.isEmpty else {
+    private func setupHighlighted(_ description: String, _ searched: String?) {
+        guard let searched, !searched.isEmpty else {
             return
         }
 
@@ -54,8 +54,6 @@ final class NetworkTableViewCellDetail: UITableViewCell {
         let fullRange = NSRange(location: 0, length: (description as NSString).length)
 
         attributedString.addAttribute(.foregroundColor, value: Theme.shared.fontColor, range: fullRange)
-
-        var wordIndex = 0
 
         for word in highlightedWords {
             var searchRange = fullRange
@@ -67,18 +65,14 @@ final class NetworkTableViewCellDetail: UITableViewCell {
                 )
 
                 if searchRange.location != NSNotFound {
-                    if wordIndex == index {
-                        attributedString.addAttribute(.foregroundColor, value: Theme.shared.backgroundColor, range: searchRange)
-                        attributedString.addAttribute(.backgroundColor, value: UIColor.yellow, range: searchRange)
-                        attributedString.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: 14), range: searchRange)
-                    }
+                    attributedString.addAttribute(.foregroundColor, value: Theme.shared.backgroundColor, range: searchRange)
+                    attributedString.addAttribute(.backgroundColor, value: UIColor.yellow, range: searchRange)
+                    attributedString.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: 14), range: searchRange)
 
                     searchRange = NSRange(
                         location: searchRange.location + searchRange.length,
                         length: (description as NSString).length - (searchRange.location + searchRange.length)
                     )
-
-                    wordIndex += 1
                 }
             }
         }

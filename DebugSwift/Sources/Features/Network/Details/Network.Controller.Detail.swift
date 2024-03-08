@@ -13,19 +13,6 @@ final class NetworkViewControllerDetail: BaseController {
     private var model: HttpModel
     private var infos: [Config]
     private var filteredInfos: [Config] = []
-    private var searchIndex: Int = .zero {
-        didSet {
-            customBackButton.isEnabled = searchIndex == .zero
-            customForwardButton.isEnabled = true
-        }
-    }
-
-    private var numberFounded: Int {
-        let searchText = searchController.searchBar.text ?? ""
-        return _infos.filter { info in
-            info.description.range(of: searchText, options: .caseInsensitive) != nil
-        }.count
-    }
 
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -43,23 +30,6 @@ final class NetworkViewControllerDetail: BaseController {
         return searchController
     }()
 
-    private lazy var customBackButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(.named("chevron.left", default: "←"), for: .normal)
-        button.tintColor = .white
-        button.isEnabled = false
-        button.addTarget(self, action: #selector(customBackButtonTapped), for: .touchUpInside)
-        return button
-    }()
-
-    private lazy var customForwardButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(.named("chevron.right", default: "→"), for: .normal)
-        button.tintColor = .white
-        button.addTarget(self, action: #selector(customForwardButtonTapped), for: .touchUpInside)
-        return button
-    }()
-
     init(model: HttpModel) {
         self.model = model
         self.infos = .init(model: model)
@@ -72,13 +42,11 @@ final class NetworkViewControllerDetail: BaseController {
 
         setupTableView()
         setupNavigation()
-        setupSearchNav(hide: true)
         setupSearch()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        setupSearchNav(hide: true)
     }
 
     private func setupNavigation() {
@@ -106,12 +74,6 @@ final class NetworkViewControllerDetail: BaseController {
         )
     }
 
-    private func setupSearchNav(hide: Bool) {
-        let customBackButtonItem = UIBarButtonItem(customView: customBackButton)
-        let customForwardButtonItem = UIBarButtonItem(customView: customForwardButton)
-        tabBarController?.navigationItem.leftBarButtonItems = hide ? [] : [customBackButtonItem, customForwardButtonItem]
-    }
-
     private func setup() {
         title = "network-details-title".localized()
     }
@@ -120,14 +82,6 @@ final class NetworkViewControllerDetail: BaseController {
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
-    }
-
-    @objc private func customBackButtonTapped() {
-        searchIndex -= 1
-    }
-
-    @objc private func customForwardButtonTapped() {
-        searchIndex += 1
     }
 }
 
@@ -206,7 +160,7 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
                     for: indexPath
                 ) as! NetworkTableViewCellDetail
 
-            cell.setup(_infos[indexPath.section - 1].description, searchController.searchBar.text, searchIndex)
+            cell.setup(_infos[indexPath.section - 1].description, searchController.searchBar.text)
 
             return cell
         }
@@ -221,10 +175,6 @@ extension NetworkViewControllerDetail: UISearchResultsUpdating {
             searchText.isEmpty
                 ? infos
                 : infos.filter { $0.description.localizedCaseInsensitiveContains(searchText) }
-
-        setupSearchNav(hide: searchText.isEmpty)
-
-        print("Encontrados: \(numberFounded)")
 
         tableView.reloadData()
     }
