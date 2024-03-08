@@ -38,26 +38,49 @@ final class NetworkTableViewCellDetail: UITableViewCell {
         setupUI()
     }
 
-    func setup(_ description: String, _ searched: String?) {
+    func setup(_ description: String, _ searched: String?, _ index: Int) {
         details.text = description
 
-        setupHighlighted(description, searched)
+        setupHighlighted(description, searched, index)
     }
 
-    private func setupHighlighted(_ description: String, _ searched: String?) {
-        guard let searched, !searched.isEmpty else { return }
+    private func setupHighlighted(_ description: String, _ searched: String?, _ index: Int) {
+        guard let searched = searched, !searched.isEmpty else {
+            return
+        }
 
         let attributedString = NSMutableAttributedString(string: description)
-        let highlightedWords = searched.split(separator: " ")
+        let highlightedWords = searched.lowercased().components(separatedBy: " ")
         let fullRange = NSRange(location: 0, length: (description as NSString).length)
 
         attributedString.addAttribute(.foregroundColor, value: Theme.shared.fontColor, range: fullRange)
 
+        var wordIndex = 0
+
         for word in highlightedWords {
-            let range = (description as NSString).range(of: String(word), options: .caseInsensitive)
-            attributedString.addAttribute(.foregroundColor, value: Theme.shared.backgroundColor, range: range)
-            attributedString.addAttribute(.backgroundColor, value: UIColor.yellow, range: range)
-            attributedString.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: 14), range: range)
+            var searchRange = fullRange
+            while searchRange.location != NSNotFound {
+                searchRange = (description as NSString).range(
+                    of: word,
+                    options: .caseInsensitive,
+                    range: searchRange
+                )
+
+                if searchRange.location != NSNotFound {
+                    if wordIndex == index {
+                        attributedString.addAttribute(.foregroundColor, value: Theme.shared.backgroundColor, range: searchRange)
+                        attributedString.addAttribute(.backgroundColor, value: UIColor.yellow, range: searchRange)
+                        attributedString.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: 14), range: searchRange)
+                    }
+
+                    searchRange = NSRange(
+                        location: searchRange.location + searchRange.length,
+                        length: (description as NSString).length - (searchRange.location + searchRange.length)
+                    )
+
+                    wordIndex += 1
+                }
+            }
         }
 
         details.attributedText = attributedString

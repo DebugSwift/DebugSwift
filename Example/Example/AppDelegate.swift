@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         DebugSwift.setup()
 
         /// setup .light or dark mode, `default is .dark`.
-        DebugSwift.theme(appearance: .light)
+        DebugSwift.theme(appearance: .dark)
 
         // MARK: - Custom Info
 

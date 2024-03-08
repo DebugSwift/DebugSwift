@@ -47,7 +47,11 @@ final class NetworkViewController: BaseController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        scrollToBottom()
+
+        if viewModel.firstIn {
+            scrollToBottom()
+            viewModel.firstIn = false
+        }
     }
 
     func setup() {
