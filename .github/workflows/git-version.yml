@@ -22,13 +22,12 @@ permissions:
 jobs:
   git_version:
     name: Determine current version
-    runs-on: ubuntu-latest
+    runs-on: macos-13
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }}
       majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
-    
-    steps:
 
+    steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
