@@ -260,6 +260,16 @@ Contributions are welcome! If you have suggestions, improvements, or bug fixes, 
 
 ---
 
+# Repo Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/53a4d8a27ad851f52451b14b9a1671e7124f88e8.svg "Repobeats analytics image")
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=DebugSwift/DebugSwift&type=Date)](https://star-history.com/#DebugSwift/DebugSwift&Date)
+
+---
+
 ## License
 
 DebugSwift is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

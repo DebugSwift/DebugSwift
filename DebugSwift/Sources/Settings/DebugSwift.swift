@@ -40,6 +40,10 @@ public enum DebugSwift {
     public static func theme(appearance: Appearance) {
         Theme.shared.setAppearance(appearance: appearance)
     }
+    
+    public static func toggleDebugger(_ enable: Bool) {
+        DebugSwift.Debugger.enable = enable
+    }
 }
 
 extension DebugSwift {
