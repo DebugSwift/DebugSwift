@@ -82,9 +82,7 @@ class FloatBallView: UIView {
         label.text = .init(HttpDatasource.shared.httpModels.count)
         startAnimation(text: success ? "🚀" : "❌")
 
-        if !success {
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        }
+        if !success { ImpactFeedback.generate() }
     }
 
     func updateText() {

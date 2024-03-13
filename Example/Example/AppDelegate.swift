@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
         DebugSwift.setup()
 
-        /// setup .light or dark mode, `default is .dark`.
+        /// Setup .light or dark mode, `default is .dark`.
         DebugSwift.theme(appearance: .dark)
 
         // MARK: - Custom Info
@@ -65,6 +65,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 //        DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
 //        DebugSwift.Console.onlyLogs = ["DebugSwift"]
+
+        // MARK: - Enable/Disable Debugger
+
+        DebugSwift.Debugger.logEnable = true
+        DebugSwift.Debugger.feedbackEnable = true
 
         DebugSwift.show()
 
