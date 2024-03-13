@@ -94,9 +94,6 @@ final class InAppViewDebugger: NSObject {
         configuration: Configuration? = nil,
         completion: (() -> Void)? = nil
     ) {
-        guard let rootViewController = rootViewController else {
-            return
-        }
         let debuggerViewController = ViewDebuggerViewController(
             snapshot: snapshot,
             configuration: configuration ?? Configuration()

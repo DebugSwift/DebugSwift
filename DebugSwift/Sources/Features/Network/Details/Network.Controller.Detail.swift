@@ -45,6 +45,10 @@ final class NetworkViewControllerDetail: BaseController {
         setupSearch()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+    }
+
     private func setupNavigation() {
         addRightBarButton(
             actions: [
@@ -70,11 +74,11 @@ final class NetworkViewControllerDetail: BaseController {
         )
     }
 
-    func setup() {
+    private func setup() {
         title = "network-details-title".localized()
     }
 
-    func setupSearch() {
+    private func setupSearch() {
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
@@ -155,6 +159,7 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
                     withIdentifier: "NetworkCellDetail",
                     for: indexPath
                 ) as! NetworkTableViewCellDetail
+
             cell.setup(_infos[indexPath.section - 1].description, searchController.searchBar.text)
 
             return cell

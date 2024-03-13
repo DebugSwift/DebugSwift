@@ -10,7 +10,7 @@ import UIKit
 public enum DebugSwift {
     public static func setup() {
         LocalizationManager.shared.loadBundle()
-        FeatureHandling.shared.selectedFeatureHandler(viewController : nil)
+        FeatureHandling.shared.selectedFeatureHandler(viewController: nil)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             FloatViewManager.setup(TabBarController())
@@ -18,7 +18,7 @@ public enum DebugSwift {
 
         LaunchTimeTracker.measureAppStartUpTime()
     }
-    
+
     public static func setup(hideFeatures: [DebugSwiftFeatures]) {
         FeatureHandling.shared.hide(features: hideFeatures)
     }
@@ -36,9 +36,14 @@ public enum DebugSwift {
     public static func toggle() {
         FloatViewManager.toggle()
     }
-    
+
     public static func theme(appearance: Appearance) {
         Theme.shared.setAppearance(appearance: appearance)
+    }
+
+    @available(*, deprecated, renamed: "Debug.enable", message: "Use now Debug.enable")
+    public static func toggleDebugger(_ enable: Bool) {
+        Debug.enable = enable
     }
 }
 
@@ -59,8 +64,23 @@ extension DebugSwift {
         public static var onlyLogs = [String]()
     }
 
-    enum Debugger {
-        @UserDefaultAccess(key: .debugger, defaultValue: true)
-        public static var enable: Bool
+    public enum Debugger {
+        /// Enable/Disable logs in Xcode console
+        public static var logEnable: Bool {
+            get {
+                return Debug.enable
+            } set {
+                Debug.enable = newValue
+            }
+        }
+
+        /// Enable/Disable `ImpactFeedback`
+        public static var feedbackEnable: Bool {
+            get {
+                return ImpactFeedback.enable
+            } set {
+                ImpactFeedback.enable = newValue
+            }
+        }
     }
 }
