@@ -5,7 +5,7 @@
 //  Created by Matheus Gois on 12/03/24.
 //
 
-import Foundation
+import UIKit
 
 enum ImpactFeedback {
     @UserDefaultAccess(key: .feedback, defaultValue: true)
