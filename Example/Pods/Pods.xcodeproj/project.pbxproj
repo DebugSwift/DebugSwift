@@ -440,6 +440,7 @@
 				2B72E4348785731A471BAE3D474C1EB5 /* Helpers */,
 				219C859BDC96986725314D27B6113222 /* Main */,
 			);
+			name = Crash;
 			path = Crash;
 			sourceTree = "<group>";
 		};
@@ -461,6 +462,21 @@
 				5D7C6BB8120C3518B7863FE295037AA9 /* SwizzleSessionConfiguration.swift */,
 				6422DB29766A9CBC05983D69C8BDF36A /* ThreadOperator.swift */,
 			);
+			name = UserDeafults;
+			path = UserDeafults;
+			sourceTree = "<group>";
+		};
+		1E59D4FDC43AD97C6D8DBF9D8E548E06 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				694EB4F7319161E10BEBC38BBD1B4917 /* ApplicationDirectories.swift */,
+				9DB9997A0C20C3D6F84574D749FC69F2 /* CacheStoragePolicy.swift */,
+				D4F508DAD6B750578DB34F87D4408CFC /* ErrorHelper.swift */,
+				5716F237BC5E8F5BC58B4199F5A12165 /* HTTPProtocolDelegate.swift */,
+				5D7C6BB8120C3518B7863FE295037AA9 /* SwizzleSessionConfiguration.swift */,
+				6422DB29766A9CBC05983D69C8BDF36A /* ThreadOperator.swift */,
+			);
+			name = Helpers;
 			path = Helpers;
 			sourceTree = "<group>";
 		};
@@ -470,6 +486,7 @@
 				A9EADC7D39279119A61E0857B25D9F1D /* CrashViewController.swift */,
 				1D5454D3359071F021B045912B334E18 /* CrashViewModel.swift */,
 			);
+			name = Main;
 			path = Main;
 			sourceTree = "<group>";
 		};
@@ -633,6 +650,7 @@
 				5777A796C66C34F38E7D8950A83A5133 /* Performace.FPSCalculator.swift */,
 				0117E92442C25EF8CF58D9115E16544E /* Performance.Toolkit.swift */,
 			);
+			name = Helpers;
 			path = Helpers;
 			sourceTree = "<group>";
 		};
@@ -641,6 +659,7 @@
 			children = (
 				35D3E681D95104BFCC194A86D0EF150E /* BottomFloatView.swift */,
 			);
+			name = BottomView;
 			path = BottomView;
 			sourceTree = "<group>";
 		};
@@ -653,6 +672,7 @@
 				93FC3BAC31580ADE402A1A71D5B7B911 /* Keychain */,
 				1B6ECAC04C66C788B1C8D15AA70F3EE8 /* UserDeafults */,
 			);
+			name = Resources;
 			path = Resources;
 			sourceTree = "<group>";
 		};
@@ -744,6 +764,7 @@
 				68BDDB7ECAD6AC52EAB3360FD71B6A40 /* MenuSwitchTableViewCell.swift */,
 				4A3965F55B3FC8B89BBCE6578543BB2C /* Performance.WidgetView.swift */,
 			);
+			name = Views;
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -769,6 +790,7 @@
 			children = (
 				DBE69998D7E62933CB3A0A41956FD5AD /* Resources.Files.Controller.swift */,
 			);
+			name = Files;
 			path = Files;
 			sourceTree = "<group>";
 		};
@@ -840,6 +862,7 @@
 				AD6268A1BDDFA126833BD8BD87CE8B19 /* Main */,
 				D7AB480CC952AB3A9DB5637B60525E98 /* MapSelection */,
 			);
+			name = Location;
 			path = Location;
 			sourceTree = "<group>";
 		};
@@ -902,6 +925,7 @@
 				23219A287D63D2A7E2342F52458F8A3D /* CLLocationManager.swift */,
 				9156804A3CE88047E742DAA085EE08D6 /* LocationToolkit.swift */,
 			);
+			name = Helpers;
 			path = Helpers;
 			sourceTree = "<group>";
 		};
