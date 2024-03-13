@@ -8,10 +8,9 @@
 
 import Foundation
 
-public enum Debug {
-    static var enable: Bool {
-        DebugSwift.Debugger.enable
-    }
+enum Debug {
+    @UserDefaultAccess(key: .debugger, defaultValue: true)
+    static var enable: Bool
 
     static func execute(action: () -> Void) {
         guard enable else { return }
