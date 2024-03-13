@@ -65,7 +65,7 @@ extension DebugSwift {
     }
 
     public enum Debugger {
-        /// /// Enable/Disable logs in Xcode console
+        /// Enable/Disable logs in Xcode console
         public static var logEnable: Bool {
             get {
                 return Debug.enable
