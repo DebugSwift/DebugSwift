@@ -65,7 +65,7 @@ final class InterfaceViewController: BaseController {
 
 extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        Features.allCases.count
+        Features.allCases.filter { $0.title != nil }.count
     }
 
     func tableView(
@@ -83,10 +83,11 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
             )
             cell.setup(title: title)
             return cell
-        case .touches, .colorize, .animations:
+        case .touches, .colorize, .animations, .darkMode:
             return toggleCell(
                 title: title,
-                index: indexPath.row
+                index: indexPath.row,
+                isOn: feature?.isOn == true
             )
         default:
             return .init()
@@ -116,11 +117,17 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
         switch Features(rawValue: cell.tag) {
         case .colorize:
             UserInterfaceToolkit.colorizedViewBordersEnabled = isOn
+
         case .animations:
             UserInterfaceToolkit.shared.slowAnimationsEnabled = isOn
 
         case .touches:
             UserInterfaceToolkit.shared.showingTouchesEnabled = isOn
+
+        case .darkMode:
+            if #available(iOS 13.0, *) {
+                UserInterfaceToolkit.darkModeEnabled = isOn
+            }
 
         default: break
         }
@@ -128,16 +135,15 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
 
     private func toggleCell(
         title: String?,
-        index: Int
+        index: Int,
+        isOn: Bool
     ) -> UITableViewCell {
-        let cell =
-            tableView.dequeueReusableCell(
-                withIdentifier: MenuSwitchTableViewCell.identifier
-            ) as? MenuSwitchTableViewCell ?? .init()
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
         cell.titleLabel.text = title
         cell.tag = index
-        //        TODO: - Create
-        //        cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
+        cell.valueSwitch.isOn = isOn
         cell.delegate = self
         return cell
     }
@@ -149,8 +155,9 @@ extension InterfaceViewController {
         case animations
         case touches
         case grid
+        case darkMode
 
-        var title: String {
+        var title: String? {
             switch self {
             case .touches:
                 return "showing-touches".localized()
@@ -160,6 +167,31 @@ extension InterfaceViewController {
                 return "colorized-view-borders".localized()
             case .animations:
                 return "slow-animations".localized()
+            case .darkMode:
+                if #available(iOS 13.0, *) {
+                    return "dark-mode".localized()
+                }
+                return nil
+            }
+        }
+
+        var isOn: Bool {
+            switch self {
+            case .colorize:
+                return UserInterfaceToolkit.colorizedViewBordersEnabled
+
+            case .animations:
+                return UserInterfaceToolkit.shared.slowAnimationsEnabled
+
+            case .touches:
+                return UserInterfaceToolkit.shared.showingTouchesEnabled
+            case .darkMode:
+                if #available(iOS 13.0, *) {
+                    return UserInterfaceToolkit.darkModeEnabled
+                }
+                return false
+            default:
+                return false
             }
         }
     }
