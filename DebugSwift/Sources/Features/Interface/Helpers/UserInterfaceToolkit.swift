@@ -54,6 +54,16 @@ final class UserInterfaceToolkit {
         }
     }
 
+    @available(iOS 13.0, *)
+    static var darkModeEnabled: Bool = UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+        didSet {
+            guard oldValue != darkModeEnabled else { return }
+            UIApplication.shared.windows.forEach { window in
+                window.overrideUserInterfaceStyle = darkModeEnabled ? .dark : .light
+            }
+        }
+    }
+
     // MARK: - Initialization
 
     private init() {
