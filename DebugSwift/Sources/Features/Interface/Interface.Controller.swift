@@ -76,7 +76,7 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
         let title = feature?.title ?? ""
 
         switch feature {
-        case .grid:
+        case .grid, .localization:
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: .cell,
                 for: indexPath
@@ -103,6 +103,9 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
         switch Features(rawValue: indexPath.row) {
         case .grid:
             controller = InterfaceGridController()
+        case .localization:
+            let viewModel = LocalizationViewModel()
+            controller = ResourcesGenericController(viewModel: viewModel)
         default:
             break
         }
@@ -156,6 +159,7 @@ extension InterfaceViewController {
         case touches
         case grid
         case darkMode
+        case localization
 
         var title: String? {
             switch self {
@@ -172,6 +176,8 @@ extension InterfaceViewController {
                     return "dark-mode".localized()
                 }
                 return nil
+            case .localization:
+                return "localization"
             }
         }
 

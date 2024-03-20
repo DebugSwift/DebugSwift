@@ -1,15 +1,15 @@
 
 /* Class = "UIButton"; configuration.title = "Success Request"; ObjectID = "B3B-A4-ddj"; */
-"B3B-A4-ddj.normalTitle" = "Requisição de Sucesso";
+"B3B-A4-ddj.normalTitle" = "Success Request";
 
 /* Class = "UIButton"; normalTitle = "Button"; ObjectID = "B3B-A4-ddj"; */
-"B3B-A4-ddj.normalTitle" = "Botão";
+"B3B-A4-ddj.normalTitle" = "Button";
 
 /* Class = "UIButton"; configuration.title = "See Location"; ObjectID = "Ilt-ig-idh"; */
-"Ilt-ig-idh.normalTitle" = "Ver localização";
+"Ilt-ig-idh.normalTitle" = "See Location";
 
 /* Class = "UIButton"; configuration.title = "Crash"; ObjectID = "Qrg-W0-adk"; */
-"Qrg-W0-adk.normalTitle" = "Causar Falha";
+"Qrg-W0-adk.normalTitle" = "Crash";
 
 /* Class = "UIButton"; configuration.title = "Failured Request"; ObjectID = "faL-Au-3nb"; */
-"faL-Au-3nb.normalTitle" = "Requisição de Erro";
+"faL-Au-3nb.normalTitle" = "Failured Request";

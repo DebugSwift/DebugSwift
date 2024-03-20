@@ -80,7 +80,7 @@ final class ResourcesGenericController: BaseTableController {
 
     func setupSearch() {
         navigationItem.hidesSearchBarWhenScrolling = false
-        navigationItem.searchController = searchController
+        navigationItem.searchController = viewModel.showSearch ? searchController : nil
         definesPresentationContext = true
     }
 
@@ -180,6 +180,7 @@ extension ResourcesGenericController: UISearchResultsUpdating {
 }
 
 protocol ResourcesGenericListViewModel: AnyObject {
+    var showSearch: Bool { get }
     var isSearchActived: Bool { get set }
 
     var isDeleteEnable: Bool { get }
@@ -217,8 +218,8 @@ protocol ResourcesGenericListViewModel: AnyObject {
 // Optional
 
 extension ResourcesGenericListViewModel {
+    var showSearch: Bool { true }
     var isDeleteEnable: Bool { true }
-
     var isCustomActionEnable: Bool { false }
 
     func didTapItem(index: Int) {}

@@ -16,6 +16,7 @@ extension UserDefaults {
     enum Key: String {
         case debugger
         case feedback
+        case languages
     }
 }
 

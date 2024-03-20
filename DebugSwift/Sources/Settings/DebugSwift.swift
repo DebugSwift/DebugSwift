@@ -9,7 +9,7 @@ import UIKit
 
 public enum DebugSwift {
     public static func setup() {
-        LocalizationManager.shared.loadBundle()
+        LocalizeManager.shared.loadBundle()
         FeatureHandling.shared.selectedFeatureHandler(viewController: nil)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {

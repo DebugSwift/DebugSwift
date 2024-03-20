@@ -14,7 +14,7 @@ public enum DebugSwiftFeatures: String {
     case interface = "interface-title"
     case resources = "resources-title"
     case app = "app-title"
-    
+
     var localized: String {
         return rawValue.localized()
     }
@@ -22,19 +22,18 @@ public enum DebugSwiftFeatures: String {
 
 final class FeatureHandling {
     static let shared = FeatureHandling()
-    
+
     func allFeatureHandler() {
         UIView.swizzleMethods()
         UIWindow.db_swizzleMethods()
         URLSessionConfiguration.swizzleMethods()
         CLLocationManager.swizzleMethods()
+        Bundle.swizzleLocalization()
         LogIntercepter.shared.start()
-        
         NetworkHelper.shared.enable()
-        
         CrashManager.register()
     }
-    
+
     func selectedFeatureHandler(viewController: String?) {
         switch viewController {
         case "network-title".localized():
@@ -46,20 +45,20 @@ final class FeatureHandling {
             allFeatureHandler()
         }
     }
-    
+
     func getIndexFeature(titleVC: [UIViewController], debugSwiftFeature: String) -> Int {
-        for (idx,value) in titleVC.enumerated() {
+        for (idx, value) in titleVC.enumerated() {
             if value.title?.contains(debugSwiftFeature) == true {
                 return idx
             }
         }
         return -1
     }
-    
+
     func hide(features: [DebugSwiftFeatures]?) {
         var featureHandler: String = ""
         guard let features = features else { return DebugSwift.setup()}
-        
+
         features.forEach {
             featureHandler += $0.localized
         }
@@ -75,7 +74,7 @@ final class FeatureHandling {
             }
             FloatViewManager.setup(tabBar)
         }
-        LocalizationManager.shared.loadBundle()
+        LocalizeManager.shared.loadBundle()
         LaunchTimeTracker.measureAppStartUpTime()
     }
 }
