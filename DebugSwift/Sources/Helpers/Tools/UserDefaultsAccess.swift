@@ -18,7 +18,7 @@ extension UserDefaults {
     }
 }
 
-@propertyWrapper public struct UserDefaultAccess<T: Codable> {
+@propertyWrapper struct UserDefaultAccess<T: Codable> {
     let key: String
     let defaultValue: T
     let userDefaults: UserDefaultsService
