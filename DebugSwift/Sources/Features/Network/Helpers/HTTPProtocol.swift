@@ -228,15 +228,15 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
-            if self.cachePolicy == .allowed {
-                self.data.append(data)
-            }
+            
 
             self.delegate?.customHTTPProtocol(self, didReceive: data)
             self.client?.urlProtocol(self, didLoad: data)
             self.didReceiveData = true
             if prevUrl == response?.url && prevStartTime == startTime {
-                self.data.append(data)
+                if self.cachePolicy == .allowed {
+                    self.data.append(data)
+                }
             } else {
                 self.data = data
             }
