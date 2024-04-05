@@ -18,15 +18,15 @@ class BaseTableController: UITableViewController {
         super.init(style: style)
         configureAppearance()
     }
+    
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        configureAppearance()
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = true
-    }
-
-    @available(*, unavailable)
-    public required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     func configureAppearance() {
