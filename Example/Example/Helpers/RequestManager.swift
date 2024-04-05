@@ -20,7 +20,7 @@ enum RequestManager {
             }
 
             guard let data else {
-                print("No data received")
+                print("Error: Missing data for mocking request.")
                 return
             }
 

@@ -34,12 +34,8 @@ class ViewController: UIViewController {
     }
 
     @IBAction func crash() {
-//        var index: Int?
-//        print(index!)
-//        let array = [1, 2, 3]
-//        array[10]
         DispatchQueue.global().async {
-            fatalError("batata")
+            fatalError("Intentional Crash")
         }
     }
 }

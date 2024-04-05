@@ -35,7 +35,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
                 if let placemark = placemarks?.first {
                     self.displayLocationInfo(placemark)
                 } else {
-                    print("Error with the data.")
+                    print("Error with the data. Missing placemark for location info.")
                 }
             }
         }
