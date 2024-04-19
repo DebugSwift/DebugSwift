@@ -55,7 +55,8 @@ extension UITableViewCell {
 
             // Set constraints for the custom label
             NSLayoutConstraint.activate([
-                label.centerYAnchor.constraint(equalTo: centerYAnchor),
+                label.topAnchor.constraint(equalTo: topAnchor, constant: 14),
+                label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -14),
                 label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
                 label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: UIScreen.main.bounds.width / 2)
             ])

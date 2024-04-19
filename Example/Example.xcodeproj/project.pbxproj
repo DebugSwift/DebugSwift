@@ -128,6 +128,8 @@
 			dependencies = (
 			);
 			name = Example;
+			packageProductDependencies = (
+			);
 			productName = Example;
 			productReference = 2EA3B5CB2B2E632B001B59FE /* Example.app */;
 			productType = "com.apple.product-type.application";
@@ -157,6 +159,8 @@
 				"pt-BR",
 			);
 			mainGroup = 2EA3B5C22B2E632B001B59FE;
+			packageReferences = (
+			);
 			productRefGroup = 2EA3B5CC2B2E632B001B59FE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

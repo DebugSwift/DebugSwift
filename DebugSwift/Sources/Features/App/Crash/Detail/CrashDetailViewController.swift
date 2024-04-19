@@ -191,7 +191,7 @@ extension CrashDetailViewController {
         var heightForRow: CGFloat {
             switch self {
             case .details:
-                return 50
+                return UITableView.automaticDimension
             case .context:
                 return 80
             case .stackTrace:

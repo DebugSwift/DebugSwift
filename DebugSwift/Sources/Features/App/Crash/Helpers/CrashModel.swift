@@ -85,27 +85,23 @@ extension CrashModel {
 }
 
 extension [CrashModel.Trace] {
-    static func builder() -> Self {
+    static func builder() -> [CrashModel.Trace] {
         var traces = [CrashModel.Trace]()
-        for symbol in Thread.callStackSymbols {
-            var detail = ""
-            if let className = Trace.classNameFromSymbol(symbol) {
-                detail += "Class: \(className)\n"
-            }
-            if let fileInfo = Trace.fileInfoFromSymbol(symbol) {
-                detail += """
-                    File: \(fileInfo.file)\n,
-                    Line: \(fileInfo.line)\n,
-                    Function: \(fileInfo.function)\n
-                """
-            }
 
+        let parser = DLADDRParser()
+        let callStackSymbols = Thread.callStackSymbols
+        for callStackSymbol in callStackSymbols {
+            let detail = try? parser.parse(input: callStackSymbol)
             let trace = CrashModel.Trace(
-                title: symbol,
-                detail: detail
+                title: detail?.fname ?? "",
+                detail: detail?.callStackSymbolRepresentation ?? ""
             )
             traces.append(trace)
         }
+
+//        for trace in backtraceAllThread() {
+//            traces.append(.init(title: trace, detail: ""))
+//        }
 
         return traces
     }

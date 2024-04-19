@@ -6,6 +6,15 @@
 //
 
 import Foundation
+import MachO.dyld
+
+func calculate() -> Int {
+    var slide: Int = 0
+    for i in 0..<_dyld_image_count() where _dyld_get_image_header(i).pointee.filetype == MH_EXECUTE {
+        slide = _dyld_get_image_vmaddr_slide(i)
+    }
+    return slide
+}
 
 private var preUncaughtExceptionHandler: NSUncaughtExceptionHandler?
 
@@ -19,15 +28,15 @@ public class CrashUncaughtExceptionHandler {
 }
 
 func UncaughtExceptionHandler(exception: NSException) {
-//    let stackArray = exception.callStackSymbols
-//    let name = exception.name.rawValue
-//    let stackInfo = stackArray.reduce("") { result, item -> String in
-//        result + "\n\(item)"
-//    }
+    let arr = exception.callStackSymbols
+    let reason = exception.reason
+    let name = exception.name.rawValue
+    var crash = String()
+    crash += "Stack:\n"
+    crash = crash.appendingFormat("slideAdress:0x%0x\r\n", calculate())
+    crash += "\r\n\r\n name:\(name) \r\n reason:\(String(describing: reason)) \r\n \(arr.joined(separator: "\r\n")) \r\n\r\n"
 
-    let reason = exception.reason ?? ""
-    let exceptionInfo = exception.name.rawValue + reason
-    CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, exceptionInfo)
+    CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, crash)
     preUncaughtExceptionHandler?(exception)
     kill(getpid(), SIGKILL)
 }
