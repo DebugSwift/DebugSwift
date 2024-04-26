@@ -38,3 +38,4 @@ jobs:
           -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
           -scheme Example_SwiftUI \
           -destination 'platform=iOS Simulator,name=iPhone 14 Plus'
+
