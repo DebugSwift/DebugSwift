@@ -97,6 +97,7 @@ jobs:
   latest_release:
     name: Get latest version
     runs-on: ubuntu-latest
+    needs: update_podspec
     outputs:
       latestTag: ${{ steps.getTag.outputs.latestTag }}
 
@@ -126,8 +127,7 @@ jobs:
   tag:
     name: Create tag
     needs: 
-      - git_version
-      - update_podspec
+      - latest_release
     runs-on: ubuntu-latest
 
     steps:
@@ -146,8 +146,6 @@ jobs:
     name: Create release
     if: contains(github.ref, 'refs/heads/main')
     needs: 
-      - git_version
-      - latest_release
       - tag
     runs-on: ubuntu-latest
     steps:
@@ -171,7 +169,6 @@ jobs:
   publish_pod:
     name: Publish pod
     needs: 
-      - tag
       - release
     runs-on: macos-latest
     steps:
