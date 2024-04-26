@@ -200,9 +200,7 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
             }
         }
 
-        if #available(iOS 13.0, *) {
-            action.image = .init(systemName: "doc.on.doc")
-        }
+        action.image = .named("doc.on.doc", "copy".localized())
         action.backgroundColor = .gray
 
         return UISwipeActionsConfiguration(actions: [action])
