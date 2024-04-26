@@ -6,8 +6,6 @@
 //  Copyright © 2023 apple. All rights reserved.
 //
 
-// TEST: - Add line
-
 import UIKit
 
 final class AppViewController: BaseController {
