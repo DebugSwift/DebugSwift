@@ -1,4 +1,4 @@
-json=`{
+json='{
   "url": "https://api.github.com/repos/DebugSwift/DebugSwift/releases/146176701",
   "assets_url": "https://api.github.com/repos/DebugSwift/DebugSwift/releases/146176701/assets",
   "upload_url": "https://uploads.github.com/repos/DebugSwift/DebugSwift/releases/146176701/assets{?name,label}",
@@ -48,7 +48,7 @@ json=`{
     "rocket": 0,
     "eyes": 0
   }
-}`
+}//\'/'
 # echo "$json"
 # tag=$(echo "$json" | jq -r '.tag_name')
 # echo "BATATA"
