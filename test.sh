@@ -1,4 +1,4 @@
-json='{
+json=`{
   "url": "https://api.github.com/repos/DebugSwift/DebugSwift/releases/146176701",
   "assets_url": "https://api.github.com/repos/DebugSwift/DebugSwift/releases/146176701/assets",
   "upload_url": "https://uploads.github.com/repos/DebugSwift/DebugSwift/releases/146176701/assets{?name,label}",
@@ -35,6 +35,7 @@ json='{
   "assets": [],
   "tarball_url": "https://api.github.com/repos/DebugSwift/DebugSwift/tarball/0.3.1",
   "zipball_url": "https://api.github.com/repos/DebugSwift/DebugSwift/zipball/0.3.1",
+  "body": "Full changelog: [0.3.0...0.3.1](https://github.com/DebugSwift/DebugSwift/compare/0.3.0...0.3.1)\r\n\r\nWhat\'s New:\r\n\r\nThe Podspec version was updated twice (commit 5d63f38 and 3bdcc77).\r\nLight appearance was added and improvements were made to the response date and cache policy (commit 5d63f38).\r\nThe build configuration was updated (commit f6dd030).\r\nThe example was improved, light mode was fixed, and documentation was improved (commit d12b4ef).\r\nThe README.md file was updated twice (commit 88e4690 and 3910393).\r\nA bug related to Git Actions build was fixed (commit 54ec335).\r\nCode improvements were made for theme appearance (commit 5c5c381).\r\nThe Xcode version was updated in the tag manager (commit 0f35de8).\r\nA feature was added to allow toggling the debugger (commit f9869b1).\r\nA bug related to the Xcode version in the tag generator was fixed (commit da3dceb).\r\nAutomatic scrolling was fixed (commit 0cf83ff).\r\nA feature was added to enable/disable impact feedback (commit a9dfa23).",
   "reactions": {
     "url": "https://api.github.com/repos/DebugSwift/DebugSwift/releases/146176701/reactions",
     "total_count": 1,
@@ -47,7 +48,7 @@ json='{
     "rocket": 0,
     "eyes": 0
   }
-}'
+}`
 # echo "$json"
 # tag=$(echo "$json" | jq -r '.tag_name')
 # echo "BATATA"
