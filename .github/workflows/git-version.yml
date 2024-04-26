@@ -123,7 +123,7 @@ jobs:
         json="${{ steps.get_release.outputs.data }}"
         echo "$json"
         tag="$(echo "$json" | jq | '.tag_name')"
-        echo "$tag"
+        echo "BATATA"
         echo "::set-output name=latestTag::$tag"
         
     - name: Display error if exists
