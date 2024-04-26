@@ -120,7 +120,7 @@ jobs:
     - name: Display latest release tag
       id: getTag
       run: |
-        tag=$(${{ steps.get_release.outputs.data }} | jq -r '.tag_name')
+        tag=$('${{ steps.get_release.outputs.data }}' | jq -r '.tag_name')
         echo '::set-output name=latestTag::$tag'
         
     - name: Display error if exists
