@@ -200,7 +200,7 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
             }
         }
 
-        action.image = .named("doc.on.doc", "copy".localized())
+        action.image = .named("doc.on.doc", default: "copy".localized())
         action.backgroundColor = .gray
 
         return UISwipeActionsConfiguration(actions: [action])
