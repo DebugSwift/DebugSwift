@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import MetricKit
 
 class ViewController: UIViewController {
     override func viewDidLoad() {

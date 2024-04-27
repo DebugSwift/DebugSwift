@@ -7,7 +7,6 @@
 
 import Foundation
 import MachO.dyld
-import MetricKit
 
 func calculate() -> Int {
     var slide: Int = 0
