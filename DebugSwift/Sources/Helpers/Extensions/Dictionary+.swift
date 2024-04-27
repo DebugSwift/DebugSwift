@@ -31,3 +31,16 @@ extension [AnyHashable: Any] {
         return result
     }
 }
+
+extension Dictionary {
+    func asJsonStr() -> String? {
+        var jsonStr: String?
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: self, options: .sortedKeys)
+            jsonStr = String(decoding: jsonData, as: UTF8.self)
+        } catch {
+            return nil
+        }
+        return jsonStr
+    }
+}

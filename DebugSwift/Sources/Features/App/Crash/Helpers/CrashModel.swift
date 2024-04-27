@@ -17,7 +17,7 @@ struct CrashModel: Codable, Equatable {
         type: CrashType,
         details: Details,
         context: Context = .builder(),
-        traces: [Trace] = .builder()
+        traces: [Trace]
     ) {
         self.type = type
         self.details = details
@@ -85,24 +85,13 @@ extension CrashModel {
 }
 
 extension [CrashModel.Trace] {
-    static func builder() -> Self {
+    static func builder(_ stack: [String]) -> [CrashModel.Trace] {
         var traces = [CrashModel.Trace]()
-        for symbol in Thread.callStackSymbols {
-            var detail = ""
-            if let className = Trace.classNameFromSymbol(symbol) {
-                detail += "Class: \(className)\n"
-            }
-            if let fileInfo = Trace.fileInfoFromSymbol(symbol) {
-                detail += """
-                    File: \(fileInfo.file)\n,
-                    Line: \(fileInfo.line)\n,
-                    Function: \(fileInfo.function)\n
-                """
-            }
 
+        for symbol in stack {
             let trace = CrashModel.Trace(
                 title: symbol,
-                detail: detail
+                detail: ""
             )
             traces.append(trace)
         }
