@@ -18,10 +18,10 @@ class BaseTableController: UITableViewController {
         super.init(style: style)
         configureAppearance()
     }
-    
-    public required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        configureAppearance()
+
+    @available(*, unavailable)
+    public required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewWillAppear(_ animated: Bool) {
