@@ -32,8 +32,7 @@ func UncaughtExceptionHandler(exception: NSException) {
     let reason = exception.reason ?? ""
     let name = exception.name.rawValue
     var crash = String()
-    crash = crash.appendingFormat("adress: 0x%0x", calculate())
-    crash += "\nname: \(name)\nreason: \(reason)"
+    crash += "\nName: \(name)\nReason: \(reason)"
 
     CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, crash, arr)
     preUncaughtExceptionHandler?(exception)
