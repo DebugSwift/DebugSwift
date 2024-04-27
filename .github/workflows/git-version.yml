@@ -121,7 +121,7 @@ jobs:
       id: getTag
       run: |
         tag=$(cat <<-END
-          echo ${{ steps.get_release.outputs.data }} | jq -r '.tag_name'
+          ${{ steps.get_release.outputs.data }}
         END
 
         echo '::set-output name=latestTag::$tag'
