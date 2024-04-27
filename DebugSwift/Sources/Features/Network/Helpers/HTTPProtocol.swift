@@ -157,7 +157,7 @@ final class CustomHTTPProtocol: URLProtocol {
             model.responseHeaderFields = response.allHeaderFields.convertKeysToString()
             model.responseHeaderFields?.updateValue(getCachePolicy(value: request.cachePolicy.rawValue), forKey: "Cache-Policy")
         }
-        
+
         if let responseDate = model.endTime {
             model.responseHeaderFields?.updateValue(responseDate, forKey: "Response-Date")
         }
@@ -228,15 +228,18 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
+
+            var hasAddedData = false
             if self.cachePolicy == .allowed {
                 self.data.append(data)
+                hasAddedData = true
             }
 
             self.delegate?.customHTTPProtocol(self, didReceive: data)
             self.client?.urlProtocol(self, didLoad: data)
             self.didReceiveData = true
             if prevUrl == response?.url && prevStartTime == startTime {
-                self.data.append(data)
+                if !hasAddedData { self.data.append(data) }
             } else {
                 self.data = data
             }
@@ -254,7 +257,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         Debug.print("Retry download...")
         return true
     }
-    
+
     private func getCachePolicy(value: UInt?) -> String {
         switch value {
         case 0:

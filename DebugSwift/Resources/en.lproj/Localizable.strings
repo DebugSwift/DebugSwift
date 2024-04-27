@@ -26,6 +26,7 @@
 "grid-overlay" = "Grid overlay";
 "colorized-view-borders" = "Colorized view borders";
 "slow-animations" = "Slow animations";
+"dark-mode" = "Dark Mode";
 "simulated-location" = "Simulated location";
 "actions" = "Actions";
 "action" = "Action";
@@ -215,3 +216,5 @@
 "error-invalid-ssl-certificate" = "Invalid SSL Certificate";
 "error-network-read-timeout" = "Network Read Timeout Error";
 "error-network-connect-timeout" = "Network Connect Timeout Error";
+"alert.url.copied.title" = "Copied!";
+"alert.url.copied.description" = "You can paste this url when needed.";

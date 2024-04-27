@@ -21,6 +21,7 @@
 "show-grid-overlay" = "Mostrar Grid";
 "colorized-view-borders" = "Bordas de visualização coloridas";
 "slow-animations" = "Animações lentas";
+"dark-mode" = "Modo Escuro";
 
 "device-info" = "Informações do Dispositivo";
 "simulated-location" = "Localização simulada";
@@ -216,3 +217,5 @@
 "error-invalid-ssl-certificate" = "Certificado SSL Inválido";
 "error-network-read-timeout" = "Tempo Limite de Leitura de Rede";
 "error-network-connect-timeout" = "Tempo Limite de Conexão de Rede";
+"alert.url.copied.title" = "Copiado!";
+"alert.url.copied.description" = "Você pode colar esta url quando necessário.";
