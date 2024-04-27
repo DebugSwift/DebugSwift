@@ -7,11 +7,6 @@ on:
       - "main"
       - "develop"
 
-  pull_request:
-    branches:
-      - "main"
-      - "develop"
-
 permissions:
    actions: write
    checks: write
