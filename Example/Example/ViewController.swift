@@ -35,17 +35,18 @@ class ViewController: UIViewController {
     }
 
     @IBAction func crash() {
+        // Signal
 //        var index: Int?
 //        print(index!)
-//        let array = [1, 2, 3]
-//        array[10]
-        DispatchQueue.global().async {
 
-//            fatalError("batata")
+        // Exception
+        let array = NSArray()
+        let element = array.object(at: 4)
+
+        DispatchQueue.global().async {
+            // Exception
 //            let array = NSArray()
 //            let element = array.object(at: 4)
-            print(Thread.main)
-
         }
     }
 }

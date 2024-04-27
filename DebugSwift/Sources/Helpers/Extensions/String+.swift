@@ -26,4 +26,10 @@ extension String {
                                     withAttributes: attributes)
         }
     }
+
+    func leftPadding(toLength: Int, withPad: String = " ") -> String {
+        guard toLength > self.count else { return self }
+        let padding: String = String(repeating: withPad, count: toLength - self.count)
+        return padding + self
+    }
 }

@@ -17,7 +17,7 @@ struct CrashModel: Codable, Equatable {
         type: CrashType,
         details: Details,
         context: Context = .builder(),
-        traces: [Trace] = .builder()
+        traces: [Trace]
     ) {
         self.type = type
         self.details = details
@@ -85,23 +85,16 @@ extension CrashModel {
 }
 
 extension [CrashModel.Trace] {
-    static func builder() -> [CrashModel.Trace] {
+    static func builder(_ stack: [String]) -> [CrashModel.Trace] {
         var traces = [CrashModel.Trace]()
 
-        let parser = DLADDRParser()
-        let callStackSymbols = Thread.callStackSymbols
-        for callStackSymbol in callStackSymbols {
-            let detail = try? parser.parse(input: callStackSymbol)
+        for symbol in stack {
             let trace = CrashModel.Trace(
-                title: detail?.fname ?? "",
-                detail: detail?.callStackSymbolRepresentation ?? ""
+                title: symbol,
+                detail: ""
             )
             traces.append(trace)
         }
-
-//        for trace in backtraceAllThread() {
-//            traces.append(.init(title: trace, detail: ""))
-//        }
 
         return traces
     }

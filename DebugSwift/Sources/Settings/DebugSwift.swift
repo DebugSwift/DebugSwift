@@ -17,6 +17,12 @@ public enum DebugSwift {
         }
 
         LaunchTimeTracker.measureAppStartUpTime()
+
+        if #available(iOS 13.0, *) {
+            print(MetricKitReporter.shared.loadMetricFromFile())
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     public static func setup(hideFeatures: [DebugSwiftFeatures]) {

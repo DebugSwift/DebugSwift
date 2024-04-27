@@ -7,6 +7,7 @@
 
 import Foundation
 import MachO.dyld
+import MetricKit
 
 func calculate() -> Int {
     var slide: Int = 0
@@ -19,7 +20,7 @@ func calculate() -> Int {
 private var preUncaughtExceptionHandler: NSUncaughtExceptionHandler?
 
 public class CrashUncaughtExceptionHandler {
-    public static var exceptionReceiveClosure: ((Int32?, NSException?, String) -> Void)?
+    public static var exceptionReceiveClosure: ((Int32?, NSException?, String, [String]) -> Void)?
 
     public func prepare() {
         preUncaughtExceptionHandler = NSGetUncaughtExceptionHandler()
@@ -34,9 +35,9 @@ func UncaughtExceptionHandler(exception: NSException) {
     var crash = String()
     crash += "Stack:\n"
     crash = crash.appendingFormat("slideAdress:0x%0x\r\n", calculate())
-    crash += "\r\n\r\n name:\(name) \r\n reason:\(String(describing: reason)) \r\n \(arr.joined(separator: "\r\n")) \r\n\r\n"
+    crash += "\n name:\(name) \r\n reason:\(String(describing: reason)))"
 
-    CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, crash)
+    CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, crash, arr)
     preUncaughtExceptionHandler?(exception)
     kill(getpid(), SIGKILL)
 }
@@ -161,11 +162,12 @@ public class CrashHandler {
         self.uncaughtExceptionHandler = CrashUncaughtExceptionHandler()
         self.signalExceptionHandler = CrashSignalExceptionHandler()
 
-        CrashUncaughtExceptionHandler.exceptionReceiveClosure = { [weak self] signal, exception, info in
+        CrashUncaughtExceptionHandler.exceptionReceiveClosure = { [weak self] signal, exception, info, arr in
             self?.exceptionReceiveClosure?(signal, exception, info)
             let trace = CrashModel(
                 type: .nsexception,
-                details: .builder(name: info)
+                details: .builder(name: info),
+                traces: .builder(Thread.simpleCallStackSymbols(arr))
             )
             CrashManager.save(crash: trace)
         }
@@ -174,7 +176,8 @@ public class CrashHandler {
             self?.exceptionReceiveClosure?(signal, exception, info)
             let trace = CrashModel(
                 type: .signal,
-                details: .builder(name: info)
+                details: .builder(name: info),
+                traces: .builder(Thread.simpleCallStackSymbols())
             )
             CrashManager.save(crash: trace)
         }
@@ -183,5 +186,8 @@ public class CrashHandler {
     public func prepare() {
         uncaughtExceptionHandler.prepare()
         signalExceptionHandler.prepare()
+        if #available(iOS 13.0, *) {
+            MetricKitReporter.shared.register()
+        }
     }
 }
