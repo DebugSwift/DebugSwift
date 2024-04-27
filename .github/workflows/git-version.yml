@@ -120,10 +120,11 @@ jobs:
     - name: Display latest release tag
       id: getTag
       run: |
-        tag=$(cat <<-END
+        json=$(cat <<-END
           ${{ steps.get_release.outputs.data }}
         END
-
+        )
+        tag=$(echo "$json" | grep -o '"tag_name": *"[^"]*"' | awk -F'"' '{print $4}')
         echo '::set-output name=latestTag::$tag'
         
     - name: Display error if exists
