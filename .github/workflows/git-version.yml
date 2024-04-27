@@ -114,10 +114,12 @@ jobs:
     - name: Display latest release tag
       id: getTag
       run: |
-        json='${{ steps.get_release.outputs.data }}'
-        tag="$(echo $json | jq -r '.tag_name')"
-        echo $tag
-        echo "::set-output name=latestTag::$tag"
+        json=$(cat <<-END
+          ${{ steps.get_release.outputs.data }}
+        END
+        )
+        tag=$(echo "$json" | grep -o '"tag_name": *"[^"]*"' | awk -F'"' '{print $4}')
+        echo '::set-output name=latestTag::$tag'
         
     - name: Display error if exists
       run: "echo Release could not be found. Request failed with status '${{ steps.get_release.outputs.status }}'"
