@@ -72,6 +72,13 @@ enum WindowManager {
             preferredStyle: .actionSheet
         )
 
+        alertController.popoverPresentationController?.sourceView = WindowManager.rootNavigation?.view
+
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = FloatViewManager.shared.ballView
+            popoverController.sourceRect = FloatViewManager.shared.ballView.bounds
+        }
+
         let filteredWindows = UIApplication.shared.windows.filter { window in
             String(describing: type(of: window)) != "UITextEffectsWindow"
             && window.windowLevel < UIWindow.Level.alert

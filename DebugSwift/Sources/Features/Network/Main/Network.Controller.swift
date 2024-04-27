@@ -185,4 +185,24 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
         let controller = NetworkViewControllerDetail(model: model)
         navigationController?.pushViewController(controller, animated: true)
     }
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let action = UIContextualAction(style: .normal, title: "") { [weak self] _, _, _ in
+            guard let self else { return }
+
+            if let url = self.viewModel.models[indexPath.row].url {
+                UIPasteboard.general.string = url.absoluteString
+
+                self.showAlert(
+                    with: "alert.url.copied.description".localized(),
+                    title: "alert.url.copied.title".localized()
+                )
+            }
+        }
+
+        action.image = .named("doc.on.doc", default: "copy".localized())
+        action.backgroundColor = .gray
+
+        return UISwipeActionsConfiguration(actions: [action])
+    }
 }
