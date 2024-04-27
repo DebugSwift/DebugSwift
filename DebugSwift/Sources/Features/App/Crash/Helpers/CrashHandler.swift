@@ -30,12 +30,11 @@ public class CrashUncaughtExceptionHandler {
 
 func UncaughtExceptionHandler(exception: NSException) {
     let arr = exception.callStackSymbols
-    let reason = exception.reason
+    let reason = exception.reason ?? ""
     let name = exception.name.rawValue
     var crash = String()
-    crash += "Stack:\n"
-    crash = crash.appendingFormat("slideAdress:0x%0x\r\n", calculate())
-    crash += "\n name:\(name) \r\n reason:\(String(describing: reason)))"
+    crash = crash.appendingFormat("adress: 0x%0x", calculate())
+    crash += "\nname: \(name)\nreason: \(reason)"
 
     CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, crash, arr)
     preUncaughtExceptionHandler?(exception)

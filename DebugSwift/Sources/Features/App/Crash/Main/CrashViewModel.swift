@@ -14,7 +14,7 @@ final class CrashViewModel: NSObject {
         (
             CrashManager.recover(ofType: .nsexception) +
             CrashManager.recover(ofType: .signal)
-        ).reversed()
+        ).sorted(by: { $0.details.date > $1.details.date })
     }
 
     // MARK: - ViewModel
