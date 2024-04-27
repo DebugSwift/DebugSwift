@@ -186,8 +186,5 @@ public class CrashHandler {
     public func prepare() {
         uncaughtExceptionHandler.prepare()
         signalExceptionHandler.prepare()
-        if #available(iOS 13.0, *) {
-            MetricKitReporter.shared.register()
-        }
     }
 }
