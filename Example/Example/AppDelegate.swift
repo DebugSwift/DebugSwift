@@ -15,10 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
 
-//        DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
+        // DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
         DebugSwift.setup()
 
-        /// Setup .light or dark mode, `default is .dark`.
+        // Setup .light or dark mode, `default is .dark`.
         DebugSwift.theme(appearance: .dark)
 
         // MARK: - Custom Info
@@ -63,8 +63,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // MARK: - Customs
 
-//        DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
-//        DebugSwift.Console.onlyLogs = ["DebugSwift"]
+        // DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
+        // DebugSwift.Console.onlyLogs = ["DebugSwift"]
 
         // MARK: - Enable/Disable Debugger
 
