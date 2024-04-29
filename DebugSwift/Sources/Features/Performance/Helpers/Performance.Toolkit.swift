@@ -89,7 +89,9 @@ final class PerformanceToolkit {
         }
         maxFPS = max(maxFPS, currentFPS)
 
-        refreshWidget()
+        DispatchQueue.main.async {
+            self.refreshWidget()
+        }
         delegate?.performanceToolkitDidUpdateStats(self)
         currentMeasurementIndex = min(measurementsLimit, currentMeasurementIndex + 1)
     }
