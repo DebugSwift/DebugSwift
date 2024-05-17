@@ -27,10 +27,12 @@ final class SnapshotViewController: BaseController {
 
     // MARK: - Initialization
 
-    init(image: UIImage, description: String = "") {
+    init(title: String? = nil, image: UIImage, description: String = "") {
         imageView.image = image
         descriptionLabel.text = description
         super.init()
+
+        self.title = title ?? "snapshot".localized()
     }
 
     // MARK: - View Lifecycle
@@ -43,7 +45,6 @@ final class SnapshotViewController: BaseController {
     // MARK: - UI Setup
 
     private func setupUI() {
-        title = "snapshot".localized()
         view.backgroundColor = Theme.shared.backgroundColor
 
         view.addSubview(descriptionLabel)

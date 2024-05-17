@@ -230,7 +230,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             let leak = PerformanceLeakDetector.leaks[index]
 
             cell.setup(
-                title: "\(leak.hasDeallocated ? "✳️" : "⚠️") \(leak.details)",
+                title: "\(leak.hasDeallocated ? "✳️" : "⚠️")\(leak.details)",
                 image: leak.screenshot != nil ? .named("chevron.right", default: "action".localized()) : nil
             )
 
@@ -285,7 +285,11 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .leak:
             let leak = PerformanceLeakDetector.leaks[indexPath.row - 2]
             if let image = leak.screenshot {
-                let controller = SnapshotViewController(image: image, description: leak.details)
+                let controller = SnapshotViewController(
+                    title: "Leak",
+                    image: image,
+                    description: leak.details
+                )
                 navigationController?.pushViewController(controller, animated: true)
             }
         default:
