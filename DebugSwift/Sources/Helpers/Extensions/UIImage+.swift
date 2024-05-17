@@ -11,14 +11,14 @@ import UIKit
 extension UIImage {
     static func named(_ imageName: String, default: String? = nil) -> UIImage? {
         if #available(iOS 13.0, *) {
-            return UIImage.init(systemName: imageName)
+            return UIImage(systemName: imageName)
         } else {
             return `default`?.image(with: [.foregroundColor: Theme.shared.fontColor])
         }
     }
 
     func outline() -> UIImage? {
-        guard let cgImage = cgImage else { return nil }
+        guard let cgImage else { return nil }
 
         let size = CGSize(width: cgImage.width, height: cgImage.height)
 
@@ -26,7 +26,7 @@ extension UIImage {
         guard let context = UIGraphicsGetCurrentContext() else { return nil }
 
         let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        self.draw(in: rect, blendMode: .normal, alpha: 1.0)
+        draw(in: rect, blendMode: .normal, alpha: 1.0)
 
         // Set the stroke color and width
         context.setStrokeColor(Theme.shared.fontColor.cgColor)

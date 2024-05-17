@@ -9,9 +9,10 @@
 import UIKit
 
 enum PerformanceSection: Int {
-    case CPU
-    case Memory
-    case FPS
+    case cpu
+    case memory
+    case fps
+    case leaks
 }
 
 final class PerformanceWidgetView: TopLevelViewWrapper {
@@ -41,6 +42,13 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
         return label
     }()
 
+    let leaksValueLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: labelFontSize)
+        label.textColor = Theme.shared.fontColor
+        return label
+    }()
+
     weak var delegate: PerformanceWidgetViewDelegate?
 
     // MARK: - Initialization
@@ -53,10 +61,11 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
         super.init(coder: aDecoder)
     }
 
-    func updateValues(cpu: CGFloat, memory: CGFloat, fps: CGFloat) {
+    func updateValues(cpu: CGFloat, memory: CGFloat, fps: CGFloat, leaks: CGFloat) {
         cpuValueLabel.text = String(format: "\("cpu".localized()): %.1lf%%", cpu)
         memoryValueLabel.text = String(format: "\("memory".localized()): %.1lf MB", memory)
         fpsValueLabel.text = String(format: "\("fps".localized()): %.0lf", fps)
+        leaksValueLabel.text = String(format: "\("leaks".localized()): %.0lf", leaks)
     }
 
     override func showWidgetWindow() {
@@ -95,6 +104,7 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
         stackView.addArrangedSubview(cpuValueLabel)
         stackView.addArrangedSubview(memoryValueLabel)
         stackView.addArrangedSubview(fpsValueLabel)
+        stackView.addArrangedSubview(leaksValueLabel)
 
         addSubview(stackView)
 

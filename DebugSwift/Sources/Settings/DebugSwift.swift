@@ -64,11 +64,51 @@ extension DebugSwift {
         public static var onlyLogs = [String]()
     }
 
+    public enum Performance {
+        public enum LeakDetector {
+            /**
+             Triggers the callback whenever a leaked ViewController or View is detected.
+
+             - Parameter detectionDelay: The time in seconds allowed for each ViewController or View to deinit itself after it has been closed/removed (i.e. grace period). If it or any of its subviews are still in memory (alive) after the delay the callback will be triggered. Increasing the delay may prevent certain false positives. The default 1.0s is recommended, though a tighter delay may be considered for debug builds.
+             - Parameter callback: This will be triggered every time a ViewController closes or View is removed but it or one of its subviews don't deinit. It will trigger again once it does deinit (if ever). It either provides the ViewController or the View that has leaked and a warning message string that you can use to log. The provided ViewController and View will both be nil in case of a deinit warning. Return true to show an alert dialog with the message. Return nil if you want to prevent a future deinit of the ViewController or View from triggering the callback again (useful if you want to ignore warnings of certain ViewControllers/Views).
+             */
+            public static func onDetect(
+                detectionDelay: TimeInterval = 1.0,
+                callback: ((PerformanceLeak) -> Void)?
+            ) {
+                PerformanceLeakDetector.delay = detectionDelay
+                PerformanceLeakDetector.callback = callback
+            }
+
+            public static let ignoredWindowClassNames: [String] = [
+                "UIRemoteKeyboardWindow",
+                "UITextEffectsWindow"
+            ]
+
+            public static let ignoredViewControllerClassNames: [String] = [
+                "UICompatibilityInputViewController",
+                "_SFAppPasswordSavingViewController",
+                "UIKeyboardHiddenViewController_Save",
+                "_UIAlertControllerTextFieldViewController",
+                "UISystemInputAssistantViewController",
+                "UIPredictionViewController",
+                "DebugSwift.TabBarController"
+            ]
+
+            public static let ignoredViewClassNames: [String] = [
+                "PLTileContainerView",
+                "CAMPreviewView",
+                "_UIPointerInteractionAssistantEffectContainerView"
+            ]
+
+        }
+    }
+
     public enum Debugger {
         /// Enable/Disable logs in Xcode console
         public static var logEnable: Bool {
             get {
-                return Debug.enable
+                Debug.enable
             } set {
                 Debug.enable = newValue
             }
@@ -77,7 +117,7 @@ extension DebugSwift {
         /// Enable/Disable `ImpactFeedback`
         public static var feedbackEnable: Bool {
             get {
-                return ImpactFeedback.enable
+                ImpactFeedback.enable
             } set {
                 ImpactFeedback.enable = newValue
             }

@@ -1,7 +1,7 @@
 // https://github.com/warchimede/RangeSlider
 
-import UIKit
 import QuartzCore
+import UIKit
 
 class RangeSliderTrackLayer: CALayer {
     weak var rangeSlider: RangeSlider?
@@ -32,7 +32,7 @@ class RangeSliderTrackLayer: CALayer {
 
 class RangeSliderThumbLayer: CALayer {
 
-    var highlighted: Bool = false {
+    var highlighted = false {
         didSet {
             setNeedsDisplay()
         }
@@ -40,11 +40,12 @@ class RangeSliderThumbLayer: CALayer {
 
     weak var rangeSlider: RangeSlider?
 
-    var strokeColor: UIColor = UIColor.lightGray {
+    var strokeColor = UIColor.lightGray {
         didSet {
             setNeedsDisplay()
         }
     }
+
     var lineWidth: CGFloat = 0.3 {
         didSet {
             setNeedsDisplay()
@@ -81,7 +82,7 @@ class RangeSliderThumbLayer: CALayer {
 
 final class RangeSlider: UIControl {
 
-    var minimumValue: Double = 0.0 {
+    var minimumValue = 0.0 {
         willSet(newValue) {
             assert(newValue < maximumValue, "RangeSlider: minimumValue should be lower than maximumValue")
         }
@@ -90,7 +91,7 @@ final class RangeSlider: UIControl {
         }
     }
 
-    var maximumValue: Double = 1.0 {
+    var maximumValue = 1.0 {
         willSet(newValue) {
             assert(newValue > minimumValue, "RangeSlider: maximumValue should be greater than minimumValue")
         }
@@ -99,7 +100,7 @@ final class RangeSlider: UIControl {
         }
     }
 
-    var lowerValue: Double = 0.2 {
+    var lowerValue = 0.2 {
         didSet {
             if lowerValue < minimumValue {
                 lowerValue = minimumValue
@@ -108,7 +109,7 @@ final class RangeSlider: UIControl {
         }
     }
 
-    var upperValue: Double = 0.8 {
+    var upperValue = 0.8 {
         didSet {
             if upperValue > maximumValue {
                 upperValue = maximumValue
@@ -118,29 +119,29 @@ final class RangeSlider: UIControl {
     }
 
     var gapBetweenThumbs: Double {
-        return 0.5 * Double(thumbWidth) * (maximumValue - minimumValue) / Double(bounds.width)
+        0.5 * Double(thumbWidth) * (maximumValue - minimumValue) / Double(bounds.width)
     }
 
-    var trackTintColor: UIColor = UIColor(white: 0.9, alpha: 1.0) {
+    var trackTintColor = UIColor(white: 0.9, alpha: 1.0) {
         didSet {
             trackLayer.setNeedsDisplay()
         }
     }
 
-    var trackHighlightTintColor: UIColor = UIColor(red: 0.0, green: 0.45, blue: 0.94, alpha: 1.0) {
+    var trackHighlightTintColor = UIColor(red: 0.0, green: 0.45, blue: 0.94, alpha: 1.0) {
         didSet {
             trackLayer.setNeedsDisplay()
         }
     }
 
-    var thumbTintColor: UIColor = UIColor.white {
+    var thumbTintColor = UIColor.white {
         didSet {
             lowerThumbLayer.setNeedsDisplay()
             upperThumbLayer.setNeedsDisplay()
         }
     }
 
-    var thumbBorderColor: UIColor = UIColor.lightGray {
+    var thumbBorderColor = UIColor.lightGray {
         didSet {
             lowerThumbLayer.strokeColor = thumbBorderColor
             upperThumbLayer.strokeColor = thumbBorderColor
@@ -177,7 +178,7 @@ final class RangeSlider: UIControl {
     fileprivate let upperThumbLayer = RangeSliderThumbLayer()
 
     fileprivate var thumbWidth: CGFloat {
-        return CGFloat(bounds.height)
+        CGFloat(bounds.height)
     }
 
     override public var frame: CGRect {
@@ -221,27 +222,27 @@ final class RangeSlider: UIControl {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
 
-        trackLayer.frame = bounds.insetBy(dx: 0.0, dy: bounds.height/2.3)
+        trackLayer.frame = bounds.insetBy(dx: 0.0, dy: bounds.height / 2.3)
         trackLayer.setNeedsDisplay()
 
         let lowerThumbCenter = CGFloat(positionForValue(lowerValue))
-        lowerThumbLayer.frame = CGRect(x: lowerThumbCenter - thumbWidth/2.0, y: 0.0, width: thumbWidth, height: thumbWidth)
+        lowerThumbLayer.frame = CGRect(x: lowerThumbCenter - thumbWidth / 2.0, y: 0.0, width: thumbWidth, height: thumbWidth)
         lowerThumbLayer.setNeedsDisplay()
 
         let upperThumbCenter = CGFloat(positionForValue(upperValue))
-        upperThumbLayer.frame = CGRect(x: upperThumbCenter - thumbWidth/2.0, y: 0.0, width: thumbWidth, height: thumbWidth)
+        upperThumbLayer.frame = CGRect(x: upperThumbCenter - thumbWidth / 2.0, y: 0.0, width: thumbWidth, height: thumbWidth)
         upperThumbLayer.setNeedsDisplay()
 
         CATransaction.commit()
     }
 
     func positionForValue(_ value: Double) -> Double {
-        return Double(bounds.width - thumbWidth) * (value - minimumValue) /
-        (maximumValue - minimumValue) + Double(thumbWidth/2.0)
+        Double(bounds.width - thumbWidth) * (value - minimumValue) /
+            (maximumValue - minimumValue) + Double(thumbWidth / 2.0)
     }
 
     func boundValue(_ value: Double, toLowerValue lowerValue: Double, upperValue: Double) -> Double {
-        return min(max(value, lowerValue), upperValue)
+        min(max(value, lowerValue), upperValue)
     }
 
     // MARK: - Touches

@@ -38,7 +38,7 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
 
     // MARK: - ViewModel
 
-    var isSearchActived: Bool = false
+    var isSearchActived = false
 
     var reloadData: (() -> Void)?
 

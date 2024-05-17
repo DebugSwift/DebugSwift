@@ -13,7 +13,7 @@ import Foundation
  */
 public class CallStackParser {
 
-    internal static var bundleName: String? {
+    static var bundleName: String? {
         if let name: String = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String {
             return name
         } else if let name: String = Bundle(
@@ -26,9 +26,9 @@ public class CallStackParser {
     }
 
     private static func cleanMethod(
-        method: (
-            String
-        )
+        method:
+        String
+
     ) -> String {
         var result = method
         if
@@ -51,11 +51,11 @@ public class CallStackParser {
 
     /**
      Takes a specific item from 'NSThread.callStackSymbols()' and returns the class and method call contained within.
-     
+
      - Parameters:
      - stackSymbol: a specific item from 'NSThread.callStackSymbols()'
      - includeImmediateParentClass: Whether or not to include the parent class in an innerclass situation.
-     
+
      - Returns: a tuple containing the (class,method) or nil if it could not be parsed
      */
     public class func classAndMethodForStackSymbol(
@@ -107,7 +107,7 @@ public class CallStackParser {
                 )
                 if includeImmediateParentClass != nil {
                     if
-                        includeImmediateParentClass == true && numberOfComponents >= 4 {
+                        includeImmediateParentClass == true, numberOfComponents >= 4 {
                         return (
                             packageClassAndMethod[numberOfComponents - 3] + "." + packageClassAndMethod[numberOfComponents - 2],
                             method
@@ -171,10 +171,10 @@ public class CallStackParser {
 
     /**
      Analyses the 'NSThread.callStackSymbols()' and returns the calling class and method in the scope of the caller.
-     
+
      - Parameters:
      - includeImmediateParentClass: Whether or not to include the parent class in an innerclass situation.
-     
+
      - Returns: a tuple containing the (class,method) or nil if it could not be parsed
      */
     public class func getCallingClassAndMethodInScope(
@@ -196,10 +196,10 @@ public class CallStackParser {
 
     /**
      Analyses the 'NSThread.callStackSymbols()' and returns the current class and method in the scope of the caller.
-     
+
      - Parameters:
      - includeImmediateParentClass: Whether or not to include the parent class in an inner class situation.
-     
+
      - Returns: a tuple containing the (class,method) or nil if it could not be parsed
      */
     public class func getThisClassAndMethodInScope(
@@ -218,5 +218,4 @@ public class CallStackParser {
         }
         return nil
     }
-
 }

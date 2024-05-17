@@ -11,6 +11,9 @@
 "memory-usage" = "Memory usage";
 "max-memory-usage" = "Max memory usage";
 "simulate-memory-warning" = "Simulate memory warning";
+"leaks" = "Leaks";
+"current-leaks" = "Current active Leaks";
+"max-leaks" = "Max Leaks";
 "fps" = "FPS";
 "cpu" = "CPU";
 "memory" = "Memory";

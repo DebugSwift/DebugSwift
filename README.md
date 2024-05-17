@@ -17,6 +17,7 @@
 ![image4](https://github.com/DebugSwift/DebugSwift/assets/31082311/fecff545-405b-493f-99f8-3ed65d453227)
 ![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e558c50-6634-4e26-9788-b1b355f121f4)
 ![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/d0512b4e-afbd-427f-b8e0-f125afb92416)
+![image11](https://github.com/DebugSwift/DebugSwift/assets/31082311/d5f36843-1f74-49b9-89ef-1875f5ae395b)
 
 ## Features
 
@@ -45,7 +46,7 @@
 
 ### Performance
 
-- **CPU, Memory, FPS:** Monitor and analyze CPU usage, memory consumption, and frames per second in real-time.
+- **CPU, Memory, FPS, Memory Leak Detector:** Monitor and analyze CPU usage, memory consumption, and frames per second in real-time.
 
 ### Resources
 

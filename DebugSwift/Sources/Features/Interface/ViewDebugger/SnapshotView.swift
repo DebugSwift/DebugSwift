@@ -6,8 +6,8 @@
 //  Copyright © 2019 Indragie Karunaratne. All rights reserved.
 //
 
-import UIKit
 import SceneKit
+import UIKit
 
 protocol SnapshotViewDelegate: AnyObject {
     /// Called when an element is select by tapping on it.
@@ -47,9 +47,10 @@ final class SnapshotView: UIView {
             depthSlider.minimumValue = .zero
         }
     }
+
     private var highlightedNodes: SnapshotNodes?
     private var hideHeaderNodes: Bool
-    private var hideBorderNodes: Bool = false
+    private var hideBorderNodes = false
     private var suppressSelectionEvents = false
 
     private var isLeft: Bool { snapshot.children.first?.children.isEmpty != false }
@@ -186,6 +187,7 @@ final class SnapshotView: UIView {
         addGestureRecognizer(longPressGestureRecognizer)
     }
 
+    @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -297,7 +299,7 @@ final class SnapshotView: UIView {
             previousNodes.highlightNode?.removeFromParentNode()
             previousNodes.highlightNode = nil
 
-            if !suppressSelectionEvents && snapshotNode == nil {
+            if !suppressSelectionEvents, snapshotNode == nil {
                 delegate?.snapshotView(self, didDeselectSnapshot: previousNodes.snapshot)
             }
             highlightedNodes = nil
@@ -384,12 +386,12 @@ private let smallZOffset: Float = 0.5
 
 /// Returns whether the header nodes should be hidden for a given z-axis spacing.
 private func shouldHideHeaderNodes(zSpacing: Float) -> Bool {
-    return zSpacing <= smallZOffset
+    zSpacing <= smallZOffset
 }
 
 /// Returns the nearest ancestor snapshot node starting at the specified node.
 private func findNearestAncestorSnapshotNode(node: SCNNode?) -> SCNNode? {
-    guard let node = node else {
+    guard let node else {
         return nil
     }
     if node.name != nil {
@@ -415,14 +417,16 @@ private func highlightNode(snapshot: Snapshot, color: UIColor) -> SCNNode {
 
 /// Returns a SceneKit node that recursively renders a hierarchy of UI elements
 /// starting at the specified snapshot.
-private func snapshotNode(snapshot: Snapshot,
-                          parentSnapshot: Snapshot?,
-                          rootNode: SCNNode,
-                          parentSnapshotNode: SCNNode?,
-                          depth: inout Int,
-                          snapshotIdentifierToNodesMap: inout [String: SnapshotNodes],
-                          configuration: SnapshotViewConfiguration,
-                          hideHeaderNodes: Bool) -> SCNNode? {
+private func snapshotNode(
+    snapshot: Snapshot,
+    parentSnapshot: Snapshot?,
+    rootNode: SCNNode,
+    parentSnapshotNode: SCNNode?,
+    depth: inout Int,
+    snapshotIdentifierToNodesMap: inout [String: SnapshotNodes],
+    configuration: SnapshotViewConfiguration,
+    hideHeaderNodes: Bool
+) -> SCNNode? {
     // Ignore elements that are not visible. These should appear in
     // the tree view, but not in the 3D view.
     if snapshot.isHidden || snapshot.frame.size == .zero {
@@ -442,7 +446,7 @@ private func snapshotNode(snapshot: Snapshot,
         // Flip the y-coordinate since the SceneKit coordinate system has
         // a flipped version of the UIKit coordinate system.
         let y: CGFloat
-        if let parentSnapshot = parentSnapshot {
+        if let parentSnapshot {
             y = parentSnapshot.frame.height - snapshot.frame.maxY
         } else {
             y = .zero
@@ -461,7 +465,7 @@ private func snapshotNode(snapshot: Snapshot,
         // root node.
         let positionRelativeToParent = SCNVector3(snapshot.frame.origin.x, y, .zero)
         var positionRelativeToRoot: SCNVector3
-        if let parentSnapshotNode = parentSnapshotNode {
+        if let parentSnapshotNode {
             positionRelativeToRoot = rootNode.convertPosition(positionRelativeToParent, from: parentSnapshotNode)
         } else {
             positionRelativeToRoot = positionRelativeToParent
@@ -506,14 +510,16 @@ private func snapshotNode(snapshot: Snapshot,
             childDepth = depth + 1
         }
 
-        if let _ = snapshotNode(snapshot: child,
-                                parentSnapshot: snapshot,
-                                rootNode: rootNode,
-                                parentSnapshotNode: node,
-                                depth: &childDepth,
-                                snapshotIdentifierToNodesMap: &snapshotIdentifierToNodesMap,
-                                configuration: configuration,
-                                hideHeaderNodes: hideHeaderNodes) {
+        if let _ = snapshotNode(
+            snapshot: child,
+            parentSnapshot: snapshot,
+            rootNode: rootNode,
+            parentSnapshotNode: node,
+            depth: &childDepth,
+            snapshotIdentifierToNodesMap: &snapshotIdentifierToNodesMap,
+            configuration: configuration,
+            hideHeaderNodes: hideHeaderNodes
+        ) {
             maxChildDepth = max(maxChildDepth, childDepth)
             frames.append(child.frame)
         }
@@ -576,8 +582,10 @@ private func borderNode(node: SCNNode, color: UIColor) -> SCNNode {
 
 /// Returns a node that renders a header above a snapshot node.
 /// The header contains the name text from the element, if specified.
-private func headerNode(snapshot: Snapshot,
-                        attributes: SnapshotViewConfiguration.HeaderAttributes) -> SCNNode? {
+private func headerNode(
+    snapshot: Snapshot,
+    attributes: SnapshotViewConfiguration.HeaderAttributes
+) -> SCNNode? {
     guard let text = nameTextGeometry(label: snapshot.label, font: attributes.font) else {
         return nil
     }

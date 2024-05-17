@@ -1,5 +1,5 @@
 //
-//  FeedbackInpact.swift
+//  ImpactFeedback.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 12/03/24.

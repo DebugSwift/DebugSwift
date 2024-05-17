@@ -49,6 +49,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
+        // MARK: Leak Detector
+
+        DebugSwift.Performance.LeakDetector.onDetect { data in
+            // If you send data to some analytics
+            print(data.message)
+        }
+
         // MARK: - Custom Controllers
 
         DebugSwift.App.customControllers = {
@@ -80,7 +87,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 // MARK: - Enable motion detection example.
 
 extension UIWindow {
-    open override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+    override open func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         super.motionEnded(motion, with: event)
         if motion == .motionShake {
             DebugSwift.toggle()

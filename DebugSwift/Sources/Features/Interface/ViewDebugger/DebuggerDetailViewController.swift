@@ -29,7 +29,7 @@ final class DebuggerDetailViewController: UIViewController {
         title = snapshot.element.title
         textView.text = snapshot.element.description
         if let cgImage = snapshot.snapshotImage {
-            imageView.image =  .init(cgImage: cgImage).outline()
+            imageView.image = .init(cgImage: cgImage).outline()
         }
     }
 
@@ -62,7 +62,7 @@ final class DebuggerDetailViewController: UIViewController {
             ),
             imageView.heightAnchor.constraint(
                 equalTo: view.heightAnchor,
-                multiplier: 1/3
+                multiplier: 1 / 3
             )
         ])
 

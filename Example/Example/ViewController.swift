@@ -48,6 +48,10 @@ class ViewController: UIViewController {
 //            let element = array.object(at: 4)
         }
     }
+
+    @IBAction func createLeak() {
+        present(LeakViewController(), animated: true)
+    }
 }
 
 extension Thread {

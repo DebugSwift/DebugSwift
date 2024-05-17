@@ -12,7 +12,6 @@ final class FloatViewManager: NSObject {
 
     static let shared = FloatViewManager()
 
-    let bottomFloatView = BottomFloatView()
     let ballView = FloatBallView()
     let ballRedCancelView = BottomFloatView()
 
@@ -33,6 +32,10 @@ final class FloatViewManager: NSObject {
 
     static func animate(success: Bool) {
         shared.ballView.animate(success: success)
+    }
+
+    static func animateLeek(alloced: Bool) {
+        shared.ballView.animateLeek(alloced: alloced)
     }
 
     static func reset() {
@@ -76,15 +79,11 @@ final class FloatViewManager: NSObject {
 
 extension FloatViewManager {
     private func setup() {
-        bottomFloatView.frame = .init(
-            x: DSFloatChat.screenWidth, y: DSFloatChat.screenHeight,
-            width: DSFloatChat.bottomViewFloatWidth, height: DSFloatChat.bottomViewFloatHeight
-        )
-        WindowManager.window.addSubview(bottomFloatView)
-
         ballRedCancelView.frame = .init(
-            x: DSFloatChat.screenWidth, y: DSFloatChat.screenHeight,
-            width: DSFloatChat.bottomViewFloatWidth, height: DSFloatChat.bottomViewFloatHeight
+            x: DSFloatChat.screenWidth,
+            y: DSFloatChat.screenHeight,
+            width: DSFloatChat.bottomViewFloatWidth,
+            height: DSFloatChat.bottomViewFloatHeight
         )
         ballRedCancelView.type = BottomFloatViewType.red
         WindowManager.window.addSubview(ballRedCancelView)

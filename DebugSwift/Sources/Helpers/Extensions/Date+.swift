@@ -29,7 +29,7 @@ extension Date {
     }
 
     var millisecondsSince1970: Int64 {
-        return Int64((timeIntervalSince1970 * 1000.0).rounded())
+        Int64((timeIntervalSince1970 * 1000.0).rounded())
     }
 
     init(milliseconds: Int64) {

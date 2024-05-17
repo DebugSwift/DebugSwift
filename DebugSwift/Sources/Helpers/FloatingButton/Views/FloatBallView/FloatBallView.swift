@@ -85,6 +85,14 @@ class FloatBallView: UIView {
         if !success { ImpactFeedback.generate() }
     }
 
+    func animateLeek(alloced: Bool) {
+        guard isShowing else { return }
+
+        startAnimation(text: alloced ? "⚠️" : "✳️")
+
+        ImpactFeedback.generate(style: .heavy)
+    }
+
     func updateText() {
         label.text = .init(HttpDatasource.shared.httpModels.count)
     }

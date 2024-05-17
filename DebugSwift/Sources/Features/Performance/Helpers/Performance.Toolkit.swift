@@ -25,10 +25,14 @@ final class PerformanceToolkit {
     var minFPS: CGFloat = 9999
     var maxFPS: CGFloat = 0
 
+    var currentLeaks: CGFloat = 0
+    var maxLeaks: CGFloat = 0
+    var leaksMeasurements: [CGFloat] = []
+
     var currentMeasurementIndex = 0
     let measurementsLimit = 120
     var timeBetweenMeasurements: TimeInterval = 1
-    var controllerMarked: TimeInterval = 20
+    var controllerMarked: TimeInterval = 120
 
     weak var delegate: PerformanceToolkitDelegate?
 
@@ -68,26 +72,32 @@ final class PerformanceToolkit {
         cpuMeasurements = Array(repeating: 0, count: measurementsLimit)
         memoryMeasurements = Array(repeating: 0, count: measurementsLimit)
         fpsMeasurements = Array(repeating: 0, count: measurementsLimit)
+        leaksMeasurements = Array(repeating: 0, count: measurementsLimit)
     }
 
     @objc private func updateMeasurements() {
-        // Update CPU measurements
+        // CPU measurements
         currentCPU = cpu()
         cpuMeasurements = array(cpuMeasurements, byAddingMeasurement: currentCPU)
         maxCPU = max(maxCPU, currentCPU)
 
-        // Update memory measurements
+        // Memory measurements
         currentMemory = memory()
         memoryMeasurements = array(memoryMeasurements, byAddingMeasurement: currentMemory)
         maxMemory = max(maxMemory, currentMemory)
 
-        // Update FPS measurements
+        // FPS measurements
         currentFPS = fps()
         fpsMeasurements = array(fpsMeasurements, byAddingMeasurement: currentFPS)
         if !currentFPS.isZero {
             minFPS = min(minFPS, currentFPS)
         }
         maxFPS = max(maxFPS, currentFPS)
+
+        // Leaks measurements
+        currentLeaks = leak()
+        maxLeaks = max(maxLeaks, currentLeaks)
+        leaksMeasurements = array(leaksMeasurements, byAddingMeasurement: leak())
 
         DispatchQueue.main.async {
             self.refreshWidget()
@@ -116,7 +126,12 @@ final class PerformanceToolkit {
     }
 
     private func refreshWidget() {
-        widget.updateValues(cpu: currentCPU, memory: currentMemory, fps: currentFPS)
+        widget.updateValues(
+            cpu: currentCPU,
+            memory: currentMemory,
+            fps: currentFPS,
+            leaks: currentLeaks
+        )
     }
 
     func cpu() -> CGFloat {
@@ -189,6 +204,10 @@ final class PerformanceToolkit {
 
     private func fps() -> CGFloat {
         fpsCounter.fps
+    }
+
+    func leak() -> CGFloat {
+        CGFloat(PerformanceLeakDetector.leaks.filter(\.isActive).count)
     }
 }
 

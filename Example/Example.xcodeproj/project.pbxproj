@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E630C1D2BF673DF00FA2C4E /* LeakViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E630C1C2BF673DF00FA2C4E /* LeakViewController.swift */; };
 		2E932C3C2B31587800B9D1B8 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E932C3B2B31587800B9D1B8 /* LocationManager.swift */; };
 		2E932C3F2B315E0A00B9D1B8 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E932C3E2B315E0A00B9D1B8 /* RequestManager.swift */; };
 		2EA3B5CF2B2E632B001B59FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA3B5CE2B2E632B001B59FE /* AppDelegate.swift */; };
@@ -23,6 +24,7 @@
 		2E41A5642B32037D0006E98D /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Main.strings"; sourceTree = "<group>"; };
 		2E41A5652B32037D0006E98D /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		2E60BA112B3381C80084C2D9 /* Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example.entitlements; sourceTree = "<group>"; };
+		2E630C1C2BF673DF00FA2C4E /* LeakViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakViewController.swift; sourceTree = "<group>"; };
 		2E932C3B2B31587800B9D1B8 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		2E932C3E2B315E0A00B9D1B8 /* RequestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
 		2EA3B5CB2B2E632B001B59FE /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -54,6 +56,7 @@
 			children = (
 				2E932C3B2B31587800B9D1B8 /* LocationManager.swift */,
 				2E932C3E2B315E0A00B9D1B8 /* RequestManager.swift */,
+				2E630C1C2BF673DF00FA2C4E /* LeakViewController.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 				2E932C3F2B315E0A00B9D1B8 /* RequestManager.swift in Sources */,
 				2E932C3C2B31587800B9D1B8 /* LocationManager.swift in Sources */,
 				2EA3B5D32B2E632B001B59FE /* ViewController.swift in Sources */,
+				2E630C1D2BF673DF00FA2C4E /* LeakViewController.swift in Sources */,
 				2EA3B5CF2B2E632B001B59FE /* AppDelegate.swift in Sources */,
 				2EA3B5D12B2E632B001B59FE /* SceneDelegate.swift in Sources */,
 			);

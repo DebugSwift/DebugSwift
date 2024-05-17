@@ -27,9 +27,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+import CoreTelephony
 import Foundation
 import SystemConfiguration
-import CoreTelephony
 
 enum ReachabilityError: Error {
     case failedToCreateWithAddress(sockaddr, Int32)
@@ -188,7 +188,7 @@ extension Reachability {
         guard !notifierRunning else { return }
 
         let callback: SCNetworkReachabilityCallBack = { _, flags, info in
-            guard let info = info else { return }
+            guard let info else { return }
 
             // `weakifiedReachability` is guaranteed to exist by virtue of our
             // retain/release callbacks which we provided to the `SCNetworkReachabilityContext`.
@@ -256,7 +256,7 @@ extension Reachability {
 
     private func setReachabilityFlags() throws {
         try reachabilitySerialQueue.sync { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             var flags = SCNetworkReachabilityFlags()
             if !SCNetworkReachabilityGetFlags(self.reachabilityRef, &flags) {
                 self.stopNotifier()
@@ -269,7 +269,7 @@ extension Reachability {
 
     private func notifyReachabilityChanged() {
         let notify = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             if self.connection != .unavailable {
                 self.whenReachable?(self)
             } else {
