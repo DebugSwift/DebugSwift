@@ -1,5 +1,5 @@
 //
-//  View+Element.swift
+//  ViewElement.swift
 //  LiveSnapshot
 //
 //  Created by Indragie Karunaratne on 3/30/19.
@@ -11,7 +11,7 @@ import UIKit
 /// An element that represents a UIView.
 final class ViewElement: NSObject, Element {
     var label: ElementLabel {
-        guard let view = view else {
+        guard let view else {
             return ElementLabel(name: nil)
         }
         if let viewController = getViewController(view: view) {
@@ -28,30 +28,30 @@ final class ViewElement: NSObject, Element {
     }
 
     var isHidden: Bool {
-        return view?.isHidden ?? false
+        view?.isHidden ?? false
     }
 
     var snapshotImage: CGImage? {
-        guard let view = view else {
+        guard let view else {
             return nil
         }
         return snapshotView(view)
     }
 
     var children: [Element] {
-        guard let view = view else {
+        guard let view else {
             return []
         }
         return view.subviews.map { ViewElement(view: $0) }
     }
 
     var title: String {
-        guard let view = view else { return "No view available" }
+        guard let view else { return "No view available" }
         return NSStringFromClass(type(of: view))
     }
 
     var shortDescription: String {
-        guard let view = view else { return "No view available" }
+        guard let view else { return "No view available" }
 
         let frame = view.frame
         let className = NSStringFromClass(type(of: view))
@@ -69,7 +69,7 @@ final class ViewElement: NSObject, Element {
     }
 
     override var description: String {
-        guard let view = view else { return "No view available" }
+        guard let view else { return "No view available" }
 
         let frame = view.frame
         let className = NSStringFromClass(type(of: view))
@@ -113,10 +113,10 @@ final class ViewElement: NSObject, Element {
         // 6. Layer Information (customize based on your needs)
         let layer = view.layer
         let layerInfo = """
-            Border Width: \(layer.borderWidth)
-            Corner Radius: \(layer.cornerRadius)
-            Shadow Opacity: \(layer.shadowOpacity)
-            """
+        Border Width: \(layer.borderWidth)
+        Corner Radius: \(layer.cornerRadius)
+        Shadow Opacity: \(layer.shadowOpacity)
+        """
         additionalInfo += "\n\n- Layer Info: \n\(layerInfo)\n"
 
         if let tintColor = view.tintColor?.hexString {
@@ -234,13 +234,13 @@ final class ViewElement: NSObject, Element {
 
         let description = String(
             format: """
-                Class: %@
-                Frame: (%.1f, %.1f, %.1f, %.1f)
-                Alpha: %.2f
-                Background Color: %@
-                Tag: %d
-                %@
-                """,
+            Class: %@
+            Frame: (%.1f, %.1f, %.1f, %.1f)
+            Alpha: %.2f
+            Background Color: %@
+            Tag: %d
+            %@
+            """,
             className,
             frame.origin.x,
             frame.origin.y,

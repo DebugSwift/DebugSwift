@@ -6,8 +6,8 @@
 //  Copyright © 2019 Indragie Karunaratne. All rights reserved.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
 /// A snapshot of the UI element tree in its current state.
 final class Snapshot: NSObject {

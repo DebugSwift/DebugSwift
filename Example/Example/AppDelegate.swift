@@ -15,10 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
 
-//        DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
+        // DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
         DebugSwift.setup()
 
-        /// Setup .light or dark mode, `default is .dark`.
+        // Setup .light or dark mode, `default is .dark`.
         DebugSwift.theme(appearance: .dark)
 
         // MARK: - Custom Info
@@ -49,6 +49,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
+        // MARK: Leak Detector
+
+        DebugSwift.Performance.LeakDetector.onDetect { data in
+            // If you send data to some analytics
+            print(data.message)
+        }
+
         // MARK: - Custom Controllers
 
         DebugSwift.App.customControllers = {
@@ -63,8 +70,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // MARK: - Customs
 
-//        DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
-//        DebugSwift.Console.onlyLogs = ["DebugSwift"]
+        // DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
+        // DebugSwift.Console.onlyLogs = ["DebugSwift"]
 
         // MARK: - Enable/Disable Debugger
 
@@ -80,7 +87,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 // MARK: - Enable motion detection example.
 
 extension UIWindow {
-    open override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+    override open func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         super.motionEnded(motion, with: event)
         if motion == .motionShake {
             DebugSwift.toggle()

@@ -13,7 +13,7 @@ protocol Tree {
 }
 
 final class TreeTableViewDataSource<TreeType: Tree>: NSObject, UITableViewDataSource {
-    typealias CellFactory = (UITableView /* tableView */, TreeType /* value */, Int /* depth */, IndexPath /* indexPath */, Bool /* isCollapsed */) -> UITableViewCell
+    typealias CellFactory = (UITableView /* tableView */, TreeType /* value */, Int /* depth */, IndexPath /* indexPath */, Bool /* isCollapsed */ ) -> UITableViewCell
 
     private let tree: TreeType
     private let cellFactory: CellFactory
@@ -26,17 +26,17 @@ final class TreeTableViewDataSource<TreeType: Tree>: NSObject, UITableViewDataSo
     }
 
     func value(atIndexPath indexPath: IndexPath) -> TreeType {
-        return flattenedTree[indexPath.row].value
+        flattenedTree[indexPath.row].value
     }
 
     // MARK: UITableViewDataSource
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        1
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return flattenedTree.count
+        flattenedTree.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -47,7 +47,7 @@ final class TreeTableViewDataSource<TreeType: Tree>: NSObject, UITableViewDataSo
 
 extension TreeTableViewDataSource where TreeType: AnyObject {
     func indexPath(forValue value: TreeType) -> IndexPath? {
-        return flattenedTree
+        flattenedTree
             .firstIndex { $0.value === value }
             .flatMap { IndexPath(row: $0, section: .zero) }
     }
@@ -67,10 +67,10 @@ private struct FlattenedTree<TreeType: Tree> {
 private func flatten<TreeType: Tree>(tree: TreeType, depth: Int = 0, maxDepth: Int?) -> [FlattenedTree<TreeType>] {
     let initial = [FlattenedTree<TreeType>(value: tree, depth: depth)]
     let childDepth = depth + 1
-    if let maxDepth = maxDepth, childDepth > maxDepth {
+    if let maxDepth, childDepth > maxDepth {
         return initial
     } else {
-        return tree.children.reduce(initial) { (result, child) in
+        return tree.children.reduce(initial) { result, child in
             var newResult = result
             newResult.append(contentsOf: flatten(tree: child, depth: childDepth, maxDepth: maxDepth))
             return newResult

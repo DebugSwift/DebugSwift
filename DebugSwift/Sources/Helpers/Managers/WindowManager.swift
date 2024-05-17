@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 enum WindowManager {
-    static var isSelectingWindow: Bool = false
+    static var isSelectingWindow = false
     static var rootNavigation: UINavigationController? {
         window.rootViewController as? UINavigationController
     }
@@ -72,9 +72,16 @@ enum WindowManager {
             preferredStyle: .actionSheet
         )
 
+        alertController.popoverPresentationController?.sourceView = WindowManager.rootNavigation?.view
+
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = FloatViewManager.shared.ballView
+            popoverController.sourceRect = FloatViewManager.shared.ballView.bounds
+        }
+
         let filteredWindows = UIApplication.shared.windows.filter { window in
             String(describing: type(of: window)) != "UITextEffectsWindow"
-            && window.windowLevel < UIWindow.Level.alert
+                && window.windowLevel < UIWindow.Level.alert
         }
 
         guard filteredWindows.count > 1 else {
@@ -121,8 +128,7 @@ final class CustomWindow: UIWindow {
         let ballView = FloatViewManager.shared.ballView
         if
             ballView.point(inside: convert(point, to: ballView), with: event) ||
-            FloatViewManager.isShowingDebuggerView
-        {
+            FloatViewManager.isShowingDebuggerView {
             return true
         }
 

@@ -29,8 +29,8 @@ final class NetworkViewModel {
         } else {
             searchModels = searchModels.filter {
                 $0.url?.absoluteString.lowercased().contains(networkSearchWord.lowercased()) == true ||
-                $0.statusCode?.lowercased().contains(networkSearchWord.lowercased()) == true ||
-                $0.endTime?.lowercased().contains(networkSearchWord.lowercased()) == true
+                    $0.statusCode?.lowercased().contains(networkSearchWord.lowercased()) == true ||
+                    $0.endTime?.lowercased().contains(networkSearchWord.lowercased()) == true
             }
 
             models = searchModels

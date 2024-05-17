@@ -116,7 +116,7 @@ extension CrashViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        80.0
+        UITableView.automaticDimension
     }
 
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {

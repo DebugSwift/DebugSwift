@@ -6,11 +6,20 @@
 //
 
 import Foundation
+import MachO.dyld
+
+func calculate() -> Int {
+    var slide = 0
+    for i in 0..<_dyld_image_count() where _dyld_get_image_header(i).pointee.filetype == MH_EXECUTE {
+        slide = _dyld_get_image_vmaddr_slide(i)
+    }
+    return slide
+}
 
 private var preUncaughtExceptionHandler: NSUncaughtExceptionHandler?
 
 public class CrashUncaughtExceptionHandler {
-    public static var exceptionReceiveClosure: ((Int32?, NSException?, String) -> Void)?
+    public static var exceptionReceiveClosure: ((Int32?, NSException?, String, [String]) -> Void)?
 
     public func prepare() {
         preUncaughtExceptionHandler = NSGetUncaughtExceptionHandler()
@@ -19,15 +28,13 @@ public class CrashUncaughtExceptionHandler {
 }
 
 func UncaughtExceptionHandler(exception: NSException) {
-//    let stackArray = exception.callStackSymbols
-//    let name = exception.name.rawValue
-//    let stackInfo = stackArray.reduce("") { result, item -> String in
-//        result + "\n\(item)"
-//    }
-
+    let arr = exception.callStackSymbols
     let reason = exception.reason ?? ""
-    let exceptionInfo = exception.name.rawValue + reason
-    CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, exceptionInfo)
+    let name = exception.name.rawValue
+    var crash = String()
+    crash += "\nName: \(name)\nReason: \(reason)"
+
+    CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, crash, arr)
     preUncaughtExceptionHandler?(exception)
     kill(getpid(), SIGKILL)
 }
@@ -152,11 +159,12 @@ public class CrashHandler {
         self.uncaughtExceptionHandler = CrashUncaughtExceptionHandler()
         self.signalExceptionHandler = CrashSignalExceptionHandler()
 
-        CrashUncaughtExceptionHandler.exceptionReceiveClosure = { [weak self] signal, exception, info in
+        CrashUncaughtExceptionHandler.exceptionReceiveClosure = { [weak self] signal, exception, info, arr in
             self?.exceptionReceiveClosure?(signal, exception, info)
             let trace = CrashModel(
                 type: .nsexception,
-                details: .builder(name: info)
+                details: .builder(name: info),
+                traces: .builder(Thread.simpleCallStackSymbols(arr))
             )
             CrashManager.save(crash: trace)
         }
@@ -165,7 +173,8 @@ public class CrashHandler {
             self?.exceptionReceiveClosure?(signal, exception, info)
             let trace = CrashModel(
                 type: .signal,
-                details: .builder(name: info)
+                details: .builder(name: info),
+                traces: .builder(Thread.simpleCallStackSymbols())
             )
             CrashManager.save(crash: trace)
         }

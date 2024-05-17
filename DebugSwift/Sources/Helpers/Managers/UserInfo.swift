@@ -113,7 +113,7 @@ enum UserInfo {
     }
 
     static func getReachability() -> Info {
-        return Info(
+        Info(
             title: "reachability-status".localized(),
             detail: ReachabilityManager.connection.description
         )

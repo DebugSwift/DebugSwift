@@ -67,6 +67,7 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         )
     }
 
+    @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -123,7 +124,6 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         } else {
             topViewController.focus(snapshot: snapshot)
         }
-
     }
 
     // MARK: UITableViewDelegate
@@ -211,11 +211,11 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
     }
 
     private func cellFactory(shouldIgnoreMaxDepth: Bool) -> TreeTableViewDataSource<Snapshot>.CellFactory {
-        return { [unowned self] (tableView, value, depth, indexPath, _) in
+        { [unowned self] tableView, value, depth, indexPath, _ in
             let reuseIdentifier = HierarchyTableViewController.ReuseIdentifier
             let cell = (tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as? HierarchyTableViewCell) ?? HierarchyTableViewCell(style: .default, reuseIdentifier: reuseIdentifier)
 
-            let baseFont = self.configuration.nameFont
+            let baseFont = configuration.nameFont
             switch value.label.classification {
             case .normal:
                 cell.nameLabel.font = baseFont
@@ -229,13 +229,13 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
             cell.nameLabel.text = value.label.name
 
             let frame = value.frame
-            cell.frameLabel.font = self.configuration.frameFont
+            cell.frameLabel.font = configuration.frameFont
             cell.frameLabel.text = String(format: "(%.1f, %.1f, %.1f, %.1f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height)
             cell.lineView.lineCount = depth
-            cell.lineView.lineColors = self.configuration.lineColors
-            cell.lineView.lineWidth = self.configuration.lineWidth
-            cell.lineView.lineSpacing = self.configuration.lineSpacing
-            cell.showSubtreeButton = !shouldIgnoreMaxDepth && !value.children.isEmpty && depth >= (self.configuration.maxDepth?.intValue ?? Int.max)
+            cell.lineView.lineColors = configuration.lineColors
+            cell.lineView.lineWidth = configuration.lineWidth
+            cell.lineView.lineSpacing = configuration.lineSpacing
+            cell.showSubtreeButton = !shouldIgnoreMaxDepth && !value.children.isEmpty && depth >= (configuration.maxDepth?.intValue ?? Int.max)
             cell.indexPath = indexPath
             cell.delegate = self
             return cell

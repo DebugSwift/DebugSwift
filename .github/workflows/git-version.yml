@@ -79,10 +79,13 @@ jobs:
           echo Updating Podspec version...
           PODSPEC_FILE="DebugSwift.podspec"
           sed -i -E "s/(s\.version *= *')([^']+)(.*)/\1$VERSION\3/g" "$PODSPEC_FILE"
-          
+
+          git restore Example/Pods/Pods.xcodeproj/project.pbxproj
+
           echo Committing and pushing...
           git config user.name "GitHub Actions"
           git config user.email "github-actions@users.noreply.github.com"
+
           git add "$PODSPEC_FILE"
           git commit -m 'feat: Update Podspec version'
           git push
