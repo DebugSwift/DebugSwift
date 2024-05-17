@@ -88,7 +88,7 @@ final class ChartView: UIView {
 
         // Clear previous drawings
         context.clear(rect)
-        
+
         context.setFillColor(Theme.shared.backgroundColor.cgColor)
         context.fill(rect)
 

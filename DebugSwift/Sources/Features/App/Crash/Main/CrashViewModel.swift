@@ -13,7 +13,7 @@ final class CrashViewModel: NSObject {
     var data: [CrashModel] {
         (
             CrashManager.recover(ofType: .nsexception) +
-            CrashManager.recover(ofType: .signal)
+                CrashManager.recover(ofType: .signal)
         ).sorted(by: { $0.details.date > $1.details.date })
     }
 

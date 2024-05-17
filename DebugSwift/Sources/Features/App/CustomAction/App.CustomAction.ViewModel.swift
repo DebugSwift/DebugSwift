@@ -21,7 +21,7 @@ final class AppCustomActionViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
-    var isSearchActived: Bool = false
+    var isSearchActived = false
     var isDeleteEnable: Bool { false }
     var isCustomActionEnable: Bool { true }
 

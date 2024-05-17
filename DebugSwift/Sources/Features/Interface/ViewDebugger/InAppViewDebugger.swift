@@ -29,7 +29,7 @@ final class InAppViewDebugger: NSObject {
         configuration: Configuration? = nil,
         completion: (() -> Void)? = nil
     ) {
-        guard let window = window else {
+        guard let window else {
             return
         }
 
@@ -55,7 +55,7 @@ final class InAppViewDebugger: NSObject {
         configuration: Configuration? = nil,
         completion: (() -> Void)? = nil
     ) {
-        guard let view = view else {
+        guard let view else {
             return
         }
         let snapshot = Snapshot(element: ViewElement(view: view))

@@ -1,5 +1,5 @@
 //
-//  ThemeStyling.swift
+//  Theme.swift
 //  DebugSwift
 //
 //  Created by Mochamad Rakha Luthfi Fahsya on 26/01/24.

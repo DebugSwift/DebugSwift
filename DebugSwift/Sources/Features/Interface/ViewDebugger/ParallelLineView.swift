@@ -6,8 +6,8 @@
 //  Copyright © 2019 Indragie Karunaratne. All rights reserved.
 //
 
-import UIKit
 import CoreGraphics
+import UIKit
 
 /// A view that draws one or more parallel vertical lines.
 final class ParallelLineView: UIView {
@@ -39,12 +39,13 @@ final class ParallelLineView: UIView {
         backgroundColor = Theme.shared.backgroundColor
     }
 
+    @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     override func draw(_ rect: CGRect) {
-        guard lineCount > .zero && !lineColors.isEmpty else {
+        guard lineCount > .zero, !lineColors.isEmpty else {
             return
         }
         var x: CGFloat = lineSpacing

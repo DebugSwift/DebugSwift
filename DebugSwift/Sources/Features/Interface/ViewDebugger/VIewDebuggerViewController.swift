@@ -19,7 +19,7 @@ final class ViewDebuggerViewController:
     private var pageViewController: UIPageViewController?
 
     private lazy var debugSnapshotViewController: DebugSnapshotViewController = { [unowned self] in
-        return .init(
+        .init(
             snapshot: snapshot,
             configuration: configuration.snapshotViewConfiguration,
             delegate: self
@@ -67,6 +67,7 @@ final class ViewDebuggerViewController:
         super.init(nibName: nil, bundle: nil)
     }
 
+    @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -176,7 +177,7 @@ final class ViewDebuggerViewController:
     }
 
     private func selectViewController(index: Int) {
-        guard let pageViewController = pageViewController else {
+        guard let pageViewController else {
             return
         }
         switch index {
@@ -186,7 +187,6 @@ final class ViewDebuggerViewController:
             pageViewController.setViewControllers([hierarchyNavigationController], direction: .forward, animated: false, completion: nil)
         default:
             fatalError("Invalid view controller index \(index)")
-            break
         }
     }
 

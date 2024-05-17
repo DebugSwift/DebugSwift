@@ -38,14 +38,14 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
     }
 
     required init?(coder aDecoder: NSCoder) {
-        return nil
+        nil
     }
 
     override func loadView() {
         let snapshotView = SnapshotView(snapshot: snapshot, configuration: configuration)
         snapshotView.delegate = self
         self.snapshotView = snapshotView
-        self.view = snapshotView
+        view = snapshotView
     }
 
     override func viewWillDisappear(_ animated: Bool) {

@@ -31,6 +31,8 @@
 		2CF7B29D4E2519196CD26EB5C3310EA3 /* Network.Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F967575F3227F06A0C326A253D60804C /* Network.Cell.swift */; };
 		2D1642061DE62FF5D2CADDFEC03404D6 /* Performace.FPSCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5777A796C66C34F38E7D8950A83A5133 /* Performace.FPSCalculator.swift */; };
 		2E4AC973AAFA26490F7A6393174299E0 /* CrashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C892AA8F00288376305FE9DE84106B /* CrashViewController.swift */; };
+		2E630C1B2BF6721C00FA2C4E /* Performance.LeakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E630C1A2BF6721C00FA2C4E /* Performance.LeakDetector.swift */; };
+		2E630C212BF6CB6B00FA2C4E /* Performance.MemoryWarning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E630C202BF6CB6B00FA2C4E /* Performance.MemoryWarning.swift */; };
 		2F2E22C927FF9E33D5C5867F529013C4 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 283777023023535AE635457B1B10207F /* String+.swift */; };
 		301FABA5D9BA1E4EFC0EECD0E5A310D9 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DB9F8CB93E6EE8C83265B7906477019 /* Collection+.swift */; };
 		35444F63271A2266232E627817072AB4 /* UserDefaultsAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F09A3169404FF1F6E6EBD5BA07C7C4 /* UserDefaultsAccess.swift */; };
@@ -186,6 +188,8 @@
 		2B76122EA0FF266B37BD78B6D39AD650 /* CrashModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrashModel.swift; sourceTree = "<group>"; };
 		2B8E2D84CBDEFDB86F02F7BF96A828AB /* Resources.Generic.Controller.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Resources.Generic.Controller.swift; sourceTree = "<group>"; };
 		2BD62F1D3AF35975A093174109D746F4 /* UIColor+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIColor+.swift"; sourceTree = "<group>"; };
+		2E630C1A2BF6721C00FA2C4E /* Performance.LeakDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Performance.LeakDetector.swift; sourceTree = "<group>"; };
+		2E630C202BF6CB6B00FA2C4E /* Performance.MemoryWarning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Performance.MemoryWarning.swift; sourceTree = "<group>"; };
 		2F405B432CAD1C64D0EC6EA117B2A42F /* FeatureHandling.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FeatureHandling.swift; sourceTree = "<group>"; };
 		2F62A5942FB5A60FF15CF8FBCDEC463F /* DebugSwift.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; path = DebugSwift.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		306676FC6530BB3CEB683F1EDE09B318 /* Dictionary+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Dictionary+.swift"; sourceTree = "<group>"; };
@@ -538,6 +542,8 @@
 			children = (
 				5777A796C66C34F38E7D8950A83A5133 /* Performace.FPSCalculator.swift */,
 				0117E92442C25EF8CF58D9115E16544E /* Performance.Toolkit.swift */,
+				2E630C1A2BF6721C00FA2C4E /* Performance.LeakDetector.swift */,
+				2E630C202BF6CB6B00FA2C4E /* Performance.MemoryWarning.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1186,6 +1192,7 @@
 				E15A7CB27D21D44F6A9EE65930D63124 /* HTTP.Datasource.swift in Sources */,
 				EF11C861DFDC0DE9B5046FD7416418E0 /* HTTP.Model.swift in Sources */,
 				68299C63D6B75A282D5BAFAFAF53D20A /* HTTPProtocol.swift in Sources */,
+				2E630C1B2BF6721C00FA2C4E /* Performance.LeakDetector.swift in Sources */,
 				38E7410C1D9F3B79B11CA0AA78D7CE51 /* HTTPProtocolDelegate.swift in Sources */,
 				55F82BBF8F9FBA1525699119CFDF3218 /* HTTPURLResponse+.swift in Sources */,
 				FD6AF29A79BD3C907AB8393A88CE3D6E /* ImpactFeedback.swift in Sources */,
@@ -1222,6 +1229,7 @@
 				81212AF1C0A27E4F763997FEC1DADCDF /* ReachabilityManager.swift in Sources */,
 				FF1B07B68024E602202D657C45A14B49 /* Resources.Controller.swift in Sources */,
 				5B82FAF22515FF3D8A594DAD896C26A9 /* Resources.Files.Controller.swift in Sources */,
+				2E630C212BF6CB6B00FA2C4E /* Performance.MemoryWarning.swift in Sources */,
 				7C1752BEE1E57AE676629F712D08ECC7 /* Resources.Generic.Controller.swift in Sources */,
 				95FE85878D69B8AE41C47AFD453FE584 /* Resources.Keychain.ViewModel.swift in Sources */,
 				96148BEDA338A691EE3E87F55557BF05 /* Resources.UserDefaults.ViewModel.swift in Sources */,

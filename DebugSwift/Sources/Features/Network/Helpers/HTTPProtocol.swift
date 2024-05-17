@@ -238,7 +238,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
             self.delegate?.customHTTPProtocol(self, didReceive: data)
             self.client?.urlProtocol(self, didLoad: data)
             self.didReceiveData = true
-            if prevUrl == response?.url && prevStartTime == startTime {
+            if prevUrl == response?.url, prevStartTime == startTime {
                 if !hasAddedData { self.data.append(data) }
             } else {
                 self.data = data

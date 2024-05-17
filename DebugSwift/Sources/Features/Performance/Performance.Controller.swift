@@ -9,13 +9,22 @@
 import UIKit
 
 final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate {
-    var selectedSection: PerformanceSection = .CPU
+    var selectedSection: PerformanceSection = .cpu
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)
 
-    private let segmentedControlCellIdentifier = "MenuSegmentedControlTableViewCell"
-    private let valueCellIdentifier = "MenuValueTableViewCell"
-    private let buttonCellIdentifier = "MenuButtonTableViewCell"
-    private let chartCellIdentifier = "MenuChartTableViewCell"
+    enum Identifier: String {
+        case segmentedControl = "SegmentedControlTableViewCell"
+        case value = "ValueTableViewCell"
+        case chart = "ChartTableViewCell"
+        case leak = "LeakTableViewCell"
+        case memoryWarning = "MemoryWarningTableViewCell"
+
+        init?(rawValue: String?) {
+            guard let rawValue else { return nil }
+            self.init(rawValue: rawValue)
+        }
+    }
+
     private let markedTimesInterval: TimeInterval = 20.0
     private let chartCellRatioConstant: CGFloat = 20.0
 
@@ -55,10 +64,16 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
         tableView.register(
-            MenuSegmentedControlTableViewCell.self, forCellReuseIdentifier: segmentedControlCellIdentifier
+            MenuSegmentedControlTableViewCell.self,
+            forCellReuseIdentifier: Identifier.segmentedControl.rawValue
         )
-        tableView.register(MenuChartTableViewCell.self, forCellReuseIdentifier: chartCellIdentifier)
+        tableView.register(
+            MenuChartTableViewCell.self,
+            forCellReuseIdentifier: Identifier.chart.rawValue
+        )
+
         tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.showsVerticalScrollIndicator = false
         view.backgroundColor = Theme.shared.backgroundColor
     }
 
@@ -92,39 +107,42 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
     func numberOfRowsInStatisticsSection() -> Int {
         switch selectedSection {
-        case .CPU, .FPS:
+        case .cpu, .fps:
             return 3
-        case .Memory:
+        case .memory:
             return 4
+        case .leaks:
+            return 2 + PerformanceLeakDetector.leaks.count
         }
     }
 
     func statisticsCellForRow(at index: Int) -> UITableViewCell? {
         switch selectedSection {
-        case .CPU:
+        case .cpu:
             return cpuStatisticsCellForRow(at: index)
-        case .Memory:
+        case .memory:
             return memoryStatisticsCellForRow(at: index)
-        case .FPS:
+        case .fps:
             return fpsStatisticsCellForRow(at: index)
+        case .leaks:
+            return leaksStatisticsCellForRow(at: index)
         }
     }
 
     func cpuStatisticsCellForRow(at index: Int) -> UITableViewCell? {
         switch index {
         case 0:
-            let cell = valueTableViewCell()
+            let cell = reuseCell()
             cell.textLabel?.text = "cpu-usage".localized()
             cell.detailTextLabel?.text = String(format: "%.1lf%%", performanceToolkit.currentCPU)
             return cell
         case 1:
-            let cell = valueTableViewCell()
+            let cell = reuseCell()
             cell.textLabel?.text = "max-cpu-usage".localized()
             cell.detailTextLabel?.text = String(format: "%.1lf%%", performanceToolkit.maxCPU)
             return cell
         case 2:
-            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier)
-                as? MenuChartTableViewCell
+            guard let chartCell = reuseCell(for: .chart) as? MenuChartTableViewCell
             else { return nil }
             configureChartCell(
                 chartCell,
@@ -141,19 +159,23 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     func memoryStatisticsCellForRow(at index: Int) -> UITableViewCell? {
         switch index {
         case 0:
-            let cell = valueTableViewCell()
+            let cell = reuseCell()
             cell.textLabel?.text = "memory-usage".localized()
             cell.detailTextLabel?.text = String(format: "%.1lf MB", performanceToolkit.currentMemory)
             return cell
         case 1:
-            let cell = valueTableViewCell()
+            let cell = reuseCell()
             cell.textLabel?.text = "max-memory-usage".localized()
             cell.detailTextLabel?.text = String(format: "%.1lf MB", performanceToolkit.maxMemory)
             return cell
         case 2:
-            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier)
-                as? MenuChartTableViewCell
-            else { return nil }
+            let cell = reuseCell(for: .memoryWarning)
+            cell.textLabel?.text = "simulate-memory-warning".localized()
+            cell.contentView.backgroundColor = .systemBlue
+            return cell
+
+        case 3:
+            guard let chartCell = reuseCell(for: .chart) as? MenuChartTableViewCell else { return nil }
             configureChartCell(
                 chartCell,
                 value: performanceToolkit.maxMemory,
@@ -161,19 +183,13 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
                 markedValueFormat: "%.1lf MB"
             )
             return chartCell
-        case 3:
-            let cell =
-                tableView.dequeueReusableCell(withIdentifier: buttonCellIdentifier)
-                    ?? UITableViewCell(style: .default, reuseIdentifier: buttonCellIdentifier)
-            cell.textLabel?.text = "simulate-memory-warning".localized()
-            return cell
         default:
             return nil
         }
     }
 
     func fpsStatisticsCellForRow(at index: Int) -> UITableViewCell? {
-        let cell = valueTableViewCell()
+        let cell = reuseCell()
 
         switch index {
         case 0:
@@ -183,9 +199,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             cell.textLabel?.text = "min-fps".localized()
             cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.minFPS)
         case 2:
-            guard let chartCell = tableView.dequeueReusableCell(withIdentifier: chartCellIdentifier)
-                as? MenuChartTableViewCell
-            else { return nil }
+            guard let chartCell = reuseCell(for: .chart) as? MenuChartTableViewCell else { return nil }
             configureChartCell(
                 chartCell,
                 value: performanceToolkit.minFPS,
@@ -195,6 +209,32 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return chartCell
         default:
             return nil
+        }
+
+        return cell
+    }
+
+    func leaksStatisticsCellForRow(at index: Int) -> UITableViewCell? {
+        let cell = reuseCell()
+
+        switch index {
+        case 0:
+            cell.textLabel?.text = "current-leaks".localized()
+            cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.currentLeaks)
+        case 1:
+            cell.textLabel?.text = "max-leaks".localized()
+            cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.maxLeaks)
+        default:
+            let index = index - 2
+            let cell = reuseCell(for: .leak)
+            let leak = PerformanceLeakDetector.leaks[index]
+
+            cell.setup(
+                title: "\(leak.hasDeallocated ? "✳️" : "⚠️")\(leak.details)",
+                image: leak.screenshot != nil ? .named("chevron.right", default: "action".localized()) : nil
+            )
+
+            return cell
         }
 
         return cell
@@ -215,10 +255,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         chartCell.chartView.markedTimesInterval = performanceToolkit.controllerMarked
     }
 
-    private func valueTableViewCell() -> UITableViewCell {
-        let cell =
-            tableView.dequeueReusableCell(withIdentifier: valueCellIdentifier)
-                ?? UITableViewCell(style: .value1, reuseIdentifier: valueCellIdentifier)
+    private func reuseCell(for reuseIdentifier: Identifier = .value) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier.rawValue) ?? UITableViewCell(style: .value1, reuseIdentifier: reuseIdentifier.rawValue)
         cell.selectionStyle = .none
         cell.backgroundColor = Theme.shared.backgroundColor
         cell.textLabel?.textColor = Theme.shared.fontColor
@@ -229,11 +267,34 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     // MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.section == PerformanceTableViewSection.statistics.rawValue, indexPath.row == 2 {
-            // Chart cell.
+        if tableView.cellForRow(at: indexPath) is MenuChartTableViewCell {
             return tableView.bounds.size.width + chartCellRatioConstant
         }
-        return 44.0
+
+        return UITableView.automaticDimension
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath)
+        let type = Identifier(rawValue: cell?.reuseIdentifier)
+
+        switch type {
+        case .memoryWarning:
+            cell?.simulateButtonTap()
+            PerformanceMemoryWarning.generate()
+        case .leak:
+            let leak = PerformanceLeakDetector.leaks[indexPath.row - 2]
+            if let image = leak.screenshot {
+                let controller = SnapshotViewController(
+                    title: "Leak",
+                    image: image,
+                    description: leak.details
+                )
+                navigationController?.pushViewController(controller, animated: true)
+            }
+        default:
+            break
+        }
     }
 
     // MARK: - UITableViewDataSource
@@ -278,9 +339,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
     private func segmentedControlCell() -> UITableViewCell {
         let cell =
-            tableView.dequeueReusableCell(withIdentifier: segmentedControlCellIdentifier)
+            tableView.dequeueReusableCell(withIdentifier: Identifier.segmentedControl.rawValue)
                 as? MenuSegmentedControlTableViewCell ?? MenuSegmentedControlTableViewCell()
-        let segmentTitles = ["cpu".localized(), "memory".localized(), "fps".localized()]
+        let segmentTitles = ["cpu".localized(), "memory".localized(), "fps".localized(), "leaks".localized()]
         cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)
         cell.delegate = self
         return cell
@@ -305,6 +366,9 @@ extension PerformanceViewController: MenuSegmentedControlTableViewCellDelegate {
         didSelectSegmentAtIndex index: Int
     ) {
         setSelectedSection(PerformanceSection(rawValue: index)!)
+        UIView.performWithoutAnimation {
+            self.tableView.reloadData()
+        }
     }
 }
 

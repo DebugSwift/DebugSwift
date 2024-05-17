@@ -71,8 +71,13 @@ final class HierarchyTableViewCell: UITableViewCell {
         let imageTextInset = imageTextSpacing / 2.0
         button.imageEdgeInsets = UIEdgeInsets(top: 1.0, left: imageTextInset, bottom: 0, right: -imageTextInset)
         button.titleEdgeInsets = UIEdgeInsets(top: .zero, left: -imageTextInset, bottom: .zero, right: imageTextInset)
-        button.contentEdgeInsets = UIEdgeInsets(top: 4.0, left:
-                                                    4.0 + imageTextInset, bottom: 4.0, right: 4.0 + imageTextInset)
+        button.contentEdgeInsets = UIEdgeInsets(
+            top: 4.0,
+            left:
+            4.0 + imageTextInset,
+            bottom: 4.0,
+            right: 4.0 + imageTextInset
+        )
         button.semanticContentAttribute = .forceRightToLeft
 
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -131,12 +136,13 @@ final class HierarchyTableViewCell: UITableViewCell {
             subtreeButton.centerYAnchor.constraint(equalTo: marginsGuide.centerYAnchor),
             subtreeButton.trailingAnchor.constraint(equalTo: horizontalScrollView.trailingAnchor)
         ])
-        subtreeLabelWidthConstraint = subtreeButton.widthAnchor.constraint(equalToConstant: .zero)
+        self.subtreeLabelWidthConstraint = subtreeButton.widthAnchor.constraint(equalToConstant: .zero)
 
         let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(sender:)))
         contentView.addGestureRecognizer(longPressGestureRecognizer)
     }
 
+    @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

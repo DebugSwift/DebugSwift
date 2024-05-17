@@ -17,6 +17,7 @@
 ![image4](https://github.com/DebugSwift/DebugSwift/assets/31082311/fecff545-405b-493f-99f8-3ed65d453227)
 ![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e558c50-6634-4e26-9788-b1b355f121f4)
 ![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/d0512b4e-afbd-427f-b8e0-f125afb92416)
+![image11](https://github.com/DebugSwift/DebugSwift/assets/31082311/d5f36843-1f74-49b9-89ef-1875f5ae395b)
 
 ## Features
 
@@ -45,7 +46,7 @@
 
 ### Performance
 
-- **CPU, Memory, FPS:** Monitor and analyze CPU usage, memory consumption, and frames per second in real-time.
+- **CPU, Memory, FPS, Memory Leak Detector:** Monitor and analyze CPU usage, memory consumption, and frames per second in real-time.
 
 ### Resources
 
@@ -201,6 +202,27 @@ func application(
 ![image9](https://github.com/DebugSwift/DebugSwift/assets/31082311/a1261022-c193-40c9-999f-80129b34dda0)
 
 ---
+
+### Collect Memory Leaks
+Get the data from memory leaks in the app.
+
+#### Usage
+
+```swift
+DebugSwift.Performance.LeakDetector.onDetect { data in
+    // If you want to send data to some analytics
+
+    print(data.message) // Retuns the name of the class and the error
+    print(data.controller) // If is an controller leak
+    print(data.view) // If is an view leak
+    print(data.isDeallocation) // If is an deallocation of leak (good for false/positive)
+}
+```
+
+#### Results:
+![image12](https://github.com/DebugSwift/DebugSwift/assets/31082311/e9acc5c5-83d4-487d-bd7e-8a66dfbc3b21)
+
+---
 ### Change Appearance
 Dynamic Theme: Easily Change the Interface Appearance from Dark to Light, Customize According to Your Needs.
 
@@ -279,3 +301,4 @@ DebugSwift is licensed under the MIT License - see the [LICENSE](LICENSE) file f
 - [InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger) 
 - [CocoaDebug](https://github.com/CocoaDebug/CocoaDebug) 
 - [DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)
+- [LeakedViewControllerDetector](https://github.com/Janneman84/LeakedViewControllerDetector)

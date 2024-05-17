@@ -9,7 +9,7 @@ import Foundation
 import MachO.dyld
 
 func calculate() -> Int {
-    var slide: Int = 0
+    var slide = 0
     for i in 0..<_dyld_image_count() where _dyld_get_image_header(i).pointee.filetype == MH_EXECUTE {
         slide = _dyld_get_image_vmaddr_slide(i)
     }

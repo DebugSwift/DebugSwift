@@ -5,10 +5,10 @@
 //  Created by Matheus Gois on 18/01/24.
 //
 
-import Foundation
 import CoreTelephony
+import Foundation
 
-struct ReachabilityManager {
+enum ReachabilityManager {
 
     private static var reachability = try? Reachability()
 
