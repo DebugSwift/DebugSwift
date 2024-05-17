@@ -8,21 +8,26 @@
 
 import UIKit
 
-/**
- Automatically detects and warns you whenever a ViewController in your app closes and it or any of its (sub)views don't deinit.
-
- Use PerformanceLeakDetector.onDetect() to start detecting leaks.
- */
-
 public struct PerformanceLeak {
+
     public let controller: UIViewController?
     public let view: UIView?
     public let message: String
 
+    init(
+        controller: UIViewController? = nil,
+        view: UIView? = nil,
+        message: String
+    ) {
+        self.controller = controller
+        self.view = view
+        self.message = message
+    }
+
     public var isDeallocation: Bool { controller == nil && view == nil }
 }
 
-class PerformanceLeakDetector {
+final class PerformanceLeakDetector {
 
     static var callback: ((PerformanceLeak) -> Void)?
     static var delay = 1.0
@@ -41,6 +46,52 @@ class PerformanceLeakDetector {
 
     @objc private static func toBackground() {
         lastBackgroundedDate = Date()
+    }
+
+    private static var _ignoredWindowClassNames = [
+        "UIRemoteKeyboardWindow",
+        "UITextEffectsWindow"
+    ]
+
+    static var ignoredWindowClassNames: [String] {
+        get {
+            return _ignoredWindowClassNames
+        }
+        set {
+            _ignoredWindowClassNames += newValue
+        }
+    }
+
+    private static var _ignoredViewControllerClassNames = [
+        "UICompatibilityInputViewController",
+        "_SFAppPasswordSavingViewController",
+        "UIKeyboardHiddenViewController_Save",
+        "_UIAlertControllerTextFieldViewController",
+        "UISystemInputAssistantViewController",
+        "UIPredictionViewController",
+        "DebugSwift.TabBarController"
+    ]
+    static var ignoredViewControllerClassNames: [String] {
+        get {
+            return _ignoredViewControllerClassNames
+        }
+        set {
+            _ignoredViewControllerClassNames += newValue
+        }
+    }
+
+    private static var _ignoredViewClassNames = [
+        "PLTileContainerView",
+        "CAMPreviewView",
+        "_UIPointerInteractionAssistantEffectContainerView"
+    ]
+    static var ignoredViewClassNames: [String] {
+        get {
+            return _ignoredViewClassNames
+        }
+        set {
+            _ignoredViewClassNames += newValue
+        }
     }
 }
 
@@ -90,7 +141,7 @@ extension UIView {
                     objc_getAssociatedObject(leakedView, &LVCDDeallocator.key) == nil,
                     UIApplication.shared.applicationState == .active, // theoretically not needed when also checking lastBackgroundedDate, but just in case
                     PerformanceLeakDetector.lastBackgroundedDate < startTime,
-                    !DebugSwift.Performance.LeakDetector.ignoredViewClassNames.contains(type(of: leakedView).description()) {
+                    !PerformanceLeakDetector.ignoredViewClassNames.contains(type(of: leakedView).description()) {
 
                     let errorTitle = "VIEW STILL IN MEMORY"
                     var errorMessage = leakedView.debugDescription.lvcdRemoveBundleAndModuleName()
@@ -103,11 +154,11 @@ extension UIView {
 
                     PerformanceLeakDetector.callback?(
                         .init(
-                            controller: nil,
                             view: leakedView,
                             message: "\(errorTitle) \(errorMessage)"
                         )
                     )
+                    Debug.print("\(errorTitle) \(errorMessage)")
 
                     let screenshot = leakedView.makeScreenshot()
 
@@ -507,8 +558,11 @@ extension UIViewController {
     }()
 
     private func lvcdShouldIgnore() -> Bool {
-        let ignoredVC = DebugSwift.Performance.LeakDetector.ignoredViewControllerClassNames.contains(type(of: self).description())
-        let ignoredWindow = isViewLoaded && view?.window != nil && DebugSwift.Performance.LeakDetector.ignoredWindowClassNames.contains(type(of: view.window!).description())
+        let ignoredVC = PerformanceLeakDetector.ignoredViewControllerClassNames.contains(
+            type(of: self).description()
+        )
+        let ignoredWindow = isViewLoaded && view?.window != nil && PerformanceLeakDetector.ignoredWindowClassNames.contains(type(of: view.window!).description())
+
         let ignoreLVCD = objc_getAssociatedObject(self, &LVCDSplitViewAssociatedObject.key) != nil
 
         return ignoredVC || ignoredWindow || ignoreLVCD
@@ -615,10 +669,7 @@ extension UIViewController {
             object: nil
         )
 
-        if objc_getAssociatedObject(
-            vc,
-            &LVCDSplitViewAssociatedObject.key
-        ) == nil {
+        if objc_getAssociatedObject(vc, &LVCDSplitViewAssociatedObject.key) == nil {
             let mldAssociatedObject = LVCDSplitViewAssociatedObject()
             mldAssociatedObject.splitViewController = self as? UISplitViewController
             mldAssociatedObject.viewController = vc
@@ -645,18 +696,13 @@ extension UIViewController {
         restarted: Bool = false
     ) {
         // only check when active for now
-        guard UIApplication.shared.applicationState == .active else { return
-        }
+        guard UIApplication.shared.applicationState == .active else { return }
 
-        if (
-            view != nil && view.window != nil
-        ) || lvcdShouldIgnore() {
+        if (view != nil && view.window != nil) || lvcdShouldIgnore() {
             return
         }
 
-        let objectIdentifier = ObjectIdentifier(
-            self
-        )
+        let objectIdentifier = ObjectIdentifier(self)
 
         // in some cases lvcdCheckForMemoryLeakNotification may be called multiple times at once, this guard prevents double checking
         guard !Self.lvcdMemoryCheckQueue.contains(
@@ -669,18 +715,14 @@ extension UIViewController {
         )
 
         DispatchQueue.main.async { [self] in
-            Self.lvcdMemoryCheckQueue.remove(
-                objectIdentifier
-            )
+            Self.lvcdMemoryCheckQueue.remove(objectIdentifier)
             let rootParentVC = lvcdRootParentViewController
             guard
                 rootParentVC.presentedViewController == nil,
                 !isViewLoaded || rootParentVC.view.window == nil,
                 let deallocator = objc_getAssociatedObject(self, &LVCDDeallocator.key) as? LVCDDeallocator,
                 deallocator.objectIdentifier == 0
-            else {
-                return
-            }
+            else { return }
 
             if let svc = self as? UISplitViewController {
                 NotificationCenter.lvcd.post(
@@ -718,7 +760,8 @@ extension UIViewController {
                 if
                     !self.isViewLoaded || self.view?.window == nil,
                     self.parent == nil, self.presentedViewController == nil,
-                    self.view == nil || self.view.superview == nil || type(of: self.view.rootView).description() == "UILayoutContainerView" {
+                    self.view == nil || self.view.superview == nil || type(of: self.view.rootView).description() == "UILayoutContainerView"
+                {
                     // once warned don't warn again
                     NotificationCenter.lvcd.removeObserver(
                         self,
@@ -770,10 +813,10 @@ extension UIViewController {
                     PerformanceLeakDetector.callback?(
                         .init(
                             controller: self,
-                            view: nil,
                             message: "\(errorTitle) \(errorMessage)"
                         )
                     )
+                    Debug.print("\(errorTitle) \(errorMessage)")
 
                     let screenshot = self.view?.rootView.makeScreenshot()
 
@@ -800,7 +843,9 @@ extension UIViewController {
         }
     }
 
-    // call this if VC deinits, if memory leak was detected earlier it apparently resolved itself, so notify this:
+    // Call this method if the ViewController deinitializes.
+    // If a memory leak was detected earlier, this indicates that the leak has resolved itself.
+    // Notify that the memory issue has been resolved
     fileprivate class func lvcdMemoryLeakResolved(
         memoryLeakDetectionDate: TimeInterval,
         errorMessage: String,
@@ -824,12 +869,10 @@ extension UIViewController {
         }
 
         PerformanceLeakDetector.callback?(
-            .init(
-                controller: nil,
-                view: nil,
-                message: "\(errorTitle) \(errorMessage)"
-            )
+            .init(message: "\(errorTitle) \(errorMessage)")
         )
+
+        Debug.print("\(errorTitle) \(errorMessage)")
     }
 
     fileprivate class LVCDSplitViewAssociatedObject {
@@ -901,15 +944,7 @@ private class LVCDDeallocator {
     var subviewObserver: NSKeyValueObservation?
     weak var weakView: UIView? { didSet {
         subviewObserver?.invalidate()
-        subviewObserver = weakView?.layer.observe(
-            \.sublayers,
-            options: [
-                .old,
-                .new
-            ]
-        ) {
-            [weak self] _,
-                _ in
+        subviewObserver = weakView?.layer.observe(\.sublayers, options: [.old, .new]) { [weak self] _, _ in
             if let view = self?.weakView {
                 self?.subviews = view.subviews
             }
@@ -918,9 +953,7 @@ private class LVCDDeallocator {
         // if leaked view clears it can then check its current subviews for leaks
     }}
 
-    init(
-        _ view: UIView? = nil
-    ) {
+    init(_ view: UIView? = nil) {
         self.strongView = view
     }
 
@@ -994,9 +1027,7 @@ extension UIApplication {
         let activeScenes = UIApplication.shared.connectedScenes.filter {
             $0.activationState == UIScene.ActivationState.foregroundActive && $0 is UIWindowScene
         }
-        return (
-            activeScenes.count > 0 ? activeScenes : UIApplication.shared.connectedScenes
-        ).first(where: {
+        return (activeScenes.count > 0 ? activeScenes : UIApplication.shared.connectedScenes).first(where: {
             $0 is UIWindowScene
         }) as? UIWindowScene
     }

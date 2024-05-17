@@ -47,63 +47,37 @@ public enum DebugSwift {
     }
 }
 
+// MARK: - Network
+
 extension DebugSwift {
     public enum Network {
         public static var ignoredURLs = [String]()
         public static var onlyURLs = [String]()
     }
+}
 
+// MARK: - App
+
+extension DebugSwift {
     public enum App {
         public static var customInfo: (() -> [CustomData])?
         public static var customAction: (() -> [CustomAction])?
         public static var customControllers: (() -> [UIViewController])?
     }
+}
 
+// MARK: - Console
+
+extension DebugSwift {
     public enum Console {
         public static var ignoredLogs = [String]()
         public static var onlyLogs = [String]()
     }
+}
 
-    public enum Performance {
-        public enum LeakDetector {
-            /**
-             Triggers the callback whenever a leaked ViewController or View is detected.
+// MARK: - Debugger
 
-             - Parameter detectionDelay: The time in seconds allowed for each ViewController or View to deinit itself after it has been closed/removed (i.e. grace period). If it or any of its subviews are still in memory (alive) after the delay the callback will be triggered. Increasing the delay may prevent certain false positives. The default 1.0s is recommended, though a tighter delay may be considered for debug builds.
-             - Parameter callback: This will be triggered every time a ViewController closes or View is removed but it or one of its subviews don't deinit. It will trigger again once it does deinit (if ever). It either provides the ViewController or the View that has leaked and a warning message string that you can use to log. The provided ViewController and View will both be nil in case of a deinit warning. Return true to show an alert dialog with the message. Return nil if you want to prevent a future deinit of the ViewController or View from triggering the callback again (useful if you want to ignore warnings of certain ViewControllers/Views).
-             */
-            public static func onDetect(
-                detectionDelay: TimeInterval = 1.0,
-                callback: ((PerformanceLeak) -> Void)?
-            ) {
-                PerformanceLeakDetector.delay = detectionDelay
-                PerformanceLeakDetector.callback = callback
-            }
-
-            public static let ignoredWindowClassNames: [String] = [
-                "UIRemoteKeyboardWindow",
-                "UITextEffectsWindow"
-            ]
-
-            public static let ignoredViewControllerClassNames: [String] = [
-                "UICompatibilityInputViewController",
-                "_SFAppPasswordSavingViewController",
-                "UIKeyboardHiddenViewController_Save",
-                "_UIAlertControllerTextFieldViewController",
-                "UISystemInputAssistantViewController",
-                "UIPredictionViewController",
-                "DebugSwift.TabBarController"
-            ]
-
-            public static let ignoredViewClassNames: [String] = [
-                "PLTileContainerView",
-                "CAMPreviewView",
-                "_UIPointerInteractionAssistantEffectContainerView"
-            ]
-
-        }
-    }
-
+extension DebugSwift {
     public enum Debugger {
         /// Enable/Disable logs in Xcode console
         public static var logEnable: Bool {
@@ -120,6 +94,56 @@ extension DebugSwift {
                 ImpactFeedback.enable
             } set {
                 ImpactFeedback.enable = newValue
+            }
+        }
+    }
+}
+
+// MARK: - Performance
+
+extension DebugSwift {
+    public enum Performance {
+        public enum LeakDetector {
+            /**
+            Triggers the callback whenever a leaked `ViewController` or `View` is detected.
+
+            - Parameters:
+              - detectionDelay: The time in seconds allowed for each ViewController or View to deinitialize itself after it has been closed or removed (i.e., grace period). If the ViewController, View, or any of its subviews are still in memory after this delay, the callback will be triggered. Increasing the delay may help prevent certain false positives. The default value is 1.0 seconds, though a shorter delay may be considered for debug builds.
+              - callback: This callback is triggered whenever a ViewController is closed or a View is removed but remains in memory along with any of its subviews. The callback is triggered again once the ViewController or View does deinitialize (if it ever does). It provides the leaked ViewController or View and a warning message string that you can use for logging. If the deinitialization warning is triggered, both the ViewController and View will be nil. Return true to display an alert dialog with the message. Return nil to prevent the callback from being triggered again for the same ViewController or View in future (useful if you want to ignore warnings for certain ViewControllers or Views).
+            */
+            public static func onDetect(
+                detectionDelay: TimeInterval = 1,
+                callback: ((PerformanceLeak) -> Void)?
+            ) {
+                PerformanceLeakDetector.delay = detectionDelay
+                PerformanceLeakDetector.callback = callback
+            }
+
+            public static var ignoredWindowClassNames: [String] {
+                get {
+                    PerformanceLeakDetector.ignoredWindowClassNames
+                }
+                set {
+                    PerformanceLeakDetector.ignoredWindowClassNames = newValue
+                }
+            }
+
+            public static var ignoredViewControllerClassNames: [String] {
+                get {
+                    PerformanceLeakDetector.ignoredViewControllerClassNames
+                }
+                set {
+                    PerformanceLeakDetector.ignoredViewControllerClassNames = newValue
+                }
+            }
+
+            public static var ignoredViewClassNames: [String] {
+                get {
+                    PerformanceLeakDetector.ignoredViewClassNames
+                }
+                set {
+                    PerformanceLeakDetector.ignoredViewClassNames = newValue
+                }
             }
         }
     }

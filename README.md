@@ -202,6 +202,27 @@ func application(
 ![image9](https://github.com/DebugSwift/DebugSwift/assets/31082311/a1261022-c193-40c9-999f-80129b34dda0)
 
 ---
+
+### Collect Memory Leaks
+Get the data from memory leaks in the app.
+
+#### Usage
+
+```swift
+DebugSwift.Performance.LeakDetector.onDetect { data in
+    // If you want to send data to some analytics
+
+    print(data.message) // Retuns the name of the class and the error
+    print(data.controller) // If is an controller leak
+    print(data.view) // If is an view leak
+    print(data.isDeallocation) // If is an deallocation of leak (good for false/positive)
+}
+```
+
+#### Results:
+![image12](https://github.com/DebugSwift/DebugSwift/assets/31082311/e9acc5c5-83d4-487d-bd7e-8a66dfbc3b21)
+
+---
 ### Change Appearance
 Dynamic Theme: Easily Change the Interface Appearance from Dark to Light, Customize According to Your Needs.
 
