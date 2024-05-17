@@ -5,7 +5,7 @@
 //  Created by Matheus Gois on 16/05/24.
 //
 
-import Foundation
+import UIKit
 
 struct PerformanceMemoryWarning {
     static var i = 1
