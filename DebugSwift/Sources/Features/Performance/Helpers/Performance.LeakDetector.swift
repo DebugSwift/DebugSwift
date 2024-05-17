@@ -55,7 +55,7 @@ final class PerformanceLeakDetector {
 
     static var ignoredWindowClassNames: [String] {
         get {
-            return _ignoredWindowClassNames
+            _ignoredWindowClassNames
         }
         set {
             _ignoredWindowClassNames += newValue
@@ -73,7 +73,7 @@ final class PerformanceLeakDetector {
     ]
     static var ignoredViewControllerClassNames: [String] {
         get {
-            return _ignoredViewControllerClassNames
+            _ignoredViewControllerClassNames
         }
         set {
             _ignoredViewControllerClassNames += newValue
@@ -87,7 +87,7 @@ final class PerformanceLeakDetector {
     ]
     static var ignoredViewClassNames: [String] {
         get {
-            return _ignoredViewClassNames
+            _ignoredViewClassNames
         }
         set {
             _ignoredViewClassNames += newValue
@@ -760,8 +760,7 @@ extension UIViewController {
                 if
                     !self.isViewLoaded || self.view?.window == nil,
                     self.parent == nil, self.presentedViewController == nil,
-                    self.view == nil || self.view.superview == nil || type(of: self.view.rootView).description() == "UILayoutContainerView"
-                {
+                    self.view == nil || self.view.superview == nil || type(of: self.view.rootView).description() == "UILayoutContainerView" {
                     // once warned don't warn again
                     NotificationCenter.lvcd.removeObserver(
                         self,
@@ -1002,7 +1001,7 @@ extension UIApplication {
         }
     }
 
-    fileprivate class func lvcdTopViewController(
+    private class func lvcdTopViewController(
         controller: UIViewController? = UIApplication.shared.lvcdActiveMainKeyWindow?.rootViewController
     ) -> UIViewController? {
         controller?.presentedViewController != nil ? lvcdTopViewController(
@@ -1010,7 +1009,7 @@ extension UIApplication {
         ) : controller
     }
 
-    fileprivate class func lvcdFindViewControllerWithTag(
+    private class func lvcdFindViewControllerWithTag(
         controller: UIViewController? = UIApplication.shared.lvcdActiveMainKeyWindow?.rootViewController,
         tag: Int
     ) -> UIViewController? {
@@ -1023,7 +1022,7 @@ extension UIApplication {
     }
 
     @available(iOS 13.0, tvOS 13, *)
-    fileprivate var lvcdFirstActiveWindowScene: UIWindowScene? {
+    private var lvcdFirstActiveWindowScene: UIWindowScene? {
         let activeScenes = UIApplication.shared.connectedScenes.filter {
             $0.activationState == UIScene.ActivationState.foregroundActive && $0 is UIWindowScene
         }
@@ -1092,7 +1091,7 @@ extension PerformanceLeakDetector {
         let screenshot: UIImage?
         let id: Int
 
-        var hasDeallocated: Bool = false
+        var hasDeallocated = false
         var timeAllocated: String?
 
         var isActive: Bool { !hasDeallocated }

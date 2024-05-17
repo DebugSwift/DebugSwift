@@ -7,13 +7,13 @@
 
 import UIKit
 
-struct PerformanceMemoryWarning {
+enum PerformanceMemoryWarning {
     static var i = 1
 
     static func generate() {
         UIApplication.shared.perform(Selector(("_performMemoryWarning")))
 
-        for _ in 0...1200*i {
+        for _ in 0...1200 * i {
             var p: [UnsafeMutableRawPointer] = []
             var allocatedMB = 0
             p.append(malloc(1048576))
