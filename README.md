@@ -301,3 +301,4 @@ DebugSwift is licensed under the MIT License - see the [LICENSE](LICENSE) file f
 - [InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger) 
 - [CocoaDebug](https://github.com/CocoaDebug/CocoaDebug) 
 - [DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)
+- [LeakedViewControllerDetector](https://github.com/Janneman84/LeakedViewControllerDetector)
