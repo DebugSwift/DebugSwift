@@ -13,6 +13,7 @@ final class SnapshotViewController: BaseController {
 
     private let descriptionLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = .zero
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
