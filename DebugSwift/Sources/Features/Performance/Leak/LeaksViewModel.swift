@@ -5,7 +5,7 @@
 //  Created by Matheus Gois on 19/05/24.
 //
 
-import Foundation
+import UIKit
 
 final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
 
