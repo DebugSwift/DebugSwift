@@ -23,7 +23,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     var isShareEnable: Bool { true }
     var isCustomActionEnable: Bool { true }
 
-    func viewTitle() -> String { "leaks".localized() }
+    func viewTitle() -> String { "\(data.count) " + "leaks".localized() }
 
     func numberOfItems() -> Int {
         isSearchActived ? filteredInfo.count : data.count
@@ -74,7 +74,15 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func didTapItem(index: Int) {
-        let leak = PerformanceLeakDetector.leaks[index]
+
+        let leak: PerformanceLeakDetector.LeakModel
+
+        if isSearchActived {
+            leak = filteredInfo[index]
+        } else {
+            leak = data[index]
+        }
+
         if let image = leak.screenshot {
             let controller = SnapshotViewController(
                 title: "Leak",
