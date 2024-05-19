@@ -29,9 +29,9 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
         isSearchActived ? filteredInfo.count : data.count
     }
 
-    func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
+    func dataSourceForItem(atIndex index: Int) -> ViewData {
         let info = isSearchActived ? filteredInfo[index] : data[index]
-        return (title: info, value: "")
+        return .init(title: info)
     }
 
     func handleClearAction() {

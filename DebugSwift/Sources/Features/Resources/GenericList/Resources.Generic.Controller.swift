@@ -55,23 +55,47 @@ final class ResourcesGenericController: BaseTableController {
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = Theme.shared.backgroundColor
-        guard viewModel.numberOfItems() != .zero, viewModel.isDeleteEnable else { return }
-        addRightBarButton(
-            image: .named("trash.circle", default: "delete.action".localized()),
-            tintColor: .red
-        ) { [weak self] in
-            self?.showAlert(
-                with: "delete.title".localized(),
-                title: "delete.subtitle".localized(),
-                leftButtonTitle: "delete.action".localized(),
-                leftButtonStyle: .destructive,
-                leftButtonHandler: { _ in
-                    self?.clearAction()
-                },
-                rightButtonTitle: "delete.cancel".localized(),
-                rightButtonStyle: .cancel
+
+        guard viewModel.numberOfItems() != .zero else { return }
+
+        var actions = [UIViewController.ButtonAction]()
+
+        if viewModel.isDeleteEnable {
+            actions.append(
+                .init(
+                    image: .named(
+                        "trash.circle",
+                        default: "delete.action".localized()
+                    ),
+                    tintColor: .red
+                ) { [weak self] in
+                    self?.showAlert(
+                        with: "delete.title".localized(),
+                        title: "delete.subtitle".localized(),
+                        leftButtonTitle: "delete.action".localized(),
+                        leftButtonStyle: .destructive,
+                        leftButtonHandler: {
+                            _ in
+                            self?.clearAction()
+                        },
+                        rightButtonTitle: "delete.cancel".localized(),
+                        rightButtonStyle: .cancel
+                    )
+                }
             )
         }
+
+        if viewModel.isShareEnable {
+            actions.append(
+                .init(
+                    image: .named("square.and.arrow.up", default: "share".localized())
+                ) { [weak self] in
+                    self?.viewModel.handleShareAction()
+                }
+            )
+        }
+
+        addRightBarButton(actions: actions)
 
         viewModel.reloadData = { [weak self] in
             self?.tableView.reloadData()
@@ -112,13 +136,13 @@ final class ResourcesGenericController: BaseTableController {
         let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
 
         let dataSource = viewModel.dataSourceForItem(atIndex: indexPath.row)
-
+        let image: UIImage? = viewModel.isCustomActionEnable ?
+                .named("chevron.right.square", default: "action".localized()) :
+                .named("doc.on.doc", default: "copy".localized())
         cell.setup(
             title: dataSource.title,
             subtitle: dataSource.value,
-            image: viewModel.isCustomActionEnable ?
-                .named("chevron.right.square", default: "action".localized()) :
-                .named("doc.on.doc", default: "copy".localized())
+            image: dataSource.actionImage ?? image
         )
 
         return cell
@@ -180,9 +204,15 @@ extension ResourcesGenericController: UISearchResultsUpdating {
 }
 
 protocol ResourcesGenericListViewModel: AnyObject {
+
+    typealias ViewData = ResourcesGenericController.CellViewData
+
     var isSearchActived: Bool { get set }
 
     var isDeleteEnable: Bool { get }
+
+    var isShareEnable: Bool { get }
+
     var isCustomActionEnable: Bool { get }
 
     var reloadData: (() -> Void)? { get set }
@@ -195,10 +225,13 @@ protocol ResourcesGenericListViewModel: AnyObject {
 
     /// Provides the data source object for a cell at the given index.
     /// - Parameter index: The index of the cell that needs the data source.
-    func dataSourceForItem(atIndex index: Int) -> (title: String, value: String)
+    func dataSourceForItem(atIndex index: Int) -> ViewData
 
     /// Handles tap on the clear button on the navigation bar.
     func handleClearAction()
+
+    /// Handles tap on the clear button on the navigation bar.
+    func handleShareAction()
 
     /// Handles delete action on the cell at the given index.
     /// - Parameter index: The index of the cell that the user chose to delete.
@@ -218,8 +251,32 @@ protocol ResourcesGenericListViewModel: AnyObject {
 
 extension ResourcesGenericListViewModel {
     var isDeleteEnable: Bool { true }
+    var isShareEnable: Bool { true }
 
     var isCustomActionEnable: Bool { false }
 
     func didTapItem(index: Int) {}
+
+    func handleClearAction() {}
+    func handleShareAction() {}
+
+    func handleDeleteItemAction(atIndex index: Int) {}
+}
+
+extension ResourcesGenericController {
+    struct CellViewData {
+        let title: String
+        let value: String
+        let actionImage: UIImage?
+
+        init(
+            title: String,
+            value: String = "",
+            actionImage: UIImage? = nil
+        ) {
+            self.title = title
+            self.value = value
+            self.actionImage = actionImage
+        }
+    }
 }

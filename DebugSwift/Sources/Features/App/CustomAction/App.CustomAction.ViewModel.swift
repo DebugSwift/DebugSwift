@@ -33,14 +33,10 @@ final class AppCustomActionViewModel: NSObject, ResourcesGenericListViewModel {
         isSearchActived ? filtered.count : data.actions.count
     }
 
-    func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
+    func dataSourceForItem(atIndex index: Int) -> ViewData {
         let info = isSearchActived ? filtered[index] : data.actions[index]
-        return (title: info.title, value: "")
+        return .init(title: info.title)
     }
-
-    func handleClearAction() {}
-
-    func handleDeleteItemAction(atIndex index: Int) {}
 
     func emptyListDescriptionString() -> String {
         "empty-data".localized() + data.title

@@ -1095,5 +1095,6 @@ extension PerformanceLeakDetector {
         var timeAllocated: String?
 
         var isActive: Bool { !hasDeallocated }
+        var symbol: String { hasDeallocated ? "✳️" : "⚠️" }
     }
 }

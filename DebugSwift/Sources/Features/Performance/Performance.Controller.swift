@@ -112,7 +112,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .memory:
             return 4
         case .leaks:
-            return 2 + PerformanceLeakDetector.leaks.count
+            return 2
         }
     }
 
@@ -222,19 +222,15 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             cell.textLabel?.text = "current-leaks".localized()
             cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.currentLeaks)
         case 1:
-            cell.textLabel?.text = "max-leaks".localized()
-            cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.maxLeaks)
-        default:
-            let index = index - 2
             let cell = reuseCell(for: .leak)
-            let leak = PerformanceLeakDetector.leaks[index]
 
             cell.setup(
-                title: "\(leak.hasDeallocated ? "✳️" : "⚠️")\(leak.details)",
-                image: leak.screenshot != nil ? .named("chevron.right", default: "action".localized()) : nil
+                title: "see-leaks".localized(),
+                image: .named("chevron.right", default: "action".localized())
             )
-
             return cell
+        default:
+            return nil
         }
 
         return cell
@@ -283,15 +279,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             cell?.simulateButtonTap()
             PerformanceMemoryWarning.generate()
         case .leak:
-            let leak = PerformanceLeakDetector.leaks[indexPath.row - 2]
-            if let image = leak.screenshot {
-                let controller = SnapshotViewController(
-                    title: "Leak",
-                    image: image,
-                    description: leak.details
-                )
-                navigationController?.pushViewController(controller, animated: true)
-            }
+            let viewModel = LeakViewModel()
+            let controller = ResourcesGenericController(viewModel: viewModel)
+            navigationController?.pushViewController(controller, animated: true)
         default:
             break
         }
