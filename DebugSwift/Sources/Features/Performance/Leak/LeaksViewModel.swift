@@ -1,5 +1,5 @@
 //
-//  LeakViewModel.swift
+//  LeaksViewModel.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/05/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class LeakViewModel: NSObject, ResourcesGenericListViewModel {
+final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
 
     private var data: [PerformanceLeakDetector.LeakModel] {
         PerformanceLeakDetector.leaks
@@ -23,7 +23,7 @@ final class LeakViewModel: NSObject, ResourcesGenericListViewModel {
     var isShareEnable: Bool { true }
     var isCustomActionEnable: Bool { true }
 
-    func viewTitle() -> String { "Leak" }
+    func viewTitle() -> String { "leaks".localized() }
 
     func numberOfItems() -> Int {
         isSearchActived ? filteredInfo.count : data.count

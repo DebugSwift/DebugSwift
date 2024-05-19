@@ -279,7 +279,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             cell?.simulateButtonTap()
             PerformanceMemoryWarning.generate()
         case .leak:
-            let viewModel = LeakViewModel()
+            let viewModel = LeaksViewModel()
             let controller = ResourcesGenericController(viewModel: viewModel)
             navigationController?.pushViewController(controller, animated: true)
         default:
