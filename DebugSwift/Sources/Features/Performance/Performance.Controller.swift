@@ -215,15 +215,14 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     }
 
     func leaksStatisticsCellForRow(at index: Int) -> UITableViewCell? {
-        let cell = reuseCell()
-
         switch index {
         case 0:
+            let cell = reuseCell()
             cell.textLabel?.text = "current-leaks".localized()
-            cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.currentLeaks)
+            cell.detailTextLabel?.text = "\(PerformanceLeakDetector.leaks.count)"
+            return cell
         case 1:
             let cell = reuseCell(for: .leak)
-
             cell.setup(
                 title: "see-leaks".localized(),
                 image: .named("chevron.right", default: "action".localized())
@@ -232,8 +231,6 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         default:
             return nil
         }
-
-        return cell
     }
 
     private func configureChartCell(
@@ -308,7 +305,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case PerformanceTableViewSection.toggle.rawValue:
             return toggleCell()
         case PerformanceTableViewSection.segmentedControl.rawValue:
-            return segmentedControlCell()
+            return segmentedControlCell() ?? UITableViewCell()
         case PerformanceTableViewSection.statistics.rawValue:
             return statisticsCellForRow(at: indexPath.row) ?? UITableViewCell()
         default:
@@ -327,11 +324,14 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         return cell
     }
 
-    private func segmentedControlCell() -> UITableViewCell {
-        let cell =
-            tableView.dequeueReusableCell(withIdentifier: Identifier.segmentedControl.rawValue)
-                as? MenuSegmentedControlTableViewCell ?? MenuSegmentedControlTableViewCell()
-        let segmentTitles = ["cpu".localized(), "memory".localized(), "fps".localized(), "leaks".localized()]
+    private func segmentedControlCell() -> UITableViewCell? {
+        guard let cell = reuseCell(for: .segmentedControl) as? MenuSegmentedControlTableViewCell else { return nil }
+        let segmentTitles = [
+            "cpu".localized(),
+            "memory".localized(),
+            "fps".localized(),
+            "leaks".localized()
+        ]
         cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)
         cell.delegate = self
         return cell

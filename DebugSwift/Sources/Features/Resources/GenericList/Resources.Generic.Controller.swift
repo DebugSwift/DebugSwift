@@ -46,6 +46,11 @@ final class ResourcesGenericController: BaseTableController {
         setupSearch()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+
     func setupTableView() {
         tableView.register(
             UITableViewCell.self,
