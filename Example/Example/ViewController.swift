@@ -8,15 +8,23 @@
 import UIKit
 
 class ViewController: UIViewController {
+
+    @IBOutlet var text: UILabel!
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         LocationManager.shared.didUpdate = { [weak self] value in
             self?.text.text = value
         }
+
+        testConsole()
     }
 
-    @IBOutlet var text: UILabel!
+    func testConsole() {
+        NSLog("NSLog \(#function)")
+        print("print \(#function)")
+    }
 
     @IBAction func successMocked() {
         let random: Int = .random(in: 1...5)

@@ -1,5 +1,5 @@
 //
-//  LogIntercepter.swift
+//  StdoutCapture.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/12/23.
@@ -7,9 +7,9 @@
 
 import UIKit
 
-final class LogIntercepter {
+final class StdoutCapture {
 
-    public static let shared = LogIntercepter()
+    private static let shared = StdoutCapture()
 
     // MARK: - Properties
 
@@ -20,10 +20,6 @@ final class LogIntercepter {
         qos: .default,
         attributes: .concurrent
     )
-
-    var consoleOutput = [String]()
-
-    weak var delegate: LogInterceptorDelegate?
 
     let logUrl: URL? = {
         if let path = NSSearchPathForDirectoriesInDomains(
@@ -39,8 +35,8 @@ final class LogIntercepter {
 
     // MARK: - Lifecycle Methods
 
-    func start() {
-        if let logUrl {
+    static func startCapturing() {
+        if let logUrl = shared.logUrl {
             do {
                 let header =
                     """
@@ -51,17 +47,11 @@ final class LogIntercepter {
             } catch {}
         }
 
-        openConsolePipe()
-    }
-
-    func reset() {
-        consoleOutput.removeAll()
+        shared.openConsolePipe()
     }
 
     private func openConsolePipe() {
         setvbuf(stdout, nil, _IONBF, 0)
-        // FIX-ME: - Get errors from logs, but lock the UI when the error occurs on main thread.
-//        setvbuf(stderr, nil, _IONBF, 0)
 
         // open a new Pipe to consume the messages on STDOUT and STDERR
         inputPipe = Pipe()
@@ -85,7 +75,6 @@ final class LogIntercepter {
         /// In this case, the newFileDescriptor is the pipe's file descriptor
         /// and the old file descriptor is STDOUT_FILENO and STDERR_FILENO
         dup2(inputPipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
-//        dup2(inputPipe.fileHandleForWriting.fileDescriptor, STDERR_FILENO)
 
         // listen in to the readHandle notification
         NotificationCenter.default.addObserver(
@@ -125,11 +114,8 @@ final class LogIntercepter {
         guard let output = consoleOutput else { return }
 
         if !shouldIgnoreLog(output), shouldIncludeLog(output) {
-            queue.async { [weak self] in
-                self?.consoleOutput.append(output)
-                DispatchQueue.main.async {
-                    self?.delegate?.logUpdated()
-                }
+            queue.async {
+                ConsoleOutput.printAndNSLogOutput.append(output)
             }
         }
     }
@@ -148,11 +134,11 @@ final class LogIntercepter {
 }
 
 extension String {
-    func appendLineToURL(_ fileURL: URL) throws {
+    fileprivate func appendLineToURL(_ fileURL: URL) throws {
         try (self + "\n").appendToURL(fileURL)
     }
 
-    func appendToURL(_ fileURL: URL) throws {
+    fileprivate func appendToURL(_ fileURL: URL) throws {
         if let data = data(using: .utf8) {
             try data.appendToURL(fileURL)
         }
@@ -160,7 +146,7 @@ extension String {
 }
 
 extension Data {
-    func appendToURL(_ fileURL: URL) throws {
+    fileprivate func appendToURL(_ fileURL: URL) throws {
         if let fileHandle = try? FileHandle(forWritingTo: fileURL) {
             defer {
                 fileHandle.closeFile()
@@ -171,8 +157,4 @@ extension Data {
             try write(to: fileURL, options: .atomic)
         }
     }
-}
-
-protocol LogInterceptorDelegate: AnyObject {
-    func logUpdated()
 }

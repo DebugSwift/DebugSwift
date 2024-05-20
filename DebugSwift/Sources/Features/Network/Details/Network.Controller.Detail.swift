@@ -235,26 +235,7 @@ extension NetworkViewControllerDetail {
         var fileName = model.url?.path.replacingOccurrences(of: "/", with: "-") ?? "-log"
         fileName.removeFirst()
 
-        let tempURL = URL(
-            fileURLWithPath: NSTemporaryDirectory()
-        ).appendingPathComponent("\(fileName).txt")
-
-        do {
-            try logText.write(to: tempURL, atomically: true, encoding: .utf8)
-
-            let activity = UIActivityViewController(
-                activityItems: [tempURL],
-                applicationActivities: nil
-            )
-
-            if let popover = activity.popoverPresentationController {
-                popover.sourceView = view
-                popover.permittedArrowDirections = .up
-            }
-            present(activity, animated: true, completion: nil)
-        } catch {
-            Debug.print("Error: \(error.localizedDescription)")
-        }
+        FileSharingManager.generateFileAndShare(text: logText, fileName: fileName)
     }
 
     @objc private func copyCurlButtonTapped() {

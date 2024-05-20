@@ -9,9 +9,7 @@ import Foundation
 
 final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
 
-    private var data: [String] {
-        LogIntercepter.shared.consoleOutput
-    }
+    private var data: [String] { ConsoleOutput.printAndNSLogOutput }
 
     private var filteredInfo = [String]()
 
@@ -29,22 +27,22 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
         isSearchActived ? filteredInfo.count : data.count
     }
 
-    func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
+    func dataSourceForItem(atIndex index: Int) -> ViewData {
         let info = isSearchActived ? filteredInfo[index] : data[index]
-        return (title: info, value: "")
+        return .init(title: info)
     }
 
     func handleClearAction() {
-        LogIntercepter.shared.reset()
+        ConsoleOutput.removeAll()
         filteredInfo.removeAll()
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
         if isSearchActived {
             let info = filteredInfo.remove(at: index)
-            LogIntercepter.shared.consoleOutput.removeAll(where: { $0 == info })
+            ConsoleOutput.printAndNSLogOutput.removeAll(where: { $0 == info })
         } else {
-            LogIntercepter.shared.consoleOutput.remove(at: index)
+            ConsoleOutput.printAndNSLogOutput.remove(at: index)
         }
     }
 
@@ -62,11 +60,5 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
                 $0.localizedCaseInsensitiveContains(searchText)
             }
         }
-    }
-}
-
-extension AppConsoleViewModel: LogInterceptorDelegate {
-    func logUpdated() {
-        reloadData?()
     }
 }

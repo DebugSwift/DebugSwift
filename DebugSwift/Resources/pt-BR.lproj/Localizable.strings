@@ -8,8 +8,8 @@
 "memory-usage" = "Uso de memória";
 "max-memory-usage" = "Uso máximo de memória";
 "simulate-memory-warning" = "Simular aviso de memória";
-"max-leaks" = "Número máximo de Leaks";
-"current-leaks" = "Número de Leaks ativos";
+"see-leaks" = "⚠️ Ver todos os Leaks";
+"current-leaks" = "Número de Leaks";
 "leaks" = "Leaks";
 "fps" = "FPS";
 "cpu" = "CPU";
@@ -72,12 +72,16 @@
 "delete.cancel" = "Cancelar";
 
 "date" = "Data";
-"crash-name" = "Falha";
+"crash-name" = "Erro";
 "reason" = "Motivo";
 "no-reason" = "Não encontrado";
+"snapshot" = "Snapshot";
+"logs" = "Logs";
+"log-error" = "Log de Erro";
 "context" = "Contexto";
+"empty-directory" = "Este diretório está vazio.";
 "name" = "Nome";
-"user-info" = "User Info";
+"user-info" = "Informações do Usuário";
 
 "copy" = "Copiar";
 "close" = "Fechar";

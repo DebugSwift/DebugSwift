@@ -112,7 +112,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .memory:
             return 4
         case .leaks:
-            return 2 + PerformanceLeakDetector.leaks.count
+            return 2
         }
     }
 
@@ -215,29 +215,22 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     }
 
     func leaksStatisticsCellForRow(at index: Int) -> UITableViewCell? {
-        let cell = reuseCell()
-
         switch index {
         case 0:
+            let cell = reuseCell()
             cell.textLabel?.text = "current-leaks".localized()
-            cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.currentLeaks)
-        case 1:
-            cell.textLabel?.text = "max-leaks".localized()
-            cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.maxLeaks)
-        default:
-            let index = index - 2
-            let cell = reuseCell(for: .leak)
-            let leak = PerformanceLeakDetector.leaks[index]
-
-            cell.setup(
-                title: "\(leak.hasDeallocated ? "✳️" : "⚠️")\(leak.details)",
-                image: leak.screenshot != nil ? .named("chevron.right", default: "action".localized()) : nil
-            )
-
+            cell.detailTextLabel?.text = "\(PerformanceLeakDetector.leaks.count)"
             return cell
+        case 1:
+            let cell = reuseCell(for: .leak)
+            cell.setup(
+                title: "see-leaks".localized(),
+                image: .named("chevron.right", default: "action".localized())
+            )
+            return cell
+        default:
+            return nil
         }
-
-        return cell
     }
 
     private func configureChartCell(
@@ -283,15 +276,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             cell?.simulateButtonTap()
             PerformanceMemoryWarning.generate()
         case .leak:
-            let leak = PerformanceLeakDetector.leaks[indexPath.row - 2]
-            if let image = leak.screenshot {
-                let controller = SnapshotViewController(
-                    title: "Leak",
-                    image: image,
-                    description: leak.details
-                )
-                navigationController?.pushViewController(controller, animated: true)
-            }
+            let viewModel = LeaksViewModel()
+            let controller = ResourcesGenericController(viewModel: viewModel)
+            navigationController?.pushViewController(controller, animated: true)
         default:
             break
         }
@@ -318,7 +305,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case PerformanceTableViewSection.toggle.rawValue:
             return toggleCell()
         case PerformanceTableViewSection.segmentedControl.rawValue:
-            return segmentedControlCell()
+            return segmentedControlCell() ?? UITableViewCell()
         case PerformanceTableViewSection.statistics.rawValue:
             return statisticsCellForRow(at: indexPath.row) ?? UITableViewCell()
         default:
@@ -337,11 +324,14 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         return cell
     }
 
-    private func segmentedControlCell() -> UITableViewCell {
-        let cell =
-            tableView.dequeueReusableCell(withIdentifier: Identifier.segmentedControl.rawValue)
-                as? MenuSegmentedControlTableViewCell ?? MenuSegmentedControlTableViewCell()
-        let segmentTitles = ["cpu".localized(), "memory".localized(), "fps".localized(), "leaks".localized()]
+    private func segmentedControlCell() -> UITableViewCell? {
+        guard let cell = reuseCell(for: .segmentedControl) as? MenuSegmentedControlTableViewCell else { return nil }
+        let segmentTitles = [
+            "cpu".localized(),
+            "memory".localized(),
+            "fps".localized(),
+            "leaks".localized()
+        ]
         cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)
         cell.delegate = self
         return cell

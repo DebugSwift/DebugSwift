@@ -9,7 +9,7 @@
 import Foundation
 
 enum Debug {
-    @UserDefaultAccess(key: .debugger, defaultValue: true)
+    @UserDefaultAccess(key: .debugger, defaultValue: false)
     static var enable: Bool
 
     static func execute(action: () -> Void) {

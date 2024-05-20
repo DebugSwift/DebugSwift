@@ -197,7 +197,8 @@ extension UIView {
             // UIImagePickerController is not available in tvOS so do OS check
             #if os(iOS)
             if fvc is UIImagePickerController {
-                return nil // screenshotting UIIPC is not possible and can even lead to a permanent memory leak, PHPicker works fine though
+                /// screenshotting UIIPC is not possible and can even lead to a permanent memory leak, PHPicker works fine though
+                return nil
             }
             #endif
         }
@@ -280,22 +281,24 @@ extension UIView {
 
         // stick to two levels for now, seems to work best without constraint warnings
         // level 3 is necessary for getting UIAlert radius
-        iterateSubviews(
-            maxLevel: 3
-        ) {
-            subview,
-                level in
+        iterateSubviews(maxLevel: 3) { subview, level in
             if !(
-                subview is UINavigationBar || subview is UICollectionViewCell || subview is UITabBar || level > 2
+                subview is UINavigationBar ||
+                    subview is UICollectionViewCell ||
+                    subview is UITabBar ||
+                    subview is UIToolbar ||
+                    level > 2
             ) {
-                wasTARMICS[ObjectIdentifier(
-                    subview
-                )] = subview.translatesAutoresizingMaskIntoConstraints
+                wasTARMICS[ObjectIdentifier(subview)] = subview.translatesAutoresizingMaskIntoConstraints
                 subview.translatesAutoresizingMaskIntoConstraints = true
             }
-            if cornerRadius == 0, subview.bounds == bounds, subview.layer.cornerRadius != 0 {
+            if
+                cornerRadius == 0,
+                subview.bounds == bounds,
+                subview.layer.cornerRadius != 0 {
                 cornerRadius = subview.layer.cornerRadius
             }
+
             return true
         }
 
@@ -305,9 +308,7 @@ extension UIView {
                 size: frame.size
             )
         )
-        container.addSubview(
-            self
-        )
+        container.addSubview(self)
         objc_setAssociatedObject(
             container,
             &LVCDDeallocator.key,
@@ -316,14 +317,8 @@ extension UIView {
         ) // prevents triggering warnings itself
 
         let shapeLayer = CAShapeLayer()
-        shapeLayer.path = UIBezierPath(
-            rect: frame
-        ).cgPath
-        shapeLayer.fillColor = UIColor(
-            patternImage: checkerBoardImage
-        ).withAlphaComponent(
-            0.5
-        ).cgColor
+        shapeLayer.path = UIBezierPath(rect: frame).cgPath
+        shapeLayer.fillColor = UIColor(patternImage: checkerBoardImage).withAlphaComponent(0.5).cgColor
         container.layer.insertSublayer(
             shapeLayer,
             at: 0
@@ -435,7 +430,11 @@ extension UIView {
             subview,
                 level in
             if !(
-                subview is UINavigationBar || subview is UICollectionViewCell || subview is UITabBar || level > 2
+                subview is UINavigationBar ||
+                subview is UICollectionViewCell ||
+                subview is UITabBar ||
+                subview is UIToolbar ||
+                level > 2
             ) {
                 subview.translatesAutoresizingMaskIntoConstraints = wasTARMICS[ObjectIdentifier(
                     subview
@@ -739,9 +738,7 @@ extension UIViewController {
             ) { [weak self] in
 
                 // if self is nil it deinitted, so no memory leak
-                guard let self else {
-                    return
-                }
+                guard let self else { return }
 
                 // if backgrounded now or during the delay ignore for now
                 if UIApplication.shared.applicationState != .active || PerformanceLeakDetector.lastBackgroundedDate > startTime {
@@ -750,9 +747,7 @@ extension UIViewController {
 
                 // if somehow this asyncAfter code is executed way too late restart just in case
                 if !restarted && abs(startTime.timeIntervalSinceNow) > delay + 0.5 {
-                    self.lvcdCheckForMemoryLeak(
-                        restarted: true
-                    )
+                    self.lvcdCheckForMemoryLeak(restarted: true)
                     return
                 }
 
@@ -793,9 +788,7 @@ extension UIViewController {
                             actions: \(actions);
                         """
 
-                        if !(
-                            alertVC.textFields ?? []
-                        ).isEmpty {
+                        if alertVC.textFields?.isEmpty == false {
                             var tfs = ""
                             for tf in alertVC.textFields ?? [] {
                                 tfs = "\(tfs) \"\(tf.placeholder ?? "-")\","
@@ -818,7 +811,6 @@ extension UIViewController {
                     Debug.print("\(errorTitle) \(errorMessage)")
 
                     let screenshot = self.view?.rootView.makeScreenshot()
-
                     let id = Int(bitPattern: ObjectIdentifier(self))
 
                     if !PerformanceLeakDetector.leaks.contains(where: { $0.id == id }) {
@@ -911,11 +903,15 @@ extension UIViewController {
 
                 viewController.addCheckForMemoryLeakObserver()
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + PerformanceLeakDetector.delay) { [
+                DispatchQueue.main.asyncAfter(
+                    deadline: .now() + PerformanceLeakDetector.delay
+                ) { [
                     weak splitViewController,
                     weak viewController
                 ] in
-                    if splitViewController == nil { viewController?.lvcdCheckForMemoryLeak() }
+                    if splitViewController == nil {
+                        viewController?.lvcdCheckForMemoryLeak()
+                    }
                 }
             }
         }
@@ -1095,5 +1091,6 @@ extension PerformanceLeakDetector {
         var timeAllocated: String?
 
         var isActive: Bool { !hasDeallocated }
+        var symbol: String { hasDeallocated ? "✳️" : "⚠️" }
     }
 }
