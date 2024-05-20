@@ -31,6 +31,8 @@
 		2CF7B29D4E2519196CD26EB5C3310EA3 /* Network.Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F967575F3227F06A0C326A253D60804C /* Network.Cell.swift */; };
 		2D1642061DE62FF5D2CADDFEC03404D6 /* Performace.FPSCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5777A796C66C34F38E7D8950A83A5133 /* Performace.FPSCalculator.swift */; };
 		2E4AC973AAFA26490F7A6393174299E0 /* CrashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C892AA8F00288376305FE9DE84106B /* CrashViewController.swift */; };
+		2E585CF72BF9C47100E0F803 /* LeaksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E585CF62BF9C47100E0F803 /* LeaksViewModel.swift */; };
+		2E585CF92BF9CECB00E0F803 /* FileSharingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E585CF82BF9CECB00E0F803 /* FileSharingManager.swift */; };
 		2E630C1B2BF6721C00FA2C4E /* Performance.LeakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E630C1A2BF6721C00FA2C4E /* Performance.LeakDetector.swift */; };
 		2E630C212BF6CB6B00FA2C4E /* Performance.MemoryWarning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E630C202BF6CB6B00FA2C4E /* Performance.MemoryWarning.swift */; };
 		2F2E22C927FF9E33D5C5867F529013C4 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 283777023023535AE635457B1B10207F /* String+.swift */; };
@@ -188,6 +190,8 @@
 		2B76122EA0FF266B37BD78B6D39AD650 /* CrashModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrashModel.swift; sourceTree = "<group>"; };
 		2B8E2D84CBDEFDB86F02F7BF96A828AB /* Resources.Generic.Controller.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Resources.Generic.Controller.swift; sourceTree = "<group>"; };
 		2BD62F1D3AF35975A093174109D746F4 /* UIColor+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIColor+.swift"; sourceTree = "<group>"; };
+		2E585CF62BF9C47100E0F803 /* LeaksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaksViewModel.swift; sourceTree = "<group>"; };
+		2E585CF82BF9CECB00E0F803 /* FileSharingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSharingManager.swift; sourceTree = "<group>"; };
 		2E630C1A2BF6721C00FA2C4E /* Performance.LeakDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Performance.LeakDetector.swift; sourceTree = "<group>"; };
 		2E630C202BF6CB6B00FA2C4E /* Performance.MemoryWarning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Performance.MemoryWarning.swift; sourceTree = "<group>"; };
 		2F405B432CAD1C64D0EC6EA117B2A42F /* FeatureHandling.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FeatureHandling.swift; sourceTree = "<group>"; };
@@ -435,10 +439,19 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		2E585CF52BF9C46100E0F803 /* Leak */ = {
+			isa = PBXGroup;
+			children = (
+				2E585CF62BF9C47100E0F803 /* LeaksViewModel.swift */,
+			);
+			path = Leak;
+			sourceTree = "<group>";
+		};
 		3279157C06D754ABC3A9D31086DC143A /* Performance */ = {
 			isa = PBXGroup;
 			children = (
 				77293758FE89CCF47A88F16624D3EE64 /* Performance.Controller.swift */,
+				2E585CF52BF9C46100E0F803 /* Leak */,
 				591FC0A5930232AC6B352DA43E07E4BC /* Helpers */,
 				A2BE53146FD163BA56626789442DADD4 /* Views */,
 			);
@@ -656,6 +669,7 @@
 			children = (
 				2F405B432CAD1C64D0EC6EA117B2A42F /* FeatureHandling.swift */,
 				81B72271DCA297ED2D1CCA142E9F1E74 /* FileManager.swift */,
+				2E585CF82BF9CECB00E0F803 /* FileSharingManager.swift */,
 				62BA20D9181648273EFA3A73EEEDF340 /* FloatViewManager.swift */,
 				659614A91CA6DEAE9BCCF55C53885B0D /* LocalizationManager.swift */,
 				CEE793D3F371F86B4FF8A59F10FDC77D /* PDFManager.swift */,
@@ -1176,6 +1190,7 @@
 				EF5E5AECF533D15FD9CB2CF73F6ADB80 /* DebugSnapshotViewController.swift in Sources */,
 				9639318346D251F42771B0A428BA907A /* DebugSwift.swift in Sources */,
 				1B0ABD9E1F62F7E91BCB975270A2EF8B /* DebugSwift-dummy.m in Sources */,
+				2E585CF92BF9CECB00E0F803 /* FileSharingManager.swift in Sources */,
 				5FCF05BA42AF35AE12A177C53BC7232C /* Dictionary+.swift in Sources */,
 				3A11A2673A6712D1FF3B3EA7BD998D24 /* Element.swift in Sources */,
 				1642BDFB688D59DDC0778B21BEE7C9EA /* ErrorHelper.swift in Sources */,
@@ -1261,6 +1276,7 @@
 				05C4CEA7C45631D6A7347E9A40144D97 /* UIView+.swift in Sources */,
 				B51C6A6FFE11A4A76B011CA840BEA4B2 /* UIViewController+.swift in Sources */,
 				637A5027B6B60D5B8DD3E19A18286E73 /* UIWindow+.swift in Sources */,
+				2E585CF72BF9C47100E0F803 /* LeaksViewModel.swift in Sources */,
 				D5AFB1C2F325F04EE7A7B3E76D3F6326 /* URLCache+.swift in Sources */,
 				35444F63271A2266232E627817072AB4 /* UserDefaultsAccess.swift in Sources */,
 				9B91673340E9439899286627FE06B881 /* UserInfo.swift in Sources */,

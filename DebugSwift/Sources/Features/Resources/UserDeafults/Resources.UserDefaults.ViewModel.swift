@@ -47,10 +47,10 @@ final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewMo
         isSearchActived ? filteredKeys.count : keys.count
     }
 
-    func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
+    func dataSourceForItem(atIndex index: Int) -> ViewData {
         let key = isSearchActived ? filteredKeys[index] : keys[index]
         let value = "\(UserDefaults.standard.object(forKey: key) ?? "")"
-        return (title: key, value: value)
+        return .init(title: key, value: value)
     }
 
     func handleClearAction() {

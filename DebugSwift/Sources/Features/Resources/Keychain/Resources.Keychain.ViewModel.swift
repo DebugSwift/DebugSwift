@@ -50,10 +50,10 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
         isSearchActived ? filteredKeys.count : keys.count
     }
 
-    func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
+    func dataSourceForItem(atIndex index: Int) -> ViewData {
         let key = isSearchActived ? filteredKeys[index] : keys[index]
         let value = (try? keychain.get(key)) ?? ""
-        return (title: key, value: value)
+        return .init(title: key, value: value)
     }
 
     func handleClearAction() {

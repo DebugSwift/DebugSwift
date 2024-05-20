@@ -35,14 +35,10 @@ final class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
         isSearchActived ? filteredInfo.count : data.infos.count
     }
 
-    func dataSourceForItem(atIndex index: Int) -> (title: String, value: String) {
+    func dataSourceForItem(atIndex index: Int) -> ViewData {
         let info = isSearchActived ? filteredInfo[index] : data.infos[index]
-        return (title: info.title, value: info.subtitle)
+        return .init(title: info.title, value: info.subtitle)
     }
-
-    func handleClearAction() {}
-
-    func handleDeleteItemAction(atIndex index: Int) {}
 
     func emptyListDescriptionString() -> String {
         "empty-data".localized() + data.title

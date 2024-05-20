@@ -8,8 +8,8 @@
 "memory-usage" = "Uso de memória";
 "max-memory-usage" = "Uso máximo de memória";
 "simulate-memory-warning" = "Simular aviso de memória";
-"max-leaks" = "Número máximo de Leaks";
-"current-leaks" = "Número de Leaks ativos";
+"see-leaks" = "⚠️ Ver todos os Leaks";
+"current-leaks" = "Número de Leaks";
 "leaks" = "Leaks";
 "fps" = "FPS";
 "cpu" = "CPU";

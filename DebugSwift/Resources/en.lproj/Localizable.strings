@@ -11,8 +11,8 @@
 "memory-usage" = "Memory usage";
 "max-memory-usage" = "Max memory usage";
 "simulate-memory-warning" = "Simulate memory warning";
-"max-leaks" = "Max Leaks";
-"current-leaks" = "Current active Leaks";
+"see-leaks" = "⚠️ Show Leaks";
+"current-leaks" = "All Leaks";
 "leaks" = "Leaks";
 "fps" = "FPS";
 "cpu" = "CPU";
