@@ -773,7 +773,6 @@ extension UIViewController {
                     if let tbvc = self as? UITabBarController, let vcs = tbvc.viewControllers {
                         errorMessage = "\(errorMessage):\n\(vcs)"
                     }
-
                     // add alert title/message to the message for easier identification
                     if let alertVC = self as? UIAlertController {
 
