@@ -23,7 +23,7 @@ class ViewController: UIViewController {
 
     func testConsole() {
         NSLog("NSLog \(#function)")
-//        print("print \(#function)")
+        print("print \(#function)")
     }
 
     @IBAction func successMocked() {
