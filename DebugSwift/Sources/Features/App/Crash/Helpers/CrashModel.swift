@@ -58,6 +58,7 @@ extension CrashModel {
     struct Context: Codable {
         let image: Data?
         let consoleOutput: String
+        let errorOutput: String
 
         var uiImage: UIImage? {
             guard let image else { return nil }
@@ -67,7 +68,8 @@ extension CrashModel {
         static func builder() -> Self {
             .init(
                 image: UIWindow.keyWindow?._snapshotWithTouch?.pngData(),
-                consoleOutput: LogIntercepter.shared.consoleOutput.reversed().joined(separator: "\n")
+                consoleOutput: ConsoleOutput.printAndNSLogOutputFormatted(),
+                errorOutput: ConsoleOutput.errorOutputFormatted()
             )
         }
     }

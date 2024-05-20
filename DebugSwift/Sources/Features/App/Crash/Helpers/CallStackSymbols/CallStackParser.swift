@@ -11,7 +11,7 @@ import Foundation
 /**
  A class for parsing the current call stack in scope.
  */
-public class CallStackParser {
+class CallStackParser {
 
     static var bundleName: String? {
         if let name: String = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String {
@@ -58,7 +58,7 @@ public class CallStackParser {
 
      - Returns: a tuple containing the (class,method) or nil if it could not be parsed
      */
-    public class func classAndMethodForStackSymbol(
+    class func classAndMethodForStackSymbol(
         _ stackSymbol: String,
         includeImmediateParentClass: Bool? = false
     ) -> (
@@ -125,7 +125,7 @@ public class CallStackParser {
         return nil
     }
 
-    public class func closureForStackSymbol(
+    class func closureForStackSymbol(
         _ stackSymbol: String,
         includeImmediateParentClass: Bool? = false
     ) -> String? {
@@ -177,7 +177,7 @@ public class CallStackParser {
 
      - Returns: a tuple containing the (class,method) or nil if it could not be parsed
      */
-    public class func getCallingClassAndMethodInScope(
+    class func getCallingClassAndMethodInScope(
         includeImmediateParentClass: Bool? = false
     ) -> (
         String,
@@ -202,7 +202,7 @@ public class CallStackParser {
 
      - Returns: a tuple containing the (class,method) or nil if it could not be parsed
      */
-    public class func getThisClassAndMethodInScope(
+    class func getThisClassAndMethodInScope(
         includeImmediateParentClass: Bool? = false
     ) -> (
         String,

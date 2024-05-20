@@ -142,8 +142,8 @@ final class ResourcesGenericController: BaseTableController {
 
         let dataSource = viewModel.dataSourceForItem(atIndex: indexPath.row)
         let image: UIImage? = viewModel.isCustomActionEnable ?
-                .named("chevron.right.square", default: "action".localized()) :
-                .named("doc.on.doc", default: "copy".localized())
+            .named("chevron.right.square", default: "action".localized()) :
+            .named("doc.on.doc", default: "copy".localized())
         cell.setup(
             title: dataSource.title,
             subtitle: dataSource.value,

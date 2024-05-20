@@ -12,6 +12,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     private var data: [PerformanceLeakDetector.LeakModel] {
         PerformanceLeakDetector.leaks
     }
+
     private var filteredInfo = [PerformanceLeakDetector.LeakModel]()
 
     // MARK: - ViewModel
@@ -57,7 +58,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func handleShareAction() {
-        let allLeaks = PerformanceLeakDetector.leaks.reduce("", { $0 + "\n\n\($1.symbol)\($1.details)" })
+        let allLeaks = PerformanceLeakDetector.leaks.reduce("") { $0 + "\n\n\($1.symbol)\($1.details)" }
         FileSharingManager.generateFileAndShare(text: allLeaks, fileName: "leaks")
     }
 
