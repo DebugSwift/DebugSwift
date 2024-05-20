@@ -78,9 +78,15 @@ final class CrashDetailViewModel: NSObject {
         if data.context.uiImage != nil {
             infos.append(.init(title: "snapshot".localized(), detail: ""))
         }
+
         if !data.context.consoleOutput.isEmpty {
             infos.append(.init(title: "logs".localized(), detail: ""))
         }
+
+        if !data.context.errorOutput.isEmpty {
+            infos.append(.init(title: "log-error".localized(), detail: ""))
+        }
+
         return infos
     }
 

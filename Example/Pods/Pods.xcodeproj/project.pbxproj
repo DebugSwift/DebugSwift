@@ -31,6 +31,10 @@
 		2CF7B29D4E2519196CD26EB5C3310EA3 /* Network.Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F967575F3227F06A0C326A253D60804C /* Network.Cell.swift */; };
 		2D1642061DE62FF5D2CADDFEC03404D6 /* Performace.FPSCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5777A796C66C34F38E7D8950A83A5133 /* Performace.FPSCalculator.swift */; };
 		2E4AC973AAFA26490F7A6393174299E0 /* CrashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C892AA8F00288376305FE9DE84106B /* CrashViewController.swift */; };
+		2E521EA12BFB0C9A002E6B7D /* StderrCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E521EA02BFB0C9A002E6B7D /* StderrCapture.swift */; };
+		2E521EA32BFB0CB0002E6B7D /* FileHandle+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E521EA22BFB0CB0002E6B7D /* FileHandle+.swift */; };
+		2E521EA72BFB1730002E6B7D /* ConsoleOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E521EA62BFB1730002E6B7D /* ConsoleOutput.swift */; };
+		2E521EA92BFB212B002E6B7D /* StdoutCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E521EA82BFB212B002E6B7D /* StdoutCapture.swift */; };
 		2E585CF72BF9C47100E0F803 /* LeaksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E585CF62BF9C47100E0F803 /* LeaksViewModel.swift */; };
 		2E585CF92BF9CECB00E0F803 /* FileSharingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E585CF82BF9CECB00E0F803 /* FileSharingManager.swift */; };
 		2E630C1B2BF6721C00FA2C4E /* Performance.LeakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E630C1A2BF6721C00FA2C4E /* Performance.LeakDetector.swift */; };
@@ -75,7 +79,6 @@
 		7C1752BEE1E57AE676629F712D08ECC7 /* Resources.Generic.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8E2D84CBDEFDB86F02F7BF96A828AB /* Resources.Generic.Controller.swift */; };
 		81073E81B109F1BE584ADADB18D48BEA /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D7FE5365A0C5397C28DF841061D3A6 /* NetworkHelper.swift */; };
 		81212AF1C0A27E4F763997FEC1DADCDF /* ReachabilityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE57E433A10EB27938DA54E6377F486D /* ReachabilityManager.swift */; };
-		8375D9D2473C33EBE0BBF8B84723148C /* LogIntercepter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0016A6C6104E4924685C79CA835D0F7 /* LogIntercepter.swift */; };
 		8458A41C8336FCB8AB6F5B0AE8A9641A /* SnapshotViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F122F35044966AD27EA5CB2B48CE9705 /* SnapshotViewConfiguration.swift */; };
 		85D036078790B1B8797E4F6940F7178C /* CallStackParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610E61DC5C1BF3F12C2113E3CE8B7562 /* CallStackParser.swift */; };
 		87CA87DB2558DA52569F60C2FC2309EB /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FC8EE9A802F722C214D34F6D58DDA1 /* Reachability.swift */; };
@@ -190,6 +193,10 @@
 		2B76122EA0FF266B37BD78B6D39AD650 /* CrashModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrashModel.swift; sourceTree = "<group>"; };
 		2B8E2D84CBDEFDB86F02F7BF96A828AB /* Resources.Generic.Controller.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Resources.Generic.Controller.swift; sourceTree = "<group>"; };
 		2BD62F1D3AF35975A093174109D746F4 /* UIColor+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIColor+.swift"; sourceTree = "<group>"; };
+		2E521EA02BFB0C9A002E6B7D /* StderrCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StderrCapture.swift; sourceTree = "<group>"; };
+		2E521EA22BFB0CB0002E6B7D /* FileHandle+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileHandle+.swift"; sourceTree = "<group>"; };
+		2E521EA62BFB1730002E6B7D /* ConsoleOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleOutput.swift; sourceTree = "<group>"; };
+		2E521EA82BFB212B002E6B7D /* StdoutCapture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StdoutCapture.swift; sourceTree = "<group>"; };
 		2E585CF62BF9C47100E0F803 /* LeaksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaksViewModel.swift; sourceTree = "<group>"; };
 		2E585CF82BF9CECB00E0F803 /* FileSharingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSharingManager.swift; sourceTree = "<group>"; };
 		2E630C1A2BF6721C00FA2C4E /* Performance.LeakDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Performance.LeakDetector.swift; sourceTree = "<group>"; };
@@ -285,7 +292,6 @@
 		B7A40B82AA82135C22250CC9ED54E82E /* App.CustomInfo.ViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = App.CustomInfo.ViewModel.swift; sourceTree = "<group>"; };
 		BB6A4865A1A14B91F3839843E7C0A535 /* SnapshotActionSheetUtils.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SnapshotActionSheetUtils.swift; sourceTree = "<group>"; };
 		BFCD6C277887E74C8F0C91C829015B80 /* MenuSegmentedControlTableViewCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuSegmentedControlTableViewCell.swift; sourceTree = "<group>"; };
-		C0016A6C6104E4924685C79CA835D0F7 /* LogIntercepter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LogIntercepter.swift; sourceTree = "<group>"; };
 		C0B4A2E25CDD2C3EE0681E99C1E5B41E /* HTTPProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HTTPProtocol.swift; sourceTree = "<group>"; };
 		C12B1C0D7E5892F59397C50A3867D546 /* Date+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Date+.swift"; sourceTree = "<group>"; };
 		C188C5994616A6D1821DDD2B02B658B4 /* HierarchyTableViewCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HierarchyTableViewCell.swift; sourceTree = "<group>"; };
@@ -877,7 +883,10 @@
 		CF2968E5F3487021C3EE98F911D3D393 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				C0016A6C6104E4924685C79CA835D0F7 /* LogIntercepter.swift */,
+				2E521EA82BFB212B002E6B7D /* StdoutCapture.swift */,
+				2E521EA02BFB0C9A002E6B7D /* StderrCapture.swift */,
+				2E521EA22BFB0CB0002E6B7D /* FileHandle+.swift */,
+				2E521EA62BFB1730002E6B7D /* ConsoleOutput.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1185,6 +1194,7 @@
 				E6AF58E954B57EECE03E662455325FCB /* CwlDemangle.swift in Sources */,
 				F15EC71A8D6340755733C4C0C4BEB1EC /* Data+.swift in Sources */,
 				015E7548046152248A423DE6C9413B0B /* Date+.swift in Sources */,
+				2E521EA92BFB212B002E6B7D /* StdoutCapture.swift in Sources */,
 				B44C2D3616D94F5B21401AEFCD49FAF2 /* Debug.swift in Sources */,
 				B610CFDA491E80AD20931AC6EE114FCC /* DebuggerDetailViewController.swift in Sources */,
 				EF5E5AECF533D15FD9CB2CF73F6ADB80 /* DebugSnapshotViewController.swift in Sources */,
@@ -1195,6 +1205,7 @@
 				3A11A2673A6712D1FF3B3EA7BD998D24 /* Element.swift in Sources */,
 				1642BDFB688D59DDC0778B21BEE7C9EA /* ErrorHelper.swift in Sources */,
 				E31C13A99BFDF759E5B8C8713DBDE8EB /* FeatureHandling.swift in Sources */,
+				2E521EA32BFB0CB0002E6B7D /* FileHandle+.swift in Sources */,
 				5D6DB841F20D1AD077E583FB6B1FAD5A /* FileManager.swift in Sources */,
 				25E8881A447B522CAFD1CE68401D16F9 /* FloatBallView.swift in Sources */,
 				FDD5617694F214C30537E2D524B94970 /* FloatChat+DesignSystem.swift in Sources */,
@@ -1208,6 +1219,7 @@
 				EF11C861DFDC0DE9B5046FD7416418E0 /* HTTP.Model.swift in Sources */,
 				68299C63D6B75A282D5BAFAFAF53D20A /* HTTPProtocol.swift in Sources */,
 				2E630C1B2BF6721C00FA2C4E /* Performance.LeakDetector.swift in Sources */,
+				2E521EA12BFB0C9A002E6B7D /* StderrCapture.swift in Sources */,
 				38E7410C1D9F3B79B11CA0AA78D7CE51 /* HTTPProtocolDelegate.swift in Sources */,
 				55F82BBF8F9FBA1525699119CFDF3218 /* HTTPURLResponse+.swift in Sources */,
 				FD6AF29A79BD3C907AB8393A88CE3D6E /* ImpactFeedback.swift in Sources */,
@@ -1221,7 +1233,6 @@
 				E99B8C25A721D1E7D4DE1064E6930CF7 /* Location.ViewController.swift in Sources */,
 				51B1357EF7540513DCE02112D5DB31F3 /* Location.ViewModel.swift in Sources */,
 				356820CD0EC95CFACC0FE52041983711 /* LocationToolkit.swift in Sources */,
-				8375D9D2473C33EBE0BBF8B84723148C /* LogIntercepter.swift in Sources */,
 				B2B47990FA30D29A991D5172D1D57C7A /* LogsViewController.swift in Sources */,
 				A967D00C0587F593695D2896C68D08D5 /* MapSelectionViewController.swift in Sources */,
 				9AB66575EAA6D4A6D0ECFDDAB385C5F1 /* MenuChartTableViewCell.swift in Sources */,
@@ -1284,6 +1295,7 @@
 				7A08BD08E2B8ADEED356E3F11CBB7DF8 /* ViewControllerUtils.swift in Sources */,
 				A011C6D1A2A8E3A933D2506780529E22 /* VIewDebuggerViewController.swift in Sources */,
 				E358104FFED9C5BED618C8E9BFBEF75D /* ViewElement.swift in Sources */,
+				2E521EA72BFB1730002E6B7D /* ConsoleOutput.swift in Sources */,
 				C40EA39478F492825E1B766557B566B9 /* WindowManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

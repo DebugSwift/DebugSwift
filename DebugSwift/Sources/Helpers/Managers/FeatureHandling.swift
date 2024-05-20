@@ -30,7 +30,10 @@ final class FeatureHandling {
         CLLocationManager.swizzleMethods()
         UIViewController.lvcdSwizzleLifecycleMethods()
 
-        LogIntercepter.shared.start()
+        StdoutCapture.startCapturing()
+        StderrCapture.startCapturing()
+        StderrCapture.syncData()
+
         NetworkHelper.shared.enable()
 
         CrashManager.register()

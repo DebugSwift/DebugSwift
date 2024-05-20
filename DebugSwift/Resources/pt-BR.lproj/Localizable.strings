@@ -72,12 +72,16 @@
 "delete.cancel" = "Cancelar";
 
 "date" = "Data";
-"crash-name" = "Falha";
+"crash-name" = "Erro";
 "reason" = "Motivo";
 "no-reason" = "Não encontrado";
+"snapshot" = "Snapshot";
+"logs" = "Logs";
+"log-error" = "Log de Erro";
 "context" = "Contexto";
+"empty-directory" = "Este diretório está vazio.";
 "name" = "Nome";
-"user-info" = "User Info";
+"user-info" = "Informações do Usuário";
 
 "copy" = "Copiar";
 "close" = "Fechar";

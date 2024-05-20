@@ -284,9 +284,9 @@ extension UIView {
         iterateSubviews(maxLevel: 3) { subview, level in
             if !(
                 subview is UINavigationBar ||
-                subview is UICollectionViewCell ||
-                subview is UITabBar ||
-                level > 2
+                    subview is UICollectionViewCell ||
+                    subview is UITabBar ||
+                    level > 2
             ) {
                 wasTARMICS[ObjectIdentifier(subview)] = subview.translatesAutoresizingMaskIntoConstraints
                 subview.translatesAutoresizingMaskIntoConstraints = true

@@ -164,7 +164,14 @@ extension CrashDetailViewController: UITableViewDataSource, UITableViewDelegate 
             let controller = SnapshotViewController(image: image)
             navigationController?.pushViewController(controller, animated: true)
         } else {
-            let output = viewModel.data.context.consoleOutput
+            let output: String
+
+            if indexPath.row == 1, !viewModel.data.context.consoleOutput.isEmpty {
+                output = viewModel.data.context.consoleOutput
+            } else {
+                output = viewModel.data.context.errorOutput
+            }
+
             let controller = LogsViewController(text: output)
             navigationController?.pushViewController(controller, animated: true)
         }

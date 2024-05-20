@@ -74,8 +74,12 @@
 "date" = "Date";
 "crash-name" = "Error";
 "reason" = "Reason";
-"no-reason" = "No Reason";
+"no-reason" = "Not found";
+"snapshot" = "Snapshot";
+"logs" = "Logs";
+"log-error" = "Error Log";
 "context" = "Context";
+"empty-directory" = "This directory is empty.";
 "name" = "Name";
 "user-info" = "User Info";
 
