@@ -21,6 +21,12 @@ struct ContentView: View {
                 NavigationLink(destination: MockRequestView(endpoint: "https://reqres.in/api/users/23")) {
                     Text("Failure Request")
                 }
+                
+                NavigationLink(
+                    destination: FileUploadView()
+                ) {
+                    Text("Alamofire Upload")
+                }
             }
             .navigationBarTitle("Example")
         }
