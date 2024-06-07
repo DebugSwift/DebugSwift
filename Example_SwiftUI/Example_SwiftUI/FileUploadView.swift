@@ -4,6 +4,7 @@
 //
 //  Created by Emil Atanasov on 04/13/24.
 //
+// Server to test: https://github.com/ReposUniversity/file-upload-server
 
 import SwiftUI
 import Alamofire
