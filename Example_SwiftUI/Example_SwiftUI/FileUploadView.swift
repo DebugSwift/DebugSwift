@@ -11,18 +11,18 @@ import Alamofire
 extension Data {
     func debug() {
 #if DEBUG
-            let raw = String(data: self, encoding: .utf8)
-            print("[Raw] \(raw ?? "empty data!")")
+        let raw = String(data: self, encoding: .utf8)
+        print("[Raw] \(raw ?? "empty data!")")
 #endif
     }
 }
 
 struct FileUploadView: View {
-    let API_BASE_URL = "SERVER"
+    let API_BASE_URL = "http://localhost:3000"
     var body: some View {
         Button {
             Task {
-                await uploadFile() { progress in
+                await uploadFile { progress in
                     print("Uploading.... \(progress)")
                 }
             }
@@ -30,30 +30,28 @@ struct FileUploadView: View {
             Text("Upload")
         }
     }
-    
-    private func uploadFile(reportProgress: ((Double) -> ())?) async {
+
+    private func uploadFile(reportProgress: ((Double) -> Void)?) async {
         do {
-            guard let pdfPath = Bundle.main.path(forResource: "Swift (programming language) - Wikipedia", ofType: "pdf") else {
-                        print("PDF file not found in the app bundle.")
-                        return
-                    }
-                    
-                    // Read the contents of the PDF file as data
+            guard let pdfPath = Bundle.main.path(forResource: "example", ofType: "pdf") else {
+                print("PDF file not found in the app bundle.")
+                return
+            }
+
             guard let pdfData = try? Data(contentsOf: URL(fileURLWithPath: pdfPath)) else {
                 print("PDF data CAN'T be loaded successfully.")
                 return
             }
+
             let params = MultipartFormData()
             let extraInfo = "This is a pdf file."
             if let data = "\(extraInfo)".data(using: .utf8) {
                 params.append(data, withName: "fileInfo")
             }
-            
-            params.append(pdfData, withName: "files")
-            
-            let data = try await upload(
-                path: "/api/v1/upload/", formData: params
-            ) { progress in
+
+            params.append(pdfData, withName: "files", fileName: "example.pdf", mimeType: "application/pdf")
+
+            let data = try await upload(path: "/api/v1/upload", formData: params) { progress in
                 reportProgress?(progress)
             }
             data.debug()
@@ -61,10 +59,10 @@ struct FileUploadView: View {
             print("Error: \(error.localizedDescription)")
         }
     }
-    
-    private func upload(path: String, formData: MultipartFormData, reportProgress: ((Double) -> ())? = nil) async throws -> Data {
-        var commonHeaders: HTTPHeaders = [:]
-       // You must resume the continuation exactly once
+
+    private func upload(path: String, formData: MultipartFormData, reportProgress: ((Double) -> Void)? = nil) async throws -> Data {
+        let commonHeaders: HTTPHeaders = [:]
+
         return try await withCheckedThrowingContinuation { continuation in
             AF.upload(
                 multipartFormData: formData,
@@ -78,28 +76,27 @@ struct FileUploadView: View {
                 }
             }
             .responseData { response in
-                switch(response.result) {
-                case let .success(data):
+                switch response.result {
+                case .success(let data):
                     continuation.resume(returning: data)
-                case let .failure(error):
+                case .failure(let error):
                     continuation.resume(throwing: self.handleError(error: error))
                 }
             }
         }
     }
-    
+
     private func handleError(error: AFError) -> Error {
         if let underlyingError = error.underlyingError {
             let nsError = underlyingError as NSError
             let code = nsError.code
-            if code == NSURLErrorNotConnectedToInternet 
-                || code == NSURLErrorTimedOut 
+            if code == NSURLErrorNotConnectedToInternet
+                || code == NSURLErrorTimedOut
                 || code == NSURLErrorInternationalRoamingOff
                 || code == NSURLErrorDataNotAllowed
                 || code == NSURLErrorCannotFindHost
                 || code == NSURLErrorCannotConnectToHost
-                || code == NSURLErrorNetworkConnectionLost
-            {
+                || code == NSURLErrorNetworkConnectionLost {
                 var userInfo = nsError.userInfo
                 userInfo[NSLocalizedDescriptionKey] = "Unable to connect to the server"
                 let currentError = NSError(
@@ -112,7 +109,6 @@ struct FileUploadView: View {
         }
         return error
     }
-    
 }
 
 #Preview {

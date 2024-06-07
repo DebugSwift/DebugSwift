@@ -8,9 +8,58 @@
 
 import Foundation
 
-protocol CustomHTTPProtocolDelegate: AnyObject {
-    func customHTTPProtocol(_ proto: CustomHTTPProtocol, didReceive response: URLResponse)
-    func customHTTPProtocol(_ proto: CustomHTTPProtocol, didReceive data: Data)
-    func customHTTPProtocolDidFinishLoading(_ proto: CustomHTTPProtocol)
-    func customHTTPProtocol(_ proto: CustomHTTPProtocol, didFailWithError error: Error)
+public protocol CustomHTTPProtocolDelegate: AnyObject {
+    func urlSession(
+        _ protocol: URLProtocol,
+        didReceive response: URLResponse
+    )
+
+    func urlSession(
+        _ protocol: URLProtocol,
+        didReceive data: Data
+    )
+
+    func didFinishLoading(
+        _ protocol: URLProtocol
+    )
+
+    func urlSession(
+        _ protocol: URLProtocol,
+        didFailWithError error: Error
+    )
+
+    func urlSession(
+        _ protocol: URLProtocol,
+        _ session: URLSession,
+        task: URLSessionTask,
+        didSendBodyData bytesSent: Int64,
+        totalBytesSent: Int64,
+        totalBytesExpectedToSend: Int64
+    )
+}
+
+public extension CustomHTTPProtocolDelegate {
+    func urlSession(
+        _ protocol: URLProtocol,
+        didReceive response: URLResponse
+    ) {}
+    func urlSession(
+        _ protocol: URLProtocol,
+        didReceive data: Data
+    ) {}
+    func didFinishLoading(
+        _ protocol: URLProtocol
+    ) {}
+    func urlSession(
+        _ protocol: URLProtocol,
+        didFailWithError error: Error
+    ) {}
+    func urlSession(
+        _ protocol: URLProtocol,
+        _ session: URLSession,
+        task: URLSessionTask,
+        didSendBodyData bytesSent: Int64,
+        totalBytesSent: Int64,
+        totalBytesExpectedToSend: Int64
+    ) {}
 }

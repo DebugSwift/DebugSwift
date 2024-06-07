@@ -53,6 +53,8 @@ extension DebugSwift {
     public enum Network {
         public static var ignoredURLs = [String]()
         public static var onlyURLs = [String]()
+
+        public static var delegate: CustomHTTPProtocolDelegate?
     }
 }
 

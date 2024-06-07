@@ -12,10 +12,9 @@
 		2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6602B2E7F74001B59FE /* Assets.xcassets */; };
 		2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */; };
 		2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2EA3B66B2B2E8054001B59FE /* DebugSwift */; };
-		9E13A4A42BFE73A300F9B364 /* Swift (programming language) - Wikipedia.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 9E13A4A32BFE73A300F9B364 /* Swift (programming language) - Wikipedia.pdf */; };
+		2EC7DFED2C12AFAB005E58DF /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 2EC7DFEC2C12AFAB005E58DF /* Alamofire */; };
+		9E13A4A42BFE73A300F9B364 /* example.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 9E13A4A32BFE73A300F9B364 /* example.pdf */; };
 		9E311A092BC9EB27009CDC3C /* FileUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E311A082BC9EB27009CDC3C /* FileUploadView.swift */; };
-		9E830FB12BC798AA008AB4EB /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 9E830FB02BC798AA008AB4EB /* Alamofire */; };
-		9E830FB32BC798AA008AB4EB /* AlamofireDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 9E830FB22BC798AA008AB4EB /* AlamofireDynamic */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,7 +25,8 @@
 		2EA3B6602B2E7F74001B59FE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2EA3B66D2B2E80C6001B59FE /* DebugSwift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DebugSwift; path = ..; sourceTree = "<group>"; };
-		9E13A4A32BFE73A300F9B364 /* Swift (programming language) - Wikipedia.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Swift (programming language) - Wikipedia.pdf"; sourceTree = "<group>"; };
+		2EC7DFEE2C12B72A005E58DF /* Example-SwiftUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Example-SwiftUI-Info.plist"; sourceTree = SOURCE_ROOT; };
+		9E13A4A32BFE73A300F9B364 /* example.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = example.pdf; sourceTree = "<group>"; };
 		9E311A082BC9EB27009CDC3C /* FileUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -36,8 +36,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */,
-				9E830FB32BC798AA008AB4EB /* AlamofireDynamic in Frameworks */,
-				9E830FB12BC798AA008AB4EB /* Alamofire in Frameworks */,
+				2EC7DFED2C12AFAB005E58DF /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,7 +63,8 @@
 		2EA3B65B2B2E7F71001B59FE /* Example_SwiftUI */ = {
 			isa = PBXGroup;
 			children = (
-				9E13A4A32BFE73A300F9B364 /* Swift (programming language) - Wikipedia.pdf */,
+				2EC7DFEE2C12B72A005E58DF /* Example-SwiftUI-Info.plist */,
+				9E13A4A32BFE73A300F9B364 /* example.pdf */,
 				2E60BA122B3383070084C2D9 /* Example_SwiftUI.entitlements */,
 				2EA3B65C2B2E7F71001B59FE /* Example_SwiftUIApp.swift */,
 				2EA3B65E2B2E7F71001B59FE /* ContentView.swift */,
@@ -101,8 +101,7 @@
 			name = Example_SwiftUI;
 			packageProductDependencies = (
 				2EA3B66B2B2E8054001B59FE /* DebugSwift */,
-				9E830FB02BC798AA008AB4EB /* Alamofire */,
-				9E830FB22BC798AA008AB4EB /* AlamofireDynamic */,
+				2EC7DFEC2C12AFAB005E58DF /* Alamofire */,
 			);
 			productName = Example_SwiftUI;
 			productReference = 2EA3B6592B2E7F71001B59FE /* Example_SwiftUI.app */;
@@ -135,7 +134,7 @@
 			mainGroup = 2EA3B6502B2E7F71001B59FE;
 			packageReferences = (
 				2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */,
-				9E830FAF2BC798AA008AB4EB /* XCRemoteSwiftPackageReference "Alamofire" */,
+				2EC7DFEB2C12AFAB005E58DF /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			productRefGroup = 2EA3B65A2B2E7F71001B59FE /* Products */;
 			projectDirPath = "";
@@ -152,7 +151,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */,
-				9E13A4A42BFE73A300F9B364 /* Swift (programming language) - Wikipedia.pdf in Resources */,
+				9E13A4A42BFE73A300F9B364 /* example.pdf in Resources */,
 				2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -229,6 +228,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				NEW_SETTING = "";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -286,6 +286,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				NEW_SETTING = "";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
@@ -304,6 +305,8 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Example-SwiftUI-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -321,6 +324,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				ababa = "";
 			};
 			name = Debug;
 		};
@@ -336,6 +340,8 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Example-SwiftUI-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -353,6 +359,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				ababa = "";
 			};
 			name = Release;
 		};
@@ -388,7 +395,7 @@
 				kind = branch;
 			};
 		};
-		9E830FAF2BC798AA008AB4EB /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+		2EC7DFEB2C12AFAB005E58DF /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
@@ -404,15 +411,10 @@
 			package = 2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */;
 			productName = DebugSwift;
 		};
-		9E830FB02BC798AA008AB4EB /* Alamofire */ = {
+		2EC7DFEC2C12AFAB005E58DF /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 9E830FAF2BC798AA008AB4EB /* XCRemoteSwiftPackageReference "Alamofire" */;
+			package = 2EC7DFEB2C12AFAB005E58DF /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
-		};
-		9E830FB22BC798AA008AB4EB /* AlamofireDynamic */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9E830FAF2BC798AA008AB4EB /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = AlamofireDynamic;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

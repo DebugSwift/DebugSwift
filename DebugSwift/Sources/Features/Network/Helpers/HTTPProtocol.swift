@@ -10,7 +10,6 @@ import Foundation
 
 final class CustomHTTPProtocol: URLProtocol {
     private static let requestProperty = "com.custom.http.protocol"
-    static var classDelegate: CustomHTTPProtocolDelegate?
 
     class func clearCache() {
         URLCache.customHttp.removeAllCachedResponses()
@@ -47,8 +46,6 @@ final class CustomHTTPProtocol: URLProtocol {
         request
     }
 
-    private var delegate: CustomHTTPProtocolDelegate? { CustomHTTPProtocol.classDelegate }
-
     private var session: URLSession?
     private var dataTask: URLSessionDataTask?
     private var cachePolicy: URLCache.StoragePolicy = .notAllowed
@@ -64,13 +61,26 @@ final class CustomHTTPProtocol: URLProtocol {
     private var threadOperator: ThreadOperator?
 
     private func use(_ cache: CachedURLResponse) {
-        delegate?.customHTTPProtocol(self, didReceive: cache.response)
-        client?.urlProtocol(self, didReceive: cache.response, cacheStoragePolicy: .allowed)
+        DebugSwift.Network.delegate?.urlSession(
+            self,
+            didReceive: cache.response
+        )
+        client?.urlProtocol(
+            self,
+            didReceive: cache.response,
+            cacheStoragePolicy: .allowed
+        )
 
-        delegate?.customHTTPProtocol(self, didReceive: cache.data)
-        client?.urlProtocol(self, didLoad: cache.data)
+        DebugSwift.Network.delegate?.urlSession(
+            self,
+            didReceive: cache.data
+        )
+        client?.urlProtocol(
+            self,
+            didLoad: cache.data
+        )
 
-        delegate?.customHTTPProtocolDidFinishLoading(self)
+        DebugSwift.Network.delegate?.didFinishLoading(self)
         client?.urlProtocolDidFinishLoading(self)
     }
 
@@ -193,13 +203,16 @@ final class CustomHTTPProtocol: URLProtocol {
 
 extension CustomHTTPProtocol: URLSessionDataDelegate {
     func urlSession(
-        _: URLSession, task _: URLSessionTask,
-        willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest,
+        _: URLSession,
+        task _: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse,
+        newRequest request: URLRequest,
         completionHandler: @escaping (URLRequest?) -> Void
     ) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
-            Debug.print("willPerformHTTPRedirection")
+            Debug.print(#function)
+
             self.client?.urlProtocol(self, wasRedirectedTo: request, redirectResponse: response)
             self.response = response
             completionHandler(request)
@@ -214,11 +227,16 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     ) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
+            Debug.print(#function)
+
             if let response = response as? HTTPURLResponse, let request = dataTask.originalRequest {
                 self.cachePolicy = CacheHelper.cacheStoragePolicy(for: request, and: response)
             }
 
-            self.delegate?.customHTTPProtocol(self, didReceive: response)
+            DebugSwift.Network.delegate?.urlSession(
+                self,
+                didReceive: response
+            )
             self.client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: self.cachePolicy)
             self.response = response as? HTTPURLResponse
             completionHandler(.allow)
@@ -228,6 +246,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
+            Debug.print(#function)
 
             var hasAddedData = false
             if self.cachePolicy == .allowed {
@@ -235,7 +254,10 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                 hasAddedData = true
             }
 
-            self.delegate?.customHTTPProtocol(self, didReceive: data)
+            DebugSwift.Network.delegate?.urlSession(
+                self,
+                didReceive: data
+            )
             self.client?.urlProtocol(self, didLoad: data)
             self.didReceiveData = true
             if prevUrl == response?.url, prevStartTime == startTime {
@@ -288,17 +310,45 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                     self.dataTask?.resume()
                     return
                 }
-                self.delegate?.customHTTPProtocol(self, didFailWithError: error)
+                DebugSwift.Network.delegate?.urlSession(
+                    self,
+                    didFailWithError: error
+                )
                 self.client?.urlProtocol(self, didFailWithError: error)
                 return
             }
 
-            self.delegate?.customHTTPProtocolDidFinishLoading(self)
+            DebugSwift.Network.delegate?.didFinishLoading(self)
             self.client?.urlProtocolDidFinishLoading(self)
 
             if self.cachePolicy == .allowed {
                 URLCache.customHttp.storeIfNeeded(for: task, data: self.data)
             }
+        }
+    }
+}
+
+extension CustomHTTPProtocol: URLSessionTaskDelegate {
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didSendBodyData bytesSent: Int64,
+        totalBytesSent: Int64,
+        totalBytesExpectedToSend: Int64
+    ) {
+
+        threadOperator?.execute { [weak self] in
+            guard let self else { return }
+            Debug.print(#function)
+
+            DebugSwift.Network.delegate?.urlSession(
+                self,
+                session,
+                task: task,
+                didSendBodyData: bytesSent,
+                totalBytesSent: totalBytesSent,
+                totalBytesExpectedToSend: totalBytesExpectedToSend
+            )
         }
     }
 }
