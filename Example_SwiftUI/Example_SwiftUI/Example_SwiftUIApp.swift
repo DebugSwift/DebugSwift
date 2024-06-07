@@ -45,7 +45,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 // MARK: - Alamofire bugfix in uploadProgress
 
 extension AppDelegate: CustomHTTPProtocolDelegate {
-    func urlSession(_ protocol: URLProtocol, _ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+    func urlSession(
+        _ protocol: URLProtocol,
+        _ session: URLSession,
+        task: URLSessionTask,
+        didSendBodyData bytesSent: Int64,
+        totalBytesSent: Int64,
+        totalBytesExpectedToSend: Int64
+    ) {
 
         Session.default.session.getAllTasks { tasks in
             let uploadTask = tasks.first(where: { $0.taskIdentifier == task.taskIdentifier }) ?? task
