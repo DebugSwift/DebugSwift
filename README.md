@@ -266,6 +266,60 @@ Enhance your understanding by pressing and holding on a specific view to reveal 
 #### Results:
 ![image10](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e9c3a8b-3d26-4b7c-b671-1894cb32e562)
 
+
+---
+
+## Fixing Errors
+
+### Alamofire
+
+#### Not called `uploadProgress`
+
+In the `AppDelegate`.
+
+```swift
+class AppDelegate {
+    func application(
+        _: UIApplication,
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        DebugSwift.setup()
+        DebugSwift.show()
+
+        // Call this method
+        DebugSwift.Network.delegate = self
+        return true
+    }
+}
+```
+
+And conform with the protocol:
+```swift
+extension AppDelegate: CustomHTTPProtocolDelegate {
+    func urlSession(
+        _ protocol: URLProtocol,
+        _ session: URLSession,
+        task: URLSessionTask,
+        didSendBodyData bytesSent: Int64,
+        totalBytesSent: Int64,
+        totalBytesExpectedToSend: Int64
+    ) {
+
+        Session.default.session.getAllTasks { tasks in
+            let uploadTask = tasks.first(where: { $0.taskIdentifier == task.taskIdentifier }) ?? task
+            Session.default.rootQueue.async {
+                Session.default.delegate.urlSession(
+                    session,
+                    task: uploadTask,
+                    didSendBodyData: bytesSent,
+                    totalBytesSent: totalBytesSent,
+                    totalBytesExpectedToSend: totalBytesExpectedToSend
+                )
+            }
+        }
+    }
+}
+```
 ---
 
 ## Contributors
