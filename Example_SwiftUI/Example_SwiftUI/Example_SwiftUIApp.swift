@@ -28,10 +28,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         // Remove comment below to remove specific features and comment DebugSwift.setup() not to double trigger.
         // DebugSwift.setup(hideFeatures: [.interface, .app, .resources, .performance])
-        DebugSwift.setup()
-        DebugSwift.show()
+        DebugSwift
+            .setup()
+            .show()
 
-        DebugSwift.Network.delegate = self
+        // To fix alamorife `uploadProgress`
+//        DebugSwift.Network.delegate = self
+
         return true
     }
 

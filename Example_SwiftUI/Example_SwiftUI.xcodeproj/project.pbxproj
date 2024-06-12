@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E7441AE2C1A54EF001CF6F1 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7441AD2C1A54EF001CF6F1 /* MapView.swift */; };
+		2E7441B12C1A550F001CF6F1 /* MockRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7441B02C1A550F001CF6F1 /* MockRequest.swift */; };
 		2EA3B65D2B2E7F71001B59FE /* Example_SwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA3B65C2B2E7F71001B59FE /* Example_SwiftUIApp.swift */; };
 		2EA3B65F2B2E7F71001B59FE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA3B65E2B2E7F71001B59FE /* ContentView.swift */; };
 		2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6602B2E7F74001B59FE /* Assets.xcassets */; };
@@ -19,6 +21,8 @@
 
 /* Begin PBXFileReference section */
 		2E60BA122B3383070084C2D9 /* Example_SwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example_SwiftUI.entitlements; sourceTree = "<group>"; };
+		2E7441AD2C1A54EF001CF6F1 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		2E7441B02C1A550F001CF6F1 /* MockRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRequest.swift; sourceTree = "<group>"; };
 		2EA3B6592B2E7F71001B59FE /* Example_SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example_SwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EA3B65C2B2E7F71001B59FE /* Example_SwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Example_SwiftUIApp.swift; sourceTree = "<group>"; };
 		2EA3B65E2B2E7F71001B59FE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -43,6 +47,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2E7441AC2C1A549C001CF6F1 /* FileUpload */ = {
+			isa = PBXGroup;
+			children = (
+				9E13A4A32BFE73A300F9B364 /* example.pdf */,
+				9E311A082BC9EB27009CDC3C /* FileUploadView.swift */,
+			);
+			path = FileUpload;
+			sourceTree = "<group>";
+		};
+		2E7441AF2C1A54FE001CF6F1 /* MapView */ = {
+			isa = PBXGroup;
+			children = (
+				2E7441AD2C1A54EF001CF6F1 /* MapView.swift */,
+			);
+			path = MapView;
+			sourceTree = "<group>";
+		};
+		2E7441B22C1A5519001CF6F1 /* MockRequest */ = {
+			isa = PBXGroup;
+			children = (
+				2E7441B02C1A550F001CF6F1 /* MockRequest.swift */,
+			);
+			path = MockRequest;
+			sourceTree = "<group>";
+		};
 		2EA3B6502B2E7F71001B59FE = {
 			isa = PBXGroup;
 			children = (
@@ -64,13 +93,14 @@
 			isa = PBXGroup;
 			children = (
 				2EC7DFEE2C12B72A005E58DF /* Example-SwiftUI-Info.plist */,
-				9E13A4A32BFE73A300F9B364 /* example.pdf */,
 				2E60BA122B3383070084C2D9 /* Example_SwiftUI.entitlements */,
 				2EA3B65C2B2E7F71001B59FE /* Example_SwiftUIApp.swift */,
 				2EA3B65E2B2E7F71001B59FE /* ContentView.swift */,
+				2E7441B22C1A5519001CF6F1 /* MockRequest */,
+				2E7441AF2C1A54FE001CF6F1 /* MapView */,
+				2E7441AC2C1A549C001CF6F1 /* FileUpload */,
 				2EA3B6602B2E7F74001B59FE /* Assets.xcassets */,
 				2EA3B6622B2E7F74001B59FE /* Preview Content */,
-				9E311A082BC9EB27009CDC3C /* FileUploadView.swift */,
 			);
 			path = Example_SwiftUI;
 			sourceTree = "<group>";
@@ -164,7 +194,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E311A092BC9EB27009CDC3C /* FileUploadView.swift in Sources */,
+				2E7441AE2C1A54EF001CF6F1 /* MapView.swift in Sources */,
 				2EA3B65F2B2E7F71001B59FE /* ContentView.swift in Sources */,
+				2E7441B12C1A550F001CF6F1 /* MockRequest.swift in Sources */,
 				2EA3B65D2B2E7F71001B59FE /* Example_SwiftUIApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
