@@ -9,6 +9,7 @@
 import UIKit
 
 class TabBarController: UITabBarController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTabBar()
@@ -27,13 +28,8 @@ class TabBarController: UITabBarController {
     }
 
     private func configureTabBar() {
-        let controllers: [UIViewController] = [
-            NetworkViewController(),
-            PerformanceViewController(),
-            InterfaceViewController(),
-            ResourcesViewController(),
-            AppViewController()
-        ] + (DebugSwift.App.customControllers?() ?? [])
+        let customControllers = DebugSwift.App.customControllers?() ?? []
+        let controllers = DebugSwift.App.defaultControllers + customControllers
 
         viewControllers = controllers.map {
             UINavigationController(rootViewController: $0)
