@@ -8,7 +8,10 @@
 
 import UIKit
 
-final class AppViewController: BaseController {
+final class AppViewController: BaseController, MainFeatureType {
+
+    var controllerType: DebugSwiftMainFeature { .app }
+
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -72,7 +75,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
         case .customData:
             return viewModel.customInfos.count
         case .actions:
-            return ActionInfo.allCases.count
+            return ActionInfo.allCasesWithPermission.count
         case .customAction:
             return viewModel.customActions.count
         case nil:
@@ -103,7 +106,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             return cell
         case .actions:
             cell.setup(
-                title: ActionInfo.allCases[indexPath.row].title
+                title: ActionInfo.allCasesWithPermission[indexPath.row].title
             )
         case .customData:
             let info = viewModel.customInfos[indexPath.row]
@@ -201,6 +204,25 @@ extension AppViewController {
             case .crash:
                 return "actions-crash".localized()
             }
+        }
+
+        static var allCasesWithPermission: [ActionInfo] {
+            var actions = ActionInfo.allCases
+            let disabledActions = DebugSwift.App.disableMethods
+
+            if disabledActions.contains(.crashManager) {
+                actions.removeAll(where: { $0 == .crash })
+            }
+
+            if disabledActions.contains(.swizzleLocation) {
+                actions.removeAll(where: { $0 == .location })
+            }
+
+            if disabledActions.contains(.console) {
+                actions.removeAll(where: { $0 == .console })
+            }
+
+            return actions
         }
     }
 }

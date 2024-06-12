@@ -8,7 +8,10 @@
 
 import UIKit
 
-final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate {
+final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate, MainFeatureType {
+
+    var controllerType: DebugSwiftMainFeature { .performance }
+
     var selectedSection: PerformanceSection = .cpu
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)
 
@@ -326,12 +329,16 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
     private func segmentedControlCell() -> UITableViewCell? {
         guard let cell = reuseCell(for: .segmentedControl) as? MenuSegmentedControlTableViewCell else { return nil }
-        let segmentTitles = [
+        var segmentTitles = [
             "cpu".localized(),
             "memory".localized(),
-            "fps".localized(),
-            "leaks".localized()
+            "fps".localized()
         ]
+
+        if !DebugSwift.App.disableMethods.contains(.leaksDetector) {
+            segmentTitles.append("leaks".localized())
+        }
+
         cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)
         cell.delegate = self
         return cell

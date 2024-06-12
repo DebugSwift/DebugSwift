@@ -8,7 +8,10 @@
 
 import UIKit
 
-final class ResourcesViewController: BaseController {
+final class ResourcesViewController: BaseController, MainFeatureType {
+
+    var controllerType: DebugSwiftMainFeature { .resources }
+
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false

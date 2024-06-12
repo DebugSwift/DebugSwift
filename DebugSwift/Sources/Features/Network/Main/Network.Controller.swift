@@ -8,7 +8,9 @@
 
 import UIKit
 
-final class NetworkViewController: BaseController {
+final class NetworkViewController: BaseController, MainFeatureType {
+
+    var controllerType: DebugSwiftMainFeature { .network }
 
     let tableView: UITableView = {
         let tableView = UITableView()

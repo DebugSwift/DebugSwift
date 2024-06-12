@@ -16,10 +16,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
 
         // DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
-        DebugSwift.setup()
-
-        // Setup .light or dark mode, `default is .dark`.
-        DebugSwift.theme(appearance: .dark)
+        DebugSwift
+            .setup(disable: [.swizzleViews, .leaksDetector])
+            .theme(appearance: .dark)
 
         // MARK: - Custom Info
 
