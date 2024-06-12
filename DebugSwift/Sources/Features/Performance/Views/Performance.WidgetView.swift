@@ -104,7 +104,9 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
         stackView.addArrangedSubview(cpuValueLabel)
         stackView.addArrangedSubview(memoryValueLabel)
         stackView.addArrangedSubview(fpsValueLabel)
-        stackView.addArrangedSubview(leaksValueLabel)
+        if !DebugSwift.App.disableMethods.contains(.leaksDetector) {
+            stackView.addArrangedSubview(leaksValueLabel)
+        }
 
         addSubview(stackView)
 

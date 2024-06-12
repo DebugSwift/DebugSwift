@@ -182,7 +182,7 @@ DebugSwift.App.customControllers = {
 ```
 
 ---
-### Hide Some Features
+### Hide or disable Some Features
 If you prefer to selectively disable certain features, DebugSwift can now deactivate unnecessary functionalities. This can assist you in development across various environments.
 
 #### Usage
@@ -192,7 +192,26 @@ func application(
     _: UIApplication,
     didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
 ) -> Bool {
-    DebugSwift.setup(hideFeatures: [.resources,.performance,.interface,.app]) // Example usage for hide resources, performance, interface & app
+
+    DebugSwift.setup(
+        // Main features
+        hideFeatures: [
+            .network,
+            .resources, 
+            .performance, 
+            .interface, 
+            .app
+        ],
+        // Swizzle features
+        disable: [
+            .network,
+            .location, 
+            .views, 
+            .crashManager, 
+            .leaksDetector, 
+            .console
+        ]
+    )
     DebugSwift.show()
 
     return true

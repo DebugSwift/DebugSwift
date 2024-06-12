@@ -8,7 +8,10 @@
 
 import UIKit
 
-final class InterfaceViewController: BaseController {
+final class InterfaceViewController: BaseController, MainFeatureType {
+
+    var controllerType: DebugSwiftFeature { .interface }
+
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -65,15 +68,15 @@ final class InterfaceViewController: BaseController {
 
 extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        Features.allCases.filter { $0.title != nil }.count
+        Features.allCasesWithPermissions.filter { $0.title != nil }.count
     }
 
     func tableView(
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
-        let feature = Features(rawValue: indexPath.row)
-        let title = feature?.title ?? ""
+        let feature = Features.allCasesWithPermissions[indexPath.row]
+        let title = feature.title ?? ""
 
         switch feature {
         case .grid:
@@ -87,10 +90,8 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
             return toggleCell(
                 title: title,
                 index: indexPath.row,
-                isOn: feature?.isOn == true
+                isOn: feature.isOn == true
             )
-        default:
-            return .init()
         }
     }
 
@@ -100,7 +101,7 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         var controller: UIViewController?
-        switch Features(rawValue: indexPath.row) {
+        switch Features.allCasesWithPermissions[indexPath.row] {
         case .grid:
             controller = InterfaceGridController()
         default:
@@ -114,7 +115,7 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
     func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
-        switch Features(rawValue: cell.tag) {
+        switch Features.allCasesWithPermissions[cell.tag] {
         case .colorize:
             UserInterfaceToolkit.colorizedViewBordersEnabled = isOn
 
@@ -193,6 +194,15 @@ extension InterfaceViewController {
             default:
                 return false
             }
+        }
+
+        static var allCasesWithPermissions: [Features] {
+            var cases = Features.allCases
+            if DebugSwift.App.disableMethods.contains(.views) {
+                cases.removeAll(where: { $0 == .colorize || $0 == .touches })
+            }
+
+            return cases
         }
     }
 }

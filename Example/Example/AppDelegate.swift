@@ -15,11 +15,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
 
-        // DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
-        DebugSwift.setup()
+//        DebugSwift
+//            .setup(
+//                hideFeatures: [.network, .resources, .performance, .interface, .app],
+//                disable: [.network, .location, .views, .crashManager, .leaksDetector, .console]
+//            )
+//            .theme(appearance: .light)
 
-        // Setup .light or dark mode, `default is .dark`.
-        DebugSwift.theme(appearance: .dark)
+        DebugSwift
+            .setup()
+            .theme(appearance: .dark)
 
         // MARK: - Custom Info
 
