@@ -196,7 +196,7 @@ func application(
     DebugSwift.setup(
         // Main features
         hideFeatures: [
-            .networking,
+            .network,
             .resources, 
             .performance, 
             .interface, 
