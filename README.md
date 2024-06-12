@@ -202,7 +202,7 @@ func application(
             .interface, 
             .app
         ],
-        // Basic features
+        // Swizzle features
         disable: [
             .network,
             .location, 
