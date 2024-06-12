@@ -15,9 +15,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
 
-        // DebugSwift.setup(hideFeatures: [.resources, .app, .interface, .interface, .performance])
+//        DebugSwift
+//            .setup(
+//                hideFeatures: [.network, .resources, .performance, .interface, .app],
+//                disable: [.network, .swizzleLocation, .swizzleViews, .crashManager, .leaksDetector, .console]
+//            )
+//            .theme(appearance: .light)
+
         DebugSwift
-            .setup(disable: [.swizzleViews, .leaksDetector])
+            .setup()
             .theme(appearance: .dark)
 
         // MARK: - Custom Info
