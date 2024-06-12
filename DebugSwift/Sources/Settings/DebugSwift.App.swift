@@ -21,6 +21,6 @@ extension DebugSwift {
             AppViewController()
         ]
 
-        static var disableMethods: [DebugSwiftMethodFeature] = []
+        static var disableMethods: [DebugSwiftSwizzleFeature] = []
     }
 }

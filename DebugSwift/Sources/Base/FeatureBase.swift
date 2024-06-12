@@ -8,10 +8,10 @@
 import UIKit
 
 public protocol MainFeatureType {
-    var controllerType: DebugSwiftMainFeature { get }
+    var controllerType: DebugSwiftFeature { get }
 }
 
-public enum DebugSwiftMainFeature: String, CaseIterable {
+public enum DebugSwiftFeature: String, CaseIterable {
     case network
     case performance
     case interface
@@ -19,14 +19,14 @@ public enum DebugSwiftMainFeature: String, CaseIterable {
     case app
 }
 
-public enum DebugSwiftMethodFeature: String, CaseIterable {
+public enum DebugSwiftSwizzleFeature: String, CaseIterable {
     case network
-    case swizzleLocation
-    case swizzleViews
+    case location
+    case views
     case crashManager
     case leaksDetector
     case console
 }
 
-@available(*, deprecated, renamed: "DebugSwiftMainFeature", message: "Use now DebugSwiftFeature")
-public typealias DebugSwiftFeatures = DebugSwiftMainFeature
+@available(*, deprecated, renamed: "DebugSwiftFeature", message: "Use now DebugSwiftFeature")
+public typealias DebugSwiftFeatures = DebugSwiftFeature

@@ -10,7 +10,7 @@ import UIKit
 
 final class AppViewController: BaseController, MainFeatureType {
 
-    var controllerType: DebugSwiftMainFeature { .app }
+    var controllerType: DebugSwiftFeature { .app }
 
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -214,7 +214,7 @@ extension AppViewController {
                 actions.removeAll(where: { $0 == .crash })
             }
 
-            if disabledActions.contains(.swizzleLocation) {
+            if disabledActions.contains(.location) {
                 actions.removeAll(where: { $0 == .location })
             }
 

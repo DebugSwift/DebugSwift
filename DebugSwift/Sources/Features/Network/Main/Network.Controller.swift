@@ -10,7 +10,7 @@ import UIKit
 
 final class NetworkViewController: BaseController, MainFeatureType {
 
-    var controllerType: DebugSwiftMainFeature { .network }
+    var controllerType: DebugSwiftFeature { .network }
 
     let tableView: UITableView = {
         let tableView = UITableView()

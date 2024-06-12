@@ -10,7 +10,7 @@ import UIKit
 
 final class InterfaceViewController: BaseController, MainFeatureType {
 
-    var controllerType: DebugSwiftMainFeature { .interface }
+    var controllerType: DebugSwiftFeature { .interface }
 
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -198,7 +198,7 @@ extension InterfaceViewController {
 
         static var allCasesWithPermissions: [Features] {
             var cases = Features.allCases
-            if DebugSwift.App.disableMethods.contains(.swizzleViews) {
+            if DebugSwift.App.disableMethods.contains(.views) {
                 cases.removeAll(where: { $0 == .colorize || $0 == .touches })
             }
 

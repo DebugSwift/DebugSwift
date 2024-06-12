@@ -11,8 +11,8 @@ public enum DebugSwift {
 
     @discardableResult
     public static func setup(
-        hideFeatures features: [DebugSwiftMainFeature] = [],
-        disable methods: [DebugSwiftMethodFeature] = []
+        hideFeatures features: [DebugSwiftFeature] = [],
+        disable methods: [DebugSwiftSwizzleFeature] = []
     ) -> Self.Type {
         LocalizationManager.shared.loadBundle()
         FeatureHandling.setup(hide: features, disable: methods)

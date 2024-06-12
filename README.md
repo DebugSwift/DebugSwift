@@ -205,8 +205,8 @@ func application(
         // Basic features
         disable: [
             .network,
-            .swizzleLocation, 
-            .swizzleViews, 
+            .location, 
+            .views, 
             .crashManager, 
             .leaksDetector, 
             .console

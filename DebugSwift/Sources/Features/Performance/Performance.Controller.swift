@@ -10,7 +10,7 @@ import UIKit
 
 final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate, MainFeatureType {
 
-    var controllerType: DebugSwiftMainFeature { .performance }
+    var controllerType: DebugSwiftFeature { .performance }
 
     var selectedSection: PerformanceSection = .cpu
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)

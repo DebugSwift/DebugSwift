@@ -10,7 +10,7 @@ import UIKit
 
 final class ResourcesViewController: BaseController, MainFeatureType {
 
-    var controllerType: DebugSwiftMainFeature { .resources }
+    var controllerType: DebugSwiftFeature { .resources }
 
     private let tableView: UITableView = {
         let tableView = UITableView()

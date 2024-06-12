@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        DebugSwift
 //            .setup(
 //                hideFeatures: [.network, .resources, .performance, .interface, .app],
-//                disable: [.network, .swizzleLocation, .swizzleViews, .crashManager, .leaksDetector, .console]
+//                disable: [.network, .location, .views, .crashManager, .leaksDetector, .console]
 //            )
 //            .theme(appearance: .light)
 

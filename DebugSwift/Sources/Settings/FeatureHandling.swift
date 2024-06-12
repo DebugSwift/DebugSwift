@@ -11,7 +11,7 @@ import UIKit
 enum FeatureHandling {
 
     static func setup(
-        only featuresToShow: [DebugSwiftMainFeature] = DebugSwiftMainFeature.allCases
+        only featuresToShow: [DebugSwiftFeature] = DebugSwiftFeature.allCases
     ) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             DebugSwift.App.defaultControllers.removeAll(where: { !featuresToShow.contains($0.controllerType) })
@@ -20,8 +20,8 @@ enum FeatureHandling {
     }
 
     static func setup(
-        hide features: [DebugSwiftMainFeature],
-        disable methods: [DebugSwiftMethodFeature]
+        hide features: [DebugSwiftFeature],
+        disable methods: [DebugSwiftSwizzleFeature]
     ) {
         setupControllers(features)
         setupMethods(methods)
@@ -31,22 +31,22 @@ enum FeatureHandling {
         }
     }
 
-    private static func setupControllers(_ featuresToHide: [DebugSwiftMainFeature]) {
+    private static func setupControllers(_ featuresToHide: [DebugSwiftFeature]) {
         DebugSwift.App.defaultControllers.removeAll(where: { featuresToHide.contains($0.controllerType) })
     }
 
-    private static func setupMethods(_ methodsToDisable: [DebugSwiftMethodFeature]) {
+    private static func setupMethods(_ methodsToDisable: [DebugSwiftSwizzleFeature]) {
         DebugSwift.App.disableMethods = methodsToDisable
 
-        if !methodsToDisable.contains(.network) && DebugSwift.App.defaultControllers.contains(where: { $0.controllerType == .network }) {
+        if !methodsToDisable.contains(.network) {
             enableNetwork()
         }
 
-        if !methodsToDisable.contains(.swizzleLocation) {
+        if !methodsToDisable.contains(.location) {
             enableLocation()
         }
 
-        if !methodsToDisable.contains(.swizzleViews) {
+        if !methodsToDisable.contains(.views) {
             enableUIView()
         }
 
