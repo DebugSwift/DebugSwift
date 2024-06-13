@@ -405,20 +405,9 @@ extension UIView {
             )
         )
 
-        UIGraphicsBeginImageContextWithOptions(
-            imageSize,
-            false,
-            0
-        )
-        container2.drawHierarchy(
-            in: CGRect(
-                x: 0,
-                y: 0,
-                width: imageSize.width,
-                height: imageSize.height
-            ),
-            afterScreenUpdates: true
-        )
+        UIGraphicsBeginImageContext(imageSize)
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+        container2.layer.render(in: context)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 
