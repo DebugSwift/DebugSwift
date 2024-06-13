@@ -9,7 +9,9 @@ import SwiftUI
 import MapKit
 
 struct ContentView: View {
+
     @State private var userTrackingMode: MKUserTrackingMode = .follow
+    @State private var presentingMap = false
 
     var body: some View {
         NavigationView {
@@ -31,13 +33,18 @@ struct ContentView: View {
                     Text("Alamofire Upload")
                 }
 
-                NavigationLink(
-                    destination: MapView(userTrackingMode: $userTrackingMode)
-                        .edgesIgnoringSafeArea(.all)
-                ) {
-                    Text("Map View")
+                Button("Show Map") {
+                    presentingMap = true
                 }
 
+            }
+            .sheet(isPresented: $presentingMap) {
+                if #available(iOS 14.0, *) {
+                    MapView().edgesIgnoringSafeArea(.all)
+                } else {
+                    MapView_13(userTrackingMode: $userTrackingMode)
+                        .edgesIgnoringSafeArea(.all)
+                }
             }
             .navigationBarTitle("Example")
         }

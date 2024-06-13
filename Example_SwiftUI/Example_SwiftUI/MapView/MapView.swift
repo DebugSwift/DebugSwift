@@ -9,37 +9,52 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
-// iOS 13
-struct MapView: UIViewControllerRepresentable {
-    @Binding var userTrackingMode: MKUserTrackingMode
+@available(iOS 14.0, *)
+struct MapView: View {
+    @State private var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
+        span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+    )
 
-    class Coordinator: NSObject, MKMapViewDelegate, CLLocationManagerDelegate {
-        var parent: MapView
-        var locationManager = CLLocationManager()
-        weak var mapView: MKMapView?
+    private var manager = MapViewManager()
 
-        init(_ parent: MapView) {
-            self.parent = parent
-            super.init()
-            self.locationManager.delegate = self
-            self.locationManager.requestWhenInUseAuthorization()
+    var body: some View {
+        Map(
+            coordinateRegion: $region,
+            showsUserLocation: true,
+            userTrackingMode: .constant(.follow)
+        )
+        .onAppear {
+            manager.start()
         }
+    }
+}
 
-        func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-            switch status {
-            case .authorizedWhenInUse, .authorizedAlways:
-                manager.startUpdatingLocation()
-            case .denied, .restricted:
-                break
-            case .notDetermined:
-                manager.requestWhenInUseAuthorization()
-            @unknown default:
-                fatalError("Unhandled case for location authorization status")
-            }
+@available(iOS 14.0, *)
+class MapViewManager: NSObject, CLLocationManagerDelegate {
+    @State private var locationManager = CLLocationManager()
+
+    func start() {
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
+            manager.startUpdatingLocation()
+        case .denied, .restricted:
+            break
+        case .notDetermined:
+            manager.requestWhenInUseAuthorization()
+        @unknown default:
+            fatalError("Unhandled case for location authorization status")
         }
+    }
 
-        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            print("""
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        print("""
             -----
             NEW LOCATION IS UPDATED, TO SHOW IN MAP, NEEDS RESTART THE APP
 
@@ -47,39 +62,17 @@ struct MapView: UIViewControllerRepresentable {
 
             -----
             """)
-        }
-
-        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
-            self.mapView = mapView
-            let region = MKCoordinateRegion(
-                center: userLocation.coordinate,
-                latitudinalMeters: 10000,
-                longitudinalMeters: 10000
-            )
-            mapView.setRegion(region, animated: true)
-        }
     }
+}
 
-    func makeCoordinator() -> Coordinator {
-        return Coordinator(self)
-    }
-
-    func makeUIViewController(context: Context) -> UIViewController {
-        let viewController = UIViewController()
-        let mapView = MKMapView()
-        mapView.delegate = context.coordinator
-        mapView.showsUserLocation = true
-        mapView.userTrackingMode = userTrackingMode
-        mapView.frame = viewController.view.bounds
-        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-
-        viewController.view.addSubview(mapView)
-        return viewController
-    }
-
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        if let mapView = uiViewController.view.subviews.first as? MKMapView {
-            mapView.userTrackingMode = userTrackingMode
-        }
+@available(iOS 14.0, *)
+extension MapViewManager: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+        let region = MKCoordinateRegion(
+            center: userLocation.coordinate,
+            latitudinalMeters: 10000,
+            longitudinalMeters: 10000
+        )
+        mapView.setRegion(region, animated: true)
     }
 }
