@@ -42,7 +42,6 @@ extension URLSessionConfiguration {
     private class func swizzledDefaultSessionConfiguration() -> URLSessionConfiguration {
         let configuration = swizzledDefaultSessionConfiguration()
         configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
-        URLProtocol.registerClass(CustomHTTPProtocol.self)
         return configuration
     }
 
@@ -50,7 +49,6 @@ extension URLSessionConfiguration {
     private class func swizzledEphemeralSessionConfiguration() -> URLSessionConfiguration {
         let configuration = swizzledEphemeralSessionConfiguration()
         configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
-        URLProtocol.registerClass(CustomHTTPProtocol.self)
         return configuration
     }
 }

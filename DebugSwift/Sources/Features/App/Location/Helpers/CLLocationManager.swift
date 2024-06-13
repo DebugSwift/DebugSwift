@@ -8,34 +8,94 @@
 import CoreLocation
 import Foundation
 
+final class CLLocationManagerTracker {
+
+    private static var managers: [CLLocationManager] = []
+
+    static func add(manager: CLLocationManager) {
+        managers.append(manager)
+    }
+
+    static func triggerUpdateForAllLocations() {
+        for manager in managers {
+            manager.requestLocation()
+        }
+    }
+}
+
 extension CLLocationManager {
     static func swizzleMethods() {
-        let originalSelector = #selector(CLLocationManager.startUpdatingLocation)
-        let swizzledSelector = #selector(swizzledStartLocation)
         SwizzleManager.swizzle(
             CLLocationManager.self,
-            originalSelector: originalSelector,
-            swizzledSelector: swizzledSelector
+            originalSelector: #selector(CLLocationManager.init),
+            swizzledSelector: #selector(swizzledInit)
         )
 
-        let originalStopSelector = #selector(CLLocationManager.requestLocation)
-        let swizzledRequestSelector = #selector(swizzedRequestLocation)
         SwizzleManager.swizzle(
             CLLocationManager.self,
-            originalSelector: originalStopSelector,
-            swizzledSelector: swizzledRequestSelector
+            originalSelector: #selector(locationServicesEnabled),
+            swizzledSelector: #selector(swizzledLocationServicesEnabled)
+        )
+
+        SwizzleManager.swizzle(
+            CLLocationManager.self,
+            originalSelector: #selector(startUpdatingLocation),
+            swizzledSelector: #selector(swizzledStartUpdatingLocation)
+        )
+
+        SwizzleManager.swizzle(
+            CLLocationManager.self,
+            originalSelector: #selector(requestLocation),
+            swizzledSelector: #selector(swizzedRequestLocation)
+        )
+
+        SwizzleManager.swizzle(
+            CLLocationManager.self,
+            originalSelector: #selector(getter: location),
+            swizzledSelector: #selector(swizzedLocation)
         )
     }
 
+    // MARK: - Methods
+
     private var simulatedLocation: CLLocation? { LocationToolkit.shared.simulatedLocation }
 
-    @objc func swizzledStartLocation() {}
+    @objc dynamic func swizzledInit() -> CLLocationManager {
+        let manager = self.swizzledInit()
+        CLLocationManagerTracker.add(manager: manager)
+        return manager
+    }
+
+    @objc func swizzledLocationServicesEnabled() -> Bool {
+        return true
+    }
+
+    @objc func swizzledStartUpdatingLocation() {
+        if let simulatedLocation {
+            if
+                let delegate,
+                delegate.responds(to: #selector(CLLocationManagerDelegate.locationManager(_:didUpdateLocations:)))
+            {
+                delegate.locationManager!(self, didUpdateLocations: [simulatedLocation])
+            }
+        } else {
+            swizzledStartUpdatingLocation()
+        }
+    }
 
     @objc func swizzedRequestLocation() {
         if let simulatedLocation {
             delegate?.locationManager?(self, didUpdateLocations: [simulatedLocation])
         } else {
             swizzedRequestLocation()
+        }
+    }
+
+    @objc func swizzedLocation() -> CLLocation {
+        if let simulatedLocation {
+            return simulatedLocation
+        } else {
+            return swizzedLocation()
         }
     }
 }

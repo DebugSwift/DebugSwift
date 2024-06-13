@@ -1,11 +1,11 @@
 # DebugSwift
 
 <p align="center">
+<img src="https://img.shields.io/badge/Platforms-iOS%2012.0+-blue.svg"/>
 <img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=CocoaPods"/>
-<img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=Swift%20Package%20Index&color=red"/>
-<img src="https://img.shields.io/github/license/DebugSwift/DebugSwift?style=flat"/>
-<img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FDebugSwift%2FDebugSwift%2Fbadge%3Ftype%3Dplatforms"/>
+<img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=Swift%20Package%20Index&color=red"/>    
 <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FDebugSwift%2FDebugSwift%2Fbadge%3Ftype%3Dswift-versions"/>
+<img src="https://img.shields.io/github/license/DebugSwift/DebugSwift?style=flat"/>
 </p>
 
 | <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.</div> |
@@ -182,7 +182,7 @@ DebugSwift.App.customControllers = {
 ```
 
 ---
-### Hide Some Features
+### Hide or disable Some Features
 If you prefer to selectively disable certain features, DebugSwift can now deactivate unnecessary functionalities. This can assist you in development across various environments.
 
 #### Usage
@@ -192,7 +192,26 @@ func application(
     _: UIApplication,
     didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
 ) -> Bool {
-    DebugSwift.setup(hideFeatures: [.resources,.performance,.interface,.app]) // Example usage for hide resources, performance, interface & app
+
+    DebugSwift.setup(
+        // Main features
+        hideFeatures: [
+            .network,
+            .resources, 
+            .performance, 
+            .interface, 
+            .app
+        ],
+        // Swizzle features
+        disable: [
+            .network,
+            .location, 
+            .views, 
+            .crashManager, 
+            .leaksDetector, 
+            .console
+        ]
+    )
     DebugSwift.show()
 
     return true
@@ -266,6 +285,60 @@ Enhance your understanding by pressing and holding on a specific view to reveal 
 #### Results:
 ![image10](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e9c3a8b-3d26-4b7c-b671-1894cb32e562)
 
+
+---
+
+## Fixing Errors
+
+### Alamofire
+
+#### Not called `uploadProgress`
+
+In the `AppDelegate`.
+
+```swift
+class AppDelegate {
+    func application(
+        _: UIApplication,
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        DebugSwift.setup()
+        DebugSwift.show()
+
+        // Call this method
+        DebugSwift.Network.delegate = self
+        return true
+    }
+}
+```
+
+And conform with the protocol:
+```swift
+extension AppDelegate: CustomHTTPProtocolDelegate {
+    func urlSession(
+        _ protocol: URLProtocol,
+        _ session: URLSession,
+        task: URLSessionTask,
+        didSendBodyData bytesSent: Int64,
+        totalBytesSent: Int64,
+        totalBytesExpectedToSend: Int64
+    ) {
+
+        Session.default.session.getAllTasks { tasks in
+            let uploadTask = tasks.first(where: { $0.taskIdentifier == task.taskIdentifier }) ?? task
+            Session.default.rootQueue.async {
+                Session.default.delegate.urlSession(
+                    session,
+                    task: uploadTask,
+                    didSendBodyData: bytesSent,
+                    totalBytesSent: totalBytesSent,
+                    totalBytesExpectedToSend: totalBytesExpectedToSend
+                )
+            }
+        }
+    }
+}
+```
 ---
 
 ## Contributors
