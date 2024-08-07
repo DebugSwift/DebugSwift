@@ -62,86 +62,23 @@ final class LocationToolkit {
         var presetLocations = [PresetLocation]()
         presetLocations.append(
             PresetLocation(
-                title: "London, England",
-                latitude: 51.509980,
-                longitude: -0.133700
+                title: "Алматы",
+                latitude: 43.229784712718995,
+                longitude: 76.93310379690176
             )
         )
         presetLocations.append(
             PresetLocation(
-                title: "Johannesburg, South Africa",
-                latitude: -26.204103,
-                longitude: 28.047305
+                title: "Омск",
+                latitude: 54.994700483953146,
+                longitude: 73.36670406191908
             )
         )
         presetLocations.append(
             PresetLocation(
-                title: "Moscow, Russia",
-                latitude: 55.755786,
-                longitude: 37.617633
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "Mumbai, India",
-                latitude: 19.017615,
-                longitude: 72.856164
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "Tokyo, Japan",
-                latitude: 35.702069,
-                longitude: 139.775327
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "Sydney, Australia",
-                latitude: -33.863400,
-                longitude: 151.211000
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "Hong Kong, China",
-                latitude: 22.284681,
-                longitude: 114.158177
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "Honolulu, HI, USA",
-                latitude: 21.282778,
-                longitude: -157.829444
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "San Francisco, CA, USA",
-                latitude: 37.787359,
-                longitude: -122.408227
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "Mexico City, Mexico",
-                latitude: 19.435478,
-                longitude: -99.136479
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "New York, NY, USA",
-                latitude: 40.759211,
-                longitude: -73.984638
-            )
-        )
-        presetLocations.append(
-            PresetLocation(
-                title: "Rio de Janeiro, Brazil",
-                latitude: -22.903539,
-                longitude: -43.209587
+                title: "Краснодар",
+                latitude: 45.04692035288898,
+                longitude: 39.032586261767655
             )
         )
 
