@@ -339,6 +339,30 @@ extension AppDelegate: CustomHTTPProtocolDelegate {
     }
 }
 ```
+
+---
+
+## ⭐ Support the Project by Leaving a Star!
+
+Thank you for visiting our project! If you find our work helpful and would like to support us, please consider giving us a ⭐ star on GitHub. Your support is crucial for us to continue improving and adding new features.
+
+### Why Should You Star the Project?
+
+- **Show Your Support**: Let us know that you appreciate our efforts.
+- **Increase Visibility**: Help others discover this project.
+- **Stay Updated**: Get notifications on updates and new releases.
+- **Motivate Us**: Encouragement from the community keeps us going!
+
+### How to Leave a Star
+
+1. **Log in** to your GitHub account.
+2. **Navigate** to the top of this repository page.
+3. **Click** on the "Star" button located at the top-right corner.
+
+Every star counts and makes a difference. Thank you for your support! 😊
+
+[![GitHub stars](https://img.shields.io/github/stars/DebugSwift/DebugSwift.svg?style=social&label=Star)](https://github.com/DebugSwift/DebugSwift)
+
 ---
 
 ## Contributors
