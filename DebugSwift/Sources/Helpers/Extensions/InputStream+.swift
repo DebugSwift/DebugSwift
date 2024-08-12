@@ -21,7 +21,7 @@ extension InputStream {
             let bytesRead = read(buffer, maxLength: bufferSize)
             if bytesRead > 0 {
                 data.append(buffer, count: bytesRead)
-            } else if bytesRead == 0 {
+            } else if bytesRead <= 0 {
                 // Handle error or break the loop accordingly
                 break
             }
