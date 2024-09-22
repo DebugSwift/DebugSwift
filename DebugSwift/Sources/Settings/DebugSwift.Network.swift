@@ -12,6 +12,8 @@ extension DebugSwift {
         public static var ignoredURLs = [String]()
         public static var onlyURLs = [String]()
 
+        public static var onlySchemes = CustomHTTPProtocolURLScheme.allCases
+
         public static var delegate: CustomHTTPProtocolDelegate?
     }
 }

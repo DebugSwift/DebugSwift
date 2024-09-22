@@ -7,7 +7,6 @@
 
 import UIKit
 
-// drop.triangle
 class LeakViewController: UIViewController {
 
     override func viewDidLoad() {
