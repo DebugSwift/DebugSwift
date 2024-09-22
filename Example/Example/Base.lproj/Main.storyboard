@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="7X6-iY-CCT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="7X6-iY-CCT">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -64,8 +64,8 @@
                                     <action selector="failureRequest" destination="BYZ-38-t0r" eventType="touchUpInside" id="YvP-yd-IBc"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WND-Ec-Qrg">
-                                <rect key="frame" x="28" y="143" width="337" height="237"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WND-Ec-Qrg">
+                                <rect key="frame" x="28" y="143" width="337" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -117,6 +117,7 @@
                             <constraint firstItem="B3B-A4-ddj" firstAttribute="top" secondItem="Ilt-ig-idh" secondAttribute="bottom" constant="8" symbolic="YES" id="ebd-4s-gEO"/>
                             <constraint firstItem="Qrg-W0-adk" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="28" id="f35-6D-Vc4"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="faL-Au-3nb" secondAttribute="bottom" constant="40" id="n8K-Au-zOK"/>
+                            <constraint firstItem="WND-Ec-Qrg" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="40" id="nzs-X5-KVl"/>
                             <constraint firstItem="B3B-A4-ddj" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="28" id="swr-Ls-ogZ"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Qrg-W0-adk" secondAttribute="trailing" constant="28" id="vZ8-9W-Ypt"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Qrg-W0-adk" secondAttribute="trailing" constant="28" id="yG5-py-ApP"/>

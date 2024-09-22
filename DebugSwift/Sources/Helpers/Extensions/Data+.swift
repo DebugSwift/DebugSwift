@@ -23,11 +23,10 @@ extension Data {
             if let formattedString = String(data: jsonData, encoding: .utf8) {
                 return formattedString
             }
-        } catch {
-            Debug.print("Error formatting JSON: \(error)")
-        }
+        } catch {}
 
-        return ""
+        // Can adjust to get the image and the jsons formatted
+        return String(data: self, encoding: .utf8) ?? String(decoding: self, as: UTF8.self)
     }
 }
 
