@@ -32,6 +32,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             .setup()
             .show()
 
+        DebugSwift.Network.onlySchemes = [.http, .https]
+
         // To fix alamorife `uploadProgress`
 //        DebugSwift.Network.delegate = self
 

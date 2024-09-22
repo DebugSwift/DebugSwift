@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E1C382A2CA0B2DF0029E3F3 /* WebSocketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1C38292CA0B2DF0029E3F3 /* WebSocketView.swift */; };
+		2E1C382D2CA0B2F80029E3F3 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 2E1C382C2CA0B2F80029E3F3 /* Starscream */; };
 		2E7441AE2C1A54EF001CF6F1 /* MapView_13.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7441AD2C1A54EF001CF6F1 /* MapView_13.swift */; };
 		2E7441B12C1A550F001CF6F1 /* MockRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7441B02C1A550F001CF6F1 /* MockRequest.swift */; };
 		2E7441B62C1A6F46001CF6F1 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7441B52C1A6F46001CF6F1 /* MapView.swift */; };
@@ -21,6 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2E1C38292CA0B2DF0029E3F3 /* WebSocketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketView.swift; sourceTree = "<group>"; };
 		2E60BA122B3383070084C2D9 /* Example_SwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example_SwiftUI.entitlements; sourceTree = "<group>"; };
 		2E7441AD2C1A54EF001CF6F1 /* MapView_13.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView_13.swift; sourceTree = "<group>"; };
 		2E7441B02C1A550F001CF6F1 /* MockRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRequest.swift; sourceTree = "<group>"; };
@@ -43,12 +46,21 @@
 			files = (
 				2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */,
 				2EC7DFED2C12AFAB005E58DF /* Alamofire in Frameworks */,
+				2E1C382D2CA0B2F80029E3F3 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2E1C38282CA0B2D90029E3F3 /* Socket */ = {
+			isa = PBXGroup;
+			children = (
+				2E1C38292CA0B2DF0029E3F3 /* WebSocketView.swift */,
+			);
+			path = Socket;
+			sourceTree = "<group>";
+		};
 		2E7441AC2C1A549C001CF6F1 /* FileUpload */ = {
 			isa = PBXGroup;
 			children = (
@@ -99,6 +111,7 @@
 				2E60BA122B3383070084C2D9 /* Example_SwiftUI.entitlements */,
 				2EA3B65C2B2E7F71001B59FE /* Example_SwiftUIApp.swift */,
 				2EA3B65E2B2E7F71001B59FE /* ContentView.swift */,
+				2E1C38282CA0B2D90029E3F3 /* Socket */,
 				2E7441B22C1A5519001CF6F1 /* MockRequest */,
 				2E7441AF2C1A54FE001CF6F1 /* MapView */,
 				2E7441AC2C1A549C001CF6F1 /* FileUpload */,
@@ -135,6 +148,7 @@
 			packageProductDependencies = (
 				2EA3B66B2B2E8054001B59FE /* DebugSwift */,
 				2EC7DFEC2C12AFAB005E58DF /* Alamofire */,
+				2E1C382C2CA0B2F80029E3F3 /* Starscream */,
 			);
 			productName = Example_SwiftUI;
 			productReference = 2EA3B6592B2E7F71001B59FE /* Example_SwiftUI.app */;
@@ -168,6 +182,7 @@
 			packageReferences = (
 				2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */,
 				2EC7DFEB2C12AFAB005E58DF /* XCRemoteSwiftPackageReference "Alamofire" */,
+				2E1C382B2CA0B2F80029E3F3 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			productRefGroup = 2EA3B65A2B2E7F71001B59FE /* Products */;
 			projectDirPath = "";
@@ -199,6 +214,7 @@
 				9E311A092BC9EB27009CDC3C /* FileUploadView.swift in Sources */,
 				2E7441B62C1A6F46001CF6F1 /* MapView.swift in Sources */,
 				2E7441AE2C1A54EF001CF6F1 /* MapView_13.swift in Sources */,
+				2E1C382A2CA0B2DF0029E3F3 /* WebSocketView.swift in Sources */,
 				2EA3B65F2B2E7F71001B59FE /* ContentView.swift in Sources */,
 				2E7441B12C1A550F001CF6F1 /* MockRequest.swift in Sources */,
 				2EA3B65D2B2E7F71001B59FE /* Example_SwiftUIApp.swift in Sources */,
@@ -423,6 +439,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		2E1C382B2CA0B2F80029E3F3 /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.8;
+			};
+		};
 		2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/DebugSwift/DebugSwift";
@@ -442,6 +466,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2E1C382C2CA0B2F80029E3F3 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2E1C382B2CA0B2F80029E3F3 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
+		};
 		2EA3B66B2B2E8054001B59FE /* DebugSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */;

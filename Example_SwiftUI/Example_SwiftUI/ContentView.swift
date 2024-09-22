@@ -33,6 +33,14 @@ struct ContentView: View {
                     Text("Alamofire Upload")
                 }
 
+                if #available(iOS 14.0, *) {
+                    NavigationLink(
+                        destination: WebSocketView()
+                    ) {
+                        Text("SocketView Connection")
+                    }
+                }
+
                 Button("Show Map") {
                     presentingMap = true
                 }
