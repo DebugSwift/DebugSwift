@@ -87,7 +87,9 @@ extension CLLocationManager {
         if let simulatedLocation {
             delegate?.locationManager?(self, didUpdateLocations: [simulatedLocation])
         } else {
-            swizzedRequestLocation()
+            if delegate != nil {
+                swizzedRequestLocation()
+            }
         }
     }
 
