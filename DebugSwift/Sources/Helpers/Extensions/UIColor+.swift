@@ -72,3 +72,15 @@ extension UIColor {
         return hexString
     }
 }
+
+@available(iOS 13.0, *)
+extension UIColor {
+    convenience init(light: UIColor, dark: UIColor) {
+        self.init {
+            switch $0.userInterfaceStyle {
+            case .dark: dark
+            default: light
+            }
+        }
+    }
+}

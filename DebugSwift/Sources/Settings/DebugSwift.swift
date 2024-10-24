@@ -45,7 +45,7 @@ public enum DebugSwift {
 
     @discardableResult
     public static func theme(appearance: Appearance) -> Self.Type {
-        Theme.shared.setAppearance(appearance: appearance)
+        Theme.shared.appearance = appearance
 
         return self
     }
