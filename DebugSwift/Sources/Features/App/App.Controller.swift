@@ -159,7 +159,6 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .crash:
                 let controller = CrashViewController()
                 navigationController?.pushViewController(controller, animated: true)
-            default: break
             }
         default:
             break
