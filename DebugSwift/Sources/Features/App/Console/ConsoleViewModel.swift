@@ -50,6 +50,11 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
         "empty-data".localized() + "actions-console".localized()
     }
 
+    func handleShareAction() {
+        let allData = data.joined(separator: "\n")
+        FileSharingManager.generateFileAndShare(text: allData, fileName: "console")
+    }
+
     // MARK: - Search Functionality
 
     func filterContentForSearchText(_ searchText: String) {
