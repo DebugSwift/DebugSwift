@@ -63,3 +63,16 @@ public extension CustomHTTPProtocolDelegate {
         totalBytesExpectedToSend: Int64
     ) {}
 }
+
+public enum CustomHTTPProtocolURLScheme: String, CaseIterable {
+    case http
+    case https
+    case ftp
+    case mailto
+    case file
+    case data
+    case tel
+    case sms
+    case ws
+    case wss
+}

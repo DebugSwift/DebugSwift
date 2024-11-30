@@ -148,7 +148,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             navigationController?.pushViewController(controller, animated: true)
 
         case .actions:
-            switch ActionInfo(rawValue: indexPath.row) {
+            switch ActionInfo.allCasesWithPermission[indexPath.row] {
             case .console:
                 let viewModel = AppConsoleViewModel()
                 let controller = ResourcesGenericController(viewModel: viewModel)
@@ -159,7 +159,6 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .crash:
                 let controller = CrashViewController()
                 navigationController?.pushViewController(controller, animated: true)
-            default: break
             }
         default:
             break

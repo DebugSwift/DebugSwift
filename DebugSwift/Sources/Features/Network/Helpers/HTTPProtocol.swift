@@ -26,8 +26,10 @@ final class CustomHTTPProtocol: URLProtocol {
     private class func canServeRequest(_ request: URLRequest) -> Bool {
         if let _ = property(forKey: requestProperty, in: request) { return false }
 
-        if let scheme = request.url?.scheme?.lowercased(), scheme == "http" || scheme == "https" {
-            return true
+        for onlyScheme in DebugSwift.Network.onlySchemes {
+            if let scheme = request.url?.scheme?.lowercased(), scheme == onlyScheme.rawValue {
+                return true
+            }
         }
 
         return false
