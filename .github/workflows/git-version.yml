@@ -92,7 +92,7 @@ jobs:
         fi
         
     - name: Publish Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: artifact
         path: DebugSwift.podspec
@@ -191,7 +191,7 @@ jobs:
         fi
 
     - name: Download Artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: artifact
 
