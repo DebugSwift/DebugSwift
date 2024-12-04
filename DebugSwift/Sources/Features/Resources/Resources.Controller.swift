@@ -27,7 +27,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
             case .coreData:
                 ""
             case .httpCookies:
-                ""
+                "httpcookies".localized()
             }
         }
     }
@@ -46,7 +46,8 @@ final class ResourcesViewController: BaseController, MainFeatureType {
     private let items: [Item] = [
         .fileManager,
         .userDefaults,
-        .keychain
+        .keychain,
+        .httpCookies
     ]
 
     override init() {
@@ -124,8 +125,8 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             showAlert(with: "TODO")
 
         case .httpCookies:
-            // Handle "Cookies" selection
-            showAlert(with: "TODO")
+            let viewModel = ResourcesHTTPCookiesViewModel()
+            controller = ResourcesGenericController(viewModel: viewModel)
         }
         if let controller {
             navigationController?.pushViewController(controller, animated: true)
