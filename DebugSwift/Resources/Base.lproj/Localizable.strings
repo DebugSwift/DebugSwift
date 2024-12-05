@@ -24,6 +24,7 @@
 "files-title" = "Files";
 "user-defaults" = "User Defaults";
 "keychain" = "Keychain";
+"httpcookies" = "HTTP Cookies";
 
 "showing-touches" = "Showing touches";
 "grid-overlay" = "Grid overlay";

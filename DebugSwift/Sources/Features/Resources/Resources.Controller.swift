@@ -9,6 +9,28 @@
 import UIKit
 
 final class ResourcesViewController: BaseController, MainFeatureType {
+    private enum Item: CaseIterable {
+        case fileManager
+        case userDefaults
+        case keychain
+        case coreData
+        case httpCookies
+
+        var localized: String {
+            switch self {
+            case .fileManager:
+                "files-title".localized()
+            case .userDefaults:
+                "user-defaults".localized()
+            case .keychain:
+                "keychain".localized()
+            case .coreData:
+                ""
+            case .httpCookies:
+                "httpcookies".localized()
+            }
+        }
+    }
 
     var controllerType: DebugSwiftFeature { .resources }
 
@@ -21,10 +43,11 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         return tableView
     }()
 
-    private let items = [
-        "files-title".localized(),
-        "user-defaults".localized(),
-        "keychain".localized()
+    private let items: [Item] = [
+        .fileManager,
+        .userDefaults,
+        .keychain,
+        .httpCookies
     ]
 
     override init() {
@@ -77,7 +100,7 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             withIdentifier: .cell,
             for: indexPath
         )
-        cell.setup(title: items[indexPath.row])
+        cell.setup(title: items[indexPath.row].localized)
         return cell
     }
 
@@ -87,26 +110,23 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         var controller: UIViewController?
-        switch indexPath.row {
-        case 0:
+        switch items[indexPath.row] {
+        case .fileManager:
             // Handle "File" selection
             controller = ResourcesFilesViewController()
-        case 1:
+        case .userDefaults:
             let viewModel = ResourcesUserDefaultsViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
-        case 2:
+        case .keychain:
             let viewModel = ResourcesKeychainViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
-        case 3:
+        case .coreData:
             // Handle "CoreData" selection
             showAlert(with: "TODO")
 
-        case 4:
-            // Handle "Cookies" selection
-            showAlert(with: "TODO")
-
-        default:
-            break
+        case .httpCookies:
+            let viewModel = ResourcesHTTPCookiesViewModel()
+            controller = ResourcesGenericController(viewModel: viewModel)
         }
         if let controller {
             navigationController?.pushViewController(controller, animated: true)
