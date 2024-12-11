@@ -10,7 +10,7 @@ jobs:
   ci:
     name: CI Build and Tests
     permissions: write-all
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - name: Checkout repository
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.2'
+          xcode-version: '16.0'
 
       - name: Install Bundler
         run: gem install bundler
@@ -38,21 +38,21 @@ jobs:
           xcodebuild clean build \
             -workspace Example/Example.xcworkspace \
             -scheme Example \
-            -destination 'platform=iOS Simulator,name=iPhone 14 Plus'
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
 
       - name: Build Swift Package Manager
         run: |
           xcodebuild clean build \
             -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
             -scheme Example_SwiftUI \
-            -destination 'platform=iOS Simulator,name=iPhone 14 Plus'
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
 
       - name: Run Tests
         run: |
           xcodebuild test \
             -workspace Example/Example.xcworkspace \
             -scheme Example \
-            -destination 'platform=iOS Simulator,name=iPhone 14 Plus'
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
 
       - name: Setup Danger
         run: |
