@@ -21,10 +21,17 @@ jobs:
         with:
           xcode-version: '15.2'
 
+      - name: Install Bundler
+        run: gem install bundler
+
+      - name: Install Dependencies with Bundler
+        run: |
+          bundle install --path vendor/bundle
+
       - name: Install CocoaPods
         run: |
           cd Example
-          pod install
+          bundle exec pod install
 
       - name: Build CocoaPods
         run: |
