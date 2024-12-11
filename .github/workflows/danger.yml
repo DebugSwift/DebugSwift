@@ -9,6 +9,7 @@ on:
 jobs:
   ci:
     name: CI Build and Tests
+    permissions: write-all
     runs-on: macos-13
 
     steps:
@@ -45,20 +46,6 @@ jobs:
             -workspace Example/Example.xcworkspace \
             -scheme Example \
             -destination 'platform=iOS Simulator,name=iPhone 14 Plus'
-
-  danger:
-    name: Danger Checks
-    permissions: write-all
-    runs-on: macos-13
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.2'
 
       - name: Setup Danger
         run: |
