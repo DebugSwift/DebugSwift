@@ -47,6 +47,7 @@ jobs:
       
       - name: Test Stage
         run: |
+          cd Example
           bundle install
           bundle exec fastlane test
 
