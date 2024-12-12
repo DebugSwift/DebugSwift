@@ -216,7 +216,7 @@ fileprivate extension UnitTestValidator {
 
     func checkUnitTestCoverage() {
         Coverage.xcodeBuildCoverage(
-            .xcresultBundle("fastlane/test_output/Example.xcresult"),
+            .xcresultBundle("Example/fastlane/test_output/Example.xcresult"),
             minimumCoverage: 70,
             excludedTargets: ["DangerSwiftCoverageTests.xctest"]
         )

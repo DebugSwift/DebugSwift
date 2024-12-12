@@ -65,3 +65,5 @@ iOSInjectionProject/
 *.DS_Store
 vendor
 Gemfile.lock
+temp
+test_output

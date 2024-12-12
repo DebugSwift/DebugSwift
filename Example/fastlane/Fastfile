@@ -2,9 +2,9 @@ desc "Run the tests and prepare for Danger"
 lane :test do |options|
 
   scan(
-    workspace: "Example/Example.xcworkspace",
     derived_data_path: "temp/derived",
     result_bundle: true,
-    code_coverage: true
+    code_coverage: true,
+    devices: ['platform=iOS Simulator,name=iPhone 15 Pro']
   )
 end
