@@ -67,4 +67,4 @@ vendor
 Gemfile.lock
 temp
 test_output
-fastlane/report.xml
+report.xml
