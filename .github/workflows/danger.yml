@@ -21,49 +21,34 @@ jobs:
         with:
           xcode-version: '16.0'
 
-      - name: Install Bundler
-        run: gem install bundler
-
-      - name: Install Dependencies with Bundler
-        run: |
-          bundle install --path vendor/bundle
-
       - name: Install CocoaPods
         run: |
           cd Example
-          bundle exec pod install
+          pod install
 
-      - name: Build CocoaPods
-        run: |
-          xcodebuild clean build \
-            -workspace Example/Example.xcworkspace \
-            -scheme Example \
-            -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+      # - name: Build CocoaPods
+      #   run: |
+      #     xcodebuild clean build \
+      #       -workspace Example/Example.xcworkspace \
+      #       -scheme Example \
+      #       -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
 
-      - name: Build Swift Package Manager
-        run: |
-          xcodebuild clean build \
-            -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
-            -scheme Example_SwiftUI \
-            -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
-
-      - name: Run Tests
-        run: |
-          xcodebuild test \
-            -workspace Example/Example.xcworkspace \
-            -scheme Example \
-            -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
-            -enableCodeCoverage YES \
-            -derivedDataPath DerivedData
-
-      - name: Generate Coverage Report
-        run: |
-          xcrun xccov view --report --json Example/DerivedData/Logs/Test/*.xcresult > coverage.json
+      # - name: Build Swift Package Manager
+      #   run: |
+      #     xcodebuild clean build \
+      #       -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
+      #       -scheme Example_SwiftUI \
+      #       -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
 
       - name: Setup Danger
         run: |
           git clone https://github.com/DebugSwift/DangerSwift && rm -rf DangerSwift/.git Readme.md
           mv DangerSwift/* .
+      
+      - name: Test Stage
+        run: |
+          bundle install
+          bundle exec fastlane test
 
       - name: Danger Stage
         run: |
