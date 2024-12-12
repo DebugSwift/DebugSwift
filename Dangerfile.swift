@@ -160,14 +160,15 @@ fileprivate extension Validator {
         The PR added \(additions) and removed \(deletions) lines. \(changedFiles) file(s) changed.
         """
 
-        let seeOurDocumentation =
-        """
-        Example Link: <br/> \
-        <a href=''> \
-        Link</a>
-        """
+        // TODO: - Add PR documentation link
+        // let seeOurDocumentation =
+        // """
+        // Documentation: \
+        // <a href=''> \
+        // Link</a>
+        // """
 
-        message(seeOurDocumentation)
+        // message(seeOurDocumentation)
         message(overview)
     }
 }
