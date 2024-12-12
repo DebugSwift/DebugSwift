@@ -21,25 +21,18 @@ jobs:
         with:
           xcode-version: '16.0'
 
+      - name: Build Swift Package Manager
+        run: |
+          xcodebuild clean build \
+            -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
+            -scheme Example_SwiftUI \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+
       - name: Install CocoaPods
         run: |
           cd Example
           pod install
-
-      # - name: Build CocoaPods
-      #   run: |
-      #     xcodebuild clean build \
-      #       -workspace Example/Example.xcworkspace \
-      #       -scheme Example \
-      #       -destination 'platform=iOS Simulator,name=iPhone 16'
-
-      # - name: Build Swift Package Manager
-      #   run: |
-      #     xcodebuild clean build \
-      #       -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
-      #       -scheme Example_SwiftUI \
-      #       -destination 'platform=iOS Simulator,name=iPhone 16' \
-
+      
       - name: Setup Danger
         run: |
           git clone https://github.com/DebugSwift/DangerSwift && rm -rf DangerSwift/.git Readme.md
