@@ -73,7 +73,8 @@ internal class DescriptionValidator {
         let message = "PR does not have a description. You must provide a description of the changes made."
 
         guard !body.isEmpty else {
-            return fail(message)
+            fail(message)
+            return
         }
     }
 }
@@ -215,7 +216,7 @@ fileprivate extension UnitTestValidator {
 
     func checkUnitTestCoverage() {
         Coverage.xcodeBuildCoverage(
-            .xcresultBundle("fastlane/test_output/Example.xcresult"),
+            .xcresultBundle("Example/DerivedData/Logs/Test/Example.xcresult"),
             minimumCoverage: 70,
             excludedTargets: ["DangerSwiftCoverageTests.xctest"]
         )
