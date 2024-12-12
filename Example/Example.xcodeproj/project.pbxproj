@@ -374,7 +374,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13;
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maatheusgois.debugswift.Example.Tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -398,7 +398,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13;
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maatheusgois.debugswift.Example.Tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

@@ -5,6 +5,6 @@ lane :test do |options|
     derived_data_path: "temp/derived",
     result_bundle: true,
     code_coverage: true,
-    devices: ['platform=iOS Simulator,name=iPhone 15 Pro']
+    devices: ['iPhone 16']
   )
 end
