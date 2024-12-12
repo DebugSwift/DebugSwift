@@ -3,7 +3,7 @@ lane :test do |options|
 
   scan(
     workspace: "Example/Example.xcworkspace",
-    derived_data_path: "../temp/derived",
+    derived_data_path: "temp/derived",
     result_bundle: true,
     code_coverage: true
   )
