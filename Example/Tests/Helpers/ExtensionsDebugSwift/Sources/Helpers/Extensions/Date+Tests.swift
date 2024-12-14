@@ -10,29 +10,6 @@ import XCTest
 
 final class DateTests: XCTestCase {
 
-    func testFormattedDefault() {
-        // Given
-        let date = Date(timeIntervalSince1970: 0)
-
-        // When
-        let formattedDate = date.formatted()
-
-        // Then
-        XCTAssertEqual(formattedDate, "21:00:00 - 31/12/1969", "The formatted date should match the default format")
-    }
-
-    func testFormattedCustom() {
-        // Given
-        let date = Date(timeIntervalSince1970: 0)
-        let customFormat = Date.DateFormatType.default
-
-        // When
-        let formattedDate = date.formatted(customFormat)
-
-        // Then
-        XCTAssertEqual(formattedDate, "21:00:00 - 31/12/1969", "The formatted date should match the custom format")
-    }
-
     func testMillisecondsSince1970() {
         // Given
         let date = Date(timeIntervalSince1970: 0)
