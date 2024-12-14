@@ -68,3 +68,4 @@ Gemfile.lock
 temp
 test_output
 report.xml
+create_tests.sh
