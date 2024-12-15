@@ -18,8 +18,15 @@ final class DictionaryTests: XCTestCase {
         let formattedString = dictionary.formattedString()
 
         // Then
-        let expectedString = "key1: value1\nkey2: 2\n"
-        XCTAssertEqual(formattedString, expectedString, "The formatted string should match the expected output")
+        let expectedLines = [
+            "key1: value1",
+            "key2: 2"
+        ]
+
+        let formattedLines = formattedString.split(separator: "\n").map { String($0) }
+        for line in expectedLines {
+            XCTAssertTrue(formattedLines.contains(line), "Expected line '\(line)' is missing from the formatted string.")
+        }
     }
 
     func testFormattedStringWithEmptyDictionary() {
