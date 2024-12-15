@@ -14,7 +14,9 @@ extension UIColor {
         hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
 
         var rgb: UInt64 = 0
-        Scanner(string: hexSanitized).scanHexInt64(&rgb)
+        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else {
+            return nil // Retorna nil se a string não for um hexadecimal válido
+        }
 
         let red = CGFloat((rgb & 0xff0000) >> 16) / 255.0
         let green = CGFloat((rgb & 0x00ff00) >> 8) / 255.0
@@ -62,14 +64,12 @@ extension UIColor {
         let green = Float(components[1])
         let blue = Float(components[2])
 
-        let hexString = String(
+        return String(
             format: "#%02lX%02lX%02lX",
             lroundf(red * 255),
             lroundf(green * 255),
             lroundf(blue * 255)
         )
-
-        return hexString
     }
 }
 

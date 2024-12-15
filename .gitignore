@@ -63,3 +63,9 @@ fastlane/test_output
 iOSInjectionProject/
 
 *.DS_Store
+vendor
+Gemfile.lock
+temp
+test_output
+report.xml
+create_tests.sh
