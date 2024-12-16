@@ -9,7 +9,6 @@
 import UIKit
 
 final class FloatViewManager: NSObject {
-
     static let shared = FloatViewManager()
 
     let ballView = FloatBallView()
@@ -109,12 +108,12 @@ extension FloatViewManager: UINavigationControllerDelegate {
         if operation == .push {
             guard toVC == floatViewController else { return nil }
             return TransitionPush()
-        } else if operation == .pop {
+        }
+        if operation == .pop {
             guard fromVC == floatViewController else { return nil }
             return TransitionPop()
-        } else {
-            return nil
         }
+        return nil
     }
 }
 
@@ -130,7 +129,8 @@ extension FloatViewManager: FloatViewDelegate {
                     height: DSFloatChat.bottomViewFloatHeight
                 )
             }
-        ) { _ in }
+        ) { _ in
+        }
     }
 
     func floatViewMoved(floatView _: FloatBallView, point _: CGPoint) {
@@ -179,6 +179,7 @@ extension FloatViewManager: FloatViewDelegate {
                     height: DSFloatChat.bottomViewFloatHeight
                 )
             }
-        ) { _ in }
+        ) { _ in
+        }
     }
 }

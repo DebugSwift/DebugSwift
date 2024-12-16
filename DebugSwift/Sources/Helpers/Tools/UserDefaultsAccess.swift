@@ -34,7 +34,7 @@ extension UserDefaults {
         self.userDefaults = userDefaults
     }
 
-    public var wrappedValue: T {
+    var wrappedValue: T {
         get { userDefaults.value(T.self, forKey: key) ?? defaultValue }
         set { userDefaults.set(encodable: newValue, forKey: key) }
     }

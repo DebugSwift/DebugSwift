@@ -13,7 +13,6 @@ protocol LocationSelectionDelegate: AnyObject {
 }
 
 final class MapSelectionViewController: BaseController {
-
     private var mapView: MKMapView?
 
     private var selectedLocationAnnotation: MKPointAnnotation?

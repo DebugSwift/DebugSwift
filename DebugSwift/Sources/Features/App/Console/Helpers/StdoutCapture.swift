@@ -8,7 +8,6 @@
 import UIKit
 
 final class StdoutCapture {
-
     private static let shared = StdoutCapture()
 
     // MARK: - Properties
@@ -127,9 +126,8 @@ final class StdoutCapture {
     private func shouldIncludeLog(_ log: String) -> Bool {
         if DebugSwift.Console.onlyLogs.isEmpty {
             return true
-        } else {
-            return DebugSwift.Console.onlyLogs.contains { log.contains($0) }
         }
+        return DebugSwift.Console.onlyLogs.contains { log.contains($0) }
     }
 }
 

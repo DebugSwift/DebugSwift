@@ -9,7 +9,6 @@
 import Foundation
 
 final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewModel {
-
     private var keys = [String]()
 
     // MARK: - Initialization

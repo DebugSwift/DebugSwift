@@ -57,10 +57,6 @@ class FloatBallView: UIView {
         WindowManager.window.contains(self) == true
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
         addGesture()

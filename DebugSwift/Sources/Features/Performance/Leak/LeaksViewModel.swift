@@ -8,7 +8,6 @@
 import UIKit
 
 final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
-
     private var data: [PerformanceLeakDetector.LeakModel] {
         PerformanceLeakDetector.leaks
     }
@@ -75,7 +74,6 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func didTapItem(index: Int) {
-
         let leak: PerformanceLeakDetector.LeakModel
 
         if isSearchActived {

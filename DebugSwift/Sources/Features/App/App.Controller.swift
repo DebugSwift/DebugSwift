@@ -9,7 +9,6 @@
 import UIKit
 
 final class AppViewController: BaseController, MainFeatureType {
-
     var controllerType: DebugSwiftFeature { .app }
 
     private let tableView: UITableView = {
@@ -83,7 +82,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
         }
     }
 
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in _: UITableView) -> Int {
         Sections.allCases.count
     }
 

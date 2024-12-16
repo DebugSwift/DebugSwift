@@ -8,7 +8,6 @@
 import Foundation
 
 extension URLSessionConfiguration {
-
     @objc
     static func swizzleMethods() {
         guard self == URLSessionConfiguration.self else {
@@ -39,14 +38,14 @@ extension URLSessionConfiguration {
     }
 
     @objc
-    private class func swizzledDefaultSessionConfiguration() -> URLSessionConfiguration {
+    private final class func swizzledDefaultSessionConfiguration() -> URLSessionConfiguration {
         let configuration = swizzledDefaultSessionConfiguration()
         configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
         return configuration
     }
 
     @objc
-    private class func swizzledEphemeralSessionConfiguration() -> URLSessionConfiguration {
+    private final class func swizzledEphemeralSessionConfiguration() -> URLSessionConfiguration {
         let configuration = swizzledEphemeralSessionConfiguration()
         configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
         return configuration

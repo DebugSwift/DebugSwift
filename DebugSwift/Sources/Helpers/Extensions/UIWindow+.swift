@@ -27,16 +27,15 @@ extension UIWindow {
             if let touchIndicators = objc_getAssociatedObject(self, &Constants.associatedTouchIndicators)
                 as? NSMapTable<UITouch, TouchIndicatorView> {
                 return touchIndicators
-            } else {
-                let touchIndicators = NSMapTable<UITouch, TouchIndicatorView>(
-                    keyOptions: .weakMemory, valueOptions: .weakMemory
-                )
-                objc_setAssociatedObject(
-                    self, &Constants.associatedTouchIndicators, touchIndicators,
-                    .OBJC_ASSOCIATION_RETAIN_NONATOMIC
-                )
-                return touchIndicators
             }
+            let touchIndicators = NSMapTable<UITouch, TouchIndicatorView>(
+                keyOptions: .weakMemory, valueOptions: .weakMemory
+            )
+            objc_setAssociatedObject(
+                self, &Constants.associatedTouchIndicators, touchIndicators,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
+            return touchIndicators
         }
         set {
             objc_setAssociatedObject(
@@ -55,16 +54,15 @@ extension UIWindow {
                     &Constants.associatedReusableTouchIndicators
                 ) as? NSMutableSet {
                 return reusableTouchIndicators
-            } else {
-                let reusableTouchIndicators = NSMutableSet()
-                objc_setAssociatedObject(
-                    self,
-                    &Constants.associatedReusableTouchIndicators,
-                    reusableTouchIndicators,
-                    .OBJC_ASSOCIATION_RETAIN_NONATOMIC
-                )
-                return reusableTouchIndicators
             }
+            let reusableTouchIndicators = NSMutableSet()
+            objc_setAssociatedObject(
+                self,
+                &Constants.associatedReusableTouchIndicators,
+                reusableTouchIndicators,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
+            return reusableTouchIndicators
         }
         set {
             objc_setAssociatedObject(
@@ -142,9 +140,8 @@ extension UIWindow {
         if let indicatorView = reusableTouchIndicators.anyObject() as? TouchIndicatorView {
             reusableTouchIndicators.remove(indicatorView)
             return indicatorView
-        } else {
-            return TouchIndicatorView.indicatorView()
         }
+        return TouchIndicatorView.indicatorView()
     }
 
     func db_moveTouchIndicator(with touch: UITouch) {
@@ -178,7 +175,7 @@ extension UIWindow {
     // MARK: - UIDebuggingInformationOverlay
 
     @objc func db_debuggingInformationOverlayInit() -> UIWindow {
-        type(of: self).init()
+        Self()
     }
 
     @objc var state: UIGestureRecognizer.State {

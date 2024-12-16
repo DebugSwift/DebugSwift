@@ -17,9 +17,8 @@ final class ViewElement: NSObject, Element {
         if let viewController = getViewController(view: view) {
             let name = "\(String(describing: Swift.type(of: viewController))) (\(String(describing: Swift.type(of: view))))"
             return ElementLabel(name: name, classification: .important)
-        } else {
-            return ElementLabel(name: String(describing: Swift.type(of: view)))
         }
+        return ElementLabel(name: String(describing: Swift.type(of: view)))
     }
 
     var frame: CGRect {
@@ -56,7 +55,7 @@ final class ViewElement: NSObject, Element {
         let frame = view.frame
         let className = NSStringFromClass(type(of: view))
 
-        let description = String(
+        return String(
             format: "Class: %@, Frame: (%.1f, %.1f, %.1f, %.1f)",
             className,
             frame.origin.x,
@@ -64,8 +63,6 @@ final class ViewElement: NSObject, Element {
             frame.size.width,
             frame.size.height
         )
-
-        return description
     }
 
     override var description: String {
@@ -232,7 +229,7 @@ final class ViewElement: NSObject, Element {
             additionalInfo += "\n\n- UIScrollView Info: \n\(scrollViewInfo)\n"
         }
 
-        let description = String(
+        return String(
             format: """
             Class: %@
             Frame: (%.1f, %.1f, %.1f, %.1f)
@@ -251,8 +248,6 @@ final class ViewElement: NSObject, Element {
             tag,
             additionalInfo
         )
-
-        return description
     }
 
     private weak var view: UIView?

@@ -9,14 +9,12 @@ import PDFKit
 import UIKit
 
 enum PDFManager {
-
     static func generatePDF(
         title: String,
         body: String,
         image: UIImage?,
         logs: String
     ) -> Data? {
-
         let bounds = UIScreen.main.bounds
         let pdfSize = CGSize(width: 610, height: 790)
 
@@ -89,7 +87,7 @@ enum PDFManager {
         // Add logs
         if !logs.isEmpty {
             let pdfPage3 = PDFPage.createPage(color: .white, size: pdfSize)
-            pdfDocument.insert(pdfPage3, at: 2)
+            pdfDocument.insert(pdfPage3, at: image == nil ? 1 : 2)
 
             // Add title
             let titleBounds = CGRect(
@@ -146,7 +144,6 @@ enum PDFManager {
 }
 
 private final class ImageAnnotation: PDFAnnotation {
-
     private var _image: UIImage?
 
     init(imageBounds: CGRect, image: UIImage?) {
@@ -155,7 +152,7 @@ private final class ImageAnnotation: PDFAnnotation {
     }
 
     @available(*, unavailable)
-    public required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -205,9 +202,7 @@ extension PDFAnnotation {
 }
 
 extension PDFPage {
-    static func createPage(color: UIColor, size: CGSize) -> PDFPage {
-        let page = PDFPage()
-
-        return page
+    static func createPage(color _: UIColor, size _: CGSize) -> PDFPage {
+        return PDFPage()
     }
 }

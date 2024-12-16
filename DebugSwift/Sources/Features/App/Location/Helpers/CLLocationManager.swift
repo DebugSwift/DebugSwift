@@ -9,7 +9,6 @@ import CoreLocation
 import Foundation
 
 final class CLLocationManagerTracker {
-
     private static var managers: [CLLocationManager] = []
 
     static func add(manager: CLLocationManager) {
@@ -74,8 +73,7 @@ extension CLLocationManager {
         if let simulatedLocation {
             if
                 let delegate,
-                delegate.responds(to: #selector(CLLocationManagerDelegate.locationManager(_:didUpdateLocations:)))
-            {
+                delegate.responds(to: #selector(CLLocationManagerDelegate.locationManager(_:didUpdateLocations:))) {
                 delegate.locationManager!(self, didUpdateLocations: [simulatedLocation])
             }
         } else {
@@ -96,8 +94,7 @@ extension CLLocationManager {
     @objc func swizzedLocation() -> CLLocation {
         if let simulatedLocation {
             return simulatedLocation
-        } else {
-            return swizzedLocation()
         }
+        return swizzedLocation()
     }
 }

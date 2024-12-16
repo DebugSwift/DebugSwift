@@ -101,8 +101,6 @@ extension FileHandle {
         var tmout = timeval()
         let status = select(fileDescriptor + 1, &fdset, nil, nil, &tmout)
 
-        let actualResult = status > 0 ? fdIsSet(fileDescriptor, set: &fdset) : false
-
-        return actualResult
+        return status > 0 ? fdIsSet(fileDescriptor, set: &fdset) : false
     }
 }

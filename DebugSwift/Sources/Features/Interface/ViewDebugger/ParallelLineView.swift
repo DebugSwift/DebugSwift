@@ -40,11 +40,11 @@ final class ParallelLineView: UIView {
     }
 
     @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func draw(_ rect: CGRect) {
+    override func draw(_: CGRect) {
         guard lineCount > .zero, !lineColors.isEmpty else {
             return
         }

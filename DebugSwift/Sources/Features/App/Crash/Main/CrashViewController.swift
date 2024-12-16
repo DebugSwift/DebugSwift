@@ -87,11 +87,11 @@ final class CrashViewController: BaseController {
 }
 
 extension CrashViewController: UITableViewDataSource, UITableViewDelegate {
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in _: UITableView) -> Int {
         Features.allCases.count
     }
 
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         viewModel.numberOfItems()
     }
 
@@ -119,7 +119,7 @@ extension CrashViewController: UITableViewDataSource, UITableViewDelegate {
         UITableView.automaticDimension
     }
 
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
         section == 1 && viewModel.numberOfItems() != 0 ? "Crashes" : nil
     }
 

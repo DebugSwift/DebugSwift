@@ -8,7 +8,6 @@
 import Foundation
 
 final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
-
     private var data: [String] { ConsoleOutput.printAndNSLogOutput }
 
     private var filteredInfo = [String]()
