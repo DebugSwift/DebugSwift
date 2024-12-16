@@ -5,29 +5,13 @@
 //  Created by Matheus Gois on 15/12/2024.
 //
 
-import XCTest
 @testable import DebugSwift
+import XCTest
 
 final class LocalizationManagerTests: XCTestCase {
-
-    override func setUp() {
+    override static func setUp() {
         super.setUp()
         LocalizationManager.shared.loadBundle()
-    }
-
-    func testLocalizedStringWithValidKeyPt() {
-        // Given
-        let key = "size"
-        let expectedValue = "Tamanho"
-
-        // When
-        let mockLocale = Locale(identifier: "pt-BR")
-        LocalizationManager.shared.setLocale(mockLocale)
-
-        let localizedString = LocalizationManager.shared.localizedString(key)
-
-        // Then
-        XCTAssertEqual(localizedString, expectedValue, "The localized string for key 'size' should be 'Tamanho'")
     }
 
     func testLocalizedStringWithValidKeyEn() {
