@@ -15,7 +15,6 @@ private var UIViewPreviousBorderWidthKey: UInt8 = 2
 private var UIViewDebugBorderColorKey: UInt8 = 3
 
 extension UIView {
-
     func simulateButtonTap(completion: (() -> Void)? = nil) {
         ImpactFeedback.generate()
         UIView.animate(withDuration: 0.1, animations: {
@@ -84,13 +83,12 @@ extension UIView {
         get {
             if let color = objc_getAssociatedObject(self, &UIViewDebugBorderColorKey) as? UIColor {
                 return color.cgColor
-            } else {
-                let color = UIColor.randomColor()
-                objc_setAssociatedObject(
-                    self, &UIViewDebugBorderColorKey, color, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
-                )
-                return color.cgColor
             }
+            let color = UIColor.randomColor()
+            objc_setAssociatedObject(
+                self, &UIViewDebugBorderColorKey, color, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
+            return color.cgColor
         }
         set {
             objc_setAssociatedObject(

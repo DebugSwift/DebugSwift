@@ -8,7 +8,6 @@
 import Foundation
 
 enum CrashManager {
-
     static func register() {
         CrashHandler.shared.prepare()
     }

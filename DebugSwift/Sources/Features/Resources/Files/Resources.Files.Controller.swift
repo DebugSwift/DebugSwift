@@ -125,11 +125,11 @@ extension ResourcesFilesViewController {
     override func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if section == .zero {
             return pathLabel
-        } else if !files.isEmpty {
-            return filesTitle
-        } else {
-            return nil
         }
+        if !files.isEmpty {
+            return filesTitle
+        }
+        return nil
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
@@ -139,19 +139,18 @@ extension ResourcesFilesViewController {
             cell.setup(title: subdirectories[indexPath.row])
 
             return cell
-        } else {
-            let fileName = files[indexPath.row]
-            let fileSize = sizeStringForFileWithName(fileName: fileName) ?? "No data"
-
-            let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
-            cell.setup(
-                title: fileName,
-                subtitle: "Size: \(fileSize)",
-                image: .named("square.and.arrow.up", default: "share".localized())
-            )
-
-            return cell
         }
+        let fileName = files[indexPath.row]
+        let fileSize = sizeStringForFileWithName(fileName: fileName) ?? "No data"
+
+        let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
+        cell.setup(
+            title: fileName,
+            subtitle: "Size: \(fileSize)",
+            image: .named("square.and.arrow.up", default: "share".localized())
+        )
+
+        return cell
     }
 
     override func tableView(_: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {

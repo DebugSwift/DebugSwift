@@ -75,13 +75,12 @@ extension URLRequest {
         get {
             if let id = objc_getAssociatedObject(self, AssociatedKeys.requestId) as? String {
                 return id
-            } else {
-                let newValue = UUID().uuidString
-                objc_setAssociatedObject(
-                    self, AssociatedKeys.requestId, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC
-                )
-                return newValue
             }
+            let newValue = UUID().uuidString
+            objc_setAssociatedObject(
+                self, AssociatedKeys.requestId, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC
+            )
+            return newValue
         }
         set {
             objc_setAssociatedObject(

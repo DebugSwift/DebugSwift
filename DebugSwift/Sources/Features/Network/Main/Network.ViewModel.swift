@@ -9,7 +9,6 @@
 import Foundation
 
 final class NetworkViewModel {
-
     var reachEnd = true
     var firstIn = true
     var reloadDataFinish = true

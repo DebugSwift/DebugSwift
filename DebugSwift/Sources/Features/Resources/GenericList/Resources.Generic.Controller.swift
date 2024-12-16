@@ -209,7 +209,6 @@ extension ResourcesGenericController: UISearchResultsUpdating {
 }
 
 protocol ResourcesGenericListViewModel: AnyObject {
-
     typealias ViewData = ResourcesGenericController.CellViewData
 
     var isSearchActived: Bool { get set }
@@ -260,12 +259,12 @@ extension ResourcesGenericListViewModel {
 
     var isCustomActionEnable: Bool { false }
 
-    func didTapItem(index: Int) {}
+    func didTapItem(index _: Int) {}
 
     func handleClearAction() {}
     func handleShareAction() {}
 
-    func handleDeleteItemAction(atIndex index: Int) {}
+    func handleDeleteItemAction(atIndex _: Int) {}
 }
 
 extension ResourcesGenericController {

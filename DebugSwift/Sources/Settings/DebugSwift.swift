@@ -8,7 +8,6 @@
 import UIKit
 
 public enum DebugSwift {
-
     @discardableResult
     public static func setup(
         hideFeatures features: [DebugSwiftFeature] = [],

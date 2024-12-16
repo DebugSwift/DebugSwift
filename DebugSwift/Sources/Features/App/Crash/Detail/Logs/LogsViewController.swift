@@ -8,7 +8,6 @@
 import UIKit
 
 final class LogsViewController: BaseController {
-
     // MARK: - Properties
 
     private let textView: UITextView = {

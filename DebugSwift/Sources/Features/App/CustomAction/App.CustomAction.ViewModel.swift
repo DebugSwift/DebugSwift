@@ -8,7 +8,6 @@
 import Foundation
 
 final class AppCustomActionViewModel: NSObject, ResourcesGenericListViewModel {
-
     private var data: CustomAction
     private var filtered = CustomAction.Actions()
 

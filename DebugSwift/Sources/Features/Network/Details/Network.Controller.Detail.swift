@@ -45,10 +45,6 @@ final class NetworkViewControllerDetail: BaseController {
         setupSearch()
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-    }
-
     private func setupNavigation() {
         addRightBarButton(
             actions: [
@@ -132,15 +128,14 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
     ) -> UIView? {
         if section == .zero {
             return nil
-        } else {
-            let label = UILabel()
-            label.backgroundColor = Theme.shared.backgroundColor
-
-            label.text = "    \(_infos[section - 1].title)"
-            label.textColor = .gray
-            label.font = UIFont.systemFont(ofSize: 12, weight: .bold)
-            return label
         }
+        let label = UILabel()
+        label.backgroundColor = Theme.shared.backgroundColor
+
+        label.text = "    \(_infos[section - 1].title)"
+        label.textColor = .gray
+        label.font = UIFont.systemFont(ofSize: 12, weight: .bold)
+        return label
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -153,17 +148,16 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
             cell.setup(model)
 
             return cell
-        } else {
-            let cell =
-                tableView.dequeueReusableCell(
-                    withIdentifier: "NetworkCellDetail",
-                    for: indexPath
-                ) as! NetworkTableViewCellDetail
-
-            cell.setup(_infos[indexPath.section - 1].description, searchController.searchBar.text)
-
-            return cell
         }
+        let cell =
+            tableView.dequeueReusableCell(
+                withIdentifier: "NetworkCellDetail",
+                for: indexPath
+            ) as! NetworkTableViewCellDetail
+
+        cell.setup(_infos[indexPath.section - 1].description, searchController.searchBar.text)
+
+        return cell
     }
 }
 
@@ -251,7 +245,7 @@ extension NetworkViewControllerDetail {
     private func formatLog(
         model: HttpModel
     ) -> String {
-        let formattedLog = """
+        return """
         [\(model.method ?? "")] \(model.startTime ?? "") (\(model.statusCode ?? ""))
 
         ------- URL -------
@@ -278,6 +272,5 @@ extension NetworkViewControllerDetail {
         ------- MIME TYPE -------
         \(model.mineType ?? "No data")
         """
-        return formattedLog
     }
 }

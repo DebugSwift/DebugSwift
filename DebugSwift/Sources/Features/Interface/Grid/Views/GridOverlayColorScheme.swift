@@ -25,7 +25,7 @@ final class GridOverlayColorScheme: Equatable {
         self.secondaryColor = secondaryColor
     }
 
-    class func colorScheme(
+    final class func colorScheme(
         withPrimaryColor primaryColor: UIColor,
         secondaryColor: UIColor
     ) -> GridOverlayColorScheme {

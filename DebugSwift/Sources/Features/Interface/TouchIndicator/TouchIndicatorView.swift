@@ -25,7 +25,7 @@ final class TouchIndicatorView: UIView {
         setupView()
     }
 
-    class func indicatorView() -> TouchIndicatorView {
+    final class func indicatorView() -> TouchIndicatorView {
         TouchIndicatorView(
             frame: CGRect(origin: .zero, size: Constants.size)
         )
