@@ -51,10 +51,6 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
 
     weak var delegate: PerformanceWidgetViewDelegate?
 
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-
     func updateValues(cpu: CGFloat, memory: CGFloat, fps: CGFloat, leaks: CGFloat) {
         cpuValueLabel.text = String(format: "\("cpu".localized()): %.1lf%%", cpu)
         memoryValueLabel.text = String(format: "\("memory".localized()): %.1lf MB", memory)

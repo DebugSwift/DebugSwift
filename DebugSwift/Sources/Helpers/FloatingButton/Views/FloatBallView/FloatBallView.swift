@@ -67,11 +67,6 @@ class FloatBallView: UIView {
         ballView.layer.cornerRadius = DSFloatChat.ballViewSize.width / 2
     }
 
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     func animate(success: Bool) {
         guard isShowing else { return }
 
