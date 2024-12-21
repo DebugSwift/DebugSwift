@@ -81,7 +81,7 @@ class FloatBallView: UIView {
 
         startAnimation(text: alloced ? "⚠️" : "✳️")
 
-        ImpactFeedback.generate(style: .heavy)
+        ImpactFeedback.generate(.init(style: .heavy))
     }
 
     func updateText() {

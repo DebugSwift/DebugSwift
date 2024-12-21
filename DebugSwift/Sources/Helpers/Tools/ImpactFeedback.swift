@@ -11,8 +11,8 @@ enum ImpactFeedback {
     @UserDefaultAccess(key: .feedback, defaultValue: true)
     static var enable: Bool
 
-    static func generate(style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+    static func generate(_ feedback: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)) {
         guard enable else { return }
-        UIImpactFeedbackGenerator(style: style).impactOccurred()
+        feedback.impactOccurred()
     }
 }
