@@ -13,6 +13,8 @@ extension URLSessionConfiguration {
         guard self == URLSessionConfiguration.self else {
             return
         }
+        
+        swizzleProtocolSetter()
 
         let defaultSessionConfiguration = class_getClassMethod(
             URLSessionConfiguration.self,
@@ -20,7 +22,7 @@ extension URLSessionConfiguration {
         )
         let swizzledDefaultSessionConfiguration = class_getClassMethod(
             URLSessionConfiguration.self,
-            #selector(URLSessionConfiguration.swizzledDefaultSessionConfiguration)
+            #selector(getter: URLSessionConfiguration.swizzledDefaultSessionConfiguration)
         )
 
         method_exchangeImplementations(defaultSessionConfiguration!, swizzledDefaultSessionConfiguration!)
@@ -31,23 +33,73 @@ extension URLSessionConfiguration {
         )
         let swizzledEphemeralSessionConfiguration = class_getClassMethod(
             URLSessionConfiguration.self,
-            #selector(URLSessionConfiguration.swizzledEphemeralSessionConfiguration)
+            #selector(getter: URLSessionConfiguration.swizzledEphemeralSessionConfiguration)
         )
 
         method_exchangeImplementations(ephemeralSessionConfiguration!, swizzledEphemeralSessionConfiguration!)
     }
-
-    @objc
-    private final class func swizzledDefaultSessionConfiguration() -> URLSessionConfiguration {
-        let configuration = swizzledDefaultSessionConfiguration()
-        configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
-        return configuration
+    
+    private static func swizzleProtocolSetter() {
+        let defaultInstance = URLSessionConfiguration.default
+        let ephemeralInstance =  URLSessionConfiguration.ephemeral
+        
+        let aClassDefault: AnyClass = object_getClass(defaultInstance)!
+        let aClassEphemeral: AnyClass = object_getClass(ephemeralInstance)!
+        
+        let origSelector = #selector(setter: URLSessionConfiguration.protocolClasses)
+        let newSelector = #selector(setter: URLSessionConfiguration.protocolClasses_Swizzled)
+        
+        let origMethodDefault = class_getInstanceMethod(aClassDefault, origSelector)!
+        let origMethodEphemeral = class_getInstanceMethod(aClassEphemeral, origSelector)!
+       
+        let newMethodDefault = class_getInstanceMethod(aClassDefault, newSelector)!
+        let newMethodEphemeral = class_getInstanceMethod(aClassEphemeral, newSelector)!
+        
+        method_exchangeImplementations(origMethodDefault, newMethodDefault)
+        method_exchangeImplementations(origMethodEphemeral, newMethodEphemeral)
+    }
+    
+    @objc private var protocolClasses_Swizzled: [AnyClass]? {
+        get {
+            // Unused, but required for compiler
+            return self.protocolClasses_Swizzled
+        }
+        set {
+            guard let newTypes = newValue else { self.protocolClasses_Swizzled = nil; return }
+            
+            var types = [AnyClass]()
+            
+            // de-dup
+            for newType in newTypes {
+                if !types.contains(where: { $0 == newType }) {
+                    types.append(newType)
+                }
+            }
+            
+            // Ensure custom protocol is still in there:
+            if !types.contains(where: { $0 == CustomHTTPProtocol.self }) {
+              types.insert(CustomHTTPProtocol.self, at: 0)
+            }
+            
+            self.protocolClasses_Swizzled = types
+        }
     }
 
     @objc
-    private final class func swizzledEphemeralSessionConfiguration() -> URLSessionConfiguration {
-        let configuration = swizzledEphemeralSessionConfiguration()
-        configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
-        return configuration
+    private class var swizzledDefaultSessionConfiguration: URLSessionConfiguration {
+        get {
+            let configuration =  URLSessionConfiguration.swizzledDefaultSessionConfiguration
+            configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
+            return configuration
+        }
+    }
+    
+    @objc
+    private class var swizzledEphemeralSessionConfiguration: URLSessionConfiguration {
+        get {
+            let configuration = URLSessionConfiguration.swizzledEphemeralSessionConfiguration
+            configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
+            return configuration
+        }
     }
 }
