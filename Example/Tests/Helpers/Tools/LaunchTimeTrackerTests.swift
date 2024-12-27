@@ -1,15 +1,14 @@
 //
 //  LaunchTimeTrackerTests.swift
-//  LaunchTimeTrackerTests
+//  DebugSwiftTests
 //
 //  Created by Matheus Gois on 21/12/2024.
 //  Based on Given methodology
 
-import XCTest
 @testable import DebugSwift
+import XCTest
 
 class LaunchTimeTrackerTests: XCTestCase {
-
     override func setUpWithError() throws {
         try super.setUpWithError()
         LaunchTimeTracker.launchStartTime = nil
