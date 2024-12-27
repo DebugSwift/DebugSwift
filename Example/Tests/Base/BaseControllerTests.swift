@@ -1,15 +1,14 @@
 //
 //  BaseControllerTests.swift
-//  LaunchTimeTrackerTests
+//  DebugSwiftTests
 //
 //  Created by Matheus Gois on 27/12/2024.
 //
 
-import XCTest
 @testable import DebugSwift
+import XCTest
 
 class BaseControllerTests: XCTestCase {
-
     func testInit() {
         // Given
         let controller = BaseController()

@@ -1,17 +1,16 @@
 //
 //  TabBarControllerTests.swift
-//  LaunchTimeTrackerTests
+//  DebugSwiftTests
 //
 //  Created by Matheus Gois on 27/12/2024.
 //
 
-import XCTest
 @testable import DebugSwift
+import XCTest
 
 class TabBarControllerTests: XCTestCase {
-
-    var tabBarController: TabBarController!
-    var window: UIWindow!
+    private var tabBarController: TabBarController!
+    private var window: UIWindow!
 
     override func setUpWithError() throws {
         // Initialize the TabBarController before each test
@@ -57,5 +56,4 @@ class TabBarControllerTests: XCTestCase {
         XCTAssertNotNil(barButton)
         XCTAssertEqual(barButton?.tintColor, Theme.shared.fontColor)
     }
-
 }

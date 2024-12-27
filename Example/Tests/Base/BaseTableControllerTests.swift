@@ -1,15 +1,14 @@
 //
 //  BaseTableControllerTests.swift
-//  LaunchTimeTrackerTests
+//  DebugSwiftTests
 //
 //  Created by Matheus Gois on 27/12/2024.
 //
 
-import XCTest
 @testable import DebugSwift
+import XCTest
 
 class BaseTableControllerTests: XCTestCase {
-
     func testInitWithDefaultStyle() {
         // Given
         let controller = BaseTableController()
