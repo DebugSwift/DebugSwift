@@ -141,6 +141,10 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         delegate?.hierarchyTableViewController(self, didDeselectSnapshot: snapshot)
     }
 
+    override func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        return 44
+    }
+
     // MARK: HierarchyTableViewCellDelegate
 
     func hierarchyTableViewCellDidTapSubtree(cell: HierarchyTableViewCell) {

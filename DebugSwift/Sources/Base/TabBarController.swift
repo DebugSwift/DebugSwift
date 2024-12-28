@@ -40,6 +40,7 @@ class TabBarController: UITabBarController {
     }
 
     private func configureNavigation() {
+        configureNavigationBar()
         navigationItem.hidesBackButton = true
         addRightBarButton(
             image: .named(

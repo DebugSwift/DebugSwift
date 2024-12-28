@@ -16,7 +16,12 @@ extension UINavigationController {
             appearance.backgroundColor = color
             navigationBar.standardAppearance = appearance
             navigationBar.scrollEdgeAppearance = appearance
+            if #available(iOS 15.0, *) {
+                navigationBar.compactScrollEdgeAppearance = appearance
+            }
             navigationBar.compactAppearance = appearance
+            navigationBar.barTintColor = color
+//            navigationBar.isTranslucent = true
         } else {
             if color == .clear {
                 navigationBar.setBackgroundImage(UIImage(), for: .default)

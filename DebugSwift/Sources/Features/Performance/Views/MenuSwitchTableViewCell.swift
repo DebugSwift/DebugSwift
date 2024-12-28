@@ -52,13 +52,12 @@ final class MenuSwitchTableViewCell: UITableViewCell {
         contentView.backgroundColor = Theme.shared.backgroundColor
         backgroundColor = Theme.shared.backgroundColor
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: valueSwitch.leadingAnchor, constant: -8),
 
-            valueSwitch.trailingAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16
-            ),
-            valueSwitch.centerYAnchor.constraint(equalTo: centerYAnchor)
+            valueSwitch.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            valueSwitch.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
 

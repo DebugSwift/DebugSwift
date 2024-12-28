@@ -35,6 +35,7 @@ final class ViewDebuggerViewController:
             "Snapshot",
             comment: "The title for the Snapshot tab"
         )
+
         return navigationController
     }()
 
@@ -70,6 +71,20 @@ final class ViewDebuggerViewController:
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override var overrideUserInterfaceStyle: UIUserInterfaceStyle {
+        get {
+            switch Theme.shared.appearance {
+            case .dark:
+                return .dark
+            case .light:
+                return .light
+            case .automatic:
+                return .unspecified // Segue a configuração do sistema
+            }
+        }
+        set {}
     }
 
     override func viewDidLoad() {
@@ -172,6 +187,9 @@ final class ViewDebuggerViewController:
         segmentedControl.sizeToFit()
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.addTarget(self, action: #selector(segmentChanged(sender:)), for: .valueChanged)
+        if #available(iOS 13.0, *) {
+            segmentedControl.overrideUserInterfaceStyle = overrideUserInterfaceStyle
+        }
         navigationItem.title = nil
         navigationItem.titleView = segmentedControl
     }

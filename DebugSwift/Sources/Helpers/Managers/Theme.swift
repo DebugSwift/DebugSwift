@@ -19,55 +19,55 @@ class Theme {
 
     var appearance: Appearance = {
         if #available(iOS 13.0, *) {
-            .automatic
+            return .automatic
         } else {
-            .dark
+            return .dark
         }
     }()
 
     var interfaceStyleColor: UIUserInterfaceStyle {
         switch appearance {
-        case .dark: .dark
-        case .light: .light
-        case .automatic: .unspecified
+        case .dark: return .dark
+        case .light: return .light
+        case .automatic: return .unspecified
         }
     }
 
     var backgroundColor: UIColor {
         if #available(iOS 13.0, *) {
             switch appearance {
-            case .dark: .black
-            case .light: .white
-            case .automatic: .systemBackground
+            case .dark: return .black
+            case .light: return .white
+            case .automatic: return .systemBackground
             }
         } else {
-            appearance == .light ? .white : .black
+            return appearance == .light ? .white : .black
         }
     }
 
     var fontColor: UIColor {
         if #available(iOS 13.0, *) {
             switch appearance {
-            case .dark: .white
-            case .light: .black
-            case .automatic: .label
+            case .dark: return .white
+            case .light: return .black
+            case .automatic: return .label
             }
         } else {
-            appearance == .light ? .black : .white
+            return appearance == .light ? .black : .white
         }
     }
 
     var statusFetchColor: UIColor {
         let light = UIColor(hexString: "#32CD32") ?? .green
         let dark = UIColor.green
-        return if #available(iOS 13.0, *) {
+        if #available(iOS 13.0, *) {
             switch appearance {
-            case .dark: dark
-            case .light: light
-            case .automatic: UIColor(light: light, dark: dark)
+            case .dark: return dark
+            case .light: return light
+            case .automatic: return UIColor(light: light, dark: dark)
             }
         } else {
-            appearance == .light ? light : dark
+            return appearance == .light ? light : dark
         }
     }
 }

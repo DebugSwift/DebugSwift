@@ -113,6 +113,12 @@ extension UIViewController {
         }
         navigationItem.leftBarButtonItem = leftButton
     }
+
+    func configureNavigationBar(isTranslucent: Bool = false, barTintColor: UIColor = Theme.shared.backgroundColor) {
+        navigationController?.navigationBar.isTranslucent = isTranslucent
+        navigationController?.navigationBar.barTintColor = barTintColor
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
 }
 
 // MARK: - Helpers
