@@ -68,6 +68,11 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
             let superview = WindowManager.window.rootViewController?.view
         else { return }
 
+        cpuValueLabel.textColor = Theme.shared.fontColor
+        memoryValueLabel.textColor = Theme.shared.fontColor
+        fpsValueLabel.textColor = Theme.shared.fontColor
+        leaksValueLabel.textColor = Theme.shared.fontColor
+
         translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([

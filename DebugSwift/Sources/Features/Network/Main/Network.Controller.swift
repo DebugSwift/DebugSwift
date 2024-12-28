@@ -73,9 +73,10 @@ final class NetworkViewController: BaseController, MainFeatureType {
             object: nil,
             queue: .main
         ) { [weak self] notification in
+            guard let self, self.isViewVisible else { return }
             if let success = notification.object as? Bool {
-                self?.reloadHttp(
-                    needScrollToEnd: self?.viewModel.reachEnd ?? true,
+                self.reloadHttp(
+                    needScrollToEnd: self.viewModel.reachEnd,
                     success: success
                 )
             }

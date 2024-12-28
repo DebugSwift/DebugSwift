@@ -9,6 +9,8 @@
 import UIKit
 
 class BaseController: UIViewController {
+    var isViewVisible = false
+
     init() {
         super.init(nibName: nil, bundle: nil)
         if #available(iOS 13.0, *) {
@@ -30,7 +32,12 @@ class BaseController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        configureNavigationBar()
+        isViewVisible = true
+    }
 
-        navigationController?.navigationBar.prefersLargeTitles = true
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        isViewVisible = false
     }
 }
