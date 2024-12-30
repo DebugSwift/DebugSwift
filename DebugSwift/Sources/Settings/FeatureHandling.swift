@@ -9,7 +9,6 @@ import CoreLocation
 import UIKit
 
 enum FeatureHandling {
-
     static func setup(
         only featuresToShow: [DebugSwiftFeature] = DebugSwiftFeature.allCases
     ) {

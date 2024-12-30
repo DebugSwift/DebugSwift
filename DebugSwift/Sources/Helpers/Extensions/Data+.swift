@@ -38,11 +38,9 @@ extension [String: String] {
 
 extension [String: Any] {
     func formattedCurlString() -> String {
-        let headersString = map { key, value in
+        return map { key, value in
             "\(key): \(value)"
         }.joined(separator: "\\n-H ")
-
-        return headersString
     }
 }
 
@@ -50,9 +48,8 @@ extension Data {
     func formattedCurlString() -> String {
         if let string = String(data: self, encoding: .utf8) {
             return string.escapedForCurl()
-        } else {
-            return ""
         }
+        return ""
     }
 }
 

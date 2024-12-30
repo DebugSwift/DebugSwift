@@ -57,10 +57,6 @@ class FloatBallView: UIView {
         WindowManager.window.contains(self) == true
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
         addGesture()
@@ -69,11 +65,6 @@ class FloatBallView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         ballView.layer.cornerRadius = DSFloatChat.ballViewSize.width / 2
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     func animate(success: Bool) {
@@ -90,7 +81,7 @@ class FloatBallView: UIView {
 
         startAnimation(text: alloced ? "⚠️" : "✳️")
 
-        ImpactFeedback.generate(style: .heavy)
+        ImpactFeedback.generate(.init(style: .heavy))
     }
 
     func updateText() {

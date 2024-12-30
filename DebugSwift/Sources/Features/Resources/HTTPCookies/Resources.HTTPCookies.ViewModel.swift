@@ -26,7 +26,7 @@ final class ResourcesHTTPCookiesViewModel: NSObject, ResourcesGenericListViewMod
     private func setupKeys() {
         let sortOrder: [NSSortDescriptor] = [
             .init(keyPath: \HTTPCookie.domain, ascending: true),
-            .init(keyPath: \HTTPCookie.name, ascending: true),
+            .init(keyPath: \HTTPCookie.name, ascending: true)
         ]
         keys = storage.sortedCookies(using: sortOrder).map { Key(domain: $0.domain, name: $0.name) }
     }
@@ -50,9 +50,8 @@ final class ResourcesHTTPCookiesViewModel: NSObject, ResourcesGenericListViewMod
         let value: String = {
             if let cookie = storage.cookies?.first(where: { $0.domain == key.domain && $0.name == key.name }) {
                 return "\(cookie)"
-            } else {
-                return ""
             }
+            return ""
         }()
         return .init(title: key.name, value: value)
     }

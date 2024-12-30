@@ -9,20 +9,24 @@ import Foundation
 
 class LocalizationManager {
     static let shared = LocalizationManager()
-
-    private let supportedLanguages = ["pt_BR", "en"]
-
     private init() {}
 
+    private let supportedLanguages = ["pt_BR", "en"]
+    private var locale: Locale = .current
+
     var currentLanguage: String {
-        if Locale.current.languageCode?.contains("pt") == true {
+        if locale.languageCode?.contains("pt") == true {
             return supportedLanguages[0]
-        } else {
-            return supportedLanguages[1]
         }
+        return supportedLanguages[1]
     }
 
     private var bundle: Bundle?
+
+    func setLocale(_ locale: Locale) {
+        self.locale = locale
+        loadBundle()
+    }
 
     func localizedString(_ key: String, _ args: CVarArg...) -> String {
         guard let format = bundle?.localizedString(forKey: key, value: nil, table: nil) else {

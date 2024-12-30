@@ -188,7 +188,7 @@ final class SnapshotView: UIView {
     }
 
     @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -235,16 +235,16 @@ final class SnapshotView: UIView {
 
     // MARK: Menu Item Actions
 
-    private func showHideHeaderNodes(sender: UIAlertAction) {
-        hideHeaderNodes = !hideHeaderNodes
+    private func showHideHeaderNodes(sender _: UIAlertAction) {
+        hideHeaderNodes.toggle()
 
         for (_, nodes) in snapshotIdentifierToNodesMap {
             nodes.headerNode?.isHidden = hideHeaderNodes
         }
     }
 
-    private func showHideBorderNodes(sender: UIAlertAction) {
-        hideBorderNodes = !hideBorderNodes
+    private func showHideBorderNodes(sender _: UIAlertAction) {
+        hideBorderNodes.toggle()
 
         for (_, nodes) in snapshotIdentifierToNodesMap {
             nodes.borderNode?.isHidden = hideBorderNodes

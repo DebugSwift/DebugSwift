@@ -9,7 +9,6 @@ import CoreLocation
 import Foundation
 
 final class LocationToolkit {
-
     static let shared = LocationToolkit()
 
     var simulatedLocation: CLLocation? {

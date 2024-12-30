@@ -11,19 +11,19 @@ import Foundation
 final class CustomHTTPProtocol: URLProtocol {
     private static let requestProperty = "com.custom.http.protocol"
 
-    class func clearCache() {
+    final class func clearCache() {
         URLCache.customHttp.removeAllCachedResponses()
     }
 
-    class func start() {
+    final class func start() {
         URLProtocol.registerClass(self)
     }
 
-    class func stop() {
+    final class func stop() {
         URLProtocol.unregisterClass(self)
     }
 
-    private class func canServeRequest(_ request: URLRequest) -> Bool {
+    private final class func canServeRequest(_ request: URLRequest) -> Bool {
         if let _ = property(forKey: requestProperty, in: request) { return false }
 
         for onlyScheme in DebugSwift.Network.onlySchemes {
@@ -35,16 +35,16 @@ final class CustomHTTPProtocol: URLProtocol {
         return false
     }
 
-    override class func canInit(with request: URLRequest) -> Bool {
+    override final class func canInit(with request: URLRequest) -> Bool {
         canServeRequest(request)
     }
 
-    override class func canInit(with task: URLSessionTask) -> Bool {
+    override final class func canInit(with task: URLSessionTask) -> Bool {
         guard let request = task.currentRequest else { return false }
         return canServeRequest(request)
     }
 
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    override final class func canonicalRequest(for request: URLRequest) -> URLRequest {
         request
     }
 
@@ -338,7 +338,6 @@ extension CustomHTTPProtocol: URLSessionTaskDelegate {
         totalBytesSent: Int64,
         totalBytesExpectedToSend: Int64
     ) {
-
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             Debug.print(#function)

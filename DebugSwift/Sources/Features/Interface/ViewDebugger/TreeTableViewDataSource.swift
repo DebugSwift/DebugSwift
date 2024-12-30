@@ -31,11 +31,11 @@ final class TreeTableViewDataSource<TreeType: Tree>: NSObject, UITableViewDataSo
 
     // MARK: UITableViewDataSource
 
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in _: UITableView) -> Int {
         1
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         flattenedTree.count
     }
 
@@ -69,11 +69,10 @@ private func flatten<TreeType: Tree>(tree: TreeType, depth: Int = 0, maxDepth: I
     let childDepth = depth + 1
     if let maxDepth, childDepth > maxDepth {
         return initial
-    } else {
-        return tree.children.reduce(initial) { result, child in
-            var newResult = result
-            newResult.append(contentsOf: flatten(tree: child, depth: childDepth, maxDepth: maxDepth))
-            return newResult
-        }
+    }
+    return tree.children.reduce(initial) { result, child in
+        var newResult = result
+        newResult.append(contentsOf: flatten(tree: child, depth: childDepth, maxDepth: maxDepth))
+        return newResult
     }
 }

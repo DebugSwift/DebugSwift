@@ -18,7 +18,6 @@ public struct CustomAction {
 }
 
 extension CustomAction {
-
     public typealias Actions = [Action]
 
     public struct Action {

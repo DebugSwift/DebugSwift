@@ -8,7 +8,6 @@
 import UIKit
 
 enum UserInfo {
-
     struct Info {
         let title: String
         let detail: String

@@ -9,7 +9,6 @@
 import UIKit
 
 public struct PerformanceLeak {
-
     public let controller: UIViewController?
     public let view: UIView?
     public let message: String
@@ -28,7 +27,6 @@ public struct PerformanceLeak {
 }
 
 final class PerformanceLeakDetector {
-
     static var callback: ((PerformanceLeak) -> Void)?
     static var delay = 1.0
     static var warningWindow: UIWindow?
@@ -96,7 +94,6 @@ final class PerformanceLeakDetector {
 }
 
 extension UIView {
-
     /**
      Same as removeFromSuperview() but it also checks if it or any of its subviews don't deinit after the view is removed from the view tree. In that case the PerformanceLeakDetector warning callback will be triggered.
 
@@ -118,13 +115,10 @@ extension UIView {
 }
 
 extension UIView {
-
     @objc fileprivate func checkForLeakedSubViews() {
-
         let delay = PerformanceLeakDetector.delay
 
         iterateTopSubviews { topSubview in
-
             let startTime = Date()
             DispatchQueue.main.asyncAfter(
                 deadline: .now() + delay
@@ -142,7 +136,6 @@ extension UIView {
                     UIApplication.shared.applicationState == .active, // theoretically not needed when also checking lastBackgroundedDate, but just in case
                     PerformanceLeakDetector.lastBackgroundedDate < startTime,
                     !PerformanceLeakDetector.ignoredViewClassNames.contains(type(of: leakedView).description()) {
-
                     let errorTitle = "VIEW STILL IN MEMORY"
                     var errorMessage = leakedView.debugDescription.lvcdRemoveBundleAndModuleName()
                     if let bundleName = Bundle.main.infoDictionary?["CFBundleName"] {
@@ -191,7 +184,6 @@ extension UIView {
     }
 
     fileprivate func makeScreenshot() -> UIImage? {
-
         let fvc = firstViewController
         if let fvc, fvc.view == self {
             // UIImagePickerController is not available in tvOS so do OS check
@@ -470,7 +462,6 @@ extension UIView {
 }
 
 extension UIViewController {
-
     fileprivate static let lvcdCheckForMemoryLeakNotification = Notification.Name("lvcdCheckForMemoryLeak")
     fileprivate static let lvcdCheckForSplitViewVCMemoryLeakNotification = Notification.Name("lvcdCheckForSplitViewVCMemoryLeak")
 
@@ -547,7 +538,7 @@ extension UIViewController {
 
     private func lvcdShouldIgnore() -> Bool {
         let ignoredVC = PerformanceLeakDetector.ignoredViewControllerClassNames.contains(
-            type(of: self).description()
+            Self.description()
         )
         let ignoredWindow = isViewLoaded && view?.window != nil && PerformanceLeakDetector.ignoredWindowClassNames.contains(type(of: view.window!).description())
 
@@ -725,7 +716,6 @@ extension UIViewController {
             DispatchQueue.main.asyncAfter(
                 deadline: .now() + delay
             ) { [weak self] in
-
                 // if self is nil it deinitted, so no memory leak
                 guard let self else { return }
 
@@ -764,7 +754,6 @@ extension UIViewController {
                     }
                     // add alert title/message to the message for easier identification
                     if let alertVC = self as? UIAlertController {
-
                         var actions = alertVC.actions.isEmpty ? "-" : ""
                         for action in alertVC.actions {
                             actions = "\(actions) \"\(action.title ?? "-")\","
@@ -831,9 +820,8 @@ extension UIViewController {
         errorMessage: String,
         objectIdentifier: Int,
         objectType: String,
-        screenshot: UIImage?
+        screenshot _: UIImage?
     ) {
-
         let interval = Date().timeIntervalSince1970 - memoryLeakDetectionDate
 
         FloatViewManager.animateLeek(alloced: false)
@@ -971,22 +959,21 @@ extension UIResponder {
 }
 
 extension UIApplication {
-
     /// get a window, preferably once that is in foreground (active) in case you have multiple windows on iPad
     private var lvcdActiveMainKeyWindow: UIWindow? {
         if #available(iOS 13, tvOS 13, *) {
             let activeScenes = connectedScenes.filter {
                 $0.activationState == UIScene.ActivationState.foregroundActive
             }
-            return (activeScenes.count > 0 ? activeScenes : connectedScenes).flatMap {
+            return (!activeScenes.isEmpty ? activeScenes : connectedScenes).flatMap {
                 ($0 as? UIWindowScene)?.windows ?? []
-            }.first { $0.isKeyWindow }
+            }.first(where: \.isKeyWindow)
         } else {
             return keyWindow
         }
     }
 
-    private class func lvcdTopViewController(
+    private final class func lvcdTopViewController(
         controller: UIViewController? = UIApplication.shared.lvcdActiveMainKeyWindow?.rootViewController
     ) -> UIViewController? {
         controller?.presentedViewController != nil ? lvcdTopViewController(
@@ -994,7 +981,7 @@ extension UIApplication {
         ) : controller
     }
 
-    private class func lvcdFindViewControllerWithTag(
+    private final class func lvcdFindViewControllerWithTag(
         controller: UIViewController? = UIApplication.shared.lvcdActiveMainKeyWindow?.rootViewController,
         tag: Int
     ) -> UIViewController? {
@@ -1011,7 +998,7 @@ extension UIApplication {
         let activeScenes = UIApplication.shared.connectedScenes.filter {
             $0.activationState == UIScene.ActivationState.foregroundActive && $0 is UIWindowScene
         }
-        return (activeScenes.count > 0 ? activeScenes : UIApplication.shared.connectedScenes).first(where: {
+        return (!activeScenes.isEmpty ? activeScenes : UIApplication.shared.connectedScenes).first(where: {
             $0 is UIWindowScene
         }) as? UIWindowScene
     }

@@ -31,7 +31,6 @@ class RangeSliderTrackLayer: CALayer {
 }
 
 class RangeSliderThumbLayer: CALayer {
-
     var highlighted = false {
         didSet {
             setNeedsDisplay()
@@ -81,7 +80,6 @@ class RangeSliderThumbLayer: CALayer {
 }
 
 final class RangeSlider: UIControl {
-
     var minimumValue = 0.0 {
         willSet(newValue) {
             assert(newValue < maximumValue, "RangeSlider: minimumValue should be lower than maximumValue")
@@ -181,7 +179,7 @@ final class RangeSlider: UIControl {
         CGFloat(bounds.height)
     }
 
-    override public var frame: CGRect {
+    override var frame: CGRect {
         didSet {
             updateLayerFrames()
         }
@@ -197,7 +195,7 @@ final class RangeSlider: UIControl {
         initializeLayers()
     }
 
-    override func layoutSublayers(of: CALayer) {
+    override func layoutSublayers(of _: CALayer) {
         super.layoutSublayers(of: layer)
         updateLayerFrames()
     }
@@ -247,7 +245,7 @@ final class RangeSlider: UIControl {
 
     // MARK: - Touches
 
-    override public func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+    override func beginTracking(_ touch: UITouch, with _: UIEvent?) -> Bool {
         previouslocation = touch.location(in: self)
 
         // Hit test the thumb layers
@@ -260,7 +258,7 @@ final class RangeSlider: UIControl {
         return lowerThumbLayer.highlighted || upperThumbLayer.highlighted
     }
 
-    override public func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+    override func continueTracking(_ touch: UITouch, with _: UIEvent?) -> Bool {
         let location = touch.location(in: self)
 
         // Determine by how much the user has dragged
@@ -281,7 +279,7 @@ final class RangeSlider: UIControl {
         return true
     }
 
-    override public func endTracking(_ touch: UITouch?, with event: UIEvent?) {
+    override func endTracking(_: UITouch?, with _: UIEvent?) {
         lowerThumbLayer.highlighted = false
         upperThumbLayer.highlighted = false
     }

@@ -9,7 +9,6 @@ import Foundation
 import UIKit
 
 final class CrashViewModel: NSObject {
-
     var data: [CrashModel] {
         (
             CrashManager.recover(ofType: .nsexception) +

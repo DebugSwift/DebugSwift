@@ -103,9 +103,4 @@ final class NetworkTableViewCellDetail: UITableViewCell {
             details.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        // Update frame or layout if needed
-    }
 }

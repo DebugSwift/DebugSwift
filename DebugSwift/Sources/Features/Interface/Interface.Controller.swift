@@ -9,7 +9,6 @@
 import UIKit
 
 final class InterfaceViewController: BaseController, MainFeatureType {
-
     var controllerType: DebugSwiftFeature { .interface }
 
     private let tableView: UITableView = {

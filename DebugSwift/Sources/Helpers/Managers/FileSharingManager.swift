@@ -8,7 +8,6 @@
 import UIKit
 
 enum FileSharingManager {
-
     static func generateFileAndShare(text: String, fileName: String) {
         let tempURL = URL(
             fileURLWithPath: NSTemporaryDirectory()

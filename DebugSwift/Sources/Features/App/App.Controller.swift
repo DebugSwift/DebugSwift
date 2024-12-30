@@ -9,7 +9,6 @@
 import UIKit
 
 final class AppViewController: BaseController, MainFeatureType {
-
     var controllerType: DebugSwiftFeature { .app }
 
     private let tableView: UITableView = {
@@ -83,7 +82,7 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
         }
     }
 
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in _: UITableView) -> Int {
         Sections.allCases.count
     }
 
@@ -159,7 +158,16 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .crash:
                 let controller = CrashViewController()
                 navigationController?.pushViewController(controller, animated: true)
+            case .simulatePush:
+                    if #available(iOS 13.0, *) {
+                        let controller = LocalNotificationSimulatorViewController()
+                        navigationController?.pushViewController(controller, animated: true)
+                    } else {
+                        // no fallback
+                    }
+
             }
+
         default:
             break
         }
@@ -193,6 +201,7 @@ extension AppViewController {
         case crash
         case console
         case location
+        case simulatePush
 
         var title: String {
             switch self {
@@ -202,6 +211,8 @@ extension AppViewController {
                 return "actions-console".localized()
             case .crash:
                 return "actions-crash".localized()
+            case .simulatePush:
+                return "Simulate Push"
             }
         }
 
@@ -219,6 +230,14 @@ extension AppViewController {
 
             if disabledActions.contains(.console) {
                 actions.removeAll(where: { $0 == .console })
+            }
+
+            if disabledActions.contains(.simulatePush) {
+                actions.removeAll(where: { $0 == .simulatePush })
+            }
+
+            if #available(iOS 13.0, *){} else {
+                actions.removeAll(where: { $0 == .simulatePush })
             }
 
             return actions
