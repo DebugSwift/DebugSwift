@@ -76,3 +76,42 @@ public enum CustomHTTPProtocolURLScheme: String, CaseIterable {
     case ws
     case wss
 }
+
+public extension CustomHTTPProtocolDelegate {
+    func urlSession(
+        _: URLProtocol,
+        didReceive _: URLResponse
+    ) {}
+    func urlSession(
+        _: URLProtocol,
+        didReceive _: Data
+    ) {}
+    func didFinishLoading(
+        _: URLProtocol
+    ) {}
+    func urlSession(
+        _: URLProtocol,
+        didFailWithError _: Error
+    ) {}
+    func urlSession(
+        _: URLProtocol,
+        _: URLSession,
+        task _: URLSessionTask,
+        didSendBodyData _: Int64,
+        totalBytesSent _: Int64,
+        totalBytesExpectedToSend _: Int64
+    ) {}
+}
+
+public enum CustomHTTPProtocolURLScheme: String, CaseIterable {
+    case http
+    case https
+    case ftp
+    case mailto
+    case file
+    case data
+    case tel
+    case sms
+    case ws
+    case wss
+}

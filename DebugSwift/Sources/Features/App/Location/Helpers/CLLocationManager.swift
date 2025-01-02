@@ -97,4 +97,11 @@ extension CLLocationManager {
         }
         return swizzedLocation()
     }
+
+    @objc func swizzedLocation() -> CLLocation {
+        if let simulatedLocation {
+            return simulatedLocation
+        }
+        return swizzedLocation()
+    }
 }
