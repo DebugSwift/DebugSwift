@@ -73,11 +73,11 @@ final class LocationViewController: BaseController {
 }
 
 extension LocationViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         viewModel.numberOfRows
     }
 
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in _: UITableView) -> Int {
         1
     }
 
@@ -97,14 +97,13 @@ extension LocationViewController: UITableViewDataSource, UITableViewDelegate {
                 image: viewModel.customSelected ? image : nil
             )
             return cell
-        } else {
-            let location = viewModel.locations[indexPath.row - 1]
-            cell.setup(
-                title: location.title,
-                image: indexPath.row == viewModel.selectedIndex ? image : nil
-            )
-            return cell
         }
+        let location = viewModel.locations[indexPath.row - 1]
+        cell.setup(
+            title: location.title,
+            image: indexPath.row == viewModel.selectedIndex ? image : nil
+        )
+        return cell
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {

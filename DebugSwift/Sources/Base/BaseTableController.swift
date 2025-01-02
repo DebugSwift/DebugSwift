@@ -9,6 +9,8 @@
 import UIKit
 
 class BaseTableController: UITableViewController {
+    var isViewVisible = false
+
     init() {
         super.init(style: .grouped)
         configureAppearance()
@@ -20,18 +22,25 @@ class BaseTableController: UITableViewController {
     }
 
     @available(*, unavailable)
-    public required init?(coder _: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.prefersLargeTitles = true
+        isViewVisible = true
+        configureNavigationBar()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        isViewVisible = false
     }
 
     func configureAppearance() {
         if #available(iOS 13.0, *) {
             overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
         }
+        configureNavigationBar()
     }
 }

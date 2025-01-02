@@ -8,7 +8,6 @@
 import UIKit
 
 final class DebuggerDetailViewController: UIViewController {
-
     let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit

@@ -8,7 +8,6 @@
 import Foundation
 
 final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
-
     private var data: [String] { ConsoleOutput.printAndNSLogOutput }
 
     private var filteredInfo = [String]()
@@ -48,6 +47,11 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
 
     func emptyListDescriptionString() -> String {
         "empty-data".localized() + "actions-console".localized()
+    }
+
+    func handleShareAction() {
+        let allData = data.joined(separator: "\n")
+        FileSharingManager.generateFileAndShare(text: allData, fileName: "console")
     }
 
     // MARK: - Search Functionality

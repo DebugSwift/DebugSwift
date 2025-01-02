@@ -33,11 +33,11 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
         self.delegate = delegate
 
         super.init(nibName: nil, bundle: nil)
-        view.backgroundColor = .white
+        view.backgroundColor = Theme.shared.backgroundColor
         navigationItem.title = snapshot.element.label.name
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         nil
     }
 
@@ -82,11 +82,11 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
 
     // MARK: SnapshotViewDelegate
 
-    func snapshotView(_ snapshotView: SnapshotView, didSelectSnapshot snapshot: Snapshot) {
+    func snapshotView(_: SnapshotView, didSelectSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didSelectSnapshot: snapshot)
     }
 
-    func snapshotView(_ snapshotView: SnapshotView, didDeselectSnapshot snapshot: Snapshot) {
+    func snapshotView(_: SnapshotView, didDeselectSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didDeselectSnapshot: snapshot)
     }
 
@@ -97,25 +97,25 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
         present(actionSheet, animated: true, completion: nil)
     }
 
-    func snapshotView(_ snapshotView: SnapshotView, showAlertController alertController: UIAlertController) {
+    func snapshotView(_: SnapshotView, showAlertController alertController: UIAlertController) {
         present(alertController, animated: true, completion: nil)
     }
 
     // MARK: DebugSnapshotViewControllerDelegate
 
-    func debugSnapshotViewController(_ viewController: DebugSnapshotViewController, didSelectSnapshot snapshot: Snapshot) {
+    func debugSnapshotViewController(_: DebugSnapshotViewController, didSelectSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didSelectSnapshot: snapshot)
     }
 
-    func debugSnapshotViewController(_ viewController: DebugSnapshotViewController, didDeselectSnapshot snapshot: Snapshot) {
+    func debugSnapshotViewController(_: DebugSnapshotViewController, didDeselectSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didDeselectSnapshot: snapshot)
     }
 
-    func debugSnapshotViewController(_ viewController: DebugSnapshotViewController, didFocusOnSnapshot snapshot: Snapshot) {
+    func debugSnapshotViewController(_: DebugSnapshotViewController, didFocusOnSnapshot snapshot: Snapshot) {
         delegate?.debugSnapshotViewController(self, didFocusOnSnapshot: snapshot)
     }
 
-    func debugSnapshotViewControllerWillNavigateBackToPreviousSnapshot(_ viewController: DebugSnapshotViewController) {
+    func debugSnapshotViewControllerWillNavigateBackToPreviousSnapshot(_: DebugSnapshotViewController) {
         delegate?.debugSnapshotViewControllerWillNavigateBackToPreviousSnapshot(self)
     }
 

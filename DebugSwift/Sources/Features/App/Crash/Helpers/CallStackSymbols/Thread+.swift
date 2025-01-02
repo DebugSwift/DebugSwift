@@ -12,7 +12,7 @@ extension Thread {
      An array of string containing parsed class names and method names
      */
     public class func simpleCallStackSymbols(
-        _ stack: [String] = Thread.callStackSymbols
+        _: [String] = Thread.callStackSymbols
     ) -> [String] {
         let symbols: [String] = Thread.callStackSymbols
             .dropFirst()

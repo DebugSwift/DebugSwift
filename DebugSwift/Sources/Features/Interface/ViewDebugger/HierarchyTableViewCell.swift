@@ -143,13 +143,13 @@ final class HierarchyTableViewCell: UITableViewCell {
     }
 
     @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: Actions
 
-    @objc private func didTapSubtree(sender: UIButton) {
+    @objc private func didTapSubtree(sender _: UIButton) {
         delegate?.hierarchyTableViewCellDidTapSubtree(cell: self)
     }
 

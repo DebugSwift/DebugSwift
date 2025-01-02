@@ -8,7 +8,6 @@
 import UIKit
 
 final class SnapshotViewController: BaseController {
-
     // MARK: - Properties
 
     private let descriptionLabel: UILabel = {

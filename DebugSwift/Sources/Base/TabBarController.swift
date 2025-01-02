@@ -16,10 +16,6 @@ class TabBarController: UITabBarController {
         configureNavigation()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         UIView.animate(withDuration: DSFloatChat.animationDuration) {
@@ -45,6 +41,7 @@ class TabBarController: UITabBarController {
     }
 
     private func configureNavigation() {
+        configureNavigationBar()
         navigationItem.hidesBackButton = true
         addRightBarButton(
             image: .named(

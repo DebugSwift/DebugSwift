@@ -40,27 +40,27 @@ public protocol CustomHTTPProtocolDelegate: AnyObject {
 
 public extension CustomHTTPProtocolDelegate {
     func urlSession(
-        _ protocol: URLProtocol,
-        didReceive response: URLResponse
+        _: URLProtocol,
+        didReceive _: URLResponse
     ) {}
     func urlSession(
-        _ protocol: URLProtocol,
-        didReceive data: Data
+        _: URLProtocol,
+        didReceive _: Data
     ) {}
     func didFinishLoading(
-        _ protocol: URLProtocol
+        _: URLProtocol
     ) {}
     func urlSession(
-        _ protocol: URLProtocol,
-        didFailWithError error: Error
+        _: URLProtocol,
+        didFailWithError _: Error
     ) {}
     func urlSession(
-        _ protocol: URLProtocol,
-        _ session: URLSession,
-        task: URLSessionTask,
-        didSendBodyData bytesSent: Int64,
-        totalBytesSent: Int64,
-        totalBytesExpectedToSend: Int64
+        _: URLProtocol,
+        _: URLSession,
+        task _: URLSessionTask,
+        didSendBodyData _: Int64,
+        totalBytesSent _: Int64,
+        totalBytesExpectedToSend _: Int64
     ) {}
 }
 

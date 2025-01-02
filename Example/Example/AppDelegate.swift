@@ -14,7 +14,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-
 //        DebugSwift
 //            .setup(
 //                hideFeatures: [.network, .resources, .performance, .interface, .app],
@@ -24,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         DebugSwift
             .setup()
+            .theme(appearance: .dark)
 
         // MARK: - Custom Info
 

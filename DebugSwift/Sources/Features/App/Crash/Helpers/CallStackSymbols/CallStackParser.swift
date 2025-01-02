@@ -12,23 +12,21 @@ import Foundation
  A class for parsing the current call stack in scope.
  */
 class CallStackParser {
-
     static var bundleName: String? {
         if let name: String = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String {
             return name
-        } else if let name: String = Bundle(
+        }
+        if let name: String = Bundle(
             for: self
         ).infoDictionary?[kCFBundleNameKey as String] as? String {
             return name
-        } else {
-            return nil
         }
+        return nil
     }
 
     private static func cleanMethod(
         method:
         String
-
     ) -> String {
         var result = method
         if
@@ -127,7 +125,7 @@ class CallStackParser {
 
     class func closureForStackSymbol(
         _ stackSymbol: String,
-        includeImmediateParentClass: Bool? = false
+        includeImmediateParentClass _: Bool? = false
     ) -> String? {
         let replaced: String = stackSymbol.replacingOccurrences(
             of: "\\s+",

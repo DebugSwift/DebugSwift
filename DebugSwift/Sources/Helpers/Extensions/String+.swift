@@ -20,6 +20,7 @@ extension String {
     /// - Returns: a `UIImage` instance from this string using a specified
     /// attributes and size, or `nil` if the operation fails.
     func image(with attributes: [NSAttributedString.Key: Any]? = nil, size: CGSize? = nil) -> UIImage? {
+        guard !isEmpty else { return nil }
         let size = size ?? (self as NSString).size(withAttributes: attributes)
         return UIGraphicsImageRenderer(size: size).image { _ in
             (self as NSString).draw(

@@ -16,7 +16,6 @@ protocol HierarchyTableViewControllerDelegate: AnyObject {
 }
 
 final class HierarchyTableViewController: UITableViewController, HierarchyTableViewCellDelegate, HierarchyTableViewControllerDelegate {
-
     private lazy var horizontalScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -68,7 +67,7 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
     }
 
     @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -128,18 +127,22 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
 
     // MARK: UITableViewDelegate
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let snapshot = dataSource?.value(atIndexPath: indexPath) else {
             return
         }
         delegate?.hierarchyTableViewController(self, didSelectSnapshot: snapshot)
     }
 
-    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+    override func tableView(_: UITableView, didDeselectRowAt indexPath: IndexPath) {
         guard let snapshot = dataSource?.value(atIndexPath: indexPath) else {
             return
         }
         delegate?.hierarchyTableViewController(self, didDeselectSnapshot: snapshot)
+    }
+
+    override func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        return 44
     }
 
     // MARK: HierarchyTableViewCellDelegate
@@ -163,19 +166,19 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
 
     // MARK: HierarchyTableViewControllerDelegate
 
-    func hierarchyTableViewController(_ viewController: HierarchyTableViewController, didSelectSnapshot snapshot: Snapshot) {
+    func hierarchyTableViewController(_: HierarchyTableViewController, didSelectSnapshot snapshot: Snapshot) {
         delegate?.hierarchyTableViewController(self, didSelectSnapshot: snapshot)
     }
 
-    func hierarchyTableViewController(_ viewController: HierarchyTableViewController, didDeselectSnapshot snapshot: Snapshot) {
+    func hierarchyTableViewController(_: HierarchyTableViewController, didDeselectSnapshot snapshot: Snapshot) {
         delegate?.hierarchyTableViewController(self, didDeselectSnapshot: snapshot)
     }
 
-    func hierarchyTableViewController(_ viewController: HierarchyTableViewController, didFocusOnSnapshot snapshot: Snapshot) {
+    func hierarchyTableViewController(_: HierarchyTableViewController, didFocusOnSnapshot snapshot: Snapshot) {
         delegate?.hierarchyTableViewController(self, didFocusOnSnapshot: snapshot)
     }
 
-    func hierarchyTableViewControllerWillNavigateBackToPreviousSnapshot(_ viewController: HierarchyTableViewController) {
+    func hierarchyTableViewControllerWillNavigateBackToPreviousSnapshot(_: HierarchyTableViewController) {
         delegate?.hierarchyTableViewControllerWillNavigateBackToPreviousSnapshot(self)
     }
 

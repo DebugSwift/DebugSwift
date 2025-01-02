@@ -34,13 +34,23 @@ extension [AnyHashable: Any] {
 
 extension Dictionary {
     func asJsonStr() -> String? {
-        var jsonStr: String?
+        var jsonCompatibleDictionary: [String: Any] = [:]
+
+        // Converte valores incompatíveis
+        for (key, value) in self {
+            if let data = value as? Data {
+                jsonCompatibleDictionary[key as! String] = data.base64EncodedString()
+            } else {
+                jsonCompatibleDictionary[key as! String] = value
+            }
+        }
+
         do {
-            let jsonData = try JSONSerialization.data(withJSONObject: self, options: .sortedKeys)
-            jsonStr = String(decoding: jsonData, as: UTF8.self)
+            let jsonData = try JSONSerialization.data(withJSONObject: jsonCompatibleDictionary, options: .sortedKeys)
+            return String(decoding: jsonData, as: UTF8.self)
         } catch {
+            print("Error serializing JSON: \(error)")
             return nil
         }
-        return jsonStr
     }
 }

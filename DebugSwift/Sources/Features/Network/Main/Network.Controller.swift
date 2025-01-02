@@ -9,7 +9,6 @@
 import UIKit
 
 final class NetworkViewController: BaseController, MainFeatureType {
-
     var controllerType: DebugSwiftFeature { .network }
 
     let tableView: UITableView = {
@@ -74,9 +73,10 @@ final class NetworkViewController: BaseController, MainFeatureType {
             object: nil,
             queue: .main
         ) { [weak self] notification in
+            guard let self, self.isViewVisible else { return }
             if let success = notification.object as? Bool {
-                self?.reloadHttp(
-                    needScrollToEnd: self?.viewModel.reachEnd ?? true,
+                self.reloadHttp(
+                    needScrollToEnd: self.viewModel.reachEnd,
                     success: success
                 )
             }
@@ -188,7 +188,7 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
         navigationController?.pushViewController(controller, animated: true)
     }
 
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: "") { [weak self] _, _, _ in
             guard let self else { return }
 

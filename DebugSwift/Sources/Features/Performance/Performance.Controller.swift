@@ -9,7 +9,6 @@
 import UIKit
 
 final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate, MainFeatureType {
-
     var controllerType: DebugSwiftFeature { .performance }
 
     var selectedSection: PerformanceSection = .cpu
@@ -97,13 +96,10 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     }
 
     func refreshSegmentedControlCell() {
-        let segmentedControlIndexPath = IndexPath(
-            row: 0, section: PerformanceTableViewSection.segmentedControl.rawValue
+        tableView.reloadSections(
+            IndexSet(integer: PerformanceTableViewSection.segmentedControl.rawValue),
+            with: .none
         )
-        if let segmentedControlCell = tableView.cellForRow(at: segmentedControlIndexPath)
-            as? MenuSegmentedControlTableViewCell {
-            segmentedControlCell.segmentedControl.selectedSegmentIndex = selectedSection.rawValue
-        }
     }
 
     // MARK: - Statistics section
@@ -263,11 +259,14 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     // MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if tableView.cellForRow(at: indexPath) is MenuChartTableViewCell {
-            return tableView.bounds.size.width + chartCellRatioConstant
+        if
+            selectedSection != .leaks,
+            indexPath.section == PerformanceTableViewSection.statistics.rawValue,
+            indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+            return tableView.bounds.size.width
         }
 
-        return UITableView.automaticDimension
+        return 48
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -302,8 +301,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         3
     }
 
-    override func tableView(_: UITableView, cellForRowAt indexPath: IndexPath)
-        -> UITableViewCell {
+    override func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.section {
         case PerformanceTableViewSection.toggle.rawValue:
             return toggleCell()
@@ -318,9 +316,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
     private func toggleCell() -> UITableViewCell {
         let cell =
-            tableView.dequeueReusableCell(
-                withIdentifier: MenuSwitchTableViewCell.identifier
-            ) as? MenuSwitchTableViewCell ?? .init()
+        tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
         cell.titleLabel.text = "show-widget".localized()
         cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
         cell.delegate = self
@@ -351,6 +349,7 @@ extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
     func menuSwitchTableViewCell(
         _: MenuSwitchTableViewCell, didSetOn isOn: Bool
     ) {
+        guard isViewVisible else { return }
         performanceToolkit.isWidgetShown = isOn
     }
 }
@@ -362,9 +361,12 @@ extension PerformanceViewController: MenuSegmentedControlTableViewCellDelegate {
         _: MenuSegmentedControlTableViewCell,
         didSelectSegmentAtIndex index: Int
     ) {
+        guard isViewVisible else { return }
         setSelectedSection(PerformanceSection(rawValue: index)!)
-        UIView.performWithoutAnimation {
-            self.tableView.reloadData()
+        DispatchQueue.main.async {
+            UIView.performWithoutAnimation {
+                self.tableView.reloadData()
+            }
         }
     }
 }
@@ -373,6 +375,7 @@ extension PerformanceViewController: MenuSegmentedControlTableViewCellDelegate {
 
 extension PerformanceViewController {
     func performanceToolkitDidUpdateStats(_: PerformanceToolkit) {
+        guard isViewVisible else { return }
         reloadStatisticsSection(animated: false)
     }
 }
