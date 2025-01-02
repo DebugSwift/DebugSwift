@@ -1,5 +1,5 @@
 PODS:
-  - DebugSwift (0.4.0)
+  - DebugSwift (0.3.4)
 
 DEPENDENCIES:
   - DebugSwift (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  DebugSwift: d686a060373a0ed5cfb3395ab75229ae455dc9cf
+  DebugSwift: 965f03cc3389ffef97c6b39fc5ac9b4974b7d725
 
 PODFILE CHECKSUM: 88be905a12657d2d52c20d1ceb672c395d166fd0
 

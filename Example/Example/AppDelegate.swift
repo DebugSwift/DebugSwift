@@ -14,7 +14,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-
 //        DebugSwift
 //            .setup(
 //                hideFeatures: [.network, .resources, .performance, .interface, .app],
