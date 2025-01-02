@@ -9,10 +9,6 @@
 import UIKit
 
 final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate, MainFeatureType {
-<<<<<<< HEAD
-=======
-
->>>>>>> main
     var controllerType: DebugSwiftFeature { .performance }
 
     var selectedSection: PerformanceSection = .cpu
