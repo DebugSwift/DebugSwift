@@ -22,7 +22,7 @@ enum WindowManager {
         } else {
             window = CustomWindow(frame: UIScreen.main.bounds)
         }
-        window.windowLevel = .alert + 1
+        window.windowLevel = .alert + 2
 
         let navigation = UINavigationController(rootViewController: UIViewController())
         navigation.setBackgroundColor(color: .clear)
@@ -66,6 +66,12 @@ enum WindowManager {
         guard !FloatViewManager.isShowingDebuggerView else { return }
         FloatViewManager.isShowingDebuggerView = true
 
+        presentInWindow { window in
+            HyperionSwift.present(in: window)
+        }
+    }
+
+    private static func presentInWindow(completion: @escaping ((UIWindow) -> Void)) {
         let alertController = UIAlertController(
             title: "Select a Window",
             message: nil,
@@ -85,7 +91,7 @@ enum WindowManager {
         }
 
         guard filteredWindows.count > 1 else {
-            InAppViewDebugger.presentForWindow(filteredWindows.first)
+            completion(filteredWindows.first!)
             return
         }
 
@@ -98,7 +104,7 @@ enum WindowManager {
             let action = UIAlertAction(title: actionTitle, style: .default) { _ in
                 // Handle the selected window here
                 isSelectingWindow = false
-                InAppViewDebugger.presentForWindow(window)
+                completion(window)
             }
             alertController.addAction(action)
         }
