@@ -6,7 +6,6 @@
 //
 
 import UIKit
-
 class LeakViewController: UIViewController {
 
     override func viewDidLoad() {

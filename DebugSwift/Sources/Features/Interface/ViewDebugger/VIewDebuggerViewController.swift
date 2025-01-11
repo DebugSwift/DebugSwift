@@ -10,7 +10,7 @@ import UIKit
 
 /// Root view controller for the view debugger.
 final class ViewDebuggerViewController:
-    UIViewController,
+    BaseController,
     DebugSnapshotViewControllerDelegate,
     HierarchyTableViewControllerDelegate {
     private let snapshot: Snapshot
@@ -64,27 +64,12 @@ final class ViewDebuggerViewController:
     init(snapshot: Snapshot, configuration: Configuration = Configuration()) {
         self.snapshot = snapshot
         self.configuration = configuration
-
-        super.init(nibName: nil, bundle: nil)
+        super.init()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override var overrideUserInterfaceStyle: UIUserInterfaceStyle {
-        get {
-            switch Theme.shared.appearance {
-            case .dark:
-                return .dark
-            case .light:
-                return .light
-            case .automatic:
-                return .unspecified // Segue a configuração do sistema
-            }
-        }
-        set {}
     }
 
     override func viewDidLoad() {
@@ -187,9 +172,7 @@ final class ViewDebuggerViewController:
         segmentedControl.sizeToFit()
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.addTarget(self, action: #selector(segmentChanged(sender:)), for: .valueChanged)
-        if #available(iOS 13.0, *) {
-            segmentedControl.overrideUserInterfaceStyle = overrideUserInterfaceStyle
-        }
+
         navigationItem.title = nil
         navigationItem.titleView = segmentedControl
     }

@@ -16,7 +16,6 @@ public enum DebugSwift {
         LocalizationManager.shared.loadBundle()
         FeatureHandling.setup(hide: features, disable: methods)
         LaunchTimeTracker.measureAppStartUpTime()
-
         return self
     }
 
@@ -38,14 +37,19 @@ public enum DebugSwift {
     @discardableResult
     public static func toggle() -> Self.Type {
         FloatViewManager.toggle()
-
         return self
     }
 
+    @available(iOS 13.0, *)
     @discardableResult
     public static func theme(appearance: Appearance) -> Self.Type {
-        Theme.shared.appearance = appearance
 
+        if appearance == .unspecified {
+            // unspecified will tie to the system setting automagically, binding our toggle etc
+            UserInterfaceToolkit.isDarkMode = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+        } else {
+            UserInterfaceToolkit.isDarkMode = appearance == .dark
+        }
         return self
     }
 

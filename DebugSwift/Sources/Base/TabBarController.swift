@@ -9,11 +9,11 @@
 import UIKit
 
 class TabBarController: UITabBarController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         configureTabBar()
         configureNavigation()
+        UserInterfaceToolkit.registerViewControllerForInterfaceStyleUpdates(self)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -35,9 +35,6 @@ class TabBarController: UITabBarController {
         tabBar.unselectedItemTintColor = .gray
         tabBar.setBackgroundColor(color: Theme.shared.backgroundColor)
         tabBar.addTopBorderWithColor(color: .gray, thickness: 0.3)
-        if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
-        }
     }
 
     private func configureNavigation() {

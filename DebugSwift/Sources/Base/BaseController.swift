@@ -13,16 +13,10 @@ class BaseController: UIViewController {
 
     init() {
         super.init(nibName: nil, bundle: nil)
-        if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
-        }
     }
 
     init(withNib _: Bool) {
         super.init(nibName: nil, bundle: nil)
-        if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
-        }
     }
 
     @available(*, unavailable)
@@ -32,12 +26,17 @@ class BaseController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        configureNavigationBar()
+        configureAppearance()
         isViewVisible = true
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         isViewVisible = false
+    }
+
+    func configureAppearance() {
+        configureNavigationBar()
+        UserInterfaceToolkit.registerViewControllerForInterfaceStyleUpdates(self)
     }
 }

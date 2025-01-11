@@ -47,6 +47,8 @@ final class UserInterfaceToolkit {
         }
     }
 
+    static private var viewControllers: NSHashTable<UIViewController> = NSHashTable.weakObjects()
+
     var showingTouchesEnabled = false {
         didSet {
             guard oldValue != showingTouchesEnabled else { return }
@@ -55,12 +57,10 @@ final class UserInterfaceToolkit {
     }
 
     @available(iOS 13.0, *)
-    static var darkModeEnabled: Bool = UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+    @UserDefaultAccess(key: .darkMode, defaultValue: UIScreen.main.traitCollection.userInterfaceStyle == .dark)
+    static var isDarkMode: Bool {
         didSet {
-            guard oldValue != darkModeEnabled else { return }
-            UIApplication.shared.windows.forEach { window in
-                window.overrideUserInterfaceStyle = darkModeEnabled ? .dark : .light
-            }
+            self.applyUserInterfaceStyle(isDarkMode ? .dark : .light)
         }
     }
 
@@ -93,6 +93,15 @@ final class UserInterfaceToolkit {
     }
 
     // MARK: - Public methods
+
+    static func registerViewControllerForInterfaceStyleUpdates(_ vc: UIViewController) {
+        viewControllers.add(vc)
+
+        // Apply immediatelely at registration
+        if #available(iOS 13.0, *) {
+            isDarkMode = isDarkMode
+        } 
+    }
 
     func autolayoutTrace() -> String? {
         guard let window = UIWindow.keyWindow else { return nil }
@@ -150,6 +159,32 @@ final class UserInterfaceToolkit {
         return gridOverlayColorSchemes.firstIndex(
             of: colorScheme
         ) ?? .zero
+    }
+
+    // MARK: - Private Utility methods
+    private static func applyUserInterfaceStyle(_ style: UIUserInterfaceStyle) {
+        if #available(iOS 13.0, *) {
+            // Check old style windows, pre-iOS 16
+            UIApplication.shared.windows.forEach { window in
+                window.overrideUserInterfaceStyle = style
+            }
+
+            // Check new style windows, 16+
+            UIApplication.shared.connectedScenes
+                .filter({$0.activationState == .foregroundActive})
+                .map({$0 as? UIWindowScene})
+                .compactMap({$0})
+                .first?.windows.forEach({ window in
+                    window.overrideUserInterfaceStyle = style
+                })
+
+            // Extra check to be sure - can likely eventually remove the need for setting `overrideUserInterfaceStyle` on windows with this.
+            // Notify registered view controllers to update
+            for vc in viewControllers.allObjects {
+                vc.overrideUserInterfaceStyle = style
+            }
+        }
+
     }
 }
 

@@ -23,7 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         DebugSwift
             .setup()
-            .theme(appearance: .dark)
+
+
 
         // MARK: - Custom Info
 

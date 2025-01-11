@@ -13,12 +13,10 @@ class BaseTableController: UITableViewController {
 
     init() {
         super.init(style: .grouped)
-        configureAppearance()
     }
 
     override init(style: UITableView.Style) {
         super.init(style: style)
-        configureAppearance()
     }
 
     @available(*, unavailable)
@@ -28,8 +26,8 @@ class BaseTableController: UITableViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        configureAppearance()
         isViewVisible = true
-        configureNavigationBar()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -38,9 +36,7 @@ class BaseTableController: UITableViewController {
     }
 
     func configureAppearance() {
-        if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
-        }
         configureNavigationBar()
+        UserInterfaceToolkit.registerViewControllerForInterfaceStyleUpdates(self)
     }
 }

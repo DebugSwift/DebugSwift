@@ -126,7 +126,7 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
 
         case .darkMode:
             if #available(iOS 13.0, *) {
-                UserInterfaceToolkit.darkModeEnabled = isOn
+                UserInterfaceToolkit.isDarkMode = isOn
             }
 
         default: break
@@ -187,7 +187,7 @@ extension InterfaceViewController {
                 return UserInterfaceToolkit.shared.showingTouchesEnabled
             case .darkMode:
                 if #available(iOS 13.0, *) {
-                    return UserInterfaceToolkit.darkModeEnabled
+                    return UserInterfaceToolkit.isDarkMode
                 }
                 return false
             default:

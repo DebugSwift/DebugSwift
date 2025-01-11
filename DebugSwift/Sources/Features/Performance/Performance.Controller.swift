@@ -336,7 +336,6 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         if !DebugSwift.App.disableMethods.contains(.leaksDetector) {
             segmentTitles.append("leaks".localized())
         }
-
         cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)
         cell.delegate = self
         return cell
