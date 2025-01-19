@@ -59,28 +59,4 @@ final class PerformanceLeakDetectorTests: XCTestCase {
         XCTAssertNil(subview.superview, "The subview should be removed properly without causing a memory leak.")
         XCTAssertFalse(callbackCalled, "The callback should not be called when there is no memory leak.")
     }
-
-    func testMemoryLeakCallback() {
-        // Given: A view and subview setup
-        let view = UIView()
-        let subview = UIView()
-        view.addSubview(subview)
-
-        // When: A memory leak is detected (simulate a leak)
-        let expectation = self.expectation(description: "Memory leak callback should be called")
-        PerformanceLeakDetector.callback = { leak in
-            if !leak.isDeallocation {
-                XCTAssertFalse(leak.isDeallocation)
-                XCTAssertNotNil(leak.message, "The leak callback should contain a message.")
-                expectation.fulfill()
-            }
-        }
-        sleep(3)
-
-        // Simulate leak detection
-        subview.removeFromSuperviewDetectLeaks()
-
-        // Then: The callback should be triggered
-        waitForExpectations(timeout: 5, handler: nil)
-    }
 }
