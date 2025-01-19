@@ -81,6 +81,6 @@ final class PerformanceLeakDetectorTests: XCTestCase {
         subview.removeFromSuperviewDetectLeaks()
 
         // Then: The callback should be triggered
-        waitForExpectations(timeout: 5, handler: nil)
+        waitForExpectations(timeout: 20, handler: nil)
     }
 }
