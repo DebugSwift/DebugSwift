@@ -21,6 +21,8 @@ public class HyperionSwift {
     public func toogle() {
         isPreseting.toggle()
 
+        // TODO: -  *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: 'Application tried to present modally a view controller <DebugSwift.MenuViewController: 0x109c05a00> that is already being presented by <UINavigationController: 0x107041400>.'
+
         if let controller = topViewControoler() {
             setup(in: controller)
             present(from: controller)
