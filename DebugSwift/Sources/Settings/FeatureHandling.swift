@@ -77,6 +77,7 @@ enum FeatureHandling {
     private static func enableUIView() {
         UIView.swizzleMethods()
         UIWindow.db_swizzleMethods()
+        UINavigationController.swizzleMethods()
     }
 
     private static func enableLocation() {

@@ -78,9 +78,7 @@ class FloatBallView: UIView {
 
     func animateLeek(alloced: Bool) {
         guard isShowing else { return }
-
         startAnimation(text: alloced ? "⚠️" : "✳️")
-
         ImpactFeedback.generate(.init(style: .heavy))
     }
 
@@ -256,15 +254,13 @@ extension FloatBallView {
             }
             destinationFrame = CGRect(
                 x: tempX,
-                y: superview.frame.height - frame.height - DSFloatChat.padding
-                    - DSFloatChat.bottomSafeAreaPadding,
+                y: superview.frame.height - frame.height - DSFloatChat.padding - DSFloatChat.bottomSafeAreaPadding,
                 width: DSFloatChat.ballRect.width,
                 height: DSFloatChat.ballRect.height
             )
         } else {
             destinationFrame = CGRect(
-                x: marginLeft < marginRight
-                    ? DSFloatChat.padding : superview.frame.width - frame.width - DSFloatChat.padding,
+                x: marginLeft < marginRight ? DSFloatChat.padding : superview.frame.width - frame.width - DSFloatChat.padding,
                 y: frame.minY,
                 width: DSFloatChat.ballRect.width,
                 height: DSFloatChat.ballRect.height

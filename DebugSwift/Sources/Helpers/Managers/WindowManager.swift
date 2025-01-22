@@ -67,7 +67,7 @@ enum WindowManager {
         FloatViewManager.isShowingDebuggerView = true
 
         presentInWindow { window in
-            HyperionSwift.present(in: window)
+            InAppViewDebugger.presentForWindow(window)
         }
     }
 

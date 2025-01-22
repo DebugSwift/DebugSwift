@@ -40,6 +40,16 @@
 		26D4CE6ED4987841CDD6FFF39771D49A /* CrashManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9223282C96E1F55D5D421D5D4B3C3E65 /* CrashManager.swift */; };
 		2A8046E46E82F5C87F954F9B660D5BB1 /* InputStream+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA6C6A813AB014E4AB74002E049A3D3 /* InputStream+.swift */; };
 		2D57B903C58398271A23EEE0350DF44A /* HierarchyTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CA956848C2E22106A5BAF79CB473CA /* HierarchyTableViewCell.swift */; };
+		2E5F00D62D409F1F00CC6B00 /* UINavigation+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00D52D409F1F00CC6B00 /* UINavigation+.swift */; };
+		2E5F00E12D40A0E700CC6B00 /* UIViewAnimating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00DD2D40A0E700CC6B00 /* UIViewAnimating.swift */; };
+		2E5F00E22D40A0E700CC6B00 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00DF2D40A0E700CC6B00 /* MenuViewController.swift */; };
+		2E5F00E32D40A0E700CC6B00 /* SideMenuDismissTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00D92D40A0E700CC6B00 /* SideMenuDismissTransition.swift */; };
+		2E5F00E42D40A0E700CC6B00 /* SideMenuDismissInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00D82D40A0E700CC6B00 /* SideMenuDismissInteractor.swift */; };
+		2E5F00E52D40A0E700CC6B00 /* SideMenuPresentInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00DB2D40A0E700CC6B00 /* SideMenuPresentInteractor.swift */; };
+		2E5F00E62D40A0E700CC6B00 /* SideMenuPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00DA2D40A0E700CC6B00 /* SideMenuPresenter.swift */; };
+		2E5F00E72D40A0E700CC6B00 /* SideMenuPresentTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00DC2D40A0E700CC6B00 /* SideMenuPresentTransition.swift */; };
+		2E5F00E82D40A0E700CC6B00 /* SideMenuAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00D72D40A0E700CC6B00 /* SideMenuAnimator.swift */; };
+		2E5F00EA2D40A1A800CC6B00 /* MeasurementWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5F00E92D40A1A800CC6B00 /* MeasurementWindowManager.swift */; };
 		300E0618638348A1178E3DAED7F3029E /* Performance.LeakDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B492019A34F00E421EF15F813CFAA0E /* Performance.LeakDetector.swift */; };
 		30D786F3A8CA4ADEFFC5F653F8783B8E /* SnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27A0A390B51650DB13F12F1B60E3DAA3 /* SnapshotView.swift */; };
 		3477291C6A6E42B41942AF59695DEC11 /* Resources.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CEE2CCAE0E8B0D3DE78128AEBC7923 /* Resources.Controller.swift */; };
@@ -112,7 +122,6 @@
 		9B09CB0426BBAD846A64982C3A8C4589 /* HTTPProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB53F105CC3F5BFA847A53D7E57DB1E8 /* HTTPProtocol.swift */; };
 		9BD6A6C369B320478EDD95B577F0BB83 /* Interface.Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = D756BA87171EC0A465B6FCA9C9F320AB /* Interface.Controller.swift */; };
 		9C02A0CA10C3D1791B5FF6BE390CEEAE /* Resources.HTTPCookies.ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0D2EEA28BFA6F184BDA6C8C5A0B147 /* Resources.HTTPCookies.ViewModel.swift */; };
-		9C1373666CAE0CF7FD1990E3BD693EB8 /* MeasurementWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF705E70C913304220E23AB9676EA1D /* MeasurementWindowManager.swift */; };
 		A2902DD8078111245F80CFADB60FA0E1 /* BaseTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA4F000121C037EC72A6FDACB6323619 /* BaseTableController.swift */; };
 		A308D15ECCD44A2B958642BEFE193F93 /* LocalizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90A784CEF0664CB3FCF520B4E617D657 /* LocalizationManager.swift */; };
 		A316FAC8FFBFA17E83F53653E246E1E6 /* SnapshotActionSheetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DC74C55E9CF497B0D72EFC007E050C /* SnapshotActionSheetUtils.swift */; };
@@ -229,6 +238,16 @@
 		2CA6C6A813AB014E4AB74002E049A3D3 /* InputStream+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "InputStream+.swift"; sourceTree = "<group>"; };
 		2DC35EEBB6033FDD40C4C48F9B0B3091 /* Pods-Example-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Example-Info.plist"; sourceTree = "<group>"; };
 		2DD31D4A18D97D663C98A9116D130582 /* HyperionSwift.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HyperionSwift.swift; sourceTree = "<group>"; };
+		2E5F00D52D409F1F00CC6B00 /* UINavigation+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigation+.swift"; sourceTree = "<group>"; };
+		2E5F00D72D40A0E700CC6B00 /* SideMenuAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuAnimator.swift; sourceTree = "<group>"; };
+		2E5F00D82D40A0E700CC6B00 /* SideMenuDismissInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuDismissInteractor.swift; sourceTree = "<group>"; };
+		2E5F00D92D40A0E700CC6B00 /* SideMenuDismissTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuDismissTransition.swift; sourceTree = "<group>"; };
+		2E5F00DA2D40A0E700CC6B00 /* SideMenuPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuPresenter.swift; sourceTree = "<group>"; };
+		2E5F00DB2D40A0E700CC6B00 /* SideMenuPresentInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuPresentInteractor.swift; sourceTree = "<group>"; };
+		2E5F00DC2D40A0E700CC6B00 /* SideMenuPresentTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuPresentTransition.swift; sourceTree = "<group>"; };
+		2E5F00DD2D40A0E700CC6B00 /* UIViewAnimating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewAnimating.swift; sourceTree = "<group>"; };
+		2E5F00DF2D40A0E700CC6B00 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
+		2E5F00E92D40A1A800CC6B00 /* MeasurementWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementWindowManager.swift; sourceTree = "<group>"; };
 		2FD86E7E432C87FAB6A7B4CFAE44FA3E /* App.CustomInfo.ViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = App.CustomInfo.ViewModel.swift; sourceTree = "<group>"; };
 		3083600457EB6A86601BB5ADB226081A /* Date+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Date+.swift"; sourceTree = "<group>"; };
 		326AAB3BD17A1A6F0DB74ACC8C1B0E05 /* FeatureBase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FeatureBase.swift; sourceTree = "<group>"; };
@@ -367,7 +386,6 @@
 		EC7A451DF1CCEE90B40DD2A84B96F456 /* MeasurementElementsFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeasurementElementsFactory.swift; sourceTree = "<group>"; };
 		ED0D326A12A0A01DFF1B3E8D3DC82C89 /* DebugSwift.Network.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DebugSwift.Network.swift; sourceTree = "<group>"; };
 		EE4CFB01E486FEB1DC06C3685F8C15D6 /* UIColor+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "UIColor+.swift"; sourceTree = "<group>"; };
-		EEF705E70C913304220E23AB9676EA1D /* MeasurementWindowManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeasurementWindowManager.swift; path = ../Helpers/MeasurementWindowManager.swift; sourceTree = "<group>"; };
 		EF0D2EEA28BFA6F184BDA6C8C5A0B147 /* Resources.HTTPCookies.ViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Resources.HTTPCookies.ViewModel.swift; sourceTree = "<group>"; };
 		F3922F9F0E78444FD177D53B940132E4 /* Pods-Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Example-acknowledgements.plist"; sourceTree = "<group>"; };
 		F3C3CB480AC710F01B693BC7F3056FA5 /* DebugSwift.App.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DebugSwift.App.swift; sourceTree = "<group>"; };
@@ -552,6 +570,29 @@
 			path = DebugSwift/Sources/Features;
 			sourceTree = "<group>";
 		};
+		2E5F00DE2D40A0E700CC6B00 /* Transition */ = {
+			isa = PBXGroup;
+			children = (
+				2E5F00D72D40A0E700CC6B00 /* SideMenuAnimator.swift */,
+				2E5F00D82D40A0E700CC6B00 /* SideMenuDismissInteractor.swift */,
+				2E5F00D92D40A0E700CC6B00 /* SideMenuDismissTransition.swift */,
+				2E5F00DA2D40A0E700CC6B00 /* SideMenuPresenter.swift */,
+				2E5F00DB2D40A0E700CC6B00 /* SideMenuPresentInteractor.swift */,
+				2E5F00DC2D40A0E700CC6B00 /* SideMenuPresentTransition.swift */,
+				2E5F00DD2D40A0E700CC6B00 /* UIViewAnimating.swift */,
+			);
+			path = Transition;
+			sourceTree = "<group>";
+		};
+		2E5F00E02D40A0E700CC6B00 /* SideMenuTransition */ = {
+			isa = PBXGroup;
+			children = (
+				2E5F00DE2D40A0E700CC6B00 /* Transition */,
+				2E5F00DF2D40A0E700CC6B00 /* MenuViewController.swift */,
+			);
+			path = SideMenuTransition;
+			sourceTree = "<group>";
+		};
 		30567F442B13179CA48BE9A0B8376C9F /* Targets Support Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -698,6 +739,7 @@
 				D36F64A40A97F92B07E4DBFF621A4FC5 /* UINavigationController+.swift */,
 				59D696E9ADF221D7F989218988B13957 /* UITableViewCell+.swift */,
 				7AC8BC4FE8C1028CB0DA7EAC17BB789E /* UIView+.swift */,
+				2E5F00D52D409F1F00CC6B00 /* UINavigation+.swift */,
 				0F5BA4588A1631E6269F3B6528977CE6 /* UIViewController+.swift */,
 				A460915D43A9AA502B4D186617D55F76 /* UIWindow+.swift */,
 				04EC7FCCE8A3B301DFB03D7BC454E484 /* URLCache+.swift */,
@@ -729,6 +771,7 @@
 				A040913739AB310B8DAD341823190505 /* Measurement */,
 				2920FB4B331896D483EDD453040EC9DF /* TouchIndicator */,
 				DD89A9495E19EBA96361F2CDA764DE11 /* ViewDebugger */,
+				2E5F00E02D40A0E700CC6B00 /* SideMenuTransition */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -834,7 +877,7 @@
 			isa = PBXGroup;
 			children = (
 				2DD31D4A18D97D663C98A9116D130582 /* HyperionSwift.swift */,
-				EEF705E70C913304220E23AB9676EA1D /* MeasurementWindowManager.swift */,
+				2E5F00E92D40A1A800CC6B00 /* MeasurementWindowManager.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1393,6 +1436,7 @@
 				52EE8528DC6725AB9638AF3BB361B235 /* FloatViewManager.swift in Sources */,
 				7B558BE667E8897AF78556FCD51F7C4C /* GridOverlayColorScheme.swift in Sources */,
 				7480CD0D8967F81F1217CABF2B3376D5 /* GridOverlayView.swift in Sources */,
+				2E5F00EA2D40A1A800CC6B00 /* MeasurementWindowManager.swift in Sources */,
 				2D57B903C58398271A23EEE0350DF44A /* HierarchyTableViewCell.swift in Sources */,
 				B6AA44BFCFD599083341A5B2AC84D2E8 /* HierarchyTableViewController.swift in Sources */,
 				BD5E0FEE6922C82F34494FCDA9AAC346 /* HierarchyViewConfiguration.swift in Sources */,
@@ -1408,6 +1452,14 @@
 				9BD6A6C369B320478EDD95B577F0BB83 /* Interface.Controller.swift in Sources */,
 				D0C9EEB9171EE3527200D2BD0D8C5746 /* Interface.Grid.Controller.swift in Sources */,
 				C0EBE081DC7CB00C5BAE8887161E8A36 /* KeychainService.swift in Sources */,
+				2E5F00E12D40A0E700CC6B00 /* UIViewAnimating.swift in Sources */,
+				2E5F00E22D40A0E700CC6B00 /* MenuViewController.swift in Sources */,
+				2E5F00E32D40A0E700CC6B00 /* SideMenuDismissTransition.swift in Sources */,
+				2E5F00E42D40A0E700CC6B00 /* SideMenuDismissInteractor.swift in Sources */,
+				2E5F00E52D40A0E700CC6B00 /* SideMenuPresentInteractor.swift in Sources */,
+				2E5F00E62D40A0E700CC6B00 /* SideMenuPresenter.swift in Sources */,
+				2E5F00E72D40A0E700CC6B00 /* SideMenuPresentTransition.swift in Sources */,
+				2E5F00E82D40A0E700CC6B00 /* SideMenuAnimator.swift in Sources */,
 				38C94CFFCC8258B5469EBFE2FCE555FE /* LaunchTimeTracker.swift in Sources */,
 				7B40ABDE2F040A07F2B19B2472BB1AFC /* LeaksViewModel.swift in Sources */,
 				A308D15ECCD44A2B958642BEFE193F93 /* LocalizationManager.swift in Sources */,
@@ -1420,7 +1472,6 @@
 				1FF066B068E1D33E029083FB0A68E6B5 /* MeasurementLineView.swift in Sources */,
 				3B6072284A2245FD8142CE266F5E2681 /* MeasurementManager.swift in Sources */,
 				8D2249E2D60427880F6F13C0CD65353B /* MeasurementViewDelegate.swift in Sources */,
-				9C1373666CAE0CF7FD1990E3BD693EB8 /* MeasurementWindowManager.swift in Sources */,
 				44EC1B357BCA9203F86E73C5F46693F4 /* MenuChartTableViewCell.swift in Sources */,
 				53CC2AF1A8D0337489F13B839975B5B6 /* MenuSegmentedControlTableViewCell.swift in Sources */,
 				638D1994E93FF2072EC595E8F0647AE7 /* MenuSwitchTableViewCell.swift in Sources */,
@@ -1476,6 +1527,7 @@
 				83D3BF139845A8D710D1BB6B491D432D /* UINavigationController+.swift in Sources */,
 				1E26591C6C90A5F637A03A0E44A9FDB1 /* UITableViewCell+.swift in Sources */,
 				24142A2121E482BE81B28684B699715B /* UIView+.swift in Sources */,
+				2E5F00D62D409F1F00CC6B00 /* UINavigation+.swift in Sources */,
 				8F100BACABA6566195FD9559E0CD06E6 /* UIViewController+.swift in Sources */,
 				62901E4E4DB36593ED9D283CC5555A9C /* UIWindow+.swift in Sources */,
 				62901E4E4DB36593ED9D283CC5555A9C /* UIWindow+.swift in Sources */,
