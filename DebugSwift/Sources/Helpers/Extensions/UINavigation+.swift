@@ -17,6 +17,7 @@ import UIKit
 
 private var rightToLeftSwipeGestureRecognizerKey: Void?
 
+// improve to get where dont have navigation
 extension UINavigationController {
     static func swizzleMethods() {
         DispatchQueue.once(token: UUID().uuidString) {
