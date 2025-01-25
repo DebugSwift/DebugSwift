@@ -10,138 +10,87 @@ import XCTest
 
 final class ThemeTests: XCTestCase {
 
-    func testInterfaceStyleColorForDarkAppearance() {
-        // Given
-        let theme = Theme.shared
-        theme.appearance = .dark
-
-        // When
-        let interfaceStyleColor = theme.interfaceStyleColor
-
-        // Then
-        XCTAssertEqual(interfaceStyleColor, .dark, "The interface style color for dark appearance should be .dark")
-    }
-
-    func testInterfaceStyleColorForLightAppearance() {
-        // Given
-        let theme = Theme.shared
-        theme.appearance = .light
-
-        // When
-        let interfaceStyleColor = theme.interfaceStyleColor
-
-        // Then
-        XCTAssertEqual(interfaceStyleColor, .light, "The interface style color for light appearance should be .light")
-    }
-
     @available(iOS 13.0, *)
-    func testInterfaceStyleColorForAutomaticAppearance() {
-        // Given
-        let theme = Theme.shared
-        theme.appearance = .automatic
-
-        // When
-        let interfaceStyleColor = theme.interfaceStyleColor
-
-        // Then
-        XCTAssertEqual(interfaceStyleColor, .unspecified, "The interface style color for automatic appearance should be .unspecified")
-    }
-
     func testBackgroundColorForDarkAppearance() {
         // Given
         let theme = Theme.shared
-        theme.appearance = .dark
+        Theme.isDarkMode = true
 
-        // When
+        // with
         let backgroundColor = theme.backgroundColor
+        let uiTraitWithInterfaceStyle = UITraitCollection(userInterfaceStyle: .dark)
 
         // Then
-        XCTAssertEqual(backgroundColor, .black, "The background color for dark appearance should be .black")
+        XCTAssertEqual(backgroundColor.resolvedColor(with: uiTraitWithInterfaceStyle), UIColor.black, "Background Color should resolve to black in dark mode")
     }
 
+    @available(iOS 13.0, *)
     func testBackgroundColorForLightAppearance() {
         // Given
         let theme = Theme.shared
-        theme.appearance = .light
+        Theme.isDarkMode = false
 
-        // When
+        // with
         let backgroundColor = theme.backgroundColor
+        let uiTraitWithInterfaceStyle = UITraitCollection(userInterfaceStyle: .light)
 
         // Then
-        XCTAssertEqual(backgroundColor, .white, "The background color for light appearance should be .white")
+        XCTAssertEqual(backgroundColor.resolvedColor(with: uiTraitWithInterfaceStyle), UIColor.white, "Background Color should resolve to white in light mode")
     }
 
     @available(iOS 13.0, *)
-    func testBackgroundColorForAutomaticAppearance() {
-        // Given
-        let theme = Theme.shared
-        theme.appearance = .automatic
-
-        // When
-        let backgroundColor = theme.backgroundColor
-
-        // Then
-        XCTAssertEqual(backgroundColor, .systemBackground, "The background color for automatic appearance should be .systemBackground")
-    }
-
     func testFontColorForDarkAppearance() {
         // Given
         let theme = Theme.shared
-        theme.appearance = .dark
+        Theme.isDarkMode = true
 
-        // When
-        let fontColor = theme.fontColor
-
-        // Then
-        XCTAssertEqual(fontColor, .white, "The font color for dark appearance should be .white")
-    }
-
-    func testFontColorForLightAppearance() {
-        // Given
-        let theme = Theme.shared
-        theme.appearance = .light
-
-        // When
-        let fontColor = theme.fontColor
+        // with
+        let backgroundColor = theme.fontColor
+        let uiTraitWithInterfaceStyle = UITraitCollection(userInterfaceStyle: .dark)
 
         // Then
-        XCTAssertEqual(fontColor, .black, "The font color for light appearance should be .black")
+        XCTAssertEqual(backgroundColor.resolvedColor(with: uiTraitWithInterfaceStyle), UIColor.white, "Font Color should resolve to white in dark mode")
     }
 
     @available(iOS 13.0, *)
-    func testFontColorForAutomaticAppearance() {
+    func testFontColorForLightAppearance() {
         // Given
         let theme = Theme.shared
-        theme.appearance = .automatic
+        Theme.isDarkMode = false
 
-        // When
-        let fontColor = theme.fontColor
+        // with
+        let backgroundColor = theme.fontColor
+        let uiTraitWithInterfaceStyle = UITraitCollection(userInterfaceStyle: .light)
 
         // Then
-        XCTAssertEqual(fontColor, .label, "The font color for automatic appearance should be .label")
+        XCTAssertEqual(backgroundColor.resolvedColor(with: uiTraitWithInterfaceStyle), UIColor.black, "Font Color should resolve to black in light mode")
     }
 
+    @available(iOS 13.0, *)
     func testStatusFetchColorForDarkAppearance() {
         // Given
         let theme = Theme.shared
-        theme.appearance = .dark
+        Theme.isDarkMode = true
 
-        // When
-        let statusFetchColor = theme.statusFetchColor
+        // with
+        let backgroundColor = theme.statusFetchColor
+        let uiTraitWithInterfaceStyle = UITraitCollection(userInterfaceStyle: .dark)
 
         // Then
-        XCTAssertEqual(statusFetchColor, .green, "The status fetch color for dark appearance should be .green")
+        XCTAssertEqual(backgroundColor.resolvedColor(with: uiTraitWithInterfaceStyle), UIColor.green, "The status fetch color for dark appearance should be green")
     }
 
+    @available(iOS 13.0, *)
     func testStatusFetchColorForLightAppearance() {
         // Given
         let theme = Theme.shared
-        theme.appearance = .light
+        Theme.isDarkMode = false
 
-        // When
-        let statusFetchColor = theme.statusFetchColor
+        // with
+        let backgroundColor = theme.statusFetchColor
+        let uiTraitWithInterfaceStyle = UITraitCollection(userInterfaceStyle: .light)
 
         // Then
-        XCTAssertEqual(statusFetchColor, UIColor(hexString: "#32CD32") ?? .green, "The status fetch color for light appearance should be light green")
+        XCTAssertEqual(backgroundColor.resolvedColor(with: uiTraitWithInterfaceStyle), UIColor(hexString: "#32CD32"), "The status fetch color for light appearance should be light green")
     }
 }

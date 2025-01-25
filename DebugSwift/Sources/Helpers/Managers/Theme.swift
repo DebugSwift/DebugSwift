@@ -9,14 +9,21 @@ import UIKit
 
 public typealias Appearance = UIUserInterfaceStyle
 
+//To prevent breaking change
+extension UIUserInterfaceStyle {
+    public static let automatic = UIUserInterfaceStyle.unspecified
+}
+
 class Theme {
     static var shared = Theme()
 
+    //This is only really useful for iOS 12 and below now.
     @UserDefaultAccess(key: .darkMode, defaultValue: UIScreen.main.traitCollection.userInterfaceStyle == .dark)
-    static var darkMode: Bool
+    static var isDarkMode: Bool
 
+    //This is only really useful for iOS 12 and below now. 
     private var appearance: Appearance = {
-        return darkMode ? .dark : .light
+        return isDarkMode ? .dark : .light
     }()
 
     var backgroundColor: UIColor {

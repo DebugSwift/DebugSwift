@@ -36,18 +36,4 @@ class BaseTableControllerTests: XCTestCase {
         // Then
         XCTAssertTrue(navigationController.navigationBar.prefersLargeTitles)
     }
-
-    func testConfigureAppearanceSetsInterfaceStyle() {
-        // Given
-        let controller = BaseTableController()
-        let expectedStyle = Theme.shared.interfaceStyleColor
-
-        // When
-        controller.configureAppearance()
-
-        // Then
-        if #available(iOS 13.0, *) {
-            XCTAssertEqual(controller.overrideUserInterfaceStyle, expectedStyle)
-        }
-    }
 }

@@ -45,9 +45,10 @@ public enum DebugSwift {
     public static func theme(appearance: Appearance) -> Self.Type {
 
         if appearance == .unspecified {
-            // unspecified will tie to the system setting automagically, binding our toggle etc
+            // unspecified will tie to the system setting automagically
             UserInterfaceToolkit.isDarkMode = UIScreen.main.traitCollection.userInterfaceStyle == .dark
         } else {
+            // ignore system setting, and directly use what the user specifiec first.  Toggle still honored. 
             UserInterfaceToolkit.isDarkMode = appearance == .dark
         }
         return self
