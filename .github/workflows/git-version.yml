@@ -29,7 +29,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -60,7 +60,7 @@ jobs:
     steps:
     
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Display version
       run: |
@@ -92,7 +92,7 @@ jobs:
         fi
         
     - name: Publish Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: artifact
         path: DebugSwift.podspec
@@ -138,7 +138,7 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Push Git Tag
       run: |
@@ -158,7 +158,7 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Create Release
       id: create_release
@@ -182,7 +182,7 @@ jobs:
     steps:
     
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Delete old Podspec
       run: |
@@ -191,7 +191,7 @@ jobs:
         fi
 
     - name: Download Artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: artifact
 
