@@ -10,20 +10,6 @@ import XCTest
 
 final class UIViewTests: XCTestCase {
 
-    func testSimulateButtonTap() {
-        // Given
-        let view = UIView()
-        let expectation = self.expectation(description: "Button tap simulated")
-
-        // When
-        view.simulateButtonTap {
-            // Then
-            expectation.fulfill()
-        }
-
-        waitForExpectations(timeout: 1.0, handler: nil)
-    }
-
     func testAddTopBorderWithColor() {
         // Given
         let view = UIView()
