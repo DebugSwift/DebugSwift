@@ -70,7 +70,7 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func emptyListDescriptionString() -> String {
-        "empty-data".localized() + "Keychain"
+        "No data found in the " + "Keychain"
     }
 
     // MARK: - Search Functionality

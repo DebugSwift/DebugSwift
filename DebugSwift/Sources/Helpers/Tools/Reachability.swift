@@ -56,9 +56,9 @@ class Reachability {
         case notReachable, reachableViaWiFi, reachableViaWWAN
         var description: String {
             switch self {
-            case .reachableViaWWAN: return "cellular".localized()
-            case .reachableViaWiFi: return "wifi".localized()
-            case .notReachable: return "noConnection".localized()
+            case .reachableViaWWAN: return "Cellular"
+            case .reachableViaWiFi: return "WiFi"
+            case .notReachable: return "No Connection"
             }
         }
     }
@@ -68,10 +68,10 @@ class Reachability {
         case unavailable, wifi, cellular
         var description: String {
             switch self {
-            case .cellular: return "cellular".localized()
-            case .wifi: return "wifi".localized()
-            case .unavailable: return "noConnection".localized()
-            case .none: return "unavailable".localized()
+            case .cellular: return "Cellular"
+            case .wifi: return "WiFi"
+            case .unavailable: return "No Connection"
+            case .none: return "Unavailable"
             }
         }
     }
@@ -410,11 +410,11 @@ enum NetworkType: Int, CaseIterable {
     var description: String {
         switch self {
         case .noConnection:
-            return "noConnection".localized()
+            return "No Connection"
         case .wifi:
-            return "wifi".localized()
+            return "WiFi"
         case .cellular:
-            return "cellular".localized()
+            return "Cellular"
         case .ethernet:
             return "Ethernet"
         case .wwan2g:
@@ -426,7 +426,7 @@ enum NetworkType: Int, CaseIterable {
         case .wwan5g:
             return "5G"
         case .unknown, .unknownTechnology:
-            return "unavailable".localized()
+            return "Unavailable"
         }
     }
 

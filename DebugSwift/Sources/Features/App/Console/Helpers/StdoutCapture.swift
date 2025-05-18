@@ -8,7 +8,7 @@
 import UIKit
 
 final class StdoutCapture {
-    private static let shared = StdoutCapture()
+    static let shared = StdoutCapture()
 
     // MARK: - Properties
 
@@ -34,8 +34,8 @@ final class StdoutCapture {
 
     // MARK: - Lifecycle Methods
 
-    static func startCapturing() {
-        if let logUrl = shared.logUrl {
+    func startCapturing() {
+        if let logUrl = logUrl {
             do {
                 let header =
                     """
@@ -46,7 +46,7 @@ final class StdoutCapture {
             } catch {}
         }
 
-        shared.openConsolePipe()
+        openConsolePipe()
     }
 
     private func openConsolePipe() {
@@ -114,7 +114,7 @@ final class StdoutCapture {
 
         if !shouldIgnoreLog(output), shouldIncludeLog(output) {
             queue.async {
-                ConsoleOutput.printAndNSLogOutput.append(output)
+                ConsoleOutput.shared.printAndNSLogOutput.append(output)
             }
         }
     }

@@ -40,7 +40,7 @@ class BaseTableControllerTests: XCTestCase {
     func testConfigureAppearanceSetsInterfaceStyle() {
         // Given
         let controller = BaseTableController()
-        let expectedStyle = Theme.shared.interfaceStyleColor
+        let expectedStyle = .dark
 
         // When
         controller.configureAppearance()

@@ -29,14 +29,14 @@ final class ResourcesFilesViewController: BaseTableController {
         label.font = .systemFont(ofSize: 16, weight: .light)
         label.textColor = .darkGray
         label.numberOfLines = .zero
-        label.text = "files".localized()
+        label.text = "    Files"
         return label
     }()
 
     private let backgroundLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .headline)
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         label.textAlignment = .center
         label.numberOfLines = .zero
         return label
@@ -94,9 +94,9 @@ final class ResourcesFilesViewController: BaseTableController {
 
     private func setupUI() {
         if title == nil {
-            title = "files-title".localized()
+            title = "Files"
         }
-        view.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = UIColor.black
     }
 
     private func refreshLabels() {
@@ -105,7 +105,7 @@ final class ResourcesFilesViewController: BaseTableController {
         if path == nil { path = NSHomeDirectory() }
 
         backgroundLabel.text =
-            (subdirectories.count + files.count > 0) ? "" : "empty-directory".localized()
+            (subdirectories.count + files.count > 0) ? "" : "This directory is empty."
     }
 }
 
@@ -147,7 +147,7 @@ extension ResourcesFilesViewController {
         cell.setup(
             title: fileName,
             subtitle: "Size: \(fileSize)",
-            image: .named("square.and.arrow.up", default: "share".localized())
+            image: .named("square.and.arrow.up", default: "Share")
         )
 
         return cell

@@ -9,7 +9,9 @@ import CoreLocation
 
 class LocationManager: NSObject, CLLocationManagerDelegate {
 
-    static var shared = LocationManager()
+    static let shared = LocationManager()
+    private init() {}
+    
     private var locationManager = CLLocationManager()
 
     var didUpdate: ((String) -> Void)?

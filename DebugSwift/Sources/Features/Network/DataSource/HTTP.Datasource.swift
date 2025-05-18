@@ -18,8 +18,8 @@ final class HttpDatasource {
             return false
         }
 
-        if !DebugSwift.Network.onlyURLs.isEmpty {
-            for urlString in DebugSwift.Network.onlyURLs {
+        if !DebugSwift.Network.shared.onlyURLs.isEmpty {
+            for urlString in DebugSwift.Network.shared.onlyURLs {
                 if model.url?.absoluteString.lowercased().contains(
                     urlString.lowercased()
                 ) == false {
@@ -27,7 +27,7 @@ final class HttpDatasource {
                 }
             }
         } else {
-            for urlString in DebugSwift.Network.ignoredURLs {
+            for urlString in DebugSwift.Network.shared.ignoredURLs {
                 if model.url?.absoluteString.lowercased().contains(
                     urlString.lowercased()
                 ) == true {
@@ -67,8 +67,8 @@ final class HttpDatasource {
 
 extension URLRequest {
     private enum AssociatedKeys {
-        static var requestId = "requestId"
-        static var startTime = "startTime"
+        static let requestId = "requestId"
+        static let startTime = "startTime"
     }
 
     var requestId: String {

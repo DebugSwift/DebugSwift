@@ -31,7 +31,7 @@ final class UITableViewCellTests: XCTestCase {
 
         // Then
         XCTAssertEqual(cell.textLabel?.text, title)
-        XCTAssertEqual(cell.textLabel?.textColor, Theme.shared.fontColor)
+        XCTAssertEqual(cell.textLabel?.textColor, UIColor.white)
         XCTAssertEqual(cell.textLabel?.font, UIFont.systemFont(ofSize: 16))
     }
 
@@ -44,7 +44,7 @@ final class UITableViewCellTests: XCTestCase {
         cell.setup(title: title, subtitle: subtitle)
 
         // Then
-        XCTAssertEqual(cell.textLabel?.textColor, Theme.shared.fontColor)
+        XCTAssertEqual(cell.textLabel?.textColor, UIColor.white)
         XCTAssertEqual(cell.textLabel?.font, UIFont.systemFont(ofSize: 16))
         XCTAssertNotNil(cell.textLabel?.attributedText)
     }

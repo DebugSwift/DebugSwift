@@ -11,21 +11,21 @@ import XCTest
 class LaunchTimeTrackerTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
-        LaunchTimeTracker.launchStartTime = nil
+        LaunchTimeTracker.shared.launchStartTime = nil
     }
 
     override func tearDownWithError() throws {
-        LaunchTimeTracker.launchStartTime = nil
+        LaunchTimeTracker.shared.launchStartTime = nil
         try super.tearDownWithError()
     }
 
     func testMeasureAppStartUpTime() {
-        LaunchTimeTracker.measureAppStartUpTime()
-        XCTAssertNotNil(LaunchTimeTracker.launchStartTime)
-        XCTAssertGreaterThan(LaunchTimeTracker.launchStartTime!, 0)
+        LaunchTimeTracker.shared.measureAppStartUpTime()
+        XCTAssertNotNil(LaunchTimeTracker.shared.launchStartTime)
+        XCTAssertGreaterThan(LaunchTimeTracker.shared.launchStartTime!, 0)
     }
 
     func testLaunchStartTimeInitialValue() {
-        XCTAssertNil(LaunchTimeTracker.launchStartTime)
+        XCTAssertNil(LaunchTimeTracker.shared.launchStartTime)
     }
 }

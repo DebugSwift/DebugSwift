@@ -13,7 +13,7 @@ final class LocationViewController: BaseController {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.separatorColor = .darkGray
 
         return tableView
@@ -60,7 +60,7 @@ final class LocationViewController: BaseController {
         ])
 
         addRightBarButton(
-            image: .named("clear", default: "clean".localized()),
+            image: .named("clear", default: "Clean"),
             tintColor: .red
         ) { [weak self] in
             self?.resetLocation()
@@ -68,7 +68,7 @@ final class LocationViewController: BaseController {
     }
 
     func setup() {
-        title = "location-title".localized()
+        title = "Simulate Location"
     }
 }
 
@@ -92,7 +92,7 @@ extension LocationViewController: UITableViewDataSource, UITableViewDelegate {
         let image = UIImage.named("checkmark.circle")
         if indexPath.row == 0 {
             cell.setup(
-                title: "custom".localized(),
+                title: "Custom...",
                 subtitle: viewModel.customDescription,
                 image: viewModel.customSelected ? image : nil
             )

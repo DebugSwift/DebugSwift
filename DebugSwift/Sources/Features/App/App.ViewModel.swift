@@ -14,11 +14,11 @@ final class AppViewModel: NSObject {
     }
 
     var customInfos: [CustomData] {
-        DebugSwift.App.customInfo?() ?? []
+        DebugSwift.App.shared.customInfo?() ?? []
     }
 
     var customActions: [CustomAction] {
-        DebugSwift.App.customAction?() ?? []
+        DebugSwift.App.shared.customAction?() ?? []
     }
 
     func getTitle(for section: Int) -> String? {

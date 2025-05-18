@@ -22,13 +22,14 @@ struct Example_SwiftUIApp: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
+    private let debugSwift = DebugSwift()
     func application(
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         // Remove comment below to remove specific features and comment DebugSwift.setup() not to double trigger.
         // DebugSwift.setup(hideFeatures: [.interface, .app, .resources, .performance])
-        DebugSwift
+        debugSwift
             .setup()
             .show()
 

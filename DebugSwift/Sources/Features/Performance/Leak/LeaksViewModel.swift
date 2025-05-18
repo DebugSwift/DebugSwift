@@ -23,7 +23,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     var isShareEnable: Bool { true }
     var isCustomActionEnable: Bool { true }
 
-    func viewTitle() -> String { "\(data.count) " + "leaks".localized() }
+    func viewTitle() -> String { "\(data.count) " + "Leaks" }
 
     func numberOfItems() -> Int {
         isSearchActived ? filteredInfo.count : data.count
@@ -34,7 +34,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
 
         return .init(
             title: "\(leak.symbol)\(leak.details)",
-            actionImage: leak.screenshot != nil ? .named("chevron.right", default: "action".localized()) : nil
+            actionImage: leak.screenshot != nil ? .named("chevron.right", default: "Action") : nil
         )
     }
 
@@ -53,7 +53,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func emptyListDescriptionString() -> String {
-        "empty-data".localized() + "actions-console".localized()
+        "No data found in the " + "Console"
     }
 
     func handleShareAction() {

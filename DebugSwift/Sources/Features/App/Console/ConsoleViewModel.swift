@@ -8,7 +8,7 @@
 import Foundation
 
 final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
-    private var data: [String] { ConsoleOutput.printAndNSLogOutput }
+    private var data: [String] { ConsoleOutput.shared.printAndNSLogOutput }
 
     private var filteredInfo = [String]()
 
@@ -19,7 +19,7 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
     var reloadData: (() -> Void)?
 
     func viewTitle() -> String {
-        "actions-console".localized()
+        "Console"
     }
 
     func numberOfItems() -> Int {
@@ -32,21 +32,21 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func handleClearAction() {
-        ConsoleOutput.removeAll()
+        ConsoleOutput.shared.removeAll()
         filteredInfo.removeAll()
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
         if isSearchActived {
             let info = filteredInfo.remove(at: index)
-            ConsoleOutput.printAndNSLogOutput.removeAll(where: { $0 == info })
+            ConsoleOutput.shared.printAndNSLogOutput.removeAll(where: { $0 == info })
         } else {
-            ConsoleOutput.printAndNSLogOutput.remove(at: index)
+            ConsoleOutput.shared.printAndNSLogOutput.remove(at: index)
         }
     }
 
     func emptyListDescriptionString() -> String {
-        "empty-data".localized() + "actions-console".localized()
+        "No data found in the " + "Console"
     }
 
     func handleShareAction() {

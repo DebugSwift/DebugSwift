@@ -39,7 +39,7 @@ final class LocationToolkit {
             }
             UserDefaults.standard.synchronize()
 
-            CLLocationManagerTracker.triggerUpdateForAllLocations()
+            CLLocationManagerTracker.shared.triggerUpdateForAllLocations()
         }
     }
 

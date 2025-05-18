@@ -11,7 +11,7 @@ final class CrashViewController: BaseController {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.separatorColor = .darkGray
 
         return tableView
@@ -43,7 +43,7 @@ final class CrashViewController: BaseController {
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
 
-        view.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = UIColor.black
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -55,7 +55,7 @@ final class CrashViewController: BaseController {
     }
 
     func setupTabBar() {
-        title = "actions-crash".localized()
+        title = "Crashes"
         tabBarItem = UITabBarItem(
             title: title,
             image: .named(
@@ -67,19 +67,19 @@ final class CrashViewController: BaseController {
 
         guard viewModel.numberOfItems() != .zero else { return }
         addRightBarButton(
-            image: .named("trash.circle", default: "clean".localized()),
+            image: .named("trash.circle", default: "Clean"),
             tintColor: .red
         ) { [weak self] in
             self?.showAlert(
-                with: "delete.title".localized(),
-                title: "delete.subtitle".localized(),
-                leftButtonTitle: "delete.action".localized(),
+                with: "Warning",
+                title: "This action remove all data",
+                leftButtonTitle: "Delete",
                 leftButtonStyle: .destructive,
                 leftButtonHandler: { _ in
                     self?.viewModel.handleClearAction()
                     self?.tableView.reloadData()
                 },
-                rightButtonTitle: "delete.cancel".localized(),
+                rightButtonTitle: "Cancel",
                 rightButtonStyle: .cancel
             )
         }

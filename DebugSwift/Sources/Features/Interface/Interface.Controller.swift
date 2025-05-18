@@ -14,7 +14,7 @@ final class InterfaceViewController: BaseController, MainFeatureType {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.separatorColor = .darkGray
 
         return tableView
@@ -44,7 +44,7 @@ final class InterfaceViewController: BaseController, MainFeatureType {
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
 
-        view.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = UIColor.black
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -56,7 +56,7 @@ final class InterfaceViewController: BaseController, MainFeatureType {
     }
 
     func setupTabBar() {
-        title = "interface-title".localized()
+        title = "Interface"
         tabBarItem = UITabBarItem(
             title: title,
             image: .named("square.grid.2x2"),
@@ -160,16 +160,16 @@ extension InterfaceViewController {
         var title: String? {
             switch self {
             case .touches:
-                return "showing-touches".localized()
+                return "Showing touches"
             case .grid:
-                return "grid-overlay".localized()
+                return "Grid overlay"
             case .colorize:
-                return "colorized-view-borders".localized()
+                return "Colorized view borders"
             case .animations:
-                return "slow-animations".localized()
+                return "Slow animations"
             case .darkMode:
                 if #available(iOS 13.0, *) {
-                    return "dark-mode".localized()
+                    return "Dark Mode"
                 }
                 return nil
             }
@@ -197,7 +197,7 @@ extension InterfaceViewController {
 
         static var allCasesWithPermissions: [Features] {
             var cases = Features.allCases
-            if DebugSwift.App.disableMethods.contains(.views) {
+            if DebugSwift.App.shared.disableMethods.contains(.views) {
                 cases.removeAll(where: { $0 == .colorize || $0 == .touches })
             }
 

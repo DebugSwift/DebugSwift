@@ -68,8 +68,8 @@ extension CrashModel {
         static func builder() -> Self {
             .init(
                 image: UIWindow.keyWindow?._snapshotWithTouch?.pngData(),
-                consoleOutput: ConsoleOutput.printAndNSLogOutputFormatted(),
-                errorOutput: ConsoleOutput.errorOutputFormatted()
+                consoleOutput: ConsoleOutput.shared.printAndNSLogOutputFormatted(),
+                errorOutput: ConsoleOutput.shared.errorOutputFormatted()
             )
         }
     }

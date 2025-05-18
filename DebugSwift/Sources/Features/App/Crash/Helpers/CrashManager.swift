@@ -1,5 +1,5 @@
 //
-//  CrashManager.swift
+//  CrashManager.shared.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 19/12/23.
@@ -7,12 +7,16 @@
 
 import Foundation
 
-enum CrashManager {
-    static func register() {
+class CrashManager {
+    
+    private init() {}
+    static let shared = CrashManager()
+    
+    func register() {
         CrashHandler.shared.prepare()
     }
 
-    static func save(crash: CrashModel) {
+    func save(crash: CrashModel) {
         let filePath = getDocumentsDirectory().appendingPathComponent(crash.type.fileName)
 
         // Try to load existing crashes from file
@@ -33,7 +37,7 @@ enum CrashManager {
         }
     }
 
-    static func recover(ofType type: CrashType) -> [CrashModel] {
+    func recover(ofType type: CrashType) -> [CrashModel] {
         let filePath = getDocumentsDirectory().appendingPathComponent(type.fileName)
 
         do {
@@ -45,7 +49,7 @@ enum CrashManager {
         }
     }
 
-    static func delete(crash: CrashModel) {
+    func delete(crash: CrashModel) {
         let filePath = getDocumentsDirectory().appendingPathComponent(crash.type.fileName)
 
         // Try to load existing crashes from file
@@ -66,7 +70,7 @@ enum CrashManager {
         }
     }
 
-    static func deleteAll(ofType type: CrashType) {
+    func deleteAll(ofType type: CrashType) {
         let filePath = getDocumentsDirectory().appendingPathComponent(type.fileName)
 
         do {
@@ -77,7 +81,7 @@ enum CrashManager {
         }
     }
 
-    private static func getDocumentsDirectory() -> URL {
+    private func getDocumentsDirectory() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
 }

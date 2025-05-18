@@ -68,7 +68,7 @@ enum PDFManager {
                 height: pdfSize.height
             )
             let titleAnnotation = PDFAnnotation.createTextAnnotation(
-                text: "screenshot".localized(),
+                text: "screenshot",
                 bounds: titleBounds,
                 fontSize: 20,
                 alignment: .center
@@ -97,7 +97,7 @@ enum PDFManager {
                 height: 30
             )
             let titleAnnotation = PDFAnnotation.createTextAnnotation(
-                text: "logs".localized(),
+                text: "Logs",
                 bounds: titleBounds,
                 fontSize: 20,
                 alignment: .center

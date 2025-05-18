@@ -1,5 +1,5 @@
 //
-//  ConsoleOutput.swift
+//  ConsoleOutput.shared.swift
 //  DebugSwift
 //
 //  Created by Matheus Gois on 20/05/24.
@@ -7,19 +7,23 @@
 
 import Foundation
 
-enum ConsoleOutput {
-    static var printAndNSLogOutput = [String]()
-    static var errorOutput = [String]()
+class ConsoleOutput {
+    
+    private init() {}
+    static let shared = ConsoleOutput()
 
-    static func removeAll() {
+    var printAndNSLogOutput = [String]()
+    var errorOutput = [String]()
+
+    func removeAll() {
         printAndNSLogOutput.removeAll()
     }
 
-    static func printAndNSLogOutputFormatted() -> String {
+    func printAndNSLogOutputFormatted() -> String {
         printAndNSLogOutput.clean()
     }
 
-    static func errorOutputFormatted() -> String {
+    func errorOutputFormatted() -> String {
         errorOutput.clean()
     }
 }

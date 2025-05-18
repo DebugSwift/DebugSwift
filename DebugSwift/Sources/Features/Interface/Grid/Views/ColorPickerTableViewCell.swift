@@ -17,7 +17,7 @@ protocol ColorPickerTableViewCellDelegate: AnyObject {
 final class ColorPickerTableViewCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -62,7 +62,7 @@ final class ColorPickerTableViewCell: UITableViewCell {
     private func setupViews() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(colorStackView)
-        contentView.backgroundColor = Theme.shared.backgroundColor
+        contentView.backgroundColor = UIColor.black
 
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),

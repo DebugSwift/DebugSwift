@@ -7,21 +7,23 @@
 
 import UIKit
 
-public enum DebugSwift {
+public class DebugSwift {
+    
+    public init() {}
+    
     @discardableResult
-    public static func setup(
+    public func setup(
         hideFeatures features: [DebugSwiftFeature] = [],
         disable methods: [DebugSwiftSwizzleFeature] = []
-    ) -> Self.Type {
-        LocalizationManager.shared.loadBundle()
+    ) -> Self {
         FeatureHandling.setup(hide: features, disable: methods)
-        LaunchTimeTracker.measureAppStartUpTime()
+        LaunchTimeTracker.shared.measureAppStartUpTime()
 
         return self
     }
 
     @discardableResult
-    public static func show() -> Self.Type {
+    public func show() -> Self {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             FloatViewManager.show()
         }
@@ -30,29 +32,14 @@ public enum DebugSwift {
     }
 
     @discardableResult
-    public static func hide() -> Self.Type {
+    public func hide() -> Self {
         FloatViewManager.remove()
         return self
     }
 
     @discardableResult
-    public static func toggle() -> Self.Type {
+    public func toggle() -> Self {
         FloatViewManager.toggle()
-
-        return self
-    }
-
-    @discardableResult
-    public static func theme(appearance: Appearance) -> Self.Type {
-        Theme.shared.appearance = appearance
-
-        return self
-    }
-
-    @discardableResult
-    @available(*, deprecated, renamed: "Debug.enable", message: "Will be removed in next Version, use now Debug.enable")
-    public static func toggleDebugger(_ enable: Bool) -> Self.Type {
-        Debug.enable = enable
 
         return self
     }

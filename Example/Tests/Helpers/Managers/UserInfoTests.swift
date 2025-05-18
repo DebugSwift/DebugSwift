@@ -12,7 +12,7 @@ final class UserInfoTests: XCTestCase {
 
     func testGetAppVersionInfo() {
         // Given
-        let expectedTitle = "app-version".localized()
+        let expectedTitle = "App Version:"
         let expectedDetail = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
 
         // When
@@ -25,7 +25,7 @@ final class UserInfoTests: XCTestCase {
 
     func testGetAppBuildInfo() {
         // Given
-        let expectedTitle = "build-version".localized()
+        let expectedTitle = "Build Version:"
         let expectedDetail = "Build: \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "")"
 
         // When
@@ -38,7 +38,7 @@ final class UserInfoTests: XCTestCase {
 
     func testGetBundleName() {
         // Given
-        let expectedTitle = "bundle-name".localized()
+        let expectedTitle = "Bundle Name:"
         let expectedDetail = Bundle.main.infoDictionary?["CFBundleName"] as? String
 
         // When
@@ -51,7 +51,7 @@ final class UserInfoTests: XCTestCase {
 
     func testGetBundleId() {
         // Given
-        let expectedTitle = "bundle-id".localized()
+        let expectedTitle = "Bundle ID:"
         let expectedDetail = Bundle.main.bundleIdentifier
 
         // When
@@ -67,7 +67,7 @@ final class UserInfoTests: XCTestCase {
         let screen = UIScreen.main
         let bounds = screen.bounds
         let scale = screen.scale
-        let expectedTitle = "screen-resolution".localized()
+        let expectedTitle = "Screen Resolution:"
         let expectedDetail = "\(bounds.size.width * scale) x \(bounds.size.height * scale) points"
 
         // When
@@ -80,7 +80,7 @@ final class UserInfoTests: XCTestCase {
 
     func testGetDeviceModelInfo() {
         // Given
-        let expectedTitle = "device-model".localized()
+        let expectedTitle = "Device Model:"
         let expectedDetail = UIDevice.current.modelName
 
         // When
@@ -93,7 +93,7 @@ final class UserInfoTests: XCTestCase {
 
     func testGetIOSVersionInfo() {
         // Given
-        let expectedTitle = "ios-version".localized()
+        let expectedTitle = "iOS Version:"
         let expectedDetail = UIDevice.current.systemVersion
 
         // When
@@ -106,8 +106,8 @@ final class UserInfoTests: XCTestCase {
 
     func testGetMeasureAppStartUpTime() {
         // Given
-        let expectedTitle = "inicialization-time".localized()
-        let expectedDetail = String(format: "%.4lf%", LaunchTimeTracker.launchStartTime ?? 0) + " (s)"
+        let expectedTitle = "Initialization Time:"
+        let expectedDetail = String(format: "%.4lf%", LaunchTimeTracker.shared.launchStartTime ?? 0) + " (s)"
 
         // When
         let info = UserInfo.getMeasureAppStartUpTime()
@@ -119,7 +119,7 @@ final class UserInfoTests: XCTestCase {
 
     func testGetReachability() {
         // Given
-        let expectedTitle = "reachability-status".localized()
+        let expectedTitle = "Connection Type:"
         let expectedDetail = ReachabilityManager.connection.description
 
         // When

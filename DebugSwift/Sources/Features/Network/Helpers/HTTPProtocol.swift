@@ -26,7 +26,7 @@ final class CustomHTTPProtocol: URLProtocol {
     private final class func canServeRequest(_ request: URLRequest) -> Bool {
         if let _ = property(forKey: requestProperty, in: request) { return false }
 
-        for onlyScheme in DebugSwift.Network.onlySchemes {
+        for onlyScheme in DebugSwift.Network.shared.onlySchemes {
             if let scheme = request.url?.scheme?.lowercased(), scheme == onlyScheme.rawValue {
                 return true
             }
@@ -63,7 +63,7 @@ final class CustomHTTPProtocol: URLProtocol {
     private var threadOperator: ThreadOperator?
 
     private func use(_ cache: CachedURLResponse) {
-        DebugSwift.Network.delegate?.urlSession(
+        DebugSwift.Network.shared.delegate?.urlSession(
             self,
             didReceive: cache.response
         )
@@ -73,7 +73,7 @@ final class CustomHTTPProtocol: URLProtocol {
             cacheStoragePolicy: .allowed
         )
 
-        DebugSwift.Network.delegate?.urlSession(
+        DebugSwift.Network.shared.delegate?.urlSession(
             self,
             didReceive: cache.data
         )
@@ -82,7 +82,7 @@ final class CustomHTTPProtocol: URLProtocol {
             didLoad: cache.data
         )
 
-        DebugSwift.Network.delegate?.didFinishLoading(self)
+        DebugSwift.Network.shared.delegate?.didFinishLoading(self)
         client?.urlProtocolDidFinishLoading(self)
     }
 
@@ -235,7 +235,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                 self.cachePolicy = CacheHelper.cacheStoragePolicy(for: request, and: response)
             }
 
-            DebugSwift.Network.delegate?.urlSession(
+            DebugSwift.Network.shared.delegate?.urlSession(
                 self,
                 didReceive: response
             )
@@ -256,7 +256,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                 hasAddedData = true
             }
 
-            DebugSwift.Network.delegate?.urlSession(
+            DebugSwift.Network.shared.delegate?.urlSession(
                 self,
                 didReceive: data
             )
@@ -312,7 +312,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                     self.dataTask?.resume()
                     return
                 }
-                DebugSwift.Network.delegate?.urlSession(
+                DebugSwift.Network.shared.delegate?.urlSession(
                     self,
                     didFailWithError: error
                 )
@@ -320,7 +320,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                 return
             }
 
-            DebugSwift.Network.delegate?.didFinishLoading(self)
+            DebugSwift.Network.shared.delegate?.didFinishLoading(self)
             self.client?.urlProtocolDidFinishLoading(self)
 
             if self.cachePolicy == .allowed {
@@ -342,7 +342,7 @@ extension CustomHTTPProtocol: URLSessionTaskDelegate {
             guard let self else { return }
             Debug.print(#function)
 
-            DebugSwift.Network.delegate?.urlSession(
+            DebugSwift.Network.shared.delegate?.urlSession(
                 self,
                 session,
                 task: task,

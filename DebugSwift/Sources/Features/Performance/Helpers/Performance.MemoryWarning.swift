@@ -7,8 +7,8 @@
 
 import UIKit
 
-enum PerformanceMemoryWarning {
-    static func generate() {
+struct PerformanceMemoryWarning {
+    func generate() {
         UIApplication.shared.perform(Selector(("_performMemoryWarning")))
 
         for _ in 0...1200 {

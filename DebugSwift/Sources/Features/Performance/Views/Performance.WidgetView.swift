@@ -24,38 +24,38 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
     let cpuValueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: labelFontSize)
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         return label
     }()
 
     let memoryValueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: labelFontSize)
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         return label
     }()
 
     let fpsValueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: labelFontSize)
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         return label
     }()
 
     let leaksValueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: labelFontSize)
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         return label
     }()
 
     weak var delegate: PerformanceWidgetViewDelegate?
 
     func updateValues(cpu: CGFloat, memory: CGFloat, fps: CGFloat, leaks: CGFloat) {
-        cpuValueLabel.text = String(format: "\("cpu".localized()): %.1lf%%", cpu)
-        memoryValueLabel.text = String(format: "\("memory".localized()): %.1lf MB", memory)
-        fpsValueLabel.text = String(format: "\("fps".localized()): %.0lf", fps)
-        leaksValueLabel.text = String(format: "\("leaks".localized()): %.0lf", leaks)
+        cpuValueLabel.text = String(format: "\("CPU"): %.1lf%%", cpu)
+        memoryValueLabel.text = String(format: "\("Memory"): %.1lf MB", memory)
+        fpsValueLabel.text = String(format: "\("FPS"): %.0lf", fps)
+        leaksValueLabel.text = String(format: "\("Leaks"): %.0lf", leaks)
     }
 
     override func showWidgetWindow() {
@@ -76,7 +76,7 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
             heightAnchor.constraint(equalToConstant: 30)
         ])
 
-        backgroundColor = Theme.shared.backgroundColor
+        backgroundColor = UIColor.black
 
         layer.borderWidth = 3.0 / UIScreen.main.scale
         layer.borderColor = UIColor.lightGray.cgColor
@@ -94,7 +94,7 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
         stackView.addArrangedSubview(cpuValueLabel)
         stackView.addArrangedSubview(memoryValueLabel)
         stackView.addArrangedSubview(fpsValueLabel)
-        if !DebugSwift.App.disableMethods.contains(.leaksDetector) {
+        if !DebugSwift.App.shared.disableMethods.contains(.leaksDetector) {
             stackView.addArrangedSubview(leaksValueLabel)
         }
 

@@ -166,7 +166,7 @@ public class CrashHandler {
                 details: .builder(name: info),
                 traces: .builder(Thread.simpleCallStackSymbols(arr))
             )
-            CrashManager.save(crash: trace)
+            CrashManager.shared.save(crash: trace)
         }
 
         CrashSignalExceptionHandler.exceptionReceiveClosure = { [weak self] signal, exception, info in
@@ -176,7 +176,7 @@ public class CrashHandler {
                 details: .builder(name: info),
                 traces: .builder(Thread.simpleCallStackSymbols())
             )
-            CrashManager.save(crash: trace)
+            CrashManager.shared.save(crash: trace)
         }
     }
 

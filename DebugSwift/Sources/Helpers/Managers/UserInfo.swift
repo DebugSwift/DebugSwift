@@ -33,7 +33,7 @@ enum UserInfo {
         }
 
         return Info(
-            title: "app-version".localized(),
+            title: "App Version:",
             detail: "\(version)"
         )
     }
@@ -45,7 +45,7 @@ enum UserInfo {
         }
 
         return Info(
-            title: "build-version".localized(),
+            title: "Build Version:",
             detail: "Build: \(build)"
         )
     }
@@ -56,7 +56,7 @@ enum UserInfo {
         }
 
         return Info(
-            title: "bundle-name".localized(),
+            title: "Bundle Name:",
             detail: "\(bundleName)"
         )
     }
@@ -67,7 +67,7 @@ enum UserInfo {
         }
 
         return Info(
-            title: "bundle-id".localized(),
+            title: "Bundle ID:",
             detail: "\(bundleID)"
         )
     }
@@ -81,7 +81,7 @@ enum UserInfo {
         let screenHeight = bounds.size.height * scale
 
         return .init(
-            title: "screen-resolution".localized(),
+            title: "Screen Resolution:",
             detail: "\(screenWidth) x \(screenHeight) points"
         )
     }
@@ -89,7 +89,7 @@ enum UserInfo {
     static func getDeviceModelInfo() -> Info {
         let deviceModel = UIDevice.current.modelName
         return Info(
-            title: "device-model".localized(),
+            title: "Device Model:",
             detail: deviceModel
         )
     }
@@ -97,23 +97,23 @@ enum UserInfo {
     static func getIOSVersionInfo() -> Info {
         let iOSVersion = UIDevice.current.systemVersion
         return Info(
-            title: "ios-version".localized(),
+            title: "iOS Version:",
             detail: iOSVersion
         )
     }
 
     static func getMeasureAppStartUpTime() -> Info? {
-        guard let launchStartTime = LaunchTimeTracker.launchStartTime else { return nil }
+        guard let launchStartTime = LaunchTimeTracker.shared.launchStartTime else { return nil }
 
         return Info(
-            title: "inicialization-time".localized(),
+            title: "Initialization Time:",
             detail: String(format: "%.4lf%", launchStartTime) + " (s)"
         )
     }
 
     static func getReachability() -> Info {
         Info(
-            title: "reachability-status".localized(),
+            title: "Connection Type:",
             detail: ReachabilityManager.connection.description
         )
     }

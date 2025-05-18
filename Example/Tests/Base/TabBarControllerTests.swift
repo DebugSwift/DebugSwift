@@ -31,7 +31,7 @@ class TabBarControllerTests: XCTestCase {
     func testTabBarConfiguration() {
         // Test that the TabBar is properly configured.
         XCTAssertNotNil(tabBarController.tabBar)
-        XCTAssertEqual(tabBarController.tabBar.tintColor, Theme.shared.fontColor)
+        XCTAssertEqual(tabBarController.tabBar.tintColor, UIColor.white)
         XCTAssertEqual(tabBarController.tabBar.unselectedItemTintColor, .gray)
     }
 
@@ -54,6 +54,6 @@ class TabBarControllerTests: XCTestCase {
 
         let barButton = tabBarController.navigationItem.rightBarButtonItem
         XCTAssertNotNil(barButton)
-        XCTAssertEqual(barButton?.tintColor, Theme.shared.fontColor)
+        XCTAssertEqual(barButton?.tintColor, UIColor.white)
     }
 }

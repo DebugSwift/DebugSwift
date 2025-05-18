@@ -1,5 +1,5 @@
 //
-//  LaunchTimeTracker.swift
+//  LaunchTimeTracker.shared.swift
 //  LaunchTimeTracker
 //
 //  Created by Matheus Gois on 16/12/23.
@@ -8,11 +8,15 @@
 
 import Foundation
 
-enum LaunchTimeTracker {
-    static var launchStartTime: Double?
+class LaunchTimeTracker {
+    
+    private init() {}
+    static let shared = LaunchTimeTracker()
+    
+    var launchStartTime: Double?
 
     // FIXME: - Sometimes processTimeMilliseconds, doesnt return the correct value.
-    static func measureAppStartUpTime() {
+    func measureAppStartUpTime() {
         var kinfo = kinfo_proc()
         var size = MemoryLayout<kinfo_proc>.stride
         var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]

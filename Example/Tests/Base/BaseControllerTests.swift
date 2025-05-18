@@ -16,7 +16,7 @@ class BaseControllerTests: XCTestCase {
         // Then
         XCTAssertNotNil(controller)
         if #available(iOS 13.0, *) {
-            XCTAssertEqual(controller.overrideUserInterfaceStyle, Theme.shared.interfaceStyleColor)
+            XCTAssertEqual(controller.overrideUserInterfaceStyle, .dark)
         }
     }
 
@@ -27,7 +27,7 @@ class BaseControllerTests: XCTestCase {
         // Then
         XCTAssertNotNil(controller)
         if #available(iOS 13.0, *) {
-            XCTAssertEqual(controller.overrideUserInterfaceStyle, Theme.shared.interfaceStyleColor)
+            XCTAssertEqual(controller.overrideUserInterfaceStyle, .dark)
         }
     }
 

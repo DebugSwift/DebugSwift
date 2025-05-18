@@ -40,9 +40,3 @@ struct MockRequestView: View {
         }
     }
 }
-
-struct MockRequestView_Previews: PreviewProvider {
-    static var previews: some View {
-        MockRequestView(endpoint: "https://reqres.in/api/users/1")
-    }
-}
