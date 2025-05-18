@@ -7,7 +7,7 @@
 
 import Foundation
 
-class ConsoleOutput {
+class ConsoleOutput: @unchecked Sendable {
     
     private init() {}
     static let shared = ConsoleOutput()

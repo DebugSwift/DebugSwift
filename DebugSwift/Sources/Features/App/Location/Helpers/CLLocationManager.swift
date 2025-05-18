@@ -8,7 +8,7 @@
 import CoreLocation
 import Foundation
 
-final class CLLocationManagerTracker {
+class CLLocationManagerTracker: @unchecked Sendable {
     
     private init() {}
     static let shared = CLLocationManagerTracker()

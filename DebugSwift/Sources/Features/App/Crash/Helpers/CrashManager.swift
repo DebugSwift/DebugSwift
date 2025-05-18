@@ -7,7 +7,7 @@
 
 import Foundation
 
-class CrashManager {
+class CrashManager: @unchecked Sendable {
     
     private init() {}
     static let shared = CrashManager()

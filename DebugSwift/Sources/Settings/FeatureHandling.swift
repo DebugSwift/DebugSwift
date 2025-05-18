@@ -75,8 +75,10 @@ enum FeatureHandling {
     }
 
     private static func enableUIView() {
-        UIView.swizzleMethods()
-        UIWindow.db_swizzleMethods()
+        Task {
+            await UIView.swizzleMethods()
+            await UIWindow.db_swizzleMethods()
+        }
     }
 
     private static func enableLocation() {
@@ -84,7 +86,9 @@ enum FeatureHandling {
     }
 
     private static func enableLeaksDetector() {
-        UIViewController.lvcdSwizzleLifecycleMethods()
+        Task {
+            await UIViewController.lvcdSwizzleLifecycleMethods()
+        }
     }
 
     private static func enableConsole() {

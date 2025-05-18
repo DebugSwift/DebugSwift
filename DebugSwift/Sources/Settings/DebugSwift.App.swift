@@ -8,7 +8,7 @@
 import UIKit
 
 extension DebugSwift {
-    public class App {
+    public class App: @unchecked Sendable {
         public static let shared = App()
         private init() {}
         
@@ -16,7 +16,7 @@ extension DebugSwift {
         public var customAction: (() -> [CustomAction])?
         public var customControllers: (() -> [UIViewController])?
 
-        var defaultControllers: [UIViewController & MainFeatureType] = [
+        @MainActor var defaultControllers: [UIViewController & MainFeatureType] = [
             NetworkViewController(),
             PerformanceViewController(),
             InterfaceViewController(),

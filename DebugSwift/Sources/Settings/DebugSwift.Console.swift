@@ -8,8 +8,11 @@
 import UIKit
 
 extension DebugSwift {
-    public enum Console {
-        public static var ignoredLogs = [String]()
-        public static var onlyLogs = [String]()
+    public class Console: @unchecked Sendable {
+        public static let shared = Console()
+        private init() {}
+        
+        public var ignoredLogs = [String]()
+        public var onlyLogs = [String]()
     }
 }

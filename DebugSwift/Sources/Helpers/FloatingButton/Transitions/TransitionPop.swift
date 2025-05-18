@@ -53,15 +53,18 @@ final class TransitionPop: NSObject, UIViewControllerAnimatedTransitioning {
 // MARK: - Animation end callback
 
 extension TransitionPop: CAAnimationDelegate {
-    func animationDidStop(_: CAAnimation, finished _: Bool) {
-        transitionCtx?.completeTransition(true)
-        transitionCtx?.view(forKey: UITransitionContextViewKey.from)?.layer.mask = nil
-        transitionCtx?.view(forKey: UITransitionContextViewKey.to)?.layer.mask = nil
-        /// Show ball
-        if FloatViewManager.shared.ballView.changeStatusInNextTransaction {
-            FloatViewManager.shared.ballView.show = true
-        } else {
-            FloatViewManager.shared.ballView.changeStatusInNextTransaction = true
+    nonisolated func animationDidStop(_: CAAnimation, finished _: Bool) {
+        DispatchQueue.main.async { [weak self] in
+
+            self?.transitionCtx?.completeTransition(true)
+            self?.transitionCtx?.view(forKey: UITransitionContextViewKey.from)?.layer.mask = nil
+            self?.transitionCtx?.view(forKey: UITransitionContextViewKey.to)?.layer.mask = nil
+            /// Show ball
+            if FloatViewManager.shared.ballView.changeStatusInNextTransaction {
+                FloatViewManager.shared.ballView.show = true
+            } else {
+                FloatViewManager.shared.ballView.changeStatusInNextTransaction = true
+            }
         }
     }
 }

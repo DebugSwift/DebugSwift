@@ -8,7 +8,7 @@
 
 import Foundation
 
-class LaunchTimeTracker {
+class LaunchTimeTracker: @unchecked Sendable {
     
     private init() {}
     static let shared = LaunchTimeTracker()

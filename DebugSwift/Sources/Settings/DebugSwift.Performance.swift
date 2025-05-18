@@ -21,34 +21,34 @@ extension DebugSwift {
                 detectionDelay: TimeInterval = 1,
                 callback: ((PerformanceLeak) -> Void)?
             ) {
-                PerformanceLeakDetector.delay = detectionDelay
-                PerformanceLeakDetector.callback = callback
+                PerformanceLeakDetector.shared.delay = detectionDelay
+                PerformanceLeakDetector.shared.callback = callback
             }
 
             public var ignoredWindowClassNames: [String] {
                 get {
-                    PerformanceLeakDetector.ignoredWindowClassNames
+                    PerformanceLeakDetector.shared.ignoredWindowClassNames
                 }
                 set {
-                    PerformanceLeakDetector.ignoredWindowClassNames = newValue
+                    PerformanceLeakDetector.shared.ignoredWindowClassNames = newValue
                 }
             }
 
             public var ignoredViewControllerClassNames: [String] {
                 get {
-                    PerformanceLeakDetector.ignoredViewControllerClassNames
+                    PerformanceLeakDetector.shared.ignoredViewControllerClassNames
                 }
                 set {
-                    PerformanceLeakDetector.ignoredViewControllerClassNames = newValue
+                    PerformanceLeakDetector.shared.ignoredViewControllerClassNames = newValue
                 }
             }
 
             public var ignoredViewClassNames: [String] {
                 get {
-                    PerformanceLeakDetector.ignoredViewClassNames
+                    PerformanceLeakDetector.shared.ignoredViewClassNames
                 }
                 set {
-                    PerformanceLeakDetector.ignoredViewClassNames = newValue
+                    PerformanceLeakDetector.shared.ignoredViewClassNames = newValue
                 }
             }
         }

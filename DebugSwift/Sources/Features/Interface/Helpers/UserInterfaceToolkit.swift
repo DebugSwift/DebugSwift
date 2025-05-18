@@ -8,7 +8,8 @@
 
 import UIKit
 
-final class UserInterfaceToolkit {
+@MainActor
+class UserInterfaceToolkit: @unchecked Sendable {
     // MARK: - Properties
 
     static let shared = UserInterfaceToolkit()
@@ -37,11 +38,11 @@ final class UserInterfaceToolkit {
         }
     }
 
-    static var colorizedViewBordersEnabled = false {
+    var colorizedViewBordersEnabled = false {
         didSet {
             guard oldValue != colorizedViewBordersEnabled else { return }
             NotificationCenter.default.post(
-                name: notification,
+                name: Self.notification,
                 object: NSNumber(value: colorizedViewBordersEnabled)
             )
         }

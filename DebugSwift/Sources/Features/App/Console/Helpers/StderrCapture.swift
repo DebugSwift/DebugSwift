@@ -4,9 +4,9 @@
  * Copyright 2020-Present Datadog, Inc.
  */
 
-import Foundation
+@preconcurrency import Foundation
 
-class StderrCapture {
+class StderrCapture: @unchecked Sendable {
     var isCapturing = false
     private let inputPipe = Pipe()
     private let outputPipe = Pipe()
@@ -43,17 +43,18 @@ class StderrCapture {
             return
         }
 
-        var synchronizeData: DispatchWorkItem!
-        synchronizeData = DispatchWorkItem(block: {
+        let synchronizeData = DispatchWorkItem {
             let auxData = self.inputPipe.fileHandleForReading.availableData
             if !auxData.isEmpty,
-               let string = String(data: auxData, encoding: String.Encoding.utf8) {
+               let string = String(data: auxData, encoding: .utf8) {
                 self.stderrMessage(string: string)
             }
-        })
+        }
+
         DispatchQueue.global().async {
             synchronizeData.perform()
         }
+
         _ = synchronizeData.wait(timeout: .now() + .milliseconds(10))
     }
 

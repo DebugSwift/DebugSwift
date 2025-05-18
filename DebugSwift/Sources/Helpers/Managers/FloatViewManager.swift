@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 final class FloatViewManager: NSObject {
     static let shared = FloatViewManager()
 
