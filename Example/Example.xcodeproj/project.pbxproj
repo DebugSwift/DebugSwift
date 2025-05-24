@@ -15,10 +15,7 @@
 		2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6602B2E7F74001B59FE /* Assets.xcassets */; };
 		2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */; };
 		2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2EA3B66B2B2E8054001B59FE /* DebugSwift */; };
-		2EC7DFED2C12AFAB005E58DF /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 2EC7DFEC2C12AFAB005E58DF /* Alamofire */; };
 		396F5EF12DE273F3009CA492 /* LeakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396F5EEF2DE273F3009CA492 /* LeakView.swift */; };
-		9E13A4A42BFE73A300F9B364 /* example.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 9E13A4A32BFE73A300F9B364 /* example.pdf */; };
-		9E311A092BC9EB27009CDC3C /* FileUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E311A082BC9EB27009CDC3C /* FileUploadView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,8 +42,6 @@
 		2EC7DFEE2C12B72A005E58DF /* Example-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Example-Info.plist"; sourceTree = SOURCE_ROOT; };
 		396F5EEF2DE273F3009CA492 /* LeakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakView.swift; sourceTree = "<group>"; };
 		396F5F032DE27523009CA492 /* ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		9E13A4A32BFE73A300F9B364 /* example.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = example.pdf; sourceTree = "<group>"; };
-		9E311A082BC9EB27009CDC3C /* FileUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -59,7 +54,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */,
-				2EC7DFED2C12AFAB005E58DF /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,15 +67,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2E7441AC2C1A549C001CF6F1 /* FileUpload */ = {
-			isa = PBXGroup;
-			children = (
-				9E13A4A32BFE73A300F9B364 /* example.pdf */,
-				9E311A082BC9EB27009CDC3C /* FileUploadView.swift */,
-			);
-			path = FileUpload;
-			sourceTree = "<group>";
-		};
 		2E7441AF2C1A54FE001CF6F1 /* MapView */ = {
 			isa = PBXGroup;
 			children = (
@@ -128,7 +113,6 @@
 				396F5EF02DE273F3009CA492 /* LeakView */,
 				2E7441B22C1A5519001CF6F1 /* MockRequest */,
 				2E7441AF2C1A54FE001CF6F1 /* MapView */,
-				2E7441AC2C1A549C001CF6F1 /* FileUpload */,
 				2EA3B6602B2E7F74001B59FE /* Assets.xcassets */,
 				2EA3B6622B2E7F74001B59FE /* Preview Content */,
 			);
@@ -169,7 +153,6 @@
 			name = Example;
 			packageProductDependencies = (
 				2EA3B66B2B2E8054001B59FE /* DebugSwift */,
-				2EC7DFEC2C12AFAB005E58DF /* Alamofire */,
 			);
 			productName = Example;
 			productReference = 2EA3B6592B2E7F71001B59FE /* Example.app */;
@@ -229,7 +212,6 @@
 			mainGroup = 2EA3B6502B2E7F71001B59FE;
 			packageReferences = (
 				2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */,
-				2EC7DFEB2C12AFAB005E58DF /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			productRefGroup = 2EA3B65A2B2E7F71001B59FE /* Products */;
 			projectDirPath = "";
@@ -247,7 +229,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */,
-				9E13A4A42BFE73A300F9B364 /* example.pdf in Resources */,
 				2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -266,7 +247,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9E311A092BC9EB27009CDC3C /* FileUploadView.swift in Sources */,
 				2E7441B62C1A6F46001CF6F1 /* MapView.swift in Sources */,
 				2E7441AE2C1A54EF001CF6F1 /* MapView_13.swift in Sources */,
 				2EA3B65F2B2E7F71001B59FE /* ContentView.swift in Sources */,
@@ -440,7 +420,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.maatheusgois.debugswift.Example";
+				PRODUCT_BUNDLE_IDENTIFIER = com.maatheusgois.debugswift.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
@@ -476,7 +456,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.maatheusgois.debugswift.Example";
+				PRODUCT_BUNDLE_IDENTIFIER = com.maatheusgois.debugswift.Example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
@@ -564,14 +544,6 @@
 				kind = branch;
 			};
 		};
-		2EC7DFEB2C12AFAB005E58DF /* XCRemoteSwiftPackageReference "Alamofire" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.9.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -579,11 +551,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */;
 			productName = DebugSwift;
-		};
-		2EC7DFEC2C12AFAB005E58DF /* Alamofire */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2EC7DFEB2C12AFAB005E58DF /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

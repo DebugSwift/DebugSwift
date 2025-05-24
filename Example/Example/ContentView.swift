@@ -27,12 +27,6 @@ struct ContentView: View {
                     Text("Failure Request")
                 }
 
-                NavigationLink(
-                    destination: FileUploadView()
-                ) {
-                    Text("Alamofire Upload")
-                }
-
                 NavigationLink(destination: LeakView()) {
                     Text("Memory Leak Demo")
                 }

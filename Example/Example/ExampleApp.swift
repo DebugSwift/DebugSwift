@@ -7,7 +7,6 @@
 
 import DebugSwift
 import SwiftUI
-import Alamofire
 
 @available(iOS 14.0, *)
 @main
@@ -57,18 +56,20 @@ extension AppDelegate: CustomHTTPProtocolDelegate {
         totalBytesSent: Int64,
         totalBytesExpectedToSend: Int64
     ) {
-
-        Session.default.session.getAllTasks { tasks in
-            let uploadTask = tasks.first(where: { $0.taskIdentifier == task.taskIdentifier }) ?? task
-            Session.default.rootQueue.async {
-                Session.default.delegate.urlSession(
-                    session,
-                    task: uploadTask,
-                    didSendBodyData: bytesSent,
-                    totalBytesSent: totalBytesSent,
-                    totalBytesExpectedToSend: totalBytesExpectedToSend
-                )
-            }
-        }
+        // This is a workaround to fix the uploadProgress bug in Alamofire
+        // It will be removed in the future when Alamofire is fixed
+        // Please check the Alamofire issue for more details:
+//        Session.default.session.getAllTasks { tasks in
+//            let uploadTask = tasks.first(where: { $0.taskIdentifier == task.taskIdentifier }) ?? task
+//            Session.default.rootQueue.async {
+//                Session.default.delegate.urlSession(
+//                    session,
+//                    task: uploadTask,
+//                    didSendBodyData: bytesSent,
+//                    totalBytesSent: totalBytesSent,
+//                    totalBytesExpectedToSend: totalBytesExpectedToSend
+//                )
+//            }
+//        }
     }
 }
