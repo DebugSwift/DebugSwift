@@ -47,7 +47,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 // MARK: - Alamofire bugfix in uploadProgress
 
-extension AppDelegate: CustomHTTPProtocolDelegate {
+extension AppDelegate: @preconcurrency CustomHTTPProtocolDelegate {
     func urlSession(
         _ protocol: URLProtocol,
         _ session: URLSession,

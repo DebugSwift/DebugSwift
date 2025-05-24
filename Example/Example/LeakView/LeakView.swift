@@ -29,12 +29,14 @@ struct LeakView: View {
 }
 
 // Helper class to demonstrate memory leak
+@MainActor
 class LeakManager: ObservableObject {
     private var strongSelfReference: LeakManager?
     
     func createLeak() {
         // Capture self strongly in a delayed closure
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [self] in
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 10_000_000_000) // 10 seconds
             // This creates a retain cycle - self holds strongSelfReference
             // and the closure holds self
             self.strongSelfReference = self

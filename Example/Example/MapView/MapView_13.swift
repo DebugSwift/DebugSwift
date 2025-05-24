@@ -12,7 +12,7 @@ import CoreLocation
 struct MapView_13: UIViewControllerRepresentable {
     @Binding var userTrackingMode: MKUserTrackingMode
 
-    class Coordinator: NSObject, MKMapViewDelegate, CLLocationManagerDelegate {
+    class Coordinator: NSObject, MKMapViewDelegate, @preconcurrency CLLocationManagerDelegate {
         var parent: MapView_13
         var locationManager = CLLocationManager()
         weak var mapView: MKMapView?
