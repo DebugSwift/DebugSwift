@@ -19,10 +19,9 @@ final class HttpDatasource: @unchecked Sendable {
         }
 
         if !DebugSwift.Network.shared.onlyURLs.isEmpty {
-            for urlString in DebugSwift.Network.shared.onlyURLs {
-                if model.url?.absoluteString.lowercased().contains(
-                    urlString.lowercased()
-                ) == false {
+            if let modelUrl = model.url?.absoluteString.lowercased() {
+                let found = DebugSwift.Network.shared.onlyURLs.contains { modelUrl.contains($0.lowercased()) }
+                if !found {
                     return false
                 }
             }
