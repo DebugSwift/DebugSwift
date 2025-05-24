@@ -1,4 +1,6 @@
 name: Swift 6 Compatibility
+permissions:
+  contents: read
 
 on:
   push:
