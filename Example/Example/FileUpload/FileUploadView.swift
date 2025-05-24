@@ -1,6 +1,6 @@
 //
 //  FileUploadView.swift
-//  Example_SwiftUI
+//  Example
 //
 //  Created by Emil Atanasov on 04/13/24.
 //

@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Example_SwiftUI
+//  Example
 //
 //  Created by Matheus Gois on 16/12/23.
 //

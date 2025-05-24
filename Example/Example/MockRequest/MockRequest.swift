@@ -1,6 +1,6 @@
 //
 //  MockRequest.swift
-//  Example_SwiftUI
+//  Example
 //
 //  Created by Matheus Gois on 12/06/24.
 //

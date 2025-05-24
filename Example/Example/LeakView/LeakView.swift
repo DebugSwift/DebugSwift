@@ -1,6 +1,6 @@
 //
 //  LeakView.swift
-//  Example_SwiftUI
+//  Example
 //
 //  Created by Assistant on today's date.
 //

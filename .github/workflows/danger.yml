@@ -24,8 +24,8 @@ jobs:
       - name: Build Swift Package Manager
         run: |
           xcodebuild clean build \
-            -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
-            -scheme Example_SwiftUI \
+            -project Example/Example.xcodeproj \
+            -scheme Example \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
 
       - name: Install CocoaPods

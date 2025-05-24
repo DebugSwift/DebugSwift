@@ -1,6 +1,6 @@
 //
-//  Example_SwiftUIApp.swift
-//  Example_SwiftUI
+//  ExampleApp.swift
+//  Example
 //
 //  Created by Matheus Gois on 16/12/23.
 //
@@ -11,7 +11,7 @@ import Alamofire
 
 @available(iOS 14.0, *)
 @main
-struct Example_SwiftUIApp: App {
+struct ExampleApp: App {
     @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
 
     var body: some Scene {
