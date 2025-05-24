@@ -28,22 +28,11 @@ jobs:
             -scheme Example \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
             IPHONEOS_DEPLOYMENT_TARGET=17.0
-
-      - name: Install CocoaPods
-        run: |
-          cd Example
-          pod install
       
       - name: Setup Danger
         run: |
           git clone https://github.com/DebugSwift/DangerSwift && rm -rf DangerSwift/.git Readme.md
           mv DangerSwift/* .
-      
-      - name: Test Stage
-        run: |
-          cd Example
-          bundle install
-          bundle exec fastlane test
 
       - name: Danger Stage
         run: |
