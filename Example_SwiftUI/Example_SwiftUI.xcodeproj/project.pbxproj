@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -21,6 +21,16 @@
 		9E311A092BC9EB27009CDC3C /* FileUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E311A082BC9EB27009CDC3C /* FileUploadView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		396F5F072DE27523009CA492 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2EA3B6512B2E7F71001B59FE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2EA3B6582B2E7F71001B59FE;
+			remoteInfo = Example_SwiftUI;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		2E60BA122B3383070084C2D9 /* Example_SwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example_SwiftUI.entitlements; sourceTree = "<group>"; };
 		2E7441AD2C1A54EF001CF6F1 /* MapView_13.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView_13.swift; sourceTree = "<group>"; };
@@ -34,9 +44,14 @@
 		2EA3B66D2B2E80C6001B59FE /* DebugSwift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DebugSwift; path = ..; sourceTree = "<group>"; };
 		2EC7DFEE2C12B72A005E58DF /* Example-SwiftUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Example-SwiftUI-Info.plist"; sourceTree = SOURCE_ROOT; };
 		396F5EEF2DE273F3009CA492 /* LeakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakView.swift; sourceTree = "<group>"; };
+		396F5F032DE27523009CA492 /* ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E13A4A32BFE73A300F9B364 /* example.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = example.pdf; sourceTree = "<group>"; };
 		9E311A082BC9EB27009CDC3C /* FileUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		396F5F042DE27523009CA492 /* ExampleTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ExampleTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		2EA3B6562B2E7F71001B59FE /* Frameworks */ = {
@@ -45,6 +60,13 @@
 			files = (
 				2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */,
 				2EC7DFED2C12AFAB005E58DF /* Alamofire in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		396F5F002DE27523009CA492 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,6 +104,7 @@
 			children = (
 				2EA3B66D2B2E80C6001B59FE /* DebugSwift */,
 				2EA3B65B2B2E7F71001B59FE /* Example_SwiftUI */,
+				396F5F042DE27523009CA492 /* ExampleTests */,
 				2EA3B65A2B2E7F71001B59FE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				2EA3B6592B2E7F71001B59FE /* Example_SwiftUI.app */,
+				396F5F032DE27523009CA492 /* ExampleTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -151,6 +175,29 @@
 			productReference = 2EA3B6592B2E7F71001B59FE /* Example_SwiftUI.app */;
 			productType = "com.apple.product-type.application";
 		};
+		396F5F022DE27523009CA492 /* ExampleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 396F5F092DE27523009CA492 /* Build configuration list for PBXNativeTarget "ExampleTests" */;
+			buildPhases = (
+				396F5EFF2DE27523009CA492 /* Sources */,
+				396F5F002DE27523009CA492 /* Frameworks */,
+				396F5F012DE27523009CA492 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				396F5F082DE27523009CA492 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				396F5F042DE27523009CA492 /* ExampleTests */,
+			);
+			name = ExampleTests;
+			packageProductDependencies = (
+			);
+			productName = ExampleTests;
+			productReference = 396F5F032DE27523009CA492 /* ExampleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -158,11 +205,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1510;
+				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1510;
 				TargetAttributes = {
 					2EA3B6582B2E7F71001B59FE = {
 						CreatedOnToolsVersion = 15.1;
+					};
+					396F5F022DE27523009CA492 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 2EA3B6582B2E7F71001B59FE;
 					};
 				};
 			};
@@ -185,6 +236,7 @@
 			projectRoot = "";
 			targets = (
 				2EA3B6582B2E7F71001B59FE /* Example_SwiftUI */,
+				396F5F022DE27523009CA492 /* ExampleTests */,
 			);
 		};
 /* End PBXProject section */
@@ -197,6 +249,13 @@
 				2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */,
 				9E13A4A42BFE73A300F9B364 /* example.pdf in Resources */,
 				2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		396F5F012DE27523009CA492 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,7 +276,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		396F5EFF2DE27523009CA492 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		396F5F082DE27523009CA492 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2EA3B6582B2E7F71001B59FE /* Example_SwiftUI */;
+			targetProxy = 396F5F072DE27523009CA492 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		2EA3B6652B2E7F74001B59FE /* Debug */ = {
@@ -413,6 +487,42 @@
 			};
 			name = Release;
 		};
+		396F5F0A2DE27523009CA492 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.debugswift.ExampleTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example_SwiftUI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Example_SwiftUI";
+			};
+			name = Debug;
+		};
+		396F5F0B2DE27523009CA492 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.debugswift.ExampleTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Example_SwiftUI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Example_SwiftUI";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -430,6 +540,15 @@
 			buildConfigurations = (
 				2EA3B6682B2E7F74001B59FE /* Debug */,
 				2EA3B6692B2E7F74001B59FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		396F5F092DE27523009CA492 /* Build configuration list for PBXNativeTarget "ExampleTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				396F5F0A2DE27523009CA492 /* Debug */,
+				396F5F0B2DE27523009CA492 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
