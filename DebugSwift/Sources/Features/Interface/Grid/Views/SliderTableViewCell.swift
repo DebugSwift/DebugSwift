@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol SliderTableViewCellDelegate: AnyObject {
     func sliderCell(_ sliderCell: SliderTableViewCell, didSelectValue value: CGFloat)
     func sliderCellDidStartEditingValue(_ sliderCell: SliderTableViewCell)

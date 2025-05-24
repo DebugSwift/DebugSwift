@@ -15,17 +15,41 @@ struct MapView: View {
         center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
         span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
     )
+    
+    @State private var position = MapCameraPosition.region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
+            span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+        )
+    )
 
     private var manager = MapViewManager()
 
     var body: some View {
-        Map(
-            coordinateRegion: $region,
-            showsUserLocation: true,
-            userTrackingMode: .constant(.follow)
-        )
-        .onAppear {
-            manager.start()
+        if #available(iOS 17.0, *) {
+            // Use new Map initializer with MapContentBuilder
+            Map(position: $position) {
+                // MapContentBuilder content can be added here
+                // For example: Marker, Annotation, etc.
+            }
+            .mapControls {
+                MapUserLocationButton()
+                MapCompass()
+                MapScaleView()
+            }
+            .onAppear {
+                manager.start()
+            }
+        } else {
+            // Fallback for iOS 14.0-16.x
+            Map(
+                coordinateRegion: $region,
+                showsUserLocation: true,
+                userTrackingMode: .constant(.follow)
+            )
+            .onAppear {
+                manager.start()
+            }
         }
     }
 }

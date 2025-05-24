@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 final class NetworkViewController: BaseController, MainFeatureType {
     var controllerType: DebugSwiftFeature { .network }
@@ -73,7 +74,8 @@ final class NetworkViewController: BaseController, MainFeatureType {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            if let success = notification.object as? Bool {
+            let success = notification.object as? Bool ?? false
+            MainActor.assumeIsolated {
                 self?.reloadHttp(
                     needScrollToEnd: self?.viewModel.reachEnd ?? true,
                     success: success

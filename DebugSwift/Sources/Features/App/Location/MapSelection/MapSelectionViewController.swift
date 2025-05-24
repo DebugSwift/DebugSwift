@@ -8,6 +8,7 @@
 import MapKit
 import UIKit
 
+@MainActor
 protocol LocationSelectionDelegate: AnyObject {
     func didSelectLocation(_ location: CLLocation)
 }

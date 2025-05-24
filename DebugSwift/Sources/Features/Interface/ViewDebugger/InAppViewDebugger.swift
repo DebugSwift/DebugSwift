@@ -9,11 +9,12 @@
 import UIKit
 
 /// Exposes APIs for presenting the view debugger.
+@MainActor
 final class InAppViewDebugger: NSObject {
     /// Takes a snapshot of the application's key window and presents the debugger
     /// view controller from the root view controller.
     final class func present() {
-        presentForWindow(UIApplication.shared.keyWindow)
+        presentForWindow(UIApplication.keyWindow)
     }
 
     /// Takes a snapshot of the specified window and presents the debugger view controller

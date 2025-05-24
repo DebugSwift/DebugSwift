@@ -16,13 +16,25 @@ extension DebugSwift {
         public var customAction: (() -> [CustomAction])?
         public var customControllers: (() -> [UIViewController])?
 
-        @MainActor var defaultControllers: [UIViewController & MainFeatureType] = [
-            NetworkViewController(),
-            PerformanceViewController(),
-            InterfaceViewController(),
-            ResourcesViewController(),
-            AppViewController()
-        ]
+        @MainActor private var _defaultControllers: [UIViewController & MainFeatureType]?
+        
+        @MainActor var defaultControllers: [UIViewController & MainFeatureType] {
+            get {
+                if _defaultControllers == nil {
+                    _defaultControllers = [
+                        NetworkViewController(),
+                        PerformanceViewController(),
+                        InterfaceViewController(),
+                        ResourcesViewController(),
+                        AppViewController()
+                    ]
+                }
+                return _defaultControllers!
+            }
+            set {
+                _defaultControllers = newValue
+            }
+        }
 
         var disableMethods: [DebugSwiftSwizzleFeature] = []
     }

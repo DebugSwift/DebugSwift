@@ -179,6 +179,7 @@ extension CrashDetailViewController: UITableViewDataSource, UITableViewDelegate 
 }
 
 extension CrashDetailViewController {
+    @MainActor
     enum Features: Int, CaseIterable {
         case details
         case context
@@ -198,11 +199,11 @@ extension CrashDetailViewController {
         var heightForRow: CGFloat {
             switch self {
             case .details:
-                return UITableView.automaticDimension
+                return -1 // UITableView interprets -1 as automatic dimension
             case .context:
                 return 80
             case .stackTrace:
-                return UITableView.automaticDimension
+                return -1 // UITableView interprets -1 as automatic dimension
             }
         }
     }

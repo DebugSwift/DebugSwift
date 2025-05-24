@@ -6,7 +6,8 @@
 //  Copyright © 2023 apple. All rights reserved.
 //
 
-import UIKit
+import SwiftUI
+import Combine
 
 @MainActor
 class UserInterfaceToolkit: @unchecked Sendable {
@@ -31,14 +32,15 @@ class UserInterfaceToolkit: @unchecked Sendable {
 
     var slowAnimationsEnabled = false {
         didSet {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            Task {
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
                 guard oldValue != self.slowAnimationsEnabled else { return }
-                UIApplication.shared.windows.forEach { self.setSpeed(for: $0) }
+                self.updateAnimationSpeed()
             }
         }
     }
-
-    var colorizedViewBordersEnabled = false {
+    
+    static var colorizedViewBordersEnabled = false {
         didSet {
             guard oldValue != colorizedViewBordersEnabled else { return }
             NotificationCenter.default.post(
@@ -47,36 +49,60 @@ class UserInterfaceToolkit: @unchecked Sendable {
             )
         }
     }
-
+    
     var showingTouchesEnabled = false {
         didSet {
             guard oldValue != showingTouchesEnabled else { return }
-            UIApplication.shared.windows.forEach { setShowingTouchesEnabled(for: $0) }
+            updateShowingTouches()
         }
     }
-
-    @available(iOS 13.0, *)
-    static var darkModeEnabled: Bool = UIScreen.main.traitCollection.userInterfaceStyle == .dark {
+    
+    var darkModeEnabled: Bool = false {
         didSet {
             guard oldValue != darkModeEnabled else { return }
-            UIApplication.shared.windows.forEach { window in
-                window.overrideUserInterfaceStyle = darkModeEnabled ? .dark : .light
+            updateColorScheme()
+        }
+    }
+    
+    var selectedGridOverlayColorSchemeIndex: Int = 0 {
+        didSet {
+            if gridOverlayColorSchemes.indices.contains(selectedGridOverlayColorSchemeIndex) {
+                gridOverlay.colorScheme = gridOverlayColorSchemes[selectedGridOverlayColorSchemeIndex]
             }
         }
     }
-
+    
+    // MARK: - Private Properties
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     // MARK: - Initialization
-
-    private init() {
+    
+    init() {
+        setupInitialState()
         registerForNotifications()
     }
-
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
+    
+    // MARK: - Setup
+    
+    private func setupInitialState() {
+        if #available(iOS 13.0, *) {
+            darkModeEnabled = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+        }
+        
+        // Set initial color scheme
+        if let colorScheme = gridOverlay.colorScheme,
+           let index = gridOverlayColorSchemes.firstIndex(of: colorScheme) {
+            selectedGridOverlayColorSchemeIndex = index
+        }
+    }
+    
     // MARK: - Window notifications
-
+    
     private func registerForNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -85,16 +111,16 @@ class UserInterfaceToolkit: @unchecked Sendable {
             object: nil
         )
     }
-
+    
     @objc private func newKeyWindowNotification(_ notification: Notification) {
         if let newKeyWindow = notification.object as? UIWindow {
             setSpeed(for: newKeyWindow)
             setShowingTouchesEnabled(for: newKeyWindow)
         }
     }
-
+    
     // MARK: - Public methods
-
+    
     func autolayoutTrace() -> String? {
         guard let window = UIWindow.keyWindow else { return nil }
         let key = String(
@@ -106,7 +132,7 @@ class UserInterfaceToolkit: @unchecked Sendable {
         let selector = NSSelectorFromString(key ?? "")
         return (window.perform(selector)?.takeUnretainedValue as? () -> String)?()
     }
-
+    
     func viewDescription(_ view: UIView) -> String? {
         let key = String(
             data: Data([
@@ -117,7 +143,7 @@ class UserInterfaceToolkit: @unchecked Sendable {
         let selector = NSSelectorFromString(key ?? "")
         return (view.perform(selector)?.takeUnretainedValue as? () -> String)?()
     }
-
+    
     func viewControllerHierarchy() -> String? {
         guard let rootViewController = UIWindow.keyWindow?.rootViewController else { return nil }
         let key = String(
@@ -128,33 +154,57 @@ class UserInterfaceToolkit: @unchecked Sendable {
         let selector = NSSelectorFromString(key ?? "")
         return (rootViewController.perform(selector)?.takeUnretainedValue as? () -> String)?()
     }
-
-    // MARK: - Handling flags
-
+    
+    // MARK: - Private methods
+    
+    private func updateAnimationSpeed() {
+        UIWindowScene._windows.forEach { setSpeed(for: $0) }
+    }
+    
+    private func updateShowingTouches() {
+        UIWindowScene._windows.forEach { setShowingTouchesEnabled(for: $0) }
+    }
+    
+    private func updateColorScheme() {
+        UIWindowScene._windows.forEach { window in
+            window.overrideUserInterfaceStyle = darkModeEnabled ? .dark : .light
+        }
+    }
+    
     private func setSpeed(for window: UIWindow) {
         let speed: Float = slowAnimationsEnabled ? 0.1 : 1.0
         window.layer.speed = speed
     }
-
+    
     private func setShowingTouchesEnabled(for window: UIWindow) {
         window.setShowingTouchesEnabled(showingTouchesEnabled)
     }
-
-    // MARK: - Grid overlay
-
-    func setSelectedGridOverlayColorSchemeIndex(_ selectedGridOverlayColorSchemeIndex: Int) {
-        gridOverlay.colorScheme = gridOverlayColorSchemes[selectedGridOverlayColorSchemeIndex]
-    }
-
-    var selectedGridOverlayColorSchemeIndex: Int {
-        guard let colorScheme = gridOverlay.colorScheme else { return 0 }
-        return gridOverlayColorSchemes.firstIndex(
-            of: colorScheme
-        ) ?? .zero
-    }
 }
+
+// MARK: - Extensions
 
 extension UserInterfaceToolkit {
     static let notification = Notification.Name(
         "UserInterfaceToolkitColorizedViewBordersChangedNotification")
+}
+
+// MARK: - Environment Key
+
+private struct UserInterfaceToolkitEnvironmentKey: EnvironmentKey {
+    static let defaultValue: UserInterfaceToolkit? = nil
+}
+
+extension EnvironmentValues {
+    var userInterfaceToolkit: UserInterfaceToolkit? {
+        get { self[UserInterfaceToolkitEnvironmentKey.self] }
+        set { self[UserInterfaceToolkitEnvironmentKey.self] = newValue }
+    }
+}
+
+// MARK: - View Extension for convenience
+
+extension View {
+    func userInterfaceToolkit(_ toolkit: UserInterfaceToolkit) -> some View {
+        self.environment(\.userInterfaceToolkit, toolkit)
+    }
 }

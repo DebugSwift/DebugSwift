@@ -9,6 +9,7 @@
 import UIKit
 
 final class AppViewModel: NSObject {
+    @MainActor
     var infos: [UserInfo.Info] {
         UserInfo.infos
     }

@@ -69,9 +69,11 @@ final class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
 // MARK: - Animation end callback
 
 extension TransitionPush: CAAnimationDelegate {
-    func animationDidStop(_: CAAnimation, finished _: Bool) {
-        transitionCtx?.completeTransition(true)
-        transitionCtx?.view(forKey: UITransitionContextViewKey.from)?.layer.mask = nil
-        transitionCtx?.view(forKey: UITransitionContextViewKey.to)?.layer.mask = nil
+    nonisolated func animationDidStop(_: CAAnimation, finished _: Bool) {
+        Task { @MainActor in
+            transitionCtx?.completeTransition(true)
+            transitionCtx?.view(forKey: UITransitionContextViewKey.from)?.layer.mask = nil
+            transitionCtx?.view(forKey: UITransitionContextViewKey.to)?.layer.mask = nil
+        }
     }
 }

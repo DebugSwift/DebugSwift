@@ -9,7 +9,7 @@ import UIKit
 
 final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     private var data: [PerformanceLeakDetector.LeakModel] {
-        PerformanceLeakDetector.leaks
+        PerformanceLeakDetector.shared.leaks
     }
 
     private var filteredInfo = [PerformanceLeakDetector.LeakModel]()
@@ -29,7 +29,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
         isSearchActived ? filteredInfo.count : data.count
     }
 
-    func dataSourceForItem(atIndex index: Int) -> ViewData {
+    func dataSourceForItem(atIndex index: Int) -> ResourcesGenericController.CellViewData {
         let leak = isSearchActived ? filteredInfo[index] : data[index]
 
         return .init(
@@ -39,16 +39,16 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func handleClearAction() {
-        PerformanceLeakDetector.leaks.removeAll()
+        PerformanceLeakDetector.shared.leaks.removeAll()
         filteredInfo.removeAll()
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
         if isSearchActived {
             let leak = filteredInfo.remove(at: index)
-            PerformanceLeakDetector.leaks.removeAll(where: { $0.id == leak.id })
+            PerformanceLeakDetector.shared.leaks.removeAll(where: { $0.id == leak.id })
         } else {
-            PerformanceLeakDetector.leaks.remove(at: index)
+            PerformanceLeakDetector.shared.leaks.remove(at: index)
         }
     }
 
@@ -57,7 +57,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func handleShareAction() {
-        let allLeaks = PerformanceLeakDetector.leaks.reduce("") { $0 + "\n\n\($1.symbol)\($1.details)" }
+        let allLeaks = PerformanceLeakDetector.shared.leaks.reduce("") { $0 + "\n\n\($1.symbol)\($1.details)" }
         FileSharingManager.generateFileAndShare(text: allLeaks, fileName: "leaks")
     }
 
@@ -83,15 +83,17 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
         }
 
         if let image = leak.screenshot {
-            let controller = SnapshotViewController(
-                title: "Leak",
-                image: image,
-                description: leak.details
-            )
-            UIApplication.topViewController()?.navigationController?.pushViewController(
-                controller,
-                animated: true
-            )
+            Task { @MainActor in
+                let controller = SnapshotViewController(
+                    title: "Leak",
+                    image: image,
+                    description: leak.details
+                )
+                UIApplication.topViewController()?.navigationController?.pushViewController(
+                    controller,
+                    animated: true
+                )
+            }
         }
     }
-}
+} 

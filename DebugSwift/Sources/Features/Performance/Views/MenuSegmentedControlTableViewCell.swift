@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol MenuSegmentedControlTableViewCellDelegate: AnyObject {
     func menuSegmentedControlTableViewCell(
         _ menuSegmentedControlTableViewCell: MenuSegmentedControlTableViewCell,

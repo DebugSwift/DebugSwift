@@ -16,13 +16,107 @@ func calculate() -> Int {
     return slide
 }
 
-private var preUncaughtExceptionHandler: NSUncaughtExceptionHandler?
+// Encapsulate all global state in a thread-safe singleton
+private final class CrashHandlerGlobalState: @unchecked Sendable {
+    static let shared = CrashHandlerGlobalState()
+    
+    private let lock = NSLock()
+    
+    private var _preUncaughtExceptionHandler: NSUncaughtExceptionHandler?
+    private var _previousABRTSignalHandler: SignalHandler?
+    private var _previousBUSSignalHandler: SignalHandler?
+    private var _previousFPESignalHandler: SignalHandler?
+    private var _previousILLSignalHandler: SignalHandler?
+    private var _previousPIPESignalHandler: SignalHandler?
+    private var _previousSEGVSignalHandler: SignalHandler?
+    private var _previousSYSSignalHandler: SignalHandler?
+    private var _previousTRAPSignalHandler: SignalHandler?
+    
+    private init() {}
+    
+    var preUncaughtExceptionHandler: NSUncaughtExceptionHandler? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _preUncaughtExceptionHandler
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _preUncaughtExceptionHandler = newValue
+        }
+    }
+    
+    func setSignalHandler(signal: Int32, handler: SignalHandler?) {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        switch signal {
+        case SIGABRT: _previousABRTSignalHandler = handler
+        case SIGBUS: _previousBUSSignalHandler = handler
+        case SIGFPE: _previousFPESignalHandler = handler
+        case SIGILL: _previousILLSignalHandler = handler
+        case SIGPIPE: _previousPIPESignalHandler = handler
+        case SIGSEGV: _previousSEGVSignalHandler = handler
+        case SIGSYS: _previousSYSSignalHandler = handler
+        case SIGTRAP: _previousTRAPSignalHandler = handler
+        default: break
+        }
+    }
+    
+    func getSignalHandler(signal: Int32) -> SignalHandler? {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        switch signal {
+        case SIGABRT: return _previousABRTSignalHandler
+        case SIGBUS: return _previousBUSSignalHandler
+        case SIGFPE: return _previousFPESignalHandler
+        case SIGILL: return _previousILLSignalHandler
+        case SIGPIPE: return _previousPIPESignalHandler
+        case SIGSEGV: return _previousSEGVSignalHandler
+        case SIGSYS: return _previousSYSSignalHandler
+        case SIGTRAP: return _previousTRAPSignalHandler
+        default: return nil
+        }
+    }
+    
+    var preHandlers: [Int32: SignalHandler?] {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        return [
+            SIGABRT: _previousABRTSignalHandler,
+            SIGBUS: _previousBUSSignalHandler,
+            SIGFPE: _previousFPESignalHandler,
+            SIGILL: _previousILLSignalHandler,
+            SIGPIPE: _previousPIPESignalHandler,
+            SIGSEGV: _previousSEGVSignalHandler,
+            SIGSYS: _previousSYSSignalHandler,
+            SIGTRAP: _previousTRAPSignalHandler
+        ]
+    }
+}
 
-public class CrashUncaughtExceptionHandler {
-    public static var exceptionReceiveClosure: ((Int32?, NSException?, String, [String]) -> Void)?
+public class CrashUncaughtExceptionHandler: @unchecked Sendable {
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var _exceptionReceiveClosure: ((Int32?, NSException?, String, [String]) -> Void)?
+    
+    public static var exceptionReceiveClosure: ((Int32?, NSException?, String, [String]) -> Void)? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _exceptionReceiveClosure
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _exceptionReceiveClosure = newValue
+        }
+    }
 
     public func prepare() {
-        preUncaughtExceptionHandler = NSGetUncaughtExceptionHandler()
+        CrashHandlerGlobalState.shared.preUncaughtExceptionHandler = NSGetUncaughtExceptionHandler()
         NSSetUncaughtExceptionHandler(UncaughtExceptionHandler)
     }
 }
@@ -35,33 +129,28 @@ func UncaughtExceptionHandler(exception: NSException) {
     crash += "\nName: \(name)\nReason: \(reason)"
 
     CrashUncaughtExceptionHandler.exceptionReceiveClosure?(nil, exception, crash, arr)
-    preUncaughtExceptionHandler?(exception)
+    CrashHandlerGlobalState.shared.preUncaughtExceptionHandler?(exception)
     kill(getpid(), SIGKILL)
 }
 
 typealias SignalHandler = (Int32, UnsafeMutablePointer<__siginfo>?, UnsafeMutableRawPointer?) -> Void
 
-private var previousABRTSignalHandler: SignalHandler?
-private var previousBUSSignalHandler: SignalHandler?
-private var previousFPESignalHandler: SignalHandler?
-private var previousILLSignalHandler: SignalHandler?
-private var previousPIPESignalHandler: SignalHandler?
-private var previousSEGVSignalHandler: SignalHandler?
-private var previousSYSSignalHandler: SignalHandler?
-private var previousTRAPSignalHandler: SignalHandler?
-private let preHandlers = [
-    SIGABRT: previousABRTSignalHandler,
-    SIGBUS: previousBUSSignalHandler,
-    SIGFPE: previousFPESignalHandler,
-    SIGILL: previousILLSignalHandler,
-    SIGPIPE: previousPIPESignalHandler,
-    SIGSEGV: previousSEGVSignalHandler,
-    SIGSYS: previousSYSSignalHandler,
-    SIGTRAP: previousTRAPSignalHandler
-]
-
-public class CrashSignalExceptionHandler {
-    public static var exceptionReceiveClosure: ((Int32?, NSException?, String) -> Void)?
+public class CrashSignalExceptionHandler: @unchecked Sendable {
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var _exceptionReceiveClosure: ((Int32?, NSException?, String) -> Void)?
+    
+    public static var exceptionReceiveClosure: ((Int32?, NSException?, String) -> Void)? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _exceptionReceiveClosure
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _exceptionReceiveClosure = newValue
+        }
+    }
 
     public func prepare() {
         backupOriginalHandler()
@@ -69,9 +158,10 @@ public class CrashSignalExceptionHandler {
     }
 
     func backupOriginalHandler() {
-        for (signal, handler) in preHandlers {
-            var tempHandler = handler
+        for (signal, _) in CrashHandlerGlobalState.shared.preHandlers {
+            var tempHandler: SignalHandler?
             backupSingleHandler(signal: signal, preHandler: &tempHandler)
+            CrashHandlerGlobalState.shared.setSignalHandler(signal: signal, handler: tempHandler)
         }
     }
 
@@ -117,8 +207,8 @@ func CrashSignalHandler(
     CrashSignalExceptionHandler.exceptionReceiveClosure?(signal, nil, exceptionInfo)
     ClearSignalRigister()
 
-    let handler = preHandlers[signal]
-    handler??(signal, info, context)
+    let handler = CrashHandlerGlobalState.shared.getSignalHandler(signal: signal)
+    handler?(signal, info, context)
     kill(getpid(), SIGKILL)
 }
 
@@ -147,7 +237,7 @@ func ClearSignalRigister() {
     signal(SIGSYS, SIG_DFL)
 }
 
-public class CrashHandler {
+public class CrashHandler: @unchecked Sendable {
     public var exceptionReceiveClosure: ((Int32?, NSException?, String) -> Void)?
 
     static let shared = CrashHandler()

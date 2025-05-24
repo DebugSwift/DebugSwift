@@ -221,7 +221,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case 0:
             let cell = reuseCell()
             cell.textLabel?.text = "All Leaks"
-            cell.detailTextLabel?.text = "\(PerformanceLeakDetector.leaks.count)"
+            cell.detailTextLabel?.text = "\(PerformanceLeakDetector.shared.leaks.count)"
             return cell
         case 1:
             let cell = reuseCell(for: .leak)

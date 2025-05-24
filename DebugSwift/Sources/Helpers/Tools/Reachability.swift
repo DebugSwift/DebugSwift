@@ -46,7 +46,7 @@ extension Notification.Name {
     static let reachabilityChanged = Notification.Name("reachabilityChanged")
 }
 
-class Reachability {
+class Reachability: @unchecked Sendable {
 
     typealias NetworkReachable = (Reachability) -> Void
     typealias NetworkUnreachable = (Reachability) -> Void
@@ -268,8 +268,18 @@ extension Reachability {
     }
 
     private func notifyReachabilityChanged() {
-        let notify = { [weak self] in
-            guard let self else { return }
+        // notify on the configured `notificationQueue`, or the caller's (i.e. `reachabilitySerialQueue`)
+        if let notificationQueue = notificationQueue {
+            notificationQueue.async { [weak self] in
+                guard let self else { return }
+                if self.connection != .unavailable {
+                    self.whenReachable?(self)
+                } else {
+                    self.whenUnreachable?(self)
+                }
+                self.notificationCenter.post(name: .reachabilityChanged, object: self)
+            }
+        } else {
             if self.connection != .unavailable {
                 self.whenReachable?(self)
             } else {
@@ -277,9 +287,6 @@ extension Reachability {
             }
             self.notificationCenter.post(name: .reachabilityChanged, object: self)
         }
-
-        // notify on the configured `notificationQueue`, or the caller's (i.e. `reachabilitySerialQueue`)
-        notificationQueue?.async(execute: notify) ?? notify()
     }
 }
 

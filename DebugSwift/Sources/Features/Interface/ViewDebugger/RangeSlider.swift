@@ -3,34 +3,31 @@
 import QuartzCore
 import UIKit
 
-class RangeSliderTrackLayer: CALayer {
+final class RangeSliderTrackLayer: CALayer, @unchecked Sendable {
     weak var rangeSlider: RangeSlider?
+    
+    // Cached values from RangeSlider to avoid accessing MainActor properties in draw
+    var curvaceousness: CGFloat = 0.3
+    var trackTintColor = UIColor(white: 0.9, alpha: 1.0)
+    var trackHighlightTintColor = UIColor(red: 0.0, green: 0.45, blue: 0.94, alpha: 1.0)
+    var lowerValuePosition: CGFloat = 0
+    var upperValuePosition: CGFloat = 0
 
     override func draw(in ctx: CGContext) {
-        guard let slider = rangeSlider else {
-            return
-        }
-
-        // Clip
-        let cornerRadius = bounds.height * slider.curvaceousness / 2.0
+        let cornerRadius = bounds.height * curvaceousness / 2.0
         let path = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius)
         ctx.addPath(path.cgPath)
 
-        // Fill the track
-        ctx.setFillColor(slider.trackTintColor.cgColor)
-        ctx.addPath(path.cgPath)
+        ctx.setFillColor(trackTintColor.cgColor)
         ctx.fillPath()
 
-        // Fill the highlighted range
-        ctx.setFillColor(slider.trackHighlightTintColor.cgColor)
-        let lowerValuePosition = CGFloat(slider.positionForValue(slider.lowerValue))
-        let upperValuePosition = CGFloat(slider.positionForValue(slider.upperValue))
+        ctx.setFillColor(trackHighlightTintColor.cgColor)
         let rect = CGRect(x: lowerValuePosition, y: 0.0, width: upperValuePosition - lowerValuePosition, height: bounds.height)
         ctx.fill(rect)
     }
 }
 
-class RangeSliderThumbLayer: CALayer {
+final class RangeSliderThumbLayer: CALayer, @unchecked Sendable {
     var highlighted = false {
         didSet {
             setNeedsDisplay()
@@ -38,6 +35,10 @@ class RangeSliderThumbLayer: CALayer {
     }
 
     weak var rangeSlider: RangeSlider?
+    
+    // Cached values from RangeSlider
+    var curvaceousness: CGFloat = 0.3
+    var thumbTintColor = UIColor.white
 
     var strokeColor = UIColor.lightGray {
         didSet {
@@ -52,20 +53,14 @@ class RangeSliderThumbLayer: CALayer {
     }
 
     override func draw(in ctx: CGContext) {
-        guard let slider = rangeSlider else {
-            return
-        }
-
         let thumbFrame = bounds.insetBy(dx: 2.0, dy: 2.0)
-        let cornerRadius = thumbFrame.height * slider.curvaceousness / 2.0
+        let cornerRadius = thumbFrame.height * curvaceousness / 2.0
         let thumbPath = UIBezierPath(roundedRect: thumbFrame, cornerRadius: cornerRadius)
 
-        // Fill
-        ctx.setFillColor(slider.thumbTintColor.cgColor)
+        ctx.setFillColor(thumbTintColor.cgColor)
         ctx.addPath(thumbPath.cgPath)
         ctx.fillPath()
 
-        // Outline
         ctx.setStrokeColor(strokeColor.cgColor)
         ctx.setLineWidth(lineWidth)
         ctx.addPath(thumbPath.cgPath)
@@ -122,18 +117,22 @@ final class RangeSlider: UIControl {
 
     var trackTintColor = UIColor(white: 0.9, alpha: 1.0) {
         didSet {
+            trackLayer.trackTintColor = trackTintColor
             trackLayer.setNeedsDisplay()
         }
     }
 
     var trackHighlightTintColor = UIColor(red: 0.0, green: 0.45, blue: 0.94, alpha: 1.0) {
         didSet {
+            trackLayer.trackHighlightTintColor = trackHighlightTintColor
             trackLayer.setNeedsDisplay()
         }
     }
 
     var thumbTintColor = UIColor.white {
         didSet {
+            lowerThumbLayer.thumbTintColor = thumbTintColor
+            upperThumbLayer.thumbTintColor = thumbTintColor
             lowerThumbLayer.setNeedsDisplay()
             upperThumbLayer.setNeedsDisplay()
         }
@@ -163,6 +162,9 @@ final class RangeSlider: UIControl {
                 curvaceousness = 1.0
             }
 
+            trackLayer.curvaceousness = curvaceousness
+            lowerThumbLayer.curvaceousness = curvaceousness
+            upperThumbLayer.curvaceousness = curvaceousness
             trackLayer.setNeedsDisplay()
             lowerThumbLayer.setNeedsDisplay()
             upperThumbLayer.setNeedsDisplay()
@@ -205,14 +207,21 @@ final class RangeSlider: UIControl {
 
         trackLayer.rangeSlider = self
         trackLayer.contentsScale = UIScreen.main.scale
+        trackLayer.trackTintColor = trackTintColor
+        trackLayer.trackHighlightTintColor = trackHighlightTintColor
+        trackLayer.curvaceousness = curvaceousness
         layer.addSublayer(trackLayer)
 
         lowerThumbLayer.rangeSlider = self
         lowerThumbLayer.contentsScale = UIScreen.main.scale
+        lowerThumbLayer.thumbTintColor = thumbTintColor
+        lowerThumbLayer.curvaceousness = curvaceousness
         layer.addSublayer(lowerThumbLayer)
 
         upperThumbLayer.rangeSlider = self
         upperThumbLayer.contentsScale = UIScreen.main.scale
+        upperThumbLayer.thumbTintColor = thumbTintColor
+        upperThumbLayer.curvaceousness = curvaceousness
         layer.addSublayer(upperThumbLayer)
     }
 
@@ -221,13 +230,18 @@ final class RangeSlider: UIControl {
         CATransaction.setDisableActions(true)
 
         trackLayer.frame = bounds.insetBy(dx: 0.0, dy: bounds.height / 2.3)
+        
+        let lowerPosition = CGFloat(positionForValue(lowerValue))
+        let upperPosition = CGFloat(positionForValue(upperValue))
+        trackLayer.lowerValuePosition = lowerPosition
+        trackLayer.upperValuePosition = upperPosition
         trackLayer.setNeedsDisplay()
 
-        let lowerThumbCenter = CGFloat(positionForValue(lowerValue))
+        let lowerThumbCenter = lowerPosition
         lowerThumbLayer.frame = CGRect(x: lowerThumbCenter - thumbWidth / 2.0, y: 0.0, width: thumbWidth, height: thumbWidth)
         lowerThumbLayer.setNeedsDisplay()
 
-        let upperThumbCenter = CGFloat(positionForValue(upperValue))
+        let upperThumbCenter = upperPosition
         upperThumbLayer.frame = CGRect(x: upperThumbCenter - thumbWidth / 2.0, y: 0.0, width: thumbWidth, height: thumbWidth)
         upperThumbLayer.setNeedsDisplay()
 

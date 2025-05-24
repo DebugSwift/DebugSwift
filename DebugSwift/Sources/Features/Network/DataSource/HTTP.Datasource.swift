@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class HttpDatasource {
+final class HttpDatasource: @unchecked Sendable {
     static let shared = HttpDatasource()
 
     var httpModels: [HttpModel] = []

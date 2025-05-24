@@ -13,6 +13,7 @@ enum UserInfo {
         let detail: String
     }
 
+    @MainActor
     static var infos: [Info] {
         [
             getAppVersionInfo(),
@@ -72,6 +73,7 @@ enum UserInfo {
         )
     }
 
+    @MainActor
     static func getScreenResolution() -> Info {
         let screen = UIScreen.main
         let bounds = screen.bounds
@@ -86,6 +88,7 @@ enum UserInfo {
         )
     }
 
+    @MainActor
     static func getDeviceModelInfo() -> Info {
         let deviceModel = UIDevice.current.modelName
         return Info(
@@ -94,6 +97,7 @@ enum UserInfo {
         )
     }
 
+    @MainActor
     static func getIOSVersionInfo() -> Info {
         let iOSVersion = UIDevice.current.systemVersion
         return Info(

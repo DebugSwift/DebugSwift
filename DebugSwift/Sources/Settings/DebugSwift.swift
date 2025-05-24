@@ -12,6 +12,7 @@ public class DebugSwift {
     public init() {}
     
     @discardableResult
+    @MainActor
     public func setup(
         hideFeatures features: [DebugSwiftFeature] = [],
         disable methods: [DebugSwiftSwizzleFeature] = []
@@ -32,12 +33,14 @@ public class DebugSwift {
     }
 
     @discardableResult
+    @MainActor
     public func hide() -> Self {
         FloatViewManager.remove()
         return self
     }
 
     @discardableResult
+    @MainActor
     public func toggle() -> Self {
         FloatViewManager.toggle()
 

@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol MenuSwitchTableViewCellDelegate: AnyObject {
     func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool)
 }

@@ -33,6 +33,10 @@ struct ContentView: View {
                     Text("Alamofire Upload")
                 }
 
+                NavigationLink(destination: LeakView()) {
+                    Text("Memory Leak Demo")
+                }
+
                 Button("Show Map") {
                     presentingMap = true
                 }

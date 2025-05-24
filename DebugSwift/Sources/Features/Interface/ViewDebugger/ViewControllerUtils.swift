@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 func getNearestAncestorViewController(responder: UIResponder) -> UIViewController? {
     if let viewController = responder as? UIViewController {
         return viewController

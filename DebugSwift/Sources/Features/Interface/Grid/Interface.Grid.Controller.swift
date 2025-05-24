@@ -253,6 +253,6 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
     func colorPickerCell(
         _: ColorPickerTableViewCell, didSelectColorAtIndex index: Int
     ) {
-        userInterfaceToolkit.setSelectedGridOverlayColorSchemeIndex(index)
+//        userInterfaceToolkit.setSelectedGridOverlayColorSchemeIndex(index)
     }
 }

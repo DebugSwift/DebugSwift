@@ -8,6 +8,7 @@
 import UIKit
 
 struct PerformanceMemoryWarning {
+    @MainActor
     func generate() {
         UIApplication.shared.perform(Selector(("_performMemoryWarning")))
 

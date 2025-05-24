@@ -9,6 +9,7 @@ import PDFKit
 import UIKit
 
 enum PDFManager {
+    @MainActor
     static func generatePDF(
         title: String,
         body: String,

@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol HierarchyTableViewControllerDelegate: AnyObject {
     func hierarchyTableViewController(_ viewController: HierarchyTableViewController, didSelectSnapshot snapshot: Snapshot)
     func hierarchyTableViewController(_ viewController: HierarchyTableViewController, didDeselectSnapshot snapshot: Snapshot)
@@ -154,7 +155,7 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         guard let indexPath = cell.indexPath, let snapshot = dataSource?.value(atIndexPath: indexPath) else {
             return
         }
-        let actionSheet = makeActionSheet(snapshot: snapshot, sourceView: cell, sourcePoint: point) { snapshot in
+        let actionSheet = actionSheet(for: snapshot, from: cell, at: point) {
             self.focus(snapshot: snapshot, callDelegate: true)
         }
         present(actionSheet, animated: true, completion: nil)

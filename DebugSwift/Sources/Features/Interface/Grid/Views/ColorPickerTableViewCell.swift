@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol ColorPickerTableViewCellDelegate: AnyObject {
     func colorPickerCell(
         _ colorPickerCell: ColorPickerTableViewCell, didSelectColorAtIndex index: Int

@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class CustomHTTPProtocol: URLProtocol {
+final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private static let requestProperty = "com.custom.http.protocol"
 
     final class func clearCache() {

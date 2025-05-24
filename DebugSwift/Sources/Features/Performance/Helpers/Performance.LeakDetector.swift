@@ -401,9 +401,16 @@ extension UIView {
             )
         )
 
-        UIGraphicsBeginImageContext(imageSize)
-        guard let context = UIGraphicsGetCurrentContext() else { return nil }
-        container2.layer.render(in: context)
+        UIGraphicsBeginImageContextWithOptions(imageSize, false, 0)
+        container2.drawHierarchy(
+            in: CGRect(
+                x: 0,
+                y: 0,
+                width: imageSize.width,
+                height: imageSize.height
+            ),
+            afterScreenUpdates: true
+        )
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 
@@ -1003,7 +1010,7 @@ extension UIApplication {
                 ($0 as? UIWindowScene)?.windows ?? []
             }.first(where: \.isKeyWindow)
         } else {
-            return keyWindow
+            return UIApplication.keyWindow
         }
     }
 

@@ -117,6 +117,7 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
     }
 }
 
+@MainActor
 protocol PerformanceWidgetViewDelegate: AnyObject {
     func performanceWidgetView(
         _ performanceWidgetView: PerformanceWidgetView, didTapOnSection section: PerformanceSection

@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class ApplicationDirectories {
+final class ApplicationDirectories: @unchecked Sendable {
     static let shared = ApplicationDirectories()
 
     var support: URL {

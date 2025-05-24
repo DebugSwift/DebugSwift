@@ -8,13 +8,16 @@
 import CoreLocation
 import UIKit
 
+@MainActor
 enum FeatureHandling {
     static func setup(
         only featuresToShow: [DebugSwiftFeature] = DebugSwiftFeature.allCases
     ) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            DebugSwift.App.shared.defaultControllers.removeAll(where: { !featuresToShow.contains($0.controllerType) })
-            FloatViewManager.setup(TabBarController())
+            MainActor.assumeIsolated {
+                DebugSwift.App.shared.defaultControllers.removeAll(where: { !featuresToShow.contains($0.controllerType) })
+                FloatViewManager.setup(TabBarController())
+            }
         }
     }
 
@@ -22,19 +25,17 @@ enum FeatureHandling {
         hide features: [DebugSwiftFeature],
         disable methods: [DebugSwiftSwizzleFeature]
     ) {
-        setupControllers(features)
         setupMethods(methods)
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            FloatViewManager.setup(TabBarController())
+            MainActor.assumeIsolated {
+                DebugSwift.App.shared.defaultControllers.removeAll(where: { features.contains($0.controllerType) })
+                FloatViewManager.setup(TabBarController())
+            }
         }
     }
 
-    private static func setupControllers(_ featuresToHide: [DebugSwiftFeature]) {
-        DebugSwift.App.shared.defaultControllers.removeAll(where: { featuresToHide.contains($0.controllerType) })
-    }
-
-    private static func setupMethods(_ methodsToDisable: [DebugSwiftSwizzleFeature]) {
+    static func setupMethods(_ methodsToDisable: [DebugSwiftSwizzleFeature]) {
         DebugSwift.App.shared.disableMethods = methodsToDisable
 
         if !methodsToDisable.contains(.network) {
@@ -76,8 +77,8 @@ enum FeatureHandling {
 
     private static func enableUIView() {
         Task {
-            await UIView.swizzleMethods()
-            await UIWindow.db_swizzleMethods()
+            UIView.swizzleMethods()
+            UIWindow.db_swizzleMethods()
         }
     }
 
@@ -87,7 +88,7 @@ enum FeatureHandling {
 
     private static func enableLeaksDetector() {
         Task {
-            await UIViewController.lvcdSwizzleLifecycleMethods()
+            UIViewController.lvcdSwizzleLifecycleMethods()
         }
     }
 

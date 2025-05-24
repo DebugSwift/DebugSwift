@@ -8,11 +8,22 @@
 import UIKit
 
 enum ImpactFeedback {
-    @UserDefaultAccess(key: .feedback, defaultValue: true)
-    static var enable: Bool
+    private static let enableKey = "feedback"
+    private static let defaultValue = true
+    
+    nonisolated(unsafe) static var enable: Bool {
+        get {
+            UserDefaults.standard.object(forKey: enableKey) as? Bool ?? defaultValue
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: enableKey)
+        }
+    }
 
-    static func generate(_ feedback: UIImpactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)) {
+    @MainActor
+    static func generate(_ feedback: UIImpactFeedbackGenerator? = nil) {
         guard enable else { return }
-        feedback.impactOccurred()
+        let generator = feedback ?? UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
     }
 }

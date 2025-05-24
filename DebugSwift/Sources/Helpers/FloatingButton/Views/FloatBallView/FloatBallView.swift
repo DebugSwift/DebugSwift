@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol FloatViewDelegate: NSObjectProtocol {
     func floatViewBeginMove(floatView: FloatBallView, point: CGPoint)
     func floatViewMoved(floatView: FloatBallView, point: CGPoint)
