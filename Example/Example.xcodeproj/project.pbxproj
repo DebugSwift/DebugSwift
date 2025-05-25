@@ -16,8 +16,6 @@
 		2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */; };
 		2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2EA3B66B2B2E8054001B59FE /* DebugSwift */; };
 		396F5EF12DE273F3009CA492 /* LeakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396F5EEF2DE273F3009CA492 /* LeakView.swift */; };
-		39F8461A2DE2AD9800EAF1D8 /* Example.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 39F846192DE2AD9800EAF1D8 /* Example.xctestplan */; };
-		39F8461B2DE2AD9800EAF1D8 /* Example.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 39F846192DE2AD9800EAF1D8 /* Example.xctestplan */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +42,7 @@
 		2EC7DFEE2C12B72A005E58DF /* Example-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Example-Info.plist"; sourceTree = SOURCE_ROOT; };
 		396F5EEF2DE273F3009CA492 /* LeakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakView.swift; sourceTree = "<group>"; };
 		396F5F032DE27523009CA492 /* ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		39F846192DE2AD9800EAF1D8 /* Example.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Example.xctestplan; sourceTree = "<group>"; };
+		39F846182DE2A37D00EAF1D8 /* Example.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = Example.xctestplan; path = ../Example.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -90,7 +88,7 @@
 		2EA3B6502B2E7F71001B59FE = {
 			isa = PBXGroup;
 			children = (
-				39F846192DE2AD9800EAF1D8 /* Example.xctestplan */,
+				39F846182DE2A37D00EAF1D8 /* Example.xctestplan */,
 				2EA3B66D2B2E80C6001B59FE /* DebugSwift */,
 				2EA3B65B2B2E7F71001B59FE /* Example */,
 				396F5F042DE27523009CA492 /* ExampleTests */,
@@ -232,7 +230,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				39F8461A2DE2AD9800EAF1D8 /* Example.xctestplan in Resources */,
 				2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */,
 				2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */,
 			);
@@ -242,7 +239,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				39F8461B2DE2AD9800EAF1D8 /* Example.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
