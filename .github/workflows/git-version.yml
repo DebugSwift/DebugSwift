@@ -22,7 +22,7 @@ permissions:
 jobs:
   git_version:
     name: Determine current version
-    runs-on: macos-14
+    runs-on: macos-15
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }}
       majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}

@@ -1,23 +1,14 @@
 desc "Run the tests and prepare for Danger"
 lane :test do
-  # figure out where the DebugSwift manifest actually is (two levels up from fastlane/)
-  project_root = File.expand_path("../..", __dir__)
 
-  # switch into that directory so `swift package resolve` can see your Package.swift
-  Dir.chdir(project_root) do
-    # 1) pull down all of DebugSwift’s own SPM deps
-    sh "swift package resolve", log: true
-
-    # 2) tell Xcode to resolve whatever Swift-PM deps you added in Example.xcodeproj
-    sh <<-CMD.strip_heredoc, log: true
-      xcodebuild \
-        -resolvePackageDependencies \
-        -project Example/Example.xcodeproj \
-        -scheme Example
-    CMD
-  end
-
-  # 3) now build & test
+  gym(
+    project:                           "Example/Example.xcodeproj",
+    scheme:                            "Example",
+    clean:                             true,
+    output_directory:                  "temp/derived",
+    output_name:                       "Example.xcresult"
+  )
+  
   scan(
     project:                           "Example/Example.xcodeproj",
     scheme:                            "Example",
