@@ -1,13 +1,18 @@
 desc "Run the tests and prepare for Danger"
 lane :test do |options|
-  # Then run tests
+  # 1) make sure Xcode has the latest Swift-PM artifacts
+  sh "swift package resolve", log: true
+
   scan(
-    project: "Example.xcodeproj",
-    scheme: "Example",
+    # if you're using a workspace, uncomment the next line and comment out `project:`
+    # workspace:  "Example.xcworkspace",
+    project:    "Example.xcodeproj",
+    scheme:     "Example",
     derived_data_path: "temp/derived",
-    result_bundle: true,
-    code_coverage: true,
-    devices: ['iPhone 16'],
+    clean:      true,                # always start from a clean slate
+    result_bundle:     true,
+    code_coverage:     true,
+    devices:           ['iPhone 16'], # or ['iPhone 16 (18.1)'] to pin the OS version
     skip_package_dependencies_resolution: false
   )
 end
