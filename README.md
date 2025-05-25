@@ -19,6 +19,10 @@
 ![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/d0512b4e-afbd-427f-b8e0-f125afb92416)
 ![image11](https://github.com/DebugSwift/DebugSwift/assets/31082311/d5f36843-1f74-49b9-89ef-1875f5ae395b)
 
+## 📋 Documentation
+
+- **[Versioning Strategy](VERSIONING.md)** - Complete guide to our versioning, tagging, and release process
+
 ## Requirements
 
 - **iOS 17.0+**
