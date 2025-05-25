@@ -1,18 +1,21 @@
 desc "Run the tests and prepare for Danger"
-lane :test do |options|
-  # 1) make sure Xcode has the latest Swift-PM artifacts
-  sh "swift package resolve", log: true
+lane :test do
+  # 1) Resolve the Swift‐PM manifest in your package root
+  #    (so that DebugSwift itself is fetched)
+  sh "swift package resolve --package-path \"..\"", log: true
 
+  # 2) Tell Xcode to resolve any SPM dependencies you've just added
+  sh "xcodebuild -resolvePackageDependencies -project Example.xcodeproj -scheme Example", log: true
+
+  # 3) Build & test with Fastlane's scan
   scan(
-    # if you're using a workspace, uncomment the next line and comment out `project:`
-    # workspace:  "Example.xcworkspace",
-    project:    "Example.xcodeproj",
-    scheme:     "Example",
-    derived_data_path: "temp/derived",
-    clean:      true,                # always start from a clean slate
-    result_bundle:     true,
-    code_coverage:     true,
-    devices:           ['iPhone 16'], # or ['iPhone 16 (18.1)'] to pin the OS version
+    project:            "Example.xcodeproj",
+    scheme:             "Example",
+    derived_data_path:  "temp/derived",
+    clean:              true,
+    result_bundle:      true,
+    code_coverage:      true,
+    devices:            ['iPhone 16'],
     skip_package_dependencies_resolution: false
   )
 end
