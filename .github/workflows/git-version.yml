@@ -1,11 +1,11 @@
-
-name: Release
+name: Auto Tag and Version
 
 on:
   push:
     branches: 
       - "main"
       - "develop"
+  workflow_dispatch:
 
 permissions:
    actions: write
@@ -26,6 +26,8 @@ jobs:
     outputs:
       semVer: ${{ steps.gitversion.outputs.semVer }}
       majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
+      preReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}
+      preReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}
 
     steps:
     - name: Checkout
@@ -49,12 +51,23 @@ jobs:
 
     - name: Display GitVersion
       run: |
-        NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
+        if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          # For develop branch, create alpha tag
+          # Get the current alpha version count
+          CURRENT_VERSION="${{ steps.gitversion.outputs.majorMinorPatch }}"
+          ALPHA_COUNT=$(git tag -l "${CURRENT_VERSION}-alpha.*" | wc -l | xargs)
+          ALPHA_COUNT=$((ALPHA_COUNT + 1))
+          NEW_TAG="${CURRENT_VERSION}-alpha.${ALPHA_COUNT}"
+        else
+          NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
+        fi
         echo "Semantic Version: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
   update_podspec:
     name: Update podspec
+    # Only update podspec for main branch
+    if: contains(github.ref, 'refs/heads/main')
     needs: git_version
     runs-on: ubuntu-latest
     steps:
@@ -97,42 +110,10 @@ jobs:
         name: artifact
         path: DebugSwift.podspec
 
-  latest_release:
-    name: Get latest version
-    runs-on: ubuntu-latest
-    outputs:
-      latestTag: ${{ steps.getTag.outputs.latestTag }}
-
-    steps:
-
-    - name: Get latest release
-      uses: octokit/request-action@v2.x
-      id: get_release
-      with:
-        route: GET /repos/:repository/releases/latest
-        repository: ${{ github.repository }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Display latest release tag
-      id: getTag
-      run: |
-        json=$(cat <<-END
-          ${{ steps.get_release.outputs.data }}
-        END
-        )
-        tag=$(echo "$json" | grep -o '"tag_name": *"[^"]*"' | awk -F'"' '{print $4}')
-        echo '::set-output name=latestTag::$tag'
-        
-    - name: Display error if exists
-      run: "echo Release could not be found. Request failed with status '${{ steps.get_release.outputs.status }}'"
-      if: ${{ failure() }}
-
   tag:
     name: Create tag
     needs: 
       - git_version
-      - update_podspec
     runs-on: ubuntu-latest
 
     steps:
@@ -144,58 +125,40 @@ jobs:
       run: |
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
-        git tag ${{ needs.git_version.outputs.semVer }}
-        git push origin ${{ needs.git_version.outputs.semVer }}
+        
+        if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          # For develop branch, create alpha tag
+          CURRENT_VERSION="${{ needs.git_version.outputs.majorMinorPatch }}"
+          # Fetch all tags to ensure we have the latest
+          git fetch --tags
+          ALPHA_COUNT=$(git tag -l "${CURRENT_VERSION}-alpha.*" | wc -l | xargs)
+          ALPHA_COUNT=$((ALPHA_COUNT + 1))
+          TAG_NAME="${CURRENT_VERSION}-alpha.${ALPHA_COUNT}"
+        else
+          TAG_NAME="${{ needs.git_version.outputs.semVer }}"
+        fi
+        
+        git tag $TAG_NAME
+        git push origin $TAG_NAME
 
-  release:
-    name: Create release
-    if: contains(github.ref, 'refs/heads/main')
-    needs: 
-      - git_version
-      - latest_release
-      - tag
-    runs-on: ubuntu-latest
-    steps:
-
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      with:
-        tag_name: ${{ needs.git_version.outputs.semVer }}
-        release_name: Release ${{ needs.git_version.outputs.semVer }}
-        body: |
-          Full changelog: [${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }}](https://github.com/${{ github.repository }}/compare/${{ needs.latest_release.outputs.latestTag }}...${{ needs.git_version.outputs.semVer }})
-        draft: false
-        prerelease: false
+  # Removed the release job as releases should be done manually for main branch
+  # The latest_release job is also removed as it's only needed for automatic releases
 
   publish_pod:
     name: Publish pod
+    # Only publish pod for main branch releases (not for develop/alpha tags)
+    if: contains(github.ref, 'refs/heads/main') && github.event_name == 'workflow_dispatch'
     needs: 
       - tag
-      - release
     runs-on: macos-latest
     steps:
     
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Delete old Podspec
+    - name: Publish Pod
       run: |
-        if [ -e DebugSwift.podspec ]; then
-          rm DebugSwift.podspec
-        fi
-
-    - name: Download Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: artifact
-
-    - run: "pod trunk push DebugSwift.podspec --allow-warnings"
+        pod trunk push DebugSwift.podspec --allow-warnings
       env:
         COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
     # - run: "pod trunk me clean-sessions --all"
