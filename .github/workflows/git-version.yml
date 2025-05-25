@@ -64,52 +64,6 @@ jobs:
         echo "Semantic Version: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
-  update_podspec:
-    name: Update podspec
-    # Only update podspec for main branch
-    if: contains(github.ref, 'refs/heads/main')
-    needs: git_version
-    runs-on: ubuntu-latest
-    steps:
-    
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Display version
-      run: |
-        PODSPEC_VERSION=$(grep -E "s\.version\s*=" DebugSwift.podspec | awk -F\' '{print $2}')
-        echo "PODSPEC_VERSION=$PODSPEC_VERSION" >> $GITHUB_ENV
-        echo Current version: '${{ needs.git_version.outputs.majorMinorPatch }}'
-        echo Podspec version: "$PODSPEC_VERSION"
-
-    - name: Update version
-      run: |
-        VERSION='${{ needs.git_version.outputs.majorMinorPatch }}'
-
-        if [ "$PODSPEC_VERSION" == "$VERSION" ]; then
-          echo Podspec version is updated.
-        else
-          echo Updating Podspec version...
-          PODSPEC_FILE="DebugSwift.podspec"
-          sed -i -E "s/(s\.version *= *')([^']+)(.*)/\1$VERSION\3/g" "$PODSPEC_FILE"
-
-          git restore Example/Pods/Pods.xcodeproj/project.pbxproj
-
-          echo Committing and pushing...
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions@users.noreply.github.com"
-
-          git add "$PODSPEC_FILE"
-          git commit -m 'feat: Update Podspec version'
-          git push
-        fi
-        
-    - name: Publish Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifact
-        path: DebugSwift.podspec
-
   tag:
     name: Create tag
     needs: 
@@ -140,26 +94,3 @@ jobs:
         
         git tag $TAG_NAME
         git push origin $TAG_NAME
-
-  # Removed the release job as releases should be done manually for main branch
-  # The latest_release job is also removed as it's only needed for automatic releases
-
-  publish_pod:
-    name: Publish pod
-    # Only publish pod for main branch releases (not for develop/alpha tags)
-    if: contains(github.ref, 'refs/heads/main') && github.event_name == 'workflow_dispatch'
-    needs: 
-      - tag
-    runs-on: macos-latest
-    steps:
-    
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Publish Pod
-      run: |
-        pod trunk push DebugSwift.podspec --allow-warnings
-      env:
-        COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-    # - run: "pod trunk me clean-sessions --all"
-    

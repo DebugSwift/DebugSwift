@@ -68,20 +68,6 @@
 
 ### Installation
 
-#### CocoaPods
-
-Add the following line to your `Podfile`:
-
-```ruby
-pod 'DebugSwift', :git => 'https://github.com/DebugSwift/DebugSwift.git', :branch => 'main'
-```
-
-Then, run:
-
-```bash
-pod install
-```
-
 #### Swift Package Manager (SPM)
 
 Add the following dependency to your `Package.swift` file:
