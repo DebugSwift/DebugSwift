@@ -126,7 +126,7 @@ git push origin develop
    - **Tag name**: `v1.1.0`
    - **Release name**: `Release 1.1.0`
    - **Pre-release**: `false`
-5. Workflow creates release and publishes to CocoaPods
+5. Workflow creates GitHub release
 
 ## ⚙️ Configuration Details
 
@@ -177,7 +177,7 @@ git merge develop
 git push origin main
 
 # 5. Create manual release via GitHub Actions UI
-# → Creates v1.1.0 release and publishes to CocoaPods
+# → Creates v1.1.0 release
 ```
 
 ### Hotfix Process
@@ -227,5 +227,4 @@ git commit -m "docs: update documentation +semver: none"
 
 - [GitVersion Documentation](https://gitversion.net/)
 - [Semantic Versioning](https://semver.org/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [CocoaPods Trunk](https://guides.cocoapods.org/making/getting-setup-with-trunk.html) 
+- [GitHub Actions Documentation](https://docs.github.com/en/actions) 

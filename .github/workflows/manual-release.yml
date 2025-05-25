@@ -65,21 +65,4 @@ jobs:
         body: |
           ${{ steps.previous_tag.outputs.PREVIOUS_TAG && format('Full changelog: [{0}...{1}](https://github.com/{2}/compare/{0}...{1})', steps.previous_tag.outputs.PREVIOUS_TAG, github.event.inputs.tag_name, github.repository) || 'Initial release' }}
         draft: false
-        prerelease: ${{ github.event.inputs.is_prerelease == 'true' }}
-
-  publish_pod:
-    name: Publish to CocoaPods
-    needs: create_release
-    runs-on: macos-latest
-    steps:
-    
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.inputs.tag_name }}
-
-    - name: Publish Pod
-      run: |
-        pod trunk push DebugSwift.podspec --allow-warnings
-      env:
-        COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }} 
+        prerelease: ${{ github.event.inputs.is_prerelease == 'true' }} 
