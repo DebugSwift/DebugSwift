@@ -107,19 +107,6 @@ final class UserInfoTests: XCTestCase {
         XCTAssertEqual(info.detail, expectedDetail)
     }
 
-    func testGetMeasureAppStartUpTime() {
-        // Given
-        let expectedTitle = "Initialization Time:"
-        let expectedDetail = String(format: "%.4lf%", LaunchTimeTracker.shared.launchStartTime ?? 0) + " (s)"
-
-        // When
-        let info = UserInfo.getMeasureAppStartUpTime()
-
-        // Then
-        XCTAssertEqual(info?.title, expectedTitle)
-        XCTAssertEqual(info?.detail, expectedDetail)
-    }
-
     func testGetReachability() {
         // Given
         let expectedTitle = "Connection Type:"

@@ -24,5 +24,5 @@ let package = Package(
             ]
         )
     ],
-    swiftLanguageVersions: [.v6]
+    swiftLanguageModes: [.v6]
 )
