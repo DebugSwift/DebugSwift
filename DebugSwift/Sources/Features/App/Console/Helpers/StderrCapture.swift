@@ -4,25 +4,28 @@
  * Copyright 2020-Present Datadog, Inc.
  */
 
-import Foundation
+@preconcurrency import Foundation
 
-enum StderrCapture {
-    static var isCapturing = false
-    private static let inputPipe = Pipe()
-    private static let outputPipe = Pipe()
-    private static var originalDescriptor = FileHandle.standardError.fileDescriptor
+class StderrCapture: @unchecked Sendable {
+    var isCapturing = false
+    private let inputPipe = Pipe()
+    private let outputPipe = Pipe()
+    private var originalDescriptor = FileHandle.standardError.fileDescriptor
+    
+    private init() {}
+    static let shared = StderrCapture()
 
-    static func startCapturing() {
+    func startCapturing() {
         guard !isCapturing else { return }
 
         inputPipe.fileHandleForReading.readabilityHandler = { fileHandle in
             let data = fileHandle.availableData
             if let string = String(data: data, encoding: String.Encoding.utf8) {
-                StderrCapture.stderrMessage(string: string)
+                self.stderrMessage(string: string)
             }
 
             // Write input back to stderr
-            outputPipe.fileHandleForWriting.write(data)
+            self.outputPipe.fileHandleForWriting.write(data)
         }
         setvbuf(stderr, nil, _IONBF, 0)
 
@@ -35,40 +38,41 @@ enum StderrCapture {
         isCapturing = true
     }
 
-    static func syncData() {
+    func syncData() {
         guard isCapturing, inputPipe.fileHandleForReading.isReadable else {
             return
         }
 
-        var synchronizeData: DispatchWorkItem!
-        synchronizeData = DispatchWorkItem(block: {
-            let auxData = inputPipe.fileHandleForReading.availableData
+        let synchronizeData = DispatchWorkItem {
+            let auxData = self.inputPipe.fileHandleForReading.availableData
             if !auxData.isEmpty,
-               let string = String(data: auxData, encoding: String.Encoding.utf8) {
-                StderrCapture.stderrMessage(string: string)
+               let string = String(data: auxData, encoding: .utf8) {
+                self.stderrMessage(string: string)
             }
-        })
+        }
+
         DispatchQueue.global().async {
             synchronizeData.perform()
         }
+
         _ = synchronizeData.wait(timeout: .now() + .milliseconds(10))
     }
 
-    static func stopCapturing() {
+    func stopCapturing() {
         guard isCapturing else { return }
 
         isCapturing = false
         freopen("/dev/stderr", "a", stderr)
     }
 
-    static func stderrMessage(string: String) {
+    func stderrMessage(string: String) {
         if
             string.contains("OSLOG"),
             let message = string.split(separator: "\t").last {
             let message = String(message).trimmingCharacters(in: .whitespacesAndNewlines)
-            ConsoleOutput.printAndNSLogOutput.append("\(message)")
+            ConsoleOutput.shared.printAndNSLogOutput.append("\(message)")
         } else {
-            ConsoleOutput.errorOutput.append(string)
+            ConsoleOutput.shared.errorOutput.append(string)
 
             if
                 string.contains("]") {

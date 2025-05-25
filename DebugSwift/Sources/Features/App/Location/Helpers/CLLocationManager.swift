@@ -8,14 +8,18 @@
 import CoreLocation
 import Foundation
 
-final class CLLocationManagerTracker {
-    private static var managers: [CLLocationManager] = []
+class CLLocationManagerTracker: @unchecked Sendable {
+    
+    private init() {}
+    static let shared = CLLocationManagerTracker()
+    
+    private var managers: [CLLocationManager] = []
 
-    static func add(manager: CLLocationManager) {
+    func add(manager: CLLocationManager) {
         managers.append(manager)
     }
 
-    static func triggerUpdateForAllLocations() {
+    func triggerUpdateForAllLocations() {
         for manager in managers {
             manager.requestLocation()
         }
@@ -61,7 +65,7 @@ extension CLLocationManager {
 
     @objc dynamic func swizzledInit() -> CLLocationManager {
         let manager = self.swizzledInit()
-        CLLocationManagerTracker.add(manager: manager)
+        CLLocationManagerTracker.shared.add(manager: manager)
         return manager
     }
 

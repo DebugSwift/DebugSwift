@@ -8,19 +8,34 @@
 import UIKit
 
 extension DebugSwift {
-    public enum App {
-        public static var customInfo: (() -> [CustomData])?
-        public static var customAction: (() -> [CustomAction])?
-        public static var customControllers: (() -> [UIViewController])?
+    public class App: @unchecked Sendable {
+        public static let shared = App()
+        private init() {}
+        
+        public var customInfo: (() -> [CustomData])?
+        public var customAction: (() -> [CustomAction])?
+        public var customControllers: (() -> [UIViewController])?
 
-        static var defaultControllers: [UIViewController & MainFeatureType] = [
-            NetworkViewController(),
-            PerformanceViewController(),
-            InterfaceViewController(),
-            ResourcesViewController(),
-            AppViewController()
-        ]
+        @MainActor private var _defaultControllers: [UIViewController & MainFeatureType]?
+        
+        @MainActor var defaultControllers: [UIViewController & MainFeatureType] {
+            get {
+                if _defaultControllers == nil {
+                    _defaultControllers = [
+                        NetworkViewController(),
+                        PerformanceViewController(),
+                        InterfaceViewController(),
+                        ResourcesViewController(),
+                        AppViewController()
+                    ]
+                }
+                return _defaultControllers!
+            }
+            set {
+                _defaultControllers = newValue
+            }
+        }
 
-        static var disableMethods: [DebugSwiftSwizzleFeature] = []
+        var disableMethods: [DebugSwiftSwizzleFeature] = []
     }
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 final class FloatViewManager: NSObject {
     static let shared = FloatViewManager()
 
@@ -69,8 +70,11 @@ final class FloatViewManager: NSObject {
             object: nil,
             queue: .main
         ) { notification in
-            if let success = notification.object as? Bool {
-                Self.animate(success: success)
+            let success = notification.object as? Bool
+            MainActor.assumeIsolated {
+                if let success = success {
+                    Self.animate(success: success)
+                }
             }
         }
     }

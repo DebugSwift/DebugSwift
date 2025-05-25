@@ -23,19 +23,19 @@ class TabBarController: UITabBarController {
     }
 
     private func configureTabBar() {
-        let customControllers = DebugSwift.App.customControllers?() ?? []
-        let controllers = DebugSwift.App.defaultControllers + customControllers
+        let customControllers = DebugSwift.App.shared.customControllers?() ?? []
+        let controllers = DebugSwift.App.shared.defaultControllers + customControllers
 
         viewControllers = controllers.map {
             UINavigationController(rootViewController: $0)
         }
 
-        tabBar.tintColor = Theme.shared.fontColor
+        tabBar.tintColor = UIColor.white
         tabBar.unselectedItemTintColor = .gray
-        tabBar.setBackgroundColor(color: Theme.shared.backgroundColor)
+        tabBar.setBackgroundColor(color: UIColor.black)
         tabBar.addTopBorderWithColor(color: .gray, thickness: 0.3)
         if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
+            overrideUserInterfaceStyle = .dark
         }
     }
 
@@ -44,9 +44,9 @@ class TabBarController: UITabBarController {
         addRightBarButton(
             image: .named(
                 "arrow.down.right.and.arrow.up.left",
-                default: "close".localized()
+                default: "Close"
             ),
-            tintColor: Theme.shared.fontColor
+            tintColor: UIColor.white
         ) { [weak self] in
             self?.closeButtonTapped()
         }

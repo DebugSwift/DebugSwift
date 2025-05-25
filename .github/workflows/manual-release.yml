@@ -1,0 +1,68 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release (e.g., v1.0.0)'
+        required: true
+      release_name:
+        description: 'Release name'
+        required: true
+      is_prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+   contents: write
+
+jobs:
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Get latest release
+      uses: octokit/request-action@v2.x
+      id: get_release
+      continue-on-error: true
+      with:
+        route: GET /repos/:repository/releases/latest
+        repository: ${{ github.repository }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract previous tag
+      id: previous_tag
+      run: |
+        if [ "${{ steps.get_release.outcome }}" == "success" ]; then
+          json=$(cat <<-END
+            ${{ steps.get_release.outputs.data }}
+          END
+          )
+          tag=$(echo "$json" | grep -o '"tag_name": *"[^"]*"' | awk -F'"' '{print $4}')
+          echo "PREVIOUS_TAG=$tag" >> $GITHUB_OUTPUT
+        else
+          echo "PREVIOUS_TAG=" >> $GITHUB_OUTPUT
+        fi
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.inputs.tag_name }}
+        release_name: ${{ github.event.inputs.release_name }}
+        body: |
+          ${{ steps.previous_tag.outputs.PREVIOUS_TAG && format('Full changelog: [{0}...{1}](https://github.com/{2}/compare/{0}...{1})', steps.previous_tag.outputs.PREVIOUS_TAG, github.event.inputs.tag_name, github.repository) || 'Initial release' }}
+        draft: false
+        prerelease: ${{ github.event.inputs.is_prerelease == 'true' }} 

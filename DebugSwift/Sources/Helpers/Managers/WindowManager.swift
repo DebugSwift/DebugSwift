@@ -8,8 +8,10 @@
 import Foundation
 import UIKit
 
+@MainActor
 enum WindowManager {
-    static var isSelectingWindow = false
+    nonisolated(unsafe) static var isSelectingWindow = false
+    
     static var rootNavigation: UINavigationController? {
         window.rootViewController as? UINavigationController
     }
@@ -17,7 +19,7 @@ enum WindowManager {
     static let window: CustomWindow = {
         let window: CustomWindow
         if #available(iOS 13.0, *),
-           let scene = UIApplication.shared.keyWindow?.windowScene {
+           let scene = UIApplication.keyWindow?.windowScene {
             window = CustomWindow(windowScene: scene)
         } else {
             window = CustomWindow(frame: UIScreen.main.bounds)
@@ -36,7 +38,7 @@ enum WindowManager {
         FloatViewManager.isShowingDebuggerView = true
         if let viewController = FloatViewManager.shared.floatViewController {
             // Prevent clicks
-            UIApplication.shared.beginIgnoringInteractionEvents()
+            window.isUserInteractionEnabled = false
             // Remove keyboard, if opened.
             UIWindow.keyWindow?.endEditing(true)
 
@@ -44,7 +46,7 @@ enum WindowManager {
                 viewController,
                 animated: true
             )
-            UIApplication.shared.endIgnoringInteractionEvents()
+            window.isUserInteractionEnabled = true
         }
     }
 
@@ -79,7 +81,7 @@ enum WindowManager {
             popoverController.sourceRect = FloatViewManager.shared.ballView.bounds
         }
 
-        let filteredWindows = UIApplication.shared.windows.filter { window in
+        let filteredWindows = UIWindowScene._windows.filter { window in
             String(describing: type(of: window)) != "UITextEffectsWindow"
                 && window.windowLevel < UIWindow.Level.alert
         }

@@ -38,7 +38,7 @@ final class ResourcesHTTPCookiesViewModel: NSObject, ResourcesGenericListViewMod
     var reloadData: (() -> Void)?
 
     func viewTitle() -> String {
-        "httpcookies".localized()
+        "HTTP Cookies"
     }
 
     func numberOfItems() -> Int {
@@ -81,7 +81,7 @@ final class ResourcesHTTPCookiesViewModel: NSObject, ResourcesGenericListViewMod
     }
 
     func emptyListDescriptionString() -> String {
-        "empty-data".localized() + viewTitle()
+        "No data found in the " + viewTitle()
     }
 
     // MARK: - Search Functionality

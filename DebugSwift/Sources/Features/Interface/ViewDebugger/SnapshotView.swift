@@ -9,6 +9,7 @@
 import SceneKit
 import UIKit
 
+@MainActor
 protocol SnapshotViewDelegate: AnyObject {
     /// Called when an element is select by tapping on it.
     func snapshotView(_ snapshotView: SnapshotView, didSelectSnapshot snapshot: Snapshot)
@@ -330,7 +331,9 @@ final class SnapshotView: UIView {
             delegate?.snapshotView(self, didLongPressSnapshot: nodes.snapshot, point: point)
         } else {
             let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-            globalActions().forEach(alert.addAction)
+            for action in globalActions() {
+                alert.addAction(action)
+            }
             let cancel = UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel the action"), style: .cancel, handler: nil)
             alert.addAction(cancel)
             alert.preferredAction = cancel
@@ -390,6 +393,7 @@ private func shouldHideHeaderNodes(zSpacing: Float) -> Bool {
 }
 
 /// Returns the nearest ancestor snapshot node starting at the specified node.
+@MainActor
 private func findNearestAncestorSnapshotNode(node: SCNNode?) -> SCNNode? {
     guard let node else {
         return nil
@@ -401,6 +405,7 @@ private func findNearestAncestorSnapshotNode(node: SCNNode?) -> SCNNode? {
 }
 
 /// Returns a node that renders a highlight overlay over a specified snapshot.
+@MainActor
 private func highlightNode(snapshot: Snapshot, color: UIColor) -> SCNNode {
     let path = UIBezierPath(rect: CGRect(origin: .zero, size: snapshot.frame.size))
     let shape = SCNShape(path: path, extrusionDepth: .zero)
@@ -417,6 +422,7 @@ private func highlightNode(snapshot: Snapshot, color: UIColor) -> SCNNode {
 
 /// Returns a SceneKit node that recursively renders a hierarchy of UI elements
 /// starting at the specified snapshot.
+@MainActor
 private func snapshotNode(
     snapshot: Snapshot,
     parentSnapshot: Snapshot?,
@@ -529,6 +535,7 @@ private func snapshotNode(
 }
 
 /// Returns a node that renders a snapshot image.
+@MainActor
 private func snapshotNode(snapshot: Snapshot) -> SCNNode {
     let path = UIBezierPath(rect: CGRect(origin: .zero, size: snapshot.frame.size))
     let shape = SCNShape(path: path, extrusionDepth: .zero)
@@ -537,13 +544,14 @@ private func snapshotNode(snapshot: Snapshot) -> SCNNode {
     if let snapshot = snapshot.snapshotImage {
         material.diffuse.contents = snapshot
     } else {
-        material.diffuse.contents = Theme.shared.fontColor
+        material.diffuse.contents = UIColor.white
     }
     shape.insertMaterial(material, at: .zero)
     return SCNNode(geometry: shape)
 }
 
 /// Returns a node that draws a line between two vertices.
+@MainActor
 private func lineFrom(vertex vertex1: SCNVector3, toVertex vertex2: SCNVector3, color: UIColor) -> SCNNode {
     let indices: [Int32] = [0, 1]
     let source = SCNGeometrySource(vertices: [vertex1, vertex2])
@@ -560,6 +568,7 @@ private func lineFrom(vertex vertex1: SCNVector3, toVertex vertex2: SCNVector3, 
 
 /// Returns an array of nodes that can be used to render a colored
 /// border around the specified node.
+@MainActor
 private func borderNode(node: SCNNode, color: UIColor) -> SCNNode {
     let (min, max) = node.boundingBox
     let topLeft = SCNVector3(x: min.x, y: max.y, z: smallZOffset)
@@ -582,6 +591,7 @@ private func borderNode(node: SCNNode, color: UIColor) -> SCNNode {
 
 /// Returns a node that renders a header above a snapshot node.
 /// The header contains the name text from the element, if specified.
+@MainActor
 private func headerNode(
     snapshot: Snapshot,
     attributes: SnapshotViewConfiguration.HeaderAttributes
@@ -616,6 +626,7 @@ private func headerNode(
 }
 
 /// Returns a shape that is used to render the background of the header.
+@MainActor
 private func nameHeaderShape(frame: CGRect, color: UIColor, cornerRadius: CGFloat) -> SCNShape {
     let path = UIBezierPath(roundedRect: frame, byRoundingCorners: [.bottomLeft, .bottomRight], cornerRadii: CGSize(width: cornerRadius, height: cornerRadius))
     let shape = SCNShape(path: path, extrusionDepth: .zero)
@@ -627,6 +638,7 @@ private func nameHeaderShape(frame: CGRect, color: UIColor, cornerRadius: CGFloa
 }
 
 /// Returns a text geometry used to render text inside the header.
+@MainActor
 private func nameTextGeometry(label: ElementLabel, font: UIFont) -> SCNText? {
     guard let name = label.name else {
         return nil

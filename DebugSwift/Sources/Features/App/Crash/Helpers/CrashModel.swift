@@ -41,15 +41,30 @@ extension CrashModel {
         let reachability: String
 
         static func builder(name: String) -> Self {
-            .init(
-                name: name,
-                date: .init(),
-                appVersion: UserInfo.getAppVersionInfo()?.detail,
-                appBuild: UserInfo.getAppBuildInfo()?.detail,
-                iosVersion: UserInfo.getIOSVersionInfo().detail,
-                deviceModel: UserInfo.getDeviceModelInfo().detail,
-                reachability: UserInfo.getReachability().detail
-            )
+            if Thread.isMainThread {
+                return MainActor.assumeIsolated {
+                    .init(
+                        name: name,
+                        date: .init(),
+                        appVersion: UserInfo.getAppVersionInfo()?.detail,
+                        appBuild: UserInfo.getAppBuildInfo()?.detail,
+                        iosVersion: UserInfo.getIOSVersionInfo().detail,
+                        deviceModel: UserInfo.getDeviceModelInfo().detail,
+                        reachability: UserInfo.getReachability().detail
+                    )
+                }
+            } else {
+                // When not on main thread, we can't access main actor isolated properties
+                return .init(
+                    name: name,
+                    date: .init(),
+                    appVersion: UserInfo.getAppVersionInfo()?.detail,
+                    appBuild: UserInfo.getAppBuildInfo()?.detail,
+                    iosVersion: "Unknown",
+                    deviceModel: "Unknown",
+                    reachability: UserInfo.getReachability().detail
+                )
+            }
         }
     }
 }
@@ -66,11 +81,22 @@ extension CrashModel {
         }
 
         static func builder() -> Self {
-            .init(
-                image: UIWindow.keyWindow?._snapshotWithTouch?.pngData(),
-                consoleOutput: ConsoleOutput.printAndNSLogOutputFormatted(),
-                errorOutput: ConsoleOutput.errorOutputFormatted()
-            )
+            if Thread.isMainThread {
+                return MainActor.assumeIsolated {
+                    .init(
+                        image: UIWindow.keyWindow?._snapshotWithTouch?.pngData(),
+                        consoleOutput: ConsoleOutput.shared.printAndNSLogOutputFormatted(),
+                        errorOutput: ConsoleOutput.shared.errorOutputFormatted()
+                    )
+                }
+            } else {
+                // When not on main thread, we can't capture the snapshot
+                return .init(
+                    image: nil,
+                    consoleOutput: ConsoleOutput.shared.printAndNSLogOutputFormatted(),
+                    errorOutput: ConsoleOutput.shared.errorOutputFormatted()
+                )
+            }
         }
     }
 }

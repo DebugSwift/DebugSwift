@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public protocol MainFeatureType {
     var controllerType: DebugSwiftFeature { get }
 }

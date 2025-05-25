@@ -24,7 +24,7 @@ final class ResourcesGenericController: BaseTableController {
     private let backgroundLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .headline)
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         label.textAlignment = .center
         label.numberOfLines = .zero
         return label
@@ -59,7 +59,7 @@ final class ResourcesGenericController: BaseTableController {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
 
         guard viewModel.numberOfItems() != .zero else { return }
 
@@ -70,20 +70,20 @@ final class ResourcesGenericController: BaseTableController {
                 .init(
                     image: .named(
                         "trash.circle",
-                        default: "delete.action".localized()
+                        default: "Delete"
                     ),
                     tintColor: .red
                 ) { [weak self] in
                     self?.showAlert(
-                        with: "delete.title".localized(),
-                        title: "delete.subtitle".localized(),
-                        leftButtonTitle: "delete.action".localized(),
+                        with: "Warning",
+                        title: "This action remove all data",
+                        leftButtonTitle: "Delete",
                         leftButtonStyle: .destructive,
                         leftButtonHandler: {
                             _ in
                             self?.clearAction()
                         },
-                        rightButtonTitle: "delete.cancel".localized(),
+                        rightButtonTitle: "Cancel",
                         rightButtonStyle: .cancel
                     )
                 }
@@ -93,7 +93,7 @@ final class ResourcesGenericController: BaseTableController {
         if viewModel.isShareEnable {
             actions.append(
                 .init(
-                    image: .named("square.and.arrow.up", default: "share".localized())
+                    image: .named("square.and.arrow.up", default: "Share")
                 ) { [weak self] in
                     self?.viewModel.handleShareAction()
                 }
@@ -142,8 +142,8 @@ final class ResourcesGenericController: BaseTableController {
 
         let dataSource = viewModel.dataSourceForItem(atIndex: indexPath.row)
         let image: UIImage? = viewModel.isCustomActionEnable ?
-            .named("chevron.right.square", default: "action".localized()) :
-            .named("doc.on.doc", default: "copy".localized())
+            .named("chevron.right.square", default: "Action") :
+            .named("doc.on.doc", default: "Copy")
         cell.setup(
             title: dataSource.title,
             subtitle: dataSource.value,
@@ -170,7 +170,7 @@ final class ResourcesGenericController: BaseTableController {
     override func tableView(
         _: UITableView, titleForDeleteConfirmationButtonForRowAt _: IndexPath
     ) -> String? {
-        viewModel.isDeleteEnable ? "delete.action".localized() : nil
+        viewModel.isDeleteEnable ? "Delete" : nil
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

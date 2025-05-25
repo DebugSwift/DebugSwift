@@ -52,7 +52,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     // MARK: - Setup Methods
 
     private func setup() {
-        title = "performance-title".localized()
+        title = "Performance"
         tabBarItem = UITabBarItem(
             title: title,
             image: .named("speedometer"),
@@ -74,9 +74,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             forCellReuseIdentifier: Identifier.chart.rawValue
         )
 
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.showsVerticalScrollIndicator = false
-        view.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = UIColor.black
     }
 
     // MARK: - Updating section
@@ -135,12 +135,12 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         switch index {
         case 0:
             let cell = reuseCell()
-            cell.textLabel?.text = "cpu-usage".localized()
+            cell.textLabel?.text = "CPU usage"
             cell.detailTextLabel?.text = String(format: "%.1lf%%", performanceToolkit.currentCPU)
             return cell
         case 1:
             let cell = reuseCell()
-            cell.textLabel?.text = "max-cpu-usage".localized()
+            cell.textLabel?.text = "Max CPU usage"
             cell.detailTextLabel?.text = String(format: "%.1lf%%", performanceToolkit.maxCPU)
             return cell
         case 2:
@@ -162,17 +162,17 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         switch index {
         case 0:
             let cell = reuseCell()
-            cell.textLabel?.text = "memory-usage".localized()
+            cell.textLabel?.text = "Memory usage"
             cell.detailTextLabel?.text = String(format: "%.1lf MB", performanceToolkit.currentMemory)
             return cell
         case 1:
             let cell = reuseCell()
-            cell.textLabel?.text = "max-memory-usage".localized()
+            cell.textLabel?.text = "Max memory usage"
             cell.detailTextLabel?.text = String(format: "%.1lf MB", performanceToolkit.maxMemory)
             return cell
         case 2:
             let cell = reuseCell(for: .memoryWarning)
-            cell.textLabel?.text = "simulate-memory-warning".localized()
+            cell.textLabel?.text = "Simulate memory warning"
             cell.contentView.backgroundColor = .systemBlue
             return cell
 
@@ -195,10 +195,10 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
         switch index {
         case 0:
-            cell.textLabel?.text = "fps".localized()
+            cell.textLabel?.text = "FPS"
             cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.currentFPS)
         case 1:
-            cell.textLabel?.text = "min-fps".localized()
+            cell.textLabel?.text = "Min FPS"
             cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.minFPS)
         case 2:
             guard let chartCell = reuseCell(for: .chart) as? MenuChartTableViewCell else { return nil }
@@ -220,14 +220,14 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         switch index {
         case 0:
             let cell = reuseCell()
-            cell.textLabel?.text = "current-leaks".localized()
-            cell.detailTextLabel?.text = "\(PerformanceLeakDetector.leaks.count)"
+            cell.textLabel?.text = "All Leaks"
+            cell.detailTextLabel?.text = "\(PerformanceLeakDetector.shared.leaks.count)"
             return cell
         case 1:
             let cell = reuseCell(for: .leak)
             cell.setup(
-                title: "see-leaks".localized(),
-                image: .named("chevron.right", default: "action".localized())
+                title: "⚠️ Show Leaks",
+                image: .named("chevron.right", default: "Action")
             )
             return cell
         default:
@@ -253,9 +253,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     private func reuseCell(for reuseIdentifier: Identifier = .value) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier.rawValue) ?? UITableViewCell(style: .value1, reuseIdentifier: reuseIdentifier.rawValue)
         cell.selectionStyle = .none
-        cell.backgroundColor = Theme.shared.backgroundColor
-        cell.textLabel?.textColor = Theme.shared.fontColor
-        cell.detailTextLabel?.textColor = Theme.shared.fontColor
+        cell.backgroundColor = UIColor.black
+        cell.textLabel?.textColor = UIColor.white
+        cell.detailTextLabel?.textColor = UIColor.white
         return cell
     }
 
@@ -276,7 +276,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         switch type {
         case .memoryWarning:
             cell?.simulateButtonTap()
-            PerformanceMemoryWarning.generate()
+            PerformanceMemoryWarning().generate()
         case .leak:
             let viewModel = LeaksViewModel()
             let controller = ResourcesGenericController(viewModel: viewModel)
@@ -320,7 +320,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             tableView.dequeueReusableCell(
                 withIdentifier: MenuSwitchTableViewCell.identifier
             ) as? MenuSwitchTableViewCell ?? .init()
-        cell.titleLabel.text = "show-widget".localized()
+        cell.titleLabel.text = "Show widget"
         cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
         cell.delegate = self
         return cell
@@ -329,13 +329,13 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     private func segmentedControlCell() -> UITableViewCell? {
         guard let cell = reuseCell(for: .segmentedControl) as? MenuSegmentedControlTableViewCell else { return nil }
         var segmentTitles = [
-            "cpu".localized(),
-            "memory".localized(),
-            "fps".localized()
+            "CPU",
+            "Memory",
+            "FPS"
         ]
 
-        if !DebugSwift.App.disableMethods.contains(.leaksDetector) {
-            segmentTitles.append("leaks".localized())
+        if !DebugSwift.App.shared.disableMethods.contains(.leaksDetector) {
+            segmentTitles.append("Leaks")
         }
 
         cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)

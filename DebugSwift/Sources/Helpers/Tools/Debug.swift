@@ -9,12 +9,23 @@
 import Foundation
 
 enum Debug {
-    @UserDefaultAccess(key: .debugger, defaultValue: false)
-    static var enable: Bool
+    private static let enableKey = "debugger"
+    private static let defaultValue = false
+    
+    nonisolated(unsafe) static var enable: Bool {
+        get {
+            UserDefaults.standard.object(forKey: enableKey) as? Bool ?? defaultValue
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: enableKey)
+        }
+    }
 
     static func execute(action: () -> Void) {
+        #if DEBUG
         guard enable else { return }
         action()
+        #endif
     }
 
     static func print(

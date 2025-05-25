@@ -31,7 +31,7 @@ class BaseTableController: UITableViewController {
 
     func configureAppearance() {
         if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = Theme.shared.interfaceStyleColor
+            overrideUserInterfaceStyle = .dark
         }
     }
 }

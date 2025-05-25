@@ -8,13 +8,16 @@
 import CoreLocation
 import UIKit
 
+@MainActor
 enum FeatureHandling {
     static func setup(
         only featuresToShow: [DebugSwiftFeature] = DebugSwiftFeature.allCases
     ) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            DebugSwift.App.defaultControllers.removeAll(where: { !featuresToShow.contains($0.controllerType) })
-            FloatViewManager.setup(TabBarController())
+            MainActor.assumeIsolated {
+                DebugSwift.App.shared.defaultControllers.removeAll(where: { !featuresToShow.contains($0.controllerType) })
+                FloatViewManager.setup(TabBarController())
+            }
         }
     }
 
@@ -22,20 +25,18 @@ enum FeatureHandling {
         hide features: [DebugSwiftFeature],
         disable methods: [DebugSwiftSwizzleFeature]
     ) {
-        setupControllers(features)
         setupMethods(methods)
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            FloatViewManager.setup(TabBarController())
+            MainActor.assumeIsolated {
+                DebugSwift.App.shared.defaultControllers.removeAll(where: { features.contains($0.controllerType) })
+                FloatViewManager.setup(TabBarController())
+            }
         }
     }
 
-    private static func setupControllers(_ featuresToHide: [DebugSwiftFeature]) {
-        DebugSwift.App.defaultControllers.removeAll(where: { featuresToHide.contains($0.controllerType) })
-    }
-
-    private static func setupMethods(_ methodsToDisable: [DebugSwiftSwizzleFeature]) {
-        DebugSwift.App.disableMethods = methodsToDisable
+    static func setupMethods(_ methodsToDisable: [DebugSwiftSwizzleFeature]) {
+        DebugSwift.App.shared.disableMethods = methodsToDisable
 
         if !methodsToDisable.contains(.network) {
             enableNetwork()
@@ -62,21 +63,23 @@ enum FeatureHandling {
         }
     }
 
-    private static  func enableNetwork() {
+    private static func enableNetwork() {
         URLSessionConfiguration.swizzleMethods()
         NetworkHelper.shared.enable()
     }
 
     private static func enableCrashManager() {
-        StderrCapture.startCapturing()
-        StderrCapture.syncData()
+        StderrCapture.shared.startCapturing()
+        StderrCapture.shared.syncData()
 
-        CrashManager.register()
+        CrashManager.shared.register()
     }
 
     private static func enableUIView() {
-        UIView.swizzleMethods()
-        UIWindow.db_swizzleMethods()
+        Task {
+            UIView.swizzleMethods()
+            UIWindow.db_swizzleMethods()
+        }
     }
 
     private static func enableLocation() {
@@ -84,10 +87,12 @@ enum FeatureHandling {
     }
 
     private static func enableLeaksDetector() {
-        UIViewController.lvcdSwizzleLifecycleMethods()
+        Task {
+            UIViewController.lvcdSwizzleLifecycleMethods()
+        }
     }
 
     private static func enableConsole() {
-        StdoutCapture.startCapturing()
+        StdoutCapture.shared.startCapturing()
     }
 }

@@ -9,12 +9,14 @@
 import Foundation
 import UIKit
 
-private var UIViewShowsDebugBorderKey: UInt8 = 0
-private var UIViewPreviousBorderColorKey: UInt8 = 1
-private var UIViewPreviousBorderWidthKey: UInt8 = 2
-private var UIViewDebugBorderColorKey: UInt8 = 3
-
 extension UIView {
+    
+    // Associated object keys
+    private static var showsDebugBorderKey: Void?
+    private static var previousBorderColorKey: Void?
+    private static var previousBorderWidthKey: Void?
+    private static var debugBorderColorKey: Void?
+    
     func simulateButtonTap(completion: (() -> Void)? = nil) {
         ImpactFeedback.generate()
         UIView.animate(withDuration: 0.1, animations: {
@@ -39,11 +41,11 @@ extension UIView {
 
     private var showsDebugBorder: Bool {
         get {
-            objc_getAssociatedObject(self, &UIViewShowsDebugBorderKey) as? Bool ?? false
+            objc_getAssociatedObject(self, &UIView.showsDebugBorderKey) as? Bool ?? false
         }
         set {
             objc_setAssociatedObject(
-                self, &UIViewShowsDebugBorderKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                self, &UIView.showsDebugBorderKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
         }
     }
@@ -52,12 +54,12 @@ extension UIView {
 
     private var previousBorderColor: CGColor? {
         get {
-            (objc_getAssociatedObject(self, &UIViewPreviousBorderColorKey) as? UIColor)?.cgColor
+            (objc_getAssociatedObject(self, &UIView.previousBorderColorKey) as? UIColor)?.cgColor
         }
         set {
             if let color = newValue {
                 objc_setAssociatedObject(
-                    self, &UIViewPreviousBorderColorKey, UIColor(cgColor: color),
+                    self, &UIView.previousBorderColorKey, UIColor(cgColor: color),
                     .OBJC_ASSOCIATION_RETAIN_NONATOMIC
                 )
             }
@@ -68,11 +70,11 @@ extension UIView {
 
     private var previousBorderWidth: CGFloat {
         get {
-            objc_getAssociatedObject(self, &UIViewPreviousBorderWidthKey) as? CGFloat ?? 0.0
+            objc_getAssociatedObject(self, &UIView.previousBorderWidthKey) as? CGFloat ?? 0.0
         }
         set {
             objc_setAssociatedObject(
-                self, &UIViewPreviousBorderWidthKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                self, &UIView.previousBorderWidthKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
         }
     }
@@ -81,18 +83,18 @@ extension UIView {
 
     private var debugBorderColor: CGColor {
         get {
-            if let color = objc_getAssociatedObject(self, &UIViewDebugBorderColorKey) as? UIColor {
+            if let color = objc_getAssociatedObject(self, &UIView.debugBorderColorKey) as? UIColor {
                 return color.cgColor
             }
             let color = UIColor.randomColor()
             objc_setAssociatedObject(
-                self, &UIViewDebugBorderColorKey, color, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+                self, &UIView.debugBorderColorKey, color, .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
             return color.cgColor
         }
         set {
             objc_setAssociatedObject(
-                self, &UIViewDebugBorderColorKey, UIColor(cgColor: newValue),
+                self, &UIView.debugBorderColorKey, UIColor(cgColor: newValue),
                 .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
         }

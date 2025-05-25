@@ -19,15 +19,15 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         var localized: String {
             switch self {
             case .fileManager:
-                "files-title".localized()
+                "Files"
             case .userDefaults:
-                "user-defaults".localized()
+                "User Defaults"
             case .keychain:
-                "keychain".localized()
+                "Keychain"
             case .coreData:
                 ""
             case .httpCookies:
-                "httpcookies".localized()
+                "HTTP Cookies"
             }
         }
     }
@@ -37,7 +37,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.separatorColor = .darkGray
 
         return tableView
@@ -81,7 +81,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
     }
 
     func setupTabBar() {
-        title = "resources-title".localized()
+        title = "Resources"
         tabBarItem = UITabBarItem(
             title: title,
             image: .named("filemenu.and.selection"),

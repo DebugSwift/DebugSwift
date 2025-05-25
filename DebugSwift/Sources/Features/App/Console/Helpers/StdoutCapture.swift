@@ -7,8 +7,8 @@
 
 import UIKit
 
-final class StdoutCapture {
-    private static let shared = StdoutCapture()
+class StdoutCapture: @unchecked Sendable {
+    static let shared = StdoutCapture()
 
     // MARK: - Properties
 
@@ -34,19 +34,21 @@ final class StdoutCapture {
 
     // MARK: - Lifecycle Methods
 
-    static func startCapturing() {
-        if let logUrl = shared.logUrl {
-            do {
-                let header =
+    func startCapturing() {
+        Task {
+            if let logUrl = logUrl {
+                do {
+                    let header =
                     """
                     Start logger
-                    DeviceID: \(UIDevice.current.identifierForVendor?.uuidString ?? "none")
+                    DeviceID: \(await UIDevice.current.identifierForVendor?.uuidString ?? "none")
                     """
-                try header.write(to: logUrl, atomically: true, encoding: .utf8)
-            } catch {}
+                    try header.write(to: logUrl, atomically: true, encoding: .utf8)
+                } catch {}
+            }
+            
+            openConsolePipe()
         }
-
-        shared.openConsolePipe()
     }
 
     private func openConsolePipe() {
@@ -114,20 +116,20 @@ final class StdoutCapture {
 
         if !shouldIgnoreLog(output), shouldIncludeLog(output) {
             queue.async {
-                ConsoleOutput.printAndNSLogOutput.append(output)
+                ConsoleOutput.shared.printAndNSLogOutput.append(output)
             }
         }
     }
 
     private func shouldIgnoreLog(_ log: String) -> Bool {
-        DebugSwift.Console.ignoredLogs.contains { log.contains($0) }
+        DebugSwift.Console.shared.ignoredLogs.contains { log.contains($0) }
     }
 
     private func shouldIncludeLog(_ log: String) -> Bool {
-        if DebugSwift.Console.onlyLogs.isEmpty {
+        if DebugSwift.Console.shared.onlyLogs.isEmpty {
             return true
         }
-        return DebugSwift.Console.onlyLogs.contains { log.contains($0) }
+        return DebugSwift.Console.shared.onlyLogs.contains { log.contains($0) }
     }
 }
 

@@ -14,191 +14,191 @@ enum ErrorHelper {
             // https://httpstatuses.com
             switch Int(model.statusCode ?? "") {
             case 100:
-                model.errorDescription = "error-continue-description".localized()
-                model.errorLocalizedDescription = "error-continue".localized()
+                model.errorDescription = "Informational:\nClient should continue with request"
+                model.errorLocalizedDescription = "Continue"
             case 101:
-                model.errorDescription = "error-switching-protocols-description".localized()
-                model.errorLocalizedDescription = "error-switching-protocols".localized()
+                model.errorDescription = "Informational:\nServer is switching protocols"
+                model.errorLocalizedDescription = "Switching Protocols"
             case 102:
-                model.errorDescription = "error-processing-description".localized()
-                model.errorLocalizedDescription = "error-processing".localized()
+                model.errorDescription = "Informational:\nServer has received and is processing the request"
+                model.errorLocalizedDescription = "Processing"
             case 103:
-                model.errorDescription = "error-checkpoint-description".localized()
-                model.errorLocalizedDescription = "error-checkpoint".localized()
+                model.errorDescription = "Informational:\nResume aborted PUT or POST requests"
+                model.errorLocalizedDescription = "Checkpoint"
             case 122:
-                model.errorDescription = "error-uri-too-long-description".localized()
-                model.errorLocalizedDescription = "error-uri-too-long".localized()
+                model.errorDescription = "Informational:\nURI is longer than a maximum of 2083 characters"
+                model.errorLocalizedDescription = "Request-URI too long"
             case 300:
-                model.errorDescription = "error-multiple-choices-description".localized()
-                model.errorLocalizedDescription = "error-multiple-choices".localized()
+                model.errorDescription = "Redirection:\nMultiple options for the resource delivered"
+                model.errorLocalizedDescription = "Multiple Choices"
             case 301:
-                model.errorDescription = "error-moved-permanently-description".localized()
-                model.errorLocalizedDescription = "error-moved-permanently".localized()
+                model.errorDescription = "Redirection:\nThis and all future requests directed to the given URI"
+                model.errorLocalizedDescription = "Moved Permanently"
             case 302:
-                model.errorDescription = "error-found-description".localized()
-                model.errorLocalizedDescription = "error-found".localized()
+                model.errorDescription = "Redirection:\nTemporary response to request found via an alternative URI"
+                model.errorLocalizedDescription = "Found"
             case 303:
-                model.errorDescription = "error-see-other-description".localized()
-                model.errorLocalizedDescription = "error-see-other".localized()
+                model.errorDescription = "Redirection:\nPermanent response to request found via an alternative URI"
+                model.errorLocalizedDescription = "See Other"
             case 304:
-                model.errorDescription = "error-not-modified-description".localized()
-                model.errorLocalizedDescription = "error-not-modified".localized()
+                model.errorDescription = "Redirection:\nResource has not been modified since last requested"
+                model.errorLocalizedDescription = "Not Modified"
             case 305:
-                model.errorDescription = "error-use-proxy-description".localized()
-                model.errorLocalizedDescription = "error-use-proxy".localized()
+                model.errorDescription = "Redirection:\nContent located elsewhere, retrieve from there"
+                model.errorLocalizedDescription = "Use Proxy"
             case 306:
-                model.errorDescription = "error-switch-proxy-description".localized()
-                model.errorLocalizedDescription = "error-switch-proxy".localized()
+                model.errorDescription = "Redirection:\nSubsequent requests should use the specified proxy"
+                model.errorLocalizedDescription = "Switch Proxy"
             case 307:
-                model.errorDescription = "error-temporary-redirect-description".localized()
-                model.errorLocalizedDescription = "error-temporary-redirect".localized()
+                model.errorDescription = "Redirection:\nConnect again to a different URI as provided"
+                model.errorLocalizedDescription = "Temporary Redirect"
             case 308:
-                model.errorDescription = "error-permanent-redirect-description".localized()
-                model.errorLocalizedDescription = "error-permanent-redirect".localized()
+                model.errorDescription = "Redirection:\nConnect again to a different URI using the same method"
+                model.errorLocalizedDescription = "Permanent Redirect"
             case 400:
-                model.errorDescription = "error-bad-request-description".localized()
-                model.errorLocalizedDescription = "error-bad-request".localized()
+                model.errorDescription = "Client Error:\nRequest cannot be fulfilled due to bad syntax"
+                model.errorLocalizedDescription = "Bad Request"
             case 401:
-                model.errorDescription = "error-unauthorized-description".localized()
-                model.errorLocalizedDescription = "error-unauthorized".localized()
+                model.errorDescription = "Client Error:\nAuthentication is possible but has failed"
+                model.errorLocalizedDescription = "Unauthorized"
             case 402:
-                model.errorDescription = "error-payment-required-description".localized()
-                model.errorLocalizedDescription = "error-payment-required".localized()
+                model.errorDescription = "Client Error:\nPayment required, reserved for future use"
+                model.errorLocalizedDescription = "Payment Required"
             case 403:
-                model.errorDescription = "error-forbidden-description".localized()
-                model.errorLocalizedDescription = "error-forbidden".localized()
+                model.errorDescription = "Client Error:\nServer refuses to respond to the request"
+                model.errorLocalizedDescription = "Forbidden"
             case 404:
-                model.errorDescription = "error-not-found-description".localized()
-                model.errorLocalizedDescription = "error-not-found".localized()
+                model.errorDescription = "Client Error:\nRequested resource could not be found"
+                model.errorLocalizedDescription = "Not Found"
             case 405:
-                model.errorDescription = "error-method-not-allowed-description".localized()
-                model.errorLocalizedDescription = "error-method-not-allowed".localized()
+                model.errorDescription = "Client Error:\nRequest method not supported by that resource"
+                model.errorLocalizedDescription = "Method Not Allowed"
             case 406:
-                model.errorDescription = "error-not-acceptable-description".localized()
-                model.errorLocalizedDescription = "error-not-acceptable".localized()
+                model.errorDescription = "Client Error:\nContent not acceptable according to the Accept headers"
+                model.errorLocalizedDescription = "Not Acceptable"
             case 407:
-                model.errorDescription = "error-proxy-authentication-required-description".localized()
-                model.errorLocalizedDescription = "error-proxy-authentication-required".localized()
+                model.errorDescription = "Client Error:\nClient must first authenticate itself with the proxy"
+                model.errorLocalizedDescription = "Proxy Authentication Required"
             case 408:
-                model.errorDescription = "error-request-timeout-description".localized()
-                model.errorLocalizedDescription = "error-request-timeout".localized()
+                model.errorDescription = "Client Error:\nServer timed out waiting for the request"
+                model.errorLocalizedDescription = "Request Timeout"
             case 409:
-                model.errorDescription = "error-conflict-description".localized()
-                model.errorLocalizedDescription = "error-conflict".localized()
+                model.errorDescription = "Client Error:\nRequest could not be processed because of conflict"
+                model.errorLocalizedDescription = "Conflict"
             case 410:
-                model.errorDescription = "error-gone-description".localized()
-                model.errorLocalizedDescription = "error-gone".localized()
+                model.errorDescription = "Client Error:\nResource is no longer available and will not be available again"
+                model.errorLocalizedDescription = "Gone"
             case 411:
-                model.errorDescription = "error-length-required-description".localized()
-                model.errorLocalizedDescription = "error-length-required".localized()
+                model.errorDescription = "Client Error:\nRequest did not specify the length of its content"
+                model.errorLocalizedDescription = "Length Required"
             case 412:
-                model.errorDescription = "error-precondition-failed-description".localized()
-                model.errorLocalizedDescription = "error-precondition-failed".localized()
+                model.errorDescription = "Client Error:\nServer does not meet request preconditions"
+                model.errorLocalizedDescription = "Precondition Failed"
             case 413:
-                model.errorDescription = "error-request-entity-too-large-description".localized()
-                model.errorLocalizedDescription = "error-request-entity-too-large".localized()
+                model.errorDescription = "Client Error:\nRequest is larger than the server is willing or able to process"
+                model.errorLocalizedDescription = "Request Entity Too Large"
             case 414:
-                model.errorDescription = "error-request-uri-too-long-description".localized()
-                model.errorLocalizedDescription = "error-request-uri-too-long".localized()
+                model.errorDescription = "Client Error:\nURI provided was too long for the server to process"
+                model.errorLocalizedDescription = "Request-URI Too Long"
             case 415:
-                model.errorDescription = "error-unsupported-media-type-description".localized()
-                model.errorLocalizedDescription = "error-unsupported-media-type".localized()
+                model.errorDescription = "Client Error:\nServer does not support the media type"
+                model.errorLocalizedDescription = "Unsupported Media Type"
             case 416:
-                model.errorDescription = "error-requested-range-not-satisfiable-description".localized()
-                model.errorLocalizedDescription = "error-requested-range-not-satisfiable".localized()
+                model.errorDescription = "Client Error:\nClient has asked for an unprovidable portion of the file"
+                model.errorLocalizedDescription = "Requested Range Not Satisfiable"
             case 417:
-                model.errorDescription = "error-expectation-failed-description".localized()
-                model.errorLocalizedDescription = "error-expectation-failed".localized()
+                model.errorDescription = "Client Error:\nServer cannot meet requirements of the Expect request-header field"
+                model.errorLocalizedDescription = "Expectation Failed"
             case 418:
-                model.errorDescription = "error-im-a-teapot-description".localized()
-                model.errorLocalizedDescription = "error-im-a-teapot".localized()
+                model.errorDescription = "Client Error:\nI'm a teapot"
+                model.errorLocalizedDescription = "I'm a Teapot"
             case 420:
-                model.errorDescription = "error-twitter-rate-limiting-description".localized()
-                model.errorLocalizedDescription = "error-twitter-rate-limiting".localized()
+                model.errorDescription = "Client Error:\nTwitter rate limiting"
+                model.errorLocalizedDescription = "Enhance Your Calm"
             case 421:
-                model.errorDescription = "error-misdirected-request-description".localized()
-                model.errorLocalizedDescription = "error-misdirected-request".localized()
+                model.errorDescription = "Client Error:\nMisdirected Request"
+                model.errorLocalizedDescription = "Misdirected Request"
             case 422:
-                model.errorDescription = "error-unprocessable-entity-description".localized()
-                model.errorLocalizedDescription = "error-unprocessable-entity".localized()
+                model.errorDescription = "Client Error:\nRequest unable to be followed due to semantic errors"
+                model.errorLocalizedDescription = "Unprocessable Entity"
             case 423:
-                model.errorDescription = "error-locked-description".localized()
-                model.errorLocalizedDescription = "error-locked".localized()
+                model.errorDescription = "Client Error:\nResource that is being accessed is locked"
+                model.errorLocalizedDescription = "Locked"
             case 424:
-                model.errorDescription = "error-failed-dependency-description".localized()
-                model.errorLocalizedDescription = "error-failed-dependency".localized()
+                model.errorDescription = "Client Error:\nRequest failed due to the failure of a previous request"
+                model.errorLocalizedDescription = "Failed Dependency"
             case 426:
-                model.errorDescription = "error-upgrade-required-description".localized()
-                model.errorLocalizedDescription = "error-upgrade-required".localized()
+                model.errorDescription = "Client Error:\nClient should switch to a different protocol"
+                model.errorLocalizedDescription = "Upgrade Required"
             case 428:
-                model.errorDescription = "error-precondition-required-description".localized()
-                model.errorLocalizedDescription = "error-precondition-required".localized()
+                model.errorDescription = "Client Error:\nOrigin server requires the request to be conditional"
+                model.errorLocalizedDescription = "Precondition Required"
             case 429:
-                model.errorDescription = "error-too-many-requests-description".localized()
-                model.errorLocalizedDescription = "error-too-many-requests".localized()
+                model.errorDescription = "Client Error:\nUser has sent too many requests in a given amount of time"
+                model.errorLocalizedDescription = "Too Many Requests"
             case 431:
-                model.errorDescription = "error-request-header-fields-too-large-description".localized()
-                model.errorLocalizedDescription = "error-request-header-fields-too-large".localized()
+                model.errorDescription = "Client Error:\nServer is unwilling to process the request"
+                model.errorLocalizedDescription = "Request Header Fields Too Large"
             case 444:
-                model.errorDescription = "error-no-response-description".localized()
-                model.errorLocalizedDescription = "error-no-response".localized()
+                model.errorDescription = "Client Error:\nServer returns no information and closes the connection"
+                model.errorLocalizedDescription = "No Response"
             case 449:
-                model.errorDescription = "error-retry-with-description".localized()
-                model.errorLocalizedDescription = "error-retry-with".localized()
+                model.errorDescription = "Client Error:\nRequest should be retried after performing action"
+                model.errorLocalizedDescription = "Retry With"
             case 450:
-                model.errorDescription = "error-blocked-by-windows-parental-controls-description".localized()
-                model.errorLocalizedDescription = "error-blocked-by-windows-parental-controls".localized()
+                model.errorDescription = "Client Error:\nWindows Parental Controls blocking access to the webpage"
+                model.errorLocalizedDescription = "Blocked by Windows Parental Controls"
             case 451:
-                model.errorDescription = "error-wrong-exchange-server-description".localized()
-                model.errorLocalizedDescription = "error-wrong-exchange-server".localized()
+                model.errorDescription = "Client Error:\nThe server cannot reach the client's mailbox"
+                model.errorLocalizedDescription = "Wrong Exchange server"
             case 499:
-                model.errorDescription = "error-client-closed-request-description".localized()
-                model.errorLocalizedDescription = "error-client-closed-request".localized()
+                model.errorDescription = "Client Error:\nConnection closed by the client while the HTTP server is processing"
+                model.errorLocalizedDescription = "Client Closed Request"
             case 500:
-                model.errorDescription = "error-internal-server-error-description".localized()
-                model.errorLocalizedDescription = "error-internal-server-error".localized()
+                model.errorDescription = "Server Error:\nGeneric error message"
+                model.errorLocalizedDescription = "Internal Server Error"
             case 501:
-                model.errorDescription = "error-not-implemented-description".localized()
-                model.errorLocalizedDescription = "error-not-implemented".localized()
+                model.errorDescription = "Server Error:\nServer does not recognize the method or lacks the ability to fulfill"
+                model.errorLocalizedDescription = "Not Implemented"
             case 502:
-                model.errorDescription = "error-bad-gateway-description".localized()
-                model.errorLocalizedDescription = "error-bad-gateway".localized()
+                model.errorDescription = "Server Error:\nServer received an invalid response from the upstream server"
+                model.errorLocalizedDescription = "Bad Gateway"
             case 503:
-                model.errorDescription = "error-service-unavailable-description".localized()
-                model.errorLocalizedDescription = "error-service-unavailable".localized()
+                model.errorDescription = "Server Error:\nServer is currently unavailable"
+                model.errorLocalizedDescription = "Service Unavailable"
             case 504:
-                model.errorDescription = "error-gateway-timeout-description".localized()
-                model.errorLocalizedDescription = "error-gateway-timeout".localized()
+                model.errorDescription = "Server Error:\nGateway did not receive a response from the upstream server"
+                model.errorLocalizedDescription = "Gateway Timeout"
             case 505:
-                model.errorDescription = "error-http-version-not-supported-description".localized()
-                model.errorLocalizedDescription = "error-http-version-not-supported".localized()
+                model.errorDescription = "Server Error:\nServer does not support the HTTP protocol version"
+                model.errorLocalizedDescription = "HTTP Version Not Supported"
             case 506:
-                model.errorDescription = "error-variant-also-negotiates-description".localized()
-                model.errorLocalizedDescription = "error-variant-also-negotiates".localized()
+                model.errorDescription = "Server Error:\nContent negotiation for the request results in a circular reference"
+                model.errorLocalizedDescription = "Variant Also Negotiates"
             case 507:
-                model.errorDescription = "error-insufficient-storage-description".localized()
-                model.errorLocalizedDescription = "error-insufficient-storage".localized()
+                model.errorDescription = "Server Error:\nServer is unable to store the representation"
+                model.errorLocalizedDescription = "Insufficient Storage"
             case 508:
-                model.errorDescription = "error-loop-detected-description".localized()
-                model.errorLocalizedDescription = "error-loop-detected".localized()
+                model.errorDescription = "Server Error:\nServer detected an infinite loop while processing the request"
+                model.errorLocalizedDescription = "Loop Detected"
             case 509:
-                model.errorDescription = "error-bandwidth-limit-exceeded-description".localized()
-                model.errorLocalizedDescription = "error-bandwidth-limit-exceeded".localized()
+                model.errorDescription = "Server Error:\nBandwidth limit exceeded"
+                model.errorLocalizedDescription = "Bandwidth Limit Exceeded"
             case 510:
-                model.errorDescription = "error-not-extended-description".localized()
-                model.errorLocalizedDescription = "error-not-extended".localized()
+                model.errorDescription = "Server Error:\nFurther extensions to the request are required"
+                model.errorLocalizedDescription = "Not Extended"
             case 511:
-                model.errorDescription = "error-network-authentication-required-description".localized()
-                model.errorLocalizedDescription = "error-network-authentication-required".localized()
+                model.errorDescription = "Server Error:\nClient needs to authenticate to gain network access"
+                model.errorLocalizedDescription = "Network Authentication Required"
             case 526:
-                model.errorDescription = "error-invalid-ssl-certificate-description".localized()
-                model.errorLocalizedDescription = "error-invalid-ssl-certificate".localized()
+                model.errorDescription = "Server Error:\nThe origin web server does not have a valid SSL certificate"
+                model.errorLocalizedDescription = "Invalid SSL Certificate"
             case 598:
-                model.errorDescription = "error-network-read-timeout-description".localized()
-                model.errorLocalizedDescription = "error-network-read-timeout".localized()
+                model.errorDescription = "Server Error:\nNetwork read timeout behind the proxy"
+                model.errorLocalizedDescription = "Network Read Timeout Error"
             case 599:
-                model.errorDescription = "error-network-connect-timeout-description".localized()
-                model.errorLocalizedDescription = "error-network-connect-timeout".localized()
+                model.errorDescription = "Server Error:\nNetwork connect timeout behind the proxy"
+                model.errorLocalizedDescription = "Network Connect Timeout Error"
             default:
                 break
             }

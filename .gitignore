@@ -69,3 +69,6 @@ temp
 test_output
 report.xml
 create_tests.sh
+task_output.log
+.build
+buildServer.json

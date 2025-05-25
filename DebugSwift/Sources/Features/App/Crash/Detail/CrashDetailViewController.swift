@@ -11,7 +11,7 @@ final class CrashDetailViewController: BaseController {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.separatorColor = .darkGray
 
         return tableView
@@ -45,7 +45,7 @@ final class CrashDetailViewController: BaseController {
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
 
-        view.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = UIColor.black
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -62,7 +62,7 @@ final class CrashDetailViewController: BaseController {
 
     private func setupShare() {
         addRightBarButton(
-            image: .named("square.and.arrow.up", default: "share".localized())
+            image: .named("square.and.arrow.up", default: "Share")
         ) { [weak self] in
             self?.share()
         }
@@ -179,6 +179,7 @@ extension CrashDetailViewController: UITableViewDataSource, UITableViewDelegate 
 }
 
 extension CrashDetailViewController {
+    @MainActor
     enum Features: Int, CaseIterable {
         case details
         case context
@@ -187,9 +188,9 @@ extension CrashDetailViewController {
         var title: String {
             switch self {
             case .details:
-                return "network-details-title".localized()
+                return "Details"
             case .context:
-                return "context".localized()
+                return "Context"
             case .stackTrace:
                 return "Stack Trace"
             }
@@ -198,11 +199,11 @@ extension CrashDetailViewController {
         var heightForRow: CGFloat {
             switch self {
             case .details:
-                return UITableView.automaticDimension
+                return -1 // UITableView interprets -1 as automatic dimension
             case .context:
                 return 80
             case .stackTrace:
-                return UITableView.automaticDimension
+                return -1 // UITableView interprets -1 as automatic dimension
             }
         }
     }

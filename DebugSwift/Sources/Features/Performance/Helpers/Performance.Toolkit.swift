@@ -6,13 +6,14 @@
 //  Copyright © 2023 apple. All rights reserved.
 //
 
-import Foundation
+@preconcurrency import Foundation
 import UIKit
 
+@MainActor
 final class PerformanceToolkit {
     let widget: PerformanceWidgetView
-    var measurementsTimer: Timer?
-    var fpsCounter = FPSCounter()
+    nonisolated(unsafe) var measurementsTimer: Timer?
+    nonisolated(unsafe) var fpsCounter = FPSCounter()
     var cpuMeasurements: [CGFloat] = []
     var currentCPU: CGFloat = 0
     var maxCPU: CGFloat = 0
@@ -134,7 +135,7 @@ final class PerformanceToolkit {
         )
     }
 
-    func cpu() -> CGFloat {
+    nonisolated func cpu() -> CGFloat {
         var totalUsageOfCPU: CGFloat = 0.0
         var threadsList = UnsafeMutablePointer(mutating: [thread_act_t]())
         var threadsCount = mach_msg_type_number_t(0)
@@ -175,7 +176,7 @@ final class PerformanceToolkit {
         return totalUsageOfCPU
     }
 
-    private func memory() -> CGFloat {
+    nonisolated private func memory() -> CGFloat {
         var taskInfo = task_basic_info()
         var count = mach_msg_type_number_t(
             MemoryLayout.size(ofValue: taskInfo) / MemoryLayout<integer_t>.size)
@@ -202,15 +203,16 @@ final class PerformanceToolkit {
         }
     }
 
-    private func fps() -> CGFloat {
+    nonisolated private func fps() -> CGFloat {
         fpsCounter.fps
     }
 
-    func leak() -> CGFloat {
-        CGFloat(PerformanceLeakDetector.leaks.filter(\.isActive).count)
+    nonisolated func leak() -> CGFloat {
+        CGFloat(PerformanceLeakDetector.shared.leaks.filter(\.isActive).count)
     }
 }
 
+@MainActor
 protocol PerformanceToolkitDelegate: AnyObject {
     func performanceToolkitDidUpdateStats(_ toolkit: PerformanceToolkit)
 }

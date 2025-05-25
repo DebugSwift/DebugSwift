@@ -72,7 +72,7 @@ final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewMo
     }
 
     func emptyListDescriptionString() -> String {
-        "empty-data".localized() + "User Defaults"
+        "No data found in the " + "User Defaults"
     }
 
     // MARK: - Search Functionality
