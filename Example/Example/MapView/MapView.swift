@@ -15,33 +15,13 @@ struct MapView: View {
         center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
         span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
     )
-    
-    @State private var position = MapCameraPosition.region(
-        MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
-            span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
-        )
-    )
 
     private var manager = MapViewManager()
 
     var body: some View {
         if #available(iOS 17.0, *) {
-            // Use new Map initializer with MapContentBuilder
-            Map(position: $position) {
-                // MapContentBuilder content can be added here
-                // For example: Marker, Annotation, etc.
-            }
-            .mapControls {
-                MapUserLocationButton()
-                MapCompass()
-                MapScaleView()
-            }
-            .onAppear {
-                manager.start()
-            }
+            MapView17(manager: manager)
         } else {
-            // Fallback for iOS 14.0-16.x
             Map(
                 coordinateRegion: $region,
                 showsUserLocation: true,
@@ -50,6 +30,31 @@ struct MapView: View {
             .onAppear {
                 manager.start()
             }
+        }
+    }
+}
+
+@available(iOS 17.0, *)
+struct MapView17: View {
+    @State private var position = MapCameraPosition.region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
+            span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+        )
+    )
+    var manager: MapViewManager
+
+    var body: some View {
+        Map(position: $position) {
+            // MapContentBuilder content can be added here
+        }
+        .mapControls {
+            MapUserLocationButton()
+            MapCompass()
+            MapScaleView()
+        }
+        .onAppear {
+            manager.start()
         }
     }
 }
