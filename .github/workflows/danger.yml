@@ -33,6 +33,12 @@ jobs:
         run: |
           git clone https://github.com/DebugSwift/DangerSwift && rm -rf DangerSwift/.git Readme.md
           mv DangerSwift/* .
+      
+      - name: Test Stage
+        run: |
+          cd Example
+          bundle install
+          bundle exec fastlane test
 
       - name: Danger Stage
         run: |
