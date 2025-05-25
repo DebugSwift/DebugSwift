@@ -26,7 +26,7 @@ jobs:
           git clone https://github.com/DebugSwift/DangerSwift && rm -rf DangerSwift/.git Readme.md
           mv DangerSwift/* .
       
-      - name: Test Stage
+      - name: Run and test
         run: |
           cd Example
           bundle install
