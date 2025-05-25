@@ -1,10 +1,25 @@
-  desc "Run the tests and prepare for Danger"
+desc "Run the tests and prepare for Danger"
 lane :test do |options|
+  
+  # Build the app first
+  xcodebuild(
+    clean: true,
+    build: true,
+    project: "Example.xcodeproj",
+    scheme: "Example",
+    destination: "platform=iOS Simulator,name=iPhone 16",
+    xcargs: "IPHONEOS_DEPLOYMENT_TARGET=17.0"
+  )
 
+  # Then run tests
   scan(
+    project: "Example.xcodeproj",
+    scheme: "Example",
+    clean: true,
     derived_data_path: "temp/derived",
     result_bundle: true,
     code_coverage: true,
-    devices: ['iPhone 16']
+    devices: ['iPhone 16'],
+    xcargs: "IPHONEOS_DEPLOYMENT_TARGET=17.0"
   )
 end
