@@ -1,25 +1,30 @@
 desc "Run the tests and prepare for Danger"
 lane :test do |options|
   
-  # Build the app first
-  xcodebuild(
-    clean: true,
-    build: true,
-    project: "Example.xcodeproj",
-    scheme: "Example",
-    destination: "platform=iOS Simulator,name=iPhone 16",
-    xcargs: "IPHONEOS_DEPLOYMENT_TARGET=17.0"
+  # Resolve package dependencies first
+  sh(
+    "xcodebuild -resolvePackageDependencies " \
+    "-project Example.xcodeproj " \
+    "-scheme Example"
+  )
+  
+  # Build the app (from CI workflow)
+  sh(
+    "xcodebuild clean build " \
+    "-project Example.xcodeproj " \
+    "-scheme Example " \
+    "-destination 'platform=iOS Simulator,name=iPhone 16' " \
+    "IPHONEOS_DEPLOYMENT_TARGET=17.0"
   )
 
   # Then run tests
   scan(
     project: "Example.xcodeproj",
     scheme: "Example",
-    clean: true,
     derived_data_path: "temp/derived",
     result_bundle: true,
     code_coverage: true,
     devices: ['iPhone 16'],
-    xcargs: "IPHONEOS_DEPLOYMENT_TARGET=17.0"
+    skip_package_dependencies_resolution: false
   )
 end
