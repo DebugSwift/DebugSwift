@@ -1,15 +1,5 @@
 desc "Run the tests and prepare for Danger"
 lane :test do
-  # Skip the gym step - we don't need to archive for running tests
-  # gym(
-  #   project:           "Example.xcodeproj",
-  #   scheme:            "Example",
-  #   clean:             true,
-  #   output_directory:  "fastlane/test_output",
-  #   output_name:       "Example.xcresult",
-  #   skip_codesigning:  true
-  # )
-  
   # Run tests
   scan(
     project:                          "Example.xcodeproj",
