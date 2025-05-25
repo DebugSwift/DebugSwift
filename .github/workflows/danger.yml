@@ -8,7 +8,7 @@ on:
 
 jobs:
   ci:
-    name: CI Build and Tests
+    name: CI Build, Tests & Danger
     permissions: write-all
     runs-on: macos-14
 
@@ -20,13 +20,8 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.1'
-      
-      - name: Setup Danger
-        run: |
-          git clone https://github.com/DebugSwift/DangerSwift && rm -rf DangerSwift/.git Readme.md
-          mv DangerSwift/* .
-      
-      - name: Run and test
+
+      - name: Run Fastlane tests
         run: |
           cd Example
           bundle install
@@ -34,9 +29,16 @@ jobs:
 
       - name: Danger Stage
         run: |
+          # install the JS runner
           brew install danger/tap/danger-js
+
+          # clone the DangerSwift plugin into its own directory
+          git clone https://github.com/DebugSwift/DangerSwift DangerSwiftPlugin
+          cd DangerSwiftPlugin
+
+          # build & run the plugin
           swift build
           swift run danger-swift ci --verbose
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN:        ${{ secrets.GITHUB_TOKEN }}
           DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
