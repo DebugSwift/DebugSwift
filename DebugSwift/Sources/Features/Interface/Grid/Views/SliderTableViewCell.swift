@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol SliderTableViewCellDelegate: AnyObject {
     func sliderCell(_ sliderCell: SliderTableViewCell, didSelectValue value: CGFloat)
     func sliderCellDidStartEditingValue(_ sliderCell: SliderTableViewCell)
@@ -17,14 +18,14 @@ protocol SliderTableViewCellDelegate: AnyObject {
 final class SliderTableViewCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     let valueLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -51,7 +52,7 @@ final class SliderTableViewCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(valueLabel)
         contentView.addSubview(slider)
-        contentView.backgroundColor = Theme.shared.backgroundColor
+        contentView.backgroundColor = UIColor.black
 
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 final class NetworkViewController: BaseController, MainFeatureType {
     var controllerType: DebugSwiftFeature { .network }
@@ -14,7 +15,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.estimatedRowHeight = 80
         return tableView
     }()
@@ -23,7 +24,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "search".localized()
+        searchController.searchBar.placeholder = "Search"
         return searchController
     }()
 
@@ -56,13 +57,13 @@ final class NetworkViewController: BaseController, MainFeatureType {
     }
 
     func setup() {
-        title = "network-title".localized()
+        title = "Network"
         tabBarItem = UITabBarItem(
             title: title,
             image: .named("network"),
             tag: 0
         )
-        view.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = UIColor.black
         setupKeyboardDismissGesture()
         observers()
     }
@@ -73,7 +74,8 @@ final class NetworkViewController: BaseController, MainFeatureType {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            if let success = notification.object as? Bool {
+            let success = notification.object as? Bool ?? false
+            MainActor.assumeIsolated {
                 self?.reloadHttp(
                     needScrollToEnd: self?.viewModel.reachEnd ?? true,
                     success: success
@@ -114,18 +116,18 @@ final class NetworkViewController: BaseController, MainFeatureType {
     private func addDeleteButton() {
         guard !viewModel.models.isEmpty else { return }
         addRightBarButton(
-            image: .named("trash.circle", default: "clean".localized()),
+            image: .named("trash.circle", default: "Clean"),
             tintColor: .red
         ) { [weak self] in
             self?.showAlert(
-                with: "delete.title".localized(),
-                title: "delete.subtitle".localized(),
-                leftButtonTitle: "delete.action".localized(),
+                with: "Warning",
+                title: "This action remove all data",
+                leftButtonTitle: "Delete",
                 leftButtonStyle: .destructive,
                 leftButtonHandler: { _ in
                     self?.clearAction()
                 },
-                rightButtonTitle: "delete.cancel".localized(),
+                rightButtonTitle: "Cancel",
                 rightButtonStyle: .cancel
             )
         }
@@ -195,13 +197,13 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
                 UIPasteboard.general.string = url.absoluteString
 
                 self.showAlert(
-                    with: "alert.url.copied.description".localized(),
-                    title: "alert.url.copied.title".localized()
+                    with: "You can paste this url when needed.",
+                    title: "Copied!"
                 )
             }
         }
 
-        action.image = .named("doc.on.doc", default: "copy".localized())
+        action.image = .named("doc.on.doc", default: "Copy")
         action.backgroundColor = .gray
 
         return UISwipeActionsConfiguration(actions: [action])

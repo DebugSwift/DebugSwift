@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol HierarchyTableViewCellDelegate: AnyObject {
     func hierarchyTableViewCellDidTapSubtree(cell: HierarchyTableViewCell)
     func hierarchyTableViewCellDidLongPress(cell: HierarchyTableViewCell, point: CGPoint)
@@ -57,28 +58,49 @@ final class HierarchyTableViewCell: UITableViewCell {
         let button = UIButton(type: .custom)
         let color = UIColor(white: 0.2, alpha: 1.0)
         button.setBackgroundImage(colorImage(color: UIColor(white: .zero, alpha: 0.1)), for: .highlighted)
-        button.setTitle(NSLocalizedString("Subtree", comment: "Show the subtree starting at this element"), for: .normal)
-        button.setTitleColor(color, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 15.0)
+        
         let disclosureImage = UIImage(named: "DisclosureIndicator", in: Bundle(for: HierarchyTableViewCell.self), compatibleWith: nil)
-        button.setImage(disclosureImage, for: .normal)
+        
+        if #available(iOS 15.0, *) {
+            // Use UIButtonConfiguration for iOS 15.0+
+            var configuration = UIButton.Configuration.plain()
+            configuration.title = NSLocalizedString("Subtree", comment: "Show the subtree starting at this element")
+            configuration.image = disclosureImage
+            configuration.imagePadding = 4.0
+            configuration.contentInsets = NSDirectionalEdgeInsets(top: 4.0, leading: 4.0, bottom: 4.0, trailing: 4.0)
+            configuration.imagePlacement = .trailing
+            
+            button.configuration = configuration
+            button.configurationUpdateHandler = { button in
+                var config = button.configuration
+                config?.baseForegroundColor = color
+                config?.background.backgroundColor = button.isHighlighted ? UIColor(white: .zero, alpha: 0.1) : .clear
+                button.configuration = config
+            }
+        } else {
+            // Fallback for older iOS versions
+            button.setTitle(NSLocalizedString("Subtree", comment: "Show the subtree starting at this element"), for: .normal)
+            button.setTitleColor(color, for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 15.0)
+            button.setImage(disclosureImage, for: .normal)
+            
+            let imageTextSpacing: CGFloat = 4.0
+            let imageTextInset = imageTextSpacing / 2.0
+            button.imageEdgeInsets = UIEdgeInsets(top: 1.0, left: imageTextInset, bottom: 0, right: -imageTextInset)
+            button.titleEdgeInsets = UIEdgeInsets(top: .zero, left: -imageTextInset, bottom: .zero, right: imageTextInset)
+            button.contentEdgeInsets = UIEdgeInsets(
+                top: 4.0,
+                left: 4.0 + imageTextInset,
+                bottom: 4.0,
+                right: 4.0 + imageTextInset
+            )
+            button.semanticContentAttribute = .forceRightToLeft
+        }
+        
         button.layer.cornerRadius = 4.0
         button.layer.borderWidth = 1.0
         button.layer.borderColor = color.cgColor
         button.layer.masksToBounds = true
-
-        let imageTextSpacing: CGFloat = 4.0
-        let imageTextInset = imageTextSpacing / 2.0
-        button.imageEdgeInsets = UIEdgeInsets(top: 1.0, left: imageTextInset, bottom: 0, right: -imageTextInset)
-        button.titleEdgeInsets = UIEdgeInsets(top: .zero, left: -imageTextInset, bottom: .zero, right: imageTextInset)
-        button.contentEdgeInsets = UIEdgeInsets(
-            top: 4.0,
-            left:
-            4.0 + imageTextInset,
-            bottom: 4.0,
-            right: 4.0 + imageTextInset
-        )
-        button.semanticContentAttribute = .forceRightToLeft
 
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setContentHuggingPriority(.defaultHigh, for: .horizontal)

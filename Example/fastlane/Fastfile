@@ -1,10 +1,15 @@
 desc "Run the tests and prepare for Danger"
-lane :test do |options|
-
+lane :test do
+  # Run tests
   scan(
-    derived_data_path: "temp/derived",
-    result_bundle: true,
-    code_coverage: true,
-    devices: ['iPhone 16']
+    project:                          "Example.xcodeproj",
+    scheme:                           "Example",
+    derived_data_path:                "fastlane/test_output",
+    clean:                            true,
+    result_bundle:                    true,
+    code_coverage:                    true,
+    devices:                          ['iPhone 16'],
+    skip_package_dependencies_resolution: false,
+    disable_package_automatic_updates: true
   )
 end

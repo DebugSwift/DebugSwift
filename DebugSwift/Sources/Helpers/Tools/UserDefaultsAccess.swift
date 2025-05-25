@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol UserDefaultsService {
+public protocol UserDefaultsService: Sendable {
     func set<T: Encodable>(encodable: T, forKey key: String)
     func value<T: Decodable>(_ type: T.Type, forKey key: String) -> T?
 }
@@ -19,7 +19,7 @@ extension UserDefaults {
     }
 }
 
-@propertyWrapper struct UserDefaultAccess<T: Codable> {
+@propertyWrapper struct UserDefaultAccess<T: Codable & Sendable>: Sendable {
     let key: String
     let defaultValue: T
     let userDefaults: UserDefaultsService
@@ -42,7 +42,7 @@ extension UserDefaults {
 
 // MARK: - Extensions
 
-extension UserDefaults: UserDefaultsService {
+extension UserDefaults: UserDefaultsService, @unchecked @retroactive Sendable {
     public func set(encodable: some Encodable, forKey key: String) {
         if let data = try? JSONEncoder().encode(encodable) {
             set(data, forKey: key)
@@ -59,7 +59,7 @@ extension UserDefaults: UserDefaultsService {
 
 // MARK: - Extensions
 
-extension Keychain: UserDefaultsService {
+extension Keychain: UserDefaultsService, @unchecked Sendable {
     public func set(encodable: some Encodable, forKey key: String) {
         if let data = try? JSONEncoder().encode(encodable) {
             try? set(data, key: key)

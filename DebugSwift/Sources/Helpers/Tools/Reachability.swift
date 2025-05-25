@@ -46,7 +46,7 @@ extension Notification.Name {
     static let reachabilityChanged = Notification.Name("reachabilityChanged")
 }
 
-class Reachability {
+class Reachability: @unchecked Sendable {
 
     typealias NetworkReachable = (Reachability) -> Void
     typealias NetworkUnreachable = (Reachability) -> Void
@@ -56,9 +56,9 @@ class Reachability {
         case notReachable, reachableViaWiFi, reachableViaWWAN
         var description: String {
             switch self {
-            case .reachableViaWWAN: return "cellular".localized()
-            case .reachableViaWiFi: return "wifi".localized()
-            case .notReachable: return "noConnection".localized()
+            case .reachableViaWWAN: return "Cellular"
+            case .reachableViaWiFi: return "WiFi"
+            case .notReachable: return "No Connection"
             }
         }
     }
@@ -68,10 +68,10 @@ class Reachability {
         case unavailable, wifi, cellular
         var description: String {
             switch self {
-            case .cellular: return "cellular".localized()
-            case .wifi: return "wifi".localized()
-            case .unavailable: return "noConnection".localized()
-            case .none: return "unavailable".localized()
+            case .cellular: return "Cellular"
+            case .wifi: return "WiFi"
+            case .unavailable: return "No Connection"
+            case .none: return "Unavailable"
             }
         }
     }
@@ -268,8 +268,18 @@ extension Reachability {
     }
 
     private func notifyReachabilityChanged() {
-        let notify = { [weak self] in
-            guard let self else { return }
+        // notify on the configured `notificationQueue`, or the caller's (i.e. `reachabilitySerialQueue`)
+        if let notificationQueue = notificationQueue {
+            notificationQueue.async { [weak self] in
+                guard let self else { return }
+                if self.connection != .unavailable {
+                    self.whenReachable?(self)
+                } else {
+                    self.whenUnreachable?(self)
+                }
+                self.notificationCenter.post(name: .reachabilityChanged, object: self)
+            }
+        } else {
             if self.connection != .unavailable {
                 self.whenReachable?(self)
             } else {
@@ -277,9 +287,6 @@ extension Reachability {
             }
             self.notificationCenter.post(name: .reachabilityChanged, object: self)
         }
-
-        // notify on the configured `notificationQueue`, or the caller's (i.e. `reachabilitySerialQueue`)
-        notificationQueue?.async(execute: notify) ?? notify()
     }
 }
 
@@ -410,11 +417,11 @@ enum NetworkType: Int, CaseIterable {
     var description: String {
         switch self {
         case .noConnection:
-            return "noConnection".localized()
+            return "No Connection"
         case .wifi:
-            return "wifi".localized()
+            return "WiFi"
         case .cellular:
-            return "cellular".localized()
+            return "Cellular"
         case .ethernet:
             return "Ethernet"
         case .wwan2g:
@@ -426,7 +433,7 @@ enum NetworkType: Int, CaseIterable {
         case .wwan5g:
             return "5G"
         case .unknown, .unknownTechnology:
-            return "unavailable".localized()
+            return "Unavailable"
         }
     }
 

@@ -39,7 +39,7 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "gridoverlay-title".localized()
+        title = "Grid overlay"
 
         tableView.register(MenuSwitchTableViewCell.self, forCellReuseIdentifier: switchCellIdentifier)
         tableView.register(SliderTableViewCell.self, forCellReuseIdentifier: sliderCellIdentifier)
@@ -50,7 +50,7 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.separatorStyle = .singleLine
 
         setupGridColors()
@@ -104,7 +104,7 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
             let switchCell =
                 tableView.dequeueReusableCell(withIdentifier: switchCellIdentifier, for: indexPath)
                     as! MenuSwitchTableViewCell
-            switchCell.titleLabel.text = "show-grid-overlay".localized()
+            switchCell.titleLabel.text = "Show grid overlay"
             switchCell.valueSwitch.isOn = userInterfaceToolkit.isGridOverlayShown
             switchCell.delegate = self
             return switchCell
@@ -122,7 +122,7 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
             let sliderCell =
                 tableView.dequeueReusableCell(withIdentifier: sliderCellIdentifier, for: indexPath)
                     as! SliderTableViewCell
-            sliderCell.titleLabel.text = "size".localized()
+            sliderCell.titleLabel.text = "Size"
             sliderCell.delegate = self
             sliderCell.setMinValue(minGridSize)
             sliderCell.setMaxValue(maxGridSize)
@@ -132,7 +132,7 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
             let sliderCell =
                 tableView.dequeueReusableCell(withIdentifier: sliderCellIdentifier, for: indexPath)
                     as! SliderTableViewCell
-            sliderCell.titleLabel.text = "opacity".localized()
+            sliderCell.titleLabel.text = "Opacity"
             sliderCell.delegate = self
             sliderCell.setMinValue(minOpacity)
             sliderCell.setMaxValue(maxOpacity)
@@ -145,7 +145,7 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
                     for: indexPath
                 ) as! ColorPickerTableViewCell
 
-            colorPickerCell.titleLabel.text = "color".localized()
+            colorPickerCell.titleLabel.text = "Color"
             colorPickerCell.delegate = self
             colorPickerCell.configure(
                 primaryColors: primaryGridColors,
@@ -177,7 +177,7 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
             return nil
         case .settings:
             let label = UILabel()
-            label.text = "settings".localized()
+            label.text = "   Settings\n"
             label.textColor = .darkGray
             label.numberOfLines = .zero
 
@@ -253,6 +253,6 @@ final class InterfaceGridController: BaseTableController, MenuSwitchTableViewCel
     func colorPickerCell(
         _: ColorPickerTableViewCell, didSelectColorAtIndex index: Int
     ) {
-        userInterfaceToolkit.setSelectedGridOverlayColorSchemeIndex(index)
+//        userInterfaceToolkit.setSelectedGridOverlayColorSchemeIndex(index)
     }
 }

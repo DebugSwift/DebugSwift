@@ -8,9 +8,9 @@ on:
 
 jobs:
   ci:
-    name: CI Build and Tests
+    name: CI Build, Tests & Danger
     permissions: write-all
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository
@@ -21,28 +21,16 @@ jobs:
         with:
           xcode-version: '16.1'
 
-      - name: Build Swift Package Manager
-        run: |
-          xcodebuild clean build \
-            -project Example_SwiftUI/Example_SwiftUI.xcodeproj \
-            -scheme Example_SwiftUI \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
-
-      - name: Install CocoaPods
+      - name: Run Fastlane tests
         run: |
           cd Example
-          pod install
+          bundle install
+          bundle exec fastlane test
       
       - name: Setup Danger
         run: |
           git clone https://github.com/DebugSwift/DangerSwift && rm -rf DangerSwift/.git Readme.md
           mv DangerSwift/* .
-      
-      - name: Test Stage
-        run: |
-          cd Example
-          bundle install
-          bundle exec fastlane test
 
       - name: Danger Stage
         run: |

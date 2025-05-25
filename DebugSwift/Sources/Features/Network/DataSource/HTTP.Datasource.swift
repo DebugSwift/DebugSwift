@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class HttpDatasource {
+final class HttpDatasource: @unchecked Sendable {
     static let shared = HttpDatasource()
 
     var httpModels: [HttpModel] = []
@@ -18,15 +18,15 @@ final class HttpDatasource {
             return false
         }
 
-        if !DebugSwift.Network.onlyURLs.isEmpty {
+        if !DebugSwift.Network.shared.onlyURLs.isEmpty {
             if let modelUrl = model.url?.absoluteString.lowercased() {
-                let found = DebugSwift.Network.onlyURLs.contains { modelUrl.contains($0.lowercased()) }
+                let found = DebugSwift.Network.shared.onlyURLs.contains { modelUrl.contains($0.lowercased()) }
                 if !found {
                     return false
                 }
             }
         } else {
-            for urlString in DebugSwift.Network.ignoredURLs {
+            for urlString in DebugSwift.Network.shared.ignoredURLs {
                 if model.url?.absoluteString.lowercased().contains(
                     urlString.lowercased()
                 ) == true {
@@ -66,8 +66,8 @@ final class HttpDatasource {
 
 extension URLRequest {
     private enum AssociatedKeys {
-        static var requestId = "requestId"
-        static var startTime = "startTime"
+        static let requestId = "requestId"
+        static let startTime = "startTime"
     }
 
     var requestId: String {

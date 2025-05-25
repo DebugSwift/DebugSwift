@@ -8,6 +8,7 @@
 
 import CoreGraphics
 import Foundation
+import SwiftUI
 
 /// A snapshot of the UI element tree in its current state.
 final class Snapshot: NSObject {
@@ -37,6 +38,7 @@ final class Snapshot: NSObject {
     /// - Parameter element: The element to construct the snapshot from. The
     /// data stored in the snapshot will be the data provided by the element
     /// at the time that this constructor is called.
+    @MainActor
     init(element: Element) {
         self.label = element.label
         self.frame = element.frame

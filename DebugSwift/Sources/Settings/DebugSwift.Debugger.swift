@@ -8,9 +8,9 @@
 import UIKit
 
 extension DebugSwift {
-    public enum Debugger {
+    public class Debugger {
         /// Enable/Disable logs in Xcode console
-        public static var logEnable: Bool {
+        public var logEnable: Bool {
             get {
                 Debug.enable
             } set {
@@ -19,7 +19,7 @@ extension DebugSwift {
         }
 
         /// Enable/Disable `ImpactFeedback`
-        public static var feedbackEnable: Bool {
+        public var feedbackEnable: Bool {
             get {
                 ImpactFeedback.enable
             } set {

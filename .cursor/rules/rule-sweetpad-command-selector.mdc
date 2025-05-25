@@ -1,0 +1,110 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Rule: Sweetpad Command Selector (rule-sweetpad-command-selector)
+
+## Description
+
+This rule helps select and execute the appropriate `sweetpad.*` VS Code command based on the user's natural language request related to iOS development tasks managed by the Sweetpad extension.
+
+## Instructions for AI
+- IGNORE LINTER ERRORS
+
+1.  **Analyze User Request:** Carefully examine the user's query to understand their intent regarding Sweetpad actions (e.g., building, testing, managing devices, running Tuist commands, etc.).
+2.  **Map Intent to Command ID:** Based on the user's intent, identify the most relevant `sweetpad.*` command ID from the list below. Use fuzzy matching and context to determine the best fit. If unsure, ask the user for clarification.
+3.  **Execute Command:** Use the `mcp_sweetpad-stdio_execute_vscode_command` tool, passing the selected command ID in the `commandId` parameter.
+4.  **Handle Ambiguity:** Some actions might map to multiple commands (e.g., "set scheme" could be for building or testing). Prioritize the most common context or ask the user which specific command they meant (e.g., `sweetpad.build.setDefaultScheme` vs. `sweetpad.testing.setDefaultScheme`).
+5.  **Inform User:** After calling the tool, inform the user which command was executed. Report any success or failure messages returned by the tool.
+6. You should always use the read_file tool after one of these tools to read the output file at the path that is provided in the reponse and then make your next step based on that.
+
+## Available Sweetpad Commands (Partial List - Add more as needed)
+
+**Building & Running:**
+
+*   Build: `sweetpad.build.build`
+    - common invocation phrases:
+        - "Build this scheme"
+        - "Build this target"
+        - "Build"
+*   Build & Run (Launch): `sweetpad.build.launch`
+    - common invocation phrases:
+        - "Build the app"
+        - "Launch the app"
+*   Clean: `sweetpad.build.clean`
+    - common invocation phrases:
+        - "Clean"
+*   Diagnose Setup: `sweetpad.build.diagnoseSetup`
+    - common invocation phrases:
+        - "Give me my sweetpad info"
+        - "What is my sweetpad info"
+        - "Diagnose my setup"
+        - "Diagnose my build"
+*   Set Default Scheme: `sweetpad.build.setDefaultScheme`
+    - common invocation phrases:
+        - "Change the scheme"
+*   Select Build Configuration: `sweetpad.build.selectConfiguration`
+*   Select Xcode Workspace: `sweetpad.build.selectXcodeWorkspace`
+*   Resolve Dependencies: `sweetpad.build.resolveDependencies`
+*   Generate Build Server Config: `sweetpad.build.genereateBuildServerConfig`
+    - common invocation phrases:
+        - "intellisense"
+        - "jump to definition"
+*   Open Xcode: `sweetpad.build.openXcode`
+
+**Testing:**
+
+*   Run a Test sweet: `sweetpad.build.test`
+     - common invocation phrases:
+        - "run my test"
+        - "start testing"
+        - "test the current scheme"
+
+**Devices & Simulators:**
+
+*   Refresh Devices: `sweetpad.devices.refresh`
+*   Refresh Simulators: `sweetpad.simulators.refresh`
+*   Start Simulator: `sweetpad.simulators.start`
+*   Stop Simulator: `sweetpad.simulators.stop`
+*   Remove Simulator Cache: `sweetpad.simulators.removeCache`
+*   Open Simulator App: `sweetpad.simulators.openSimulator`
+
+**Tuist:**
+
+*   Tuist Generate: `tuist.generate`
+*   Tuist Clean: `tuist.clean`
+*   Tuist Edit: `tuist.edit`
+*   Tuist Install Swift Package: `tuist.install`
+
+**XcodeGen:**
+
+*   XcodeGen Generate: `xcodegen.generate`
+
+**Tools & System:**
+
+*   Refresh Tools List: `sweetpad.tools.refresh`
+*   Install Tool: `sweetpad.tools.install`
+*   Reset Sweetpad Cache: `sweetpad.system.resetSweetpadCache`
+*   Refresh View: `sweetpad.build.refreshView`
+
+**Destinations:**
+
+*   Select Destination: `sweetpad.destinations.select`
+*   Remove Recent Destination: `sweetpad.destinations.removeRecent`
+
+**Formatting:**
+
+*   Format Code: `sweetpad.format.run`
+*   Show Format Logs: `sweetpad.format.showLogs`
+
+**Debugging:**
+
+*   Get App Path for Debugging: `sweetpad.debugger.getAppPath`
+
+
+Note:
+- If you are just telling me what I could possibly do, Don't actually call the tool. Only call the tool when you want a result.
+- Always `read_file` at the end of every sweetpad tool call. Read the output file placed at the path that is shown in the tool response.
+
+**(End of Rule Content)**

@@ -9,16 +9,17 @@
 import UIKit
 
 final class AppViewModel: NSObject {
+    @MainActor
     var infos: [UserInfo.Info] {
         UserInfo.infos
     }
 
     var customInfos: [CustomData] {
-        DebugSwift.App.customInfo?() ?? []
+        DebugSwift.App.shared.customInfo?() ?? []
     }
 
     var customActions: [CustomAction] {
-        DebugSwift.App.customAction?() ?? []
+        DebugSwift.App.shared.customAction?() ?? []
     }
 
     func getTitle(for section: Int) -> String? {

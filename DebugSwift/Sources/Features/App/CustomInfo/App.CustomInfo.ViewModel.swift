@@ -40,7 +40,7 @@ final class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func emptyListDescriptionString() -> String {
-        "empty-data".localized() + data.title
+        "No data found in the " + data.title
     }
 
     // MARK: - Search Functionality

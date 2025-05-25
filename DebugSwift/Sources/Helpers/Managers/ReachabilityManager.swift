@@ -9,7 +9,7 @@ import CoreTelephony
 import Foundation
 
 enum ReachabilityManager {
-    private static var reachability = try? Reachability()
+    private static let reachability = try? Reachability()
 
     static var connection: NetworkType {
         reachability?.getNetworkType() ?? .unknownTechnology

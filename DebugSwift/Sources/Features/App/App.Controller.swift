@@ -14,7 +14,7 @@ final class AppViewController: BaseController, MainFeatureType {
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
         tableView.separatorColor = .darkGray
 
         return tableView
@@ -57,7 +57,7 @@ final class AppViewController: BaseController, MainFeatureType {
     }
 
     func setup() {
-        title = "app-title".localized()
+        title = "App"
         tabBarItem = UITabBarItem(
             title: title,
             image: .named("app"),
@@ -175,13 +175,13 @@ extension AppViewController {
         var title: String? {
             switch self {
             case .infos:
-                return "device-info".localized()
+                return "Device Info"
             case .actions:
-                return "actions".localized()
+                return "Actions"
             case .customData:
-                return "custom-data".localized()
+                return "Custom Data"
             case .customAction:
-                return "custom-action".localized()
+                return "Custom Actions"
             }
         }
     }
@@ -196,17 +196,17 @@ extension AppViewController {
         var title: String {
             switch self {
             case .location:
-                return "simulated-location".localized()
+                return "Simulated location"
             case .console:
-                return "actions-console".localized()
+                return "Console"
             case .crash:
-                return "actions-crash".localized()
+                return "Crashes"
             }
         }
 
         static var allCasesWithPermission: [ActionInfo] {
             var actions = ActionInfo.allCases
-            let disabledActions = DebugSwift.App.disableMethods
+            let disabledActions = DebugSwift.App.shared.disableMethods
 
             if disabledActions.contains(.crashManager) {
                 actions.removeAll(where: { $0 == .crash })

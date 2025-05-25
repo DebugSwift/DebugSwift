@@ -1,14 +1,14 @@
 # DebugSwift
 
 <p align="center">
-<img src="https://img.shields.io/badge/Platforms-iOS%2012.0+-blue.svg"/>
+<img src="https://img.shields.io/badge/Platforms-iOS%2017.0+-blue.svg"/>
 <img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=CocoaPods"/>
 <img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=Swift%20Package%20Index&color=red"/>    
 <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FDebugSwift%2FDebugSwift%2Fbadge%3Ftype%3Dswift-versions"/>
 <img src="https://img.shields.io/github/license/DebugSwift/DebugSwift?style=flat"/>
 </p>
 
-| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.</div> |
+| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.<br><br>**Now with Swift 6 support and strict concurrency checking!**</div> |
 |---|---|
 
 ![image1](https://github.com/DebugSwift/DebugSwift/assets/31082311/03d0e0d0-d2ab-4fc2-8d47-e7089fffc2f6)
@@ -18,6 +18,16 @@
 ![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e558c50-6634-4e26-9788-b1b355f121f4)
 ![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/d0512b4e-afbd-427f-b8e0-f125afb92416)
 ![image11](https://github.com/DebugSwift/DebugSwift/assets/31082311/d5f36843-1f74-49b9-89ef-1875f5ae395b)
+
+## 📋 Documentation
+
+- **[Versioning Strategy](VERSIONING.md)** - Complete guide to our versioning, tagging, and release process
+
+## Requirements
+
+- **iOS 17.0+**
+- **Swift 6.0+**
+- **Xcode 16.0+**
 
 ## Features
 
@@ -77,7 +87,9 @@ pod install
 Add the following dependency to your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/DebugSwift/DebugSwift.git", from: "main")
+dependencies: [
+    .package(url: "https://github.com/DebugSwift/DebugSwift.git", from: "1.0.0")
+]
 ```
 
 Then, add `"DebugSwift"` to your target's dependencies.
@@ -85,14 +97,25 @@ Then, add `"DebugSwift"` to your target's dependencies.
 ### Usage
 
 ```swift
-func application(
-    _: UIApplication,
-    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
-) -> Bool {
-    DebugSwift.setup()
-    DebugSwift.show()
+import DebugSwift
 
-    return true
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    let debugSwift = DebugSwift()
+    
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        
+        #if DEBUG
+        debugSwift.setup()
+        debugSwift.show()
+        #endif
+        
+        return true
+    }
 }
 ```
 
@@ -102,9 +125,14 @@ extension UIWindow {
     open override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         super.motionEnded(motion, with: event)
         
+        #if DEBUG
         if motion == .motionShake {
-            DebugSwift.toggle()
+            // Assuming you have a reference to your DebugSwift instance
+            if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                appDelegate.debugSwift.toggle()
+            }
         }
+        #endif
     }
 }
 ```
@@ -116,13 +144,13 @@ extension UIWindow {
 If you want to ignore specific URLs, use the following code:
 
 ```swift
-DebugSwift.Network.ignoredURLs = ["https://reqres.in/api/users/23"]
+DebugSwift.Network.shared.ignoredURLs = ["https://reqres.in/api/users/23"]
 ```
 
 If you want to capture only a specific URL, use the following code:
 
 ```swift
-DebugSwift.Network.onlyURLs = ["https://reqres.in/api/users/23"]
+DebugSwift.Network.shared.onlyURLs = ["https://reqres.in/api/users/23"]
 ```
 
 Adjust the URLs in the arrays according to your needs.
@@ -130,7 +158,7 @@ Adjust the URLs in the arrays according to your needs.
 ### App Custom Data
 
 ```swift
-DebugSwift.App.customInfo = {
+DebugSwift.App.shared.customInfo = {
     [
         .init(
             title: "Info 1",
@@ -150,7 +178,7 @@ DebugSwift.App.customInfo = {
 ### App Custom Action
 
 ```swift
-DebugSwift.App.customAction = {
+DebugSwift.App.shared.customAction = {
     [
         .init(
             title: "Action 1",
@@ -171,7 +199,7 @@ DebugSwift.App.customAction = {
 ### App Custom ViewControllers in Tab Bar
 
 ```swift
-DebugSwift.App.customControllers = {
+DebugSwift.App.shared.customControllers = {
     let controller1 = UITableViewController()
     controller1.title = "Custom TableVC 1"
 
@@ -188,33 +216,41 @@ If you prefer to selectively disable certain features, DebugSwift can now deacti
 #### Usage
 
 ```swift
-func application(
-    _: UIApplication,
-    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
-) -> Bool {
-
-    DebugSwift.setup(
-        // Main features
-        hideFeatures: [
-            .network,
-            .resources, 
-            .performance, 
-            .interface, 
-            .app
-        ],
-        // Swizzle features
-        disable: [
-            .network,
-            .location, 
-            .views, 
-            .crashManager, 
-            .leaksDetector, 
-            .console
-        ]
-    )
-    DebugSwift.show()
-
-    return true
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    let debugSwift = DebugSwift()
+    
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        
+        #if DEBUG
+        debugSwift.setup(
+            // Main features
+            hideFeatures: [
+                .network,
+                .resources, 
+                .performance, 
+                .interface, 
+                .app
+            ],
+            // Swizzle features
+            disable: [
+                .network,
+                .location, 
+                .views, 
+                .crashManager, 
+                .leaksDetector, 
+                .console
+            ]
+        )
+        debugSwift.show()
+        #endif
+        
+        return true
+    }
 }
 ```
 #### Results:
@@ -228,40 +264,18 @@ Get the data from memory leaks in the app.
 #### Usage
 
 ```swift
-DebugSwift.Performance.LeakDetector.onDetect { data in
+DebugSwift.Performance.shared.onLeakDetected { data in
     // If you want to send data to some analytics
 
-    print(data.message) // Retuns the name of the class and the error
-    print(data.controller) // If is an controller leak
-    print(data.view) // If is an view leak
-    print(data.isDeallocation) // If is an deallocation of leak (good for false/positive)
+    print(data.message) // Returns the name of the class and the error
+    print(data.controller) // If is a controller leak
+    print(data.view) // If is a view leak
+    print(data.isDeallocation) // If is a deallocation of leak (good for false/positive)
 }
 ```
 
 #### Results:
 ![image12](https://github.com/DebugSwift/DebugSwift/assets/31082311/e9acc5c5-83d4-487d-bd7e-8a66dfbc3b21)
-
----
-### Change Appearance
-Dynamic Theme: Easily Change the Interface Appearance from Dark to Light, Customize According to Your Needs.
-
-#### Usage
-
-```swift
-func application(
-    _: UIApplication,
-    didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
-) -> Bool {
-    DebugSwift.theme(appearance: .light)
-    DebugSwift.setup()
-    DebugSwift.show()
-
-    return true
-}
-```
-
-#### Results:
-![image7](https://github.com/DebugSwift/DebugSwift/assets/31082311/457590ce-0070-4c7a-a588-cc0825af2738)
 
 ---
 
@@ -288,6 +302,41 @@ Enhance your understanding by pressing and holding on a specific view to reveal 
 
 ---
 
+## Migration from Previous Versions
+
+### Breaking Changes in Swift 6 Version
+
+1. **Minimum iOS Version**: Now requires iOS 17.0+ (previously iOS 12.0+)
+2. **Swift Version**: Requires Swift 6.0+ with strict concurrency checking
+3. **API Changes**:
+   - `DebugSwift` is now a class, not an enum
+   - All singletons now use `.shared` pattern
+   - Methods that access UI must be called from MainActor
+
+### Migration Examples
+
+```swift
+// Before (old version)
+DebugSwift.setup()
+DebugSwift.show()
+DebugSwift.App.customInfo = { ... }
+DebugSwift.Network.ignoredURLs = [...]
+
+// After (Swift 6 version)
+let debugSwift = DebugSwift()
+debugSwift.setup()
+debugSwift.show()
+DebugSwift.App.shared.customInfo = { ... }
+DebugSwift.Network.shared.ignoredURLs = [...]
+```
+
+### Removed Features
+
+- **Theme Customization**: The `theme(appearance:)` method has been removed. The library now follows the system appearance automatically.
+- **Localization Manager**: Removed in favor of standard iOS localization practices.
+
+---
+
 ## Fixing Errors
 
 ### Alamofire
@@ -298,15 +347,17 @@ In the `AppDelegate`.
 
 ```swift
 class AppDelegate {
+    let debugSwift = DebugSwift()
+    
     func application(
-        _: UIApplication,
-        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        DebugSwift.setup()
-        DebugSwift.show()
+        debugSwift.setup()
+        debugSwift.show()
 
         // Call this method
-        DebugSwift.Network.delegate = self
+        DebugSwift.Network.shared.delegate = self
         return true
     }
 }

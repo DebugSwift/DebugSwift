@@ -8,12 +8,13 @@
 import UIKit
 
 extension DebugSwift {
-    public enum Network {
-        public static var ignoredURLs = [String]()
-        public static var onlyURLs = [String]()
-
-        public static var onlySchemes = CustomHTTPProtocolURLScheme.allCases
-
-        public static var delegate: CustomHTTPProtocolDelegate?
+    public class Network: @unchecked Sendable {
+        public static let shared = Network()
+        private init() {}
+        
+        public var ignoredURLs = [String]()
+        public var onlyURLs = [String]()
+        public var onlySchemes = CustomHTTPProtocolURLScheme.allCases
+        public var delegate: CustomHTTPProtocolDelegate?
     }
 }

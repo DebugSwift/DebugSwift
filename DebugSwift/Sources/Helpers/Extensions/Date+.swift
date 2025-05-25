@@ -9,7 +9,7 @@
 import Foundation
 
 extension Date {
-    static var dateFormatter: DateFormatter = {
+    static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE',' dd' 'MMM' 'yyyy HH':'mm':'ss zzz"
         formatter.locale = Locale(identifier: "pt_BR")

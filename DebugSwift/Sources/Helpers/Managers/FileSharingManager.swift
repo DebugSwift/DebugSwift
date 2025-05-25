@@ -15,12 +15,15 @@ enum FileSharingManager {
 
         do {
             try text.write(to: tempURL, atomically: true, encoding: .utf8)
-            share(tempURL)
+            Task { @MainActor in
+                share(tempURL)
+            }
         } catch {
             Debug.print("Error: \(error.localizedDescription)")
         }
     }
 
+    @MainActor
     static func share(_ tempURL: URL) {
         let activity = UIActivityViewController(
             activityItems: [tempURL],

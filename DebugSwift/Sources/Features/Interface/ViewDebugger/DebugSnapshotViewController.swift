@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol DebugSnapshotViewControllerDelegate: AnyObject {
     func debugSnapshotViewController(_ viewController: DebugSnapshotViewController, didSelectSnapshot snapshot: Snapshot)
     func debugSnapshotViewController(_ viewController: DebugSnapshotViewController, didDeselectSnapshot snapshot: Snapshot)
@@ -91,7 +92,7 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
     }
 
     func snapshotView(_ snapshotView: SnapshotView, didLongPressSnapshot snapshot: Snapshot, point: CGPoint) {
-        let actionSheet = makeActionSheet(snapshot: snapshot, sourceView: snapshotView, sourcePoint: point) { snapshot in
+        let actionSheet = actionSheet(for: snapshot, from: snapshotView, at: point) {
             self.focus(snapshot: snapshot, callDelegate: true)
         }
         present(actionSheet, animated: true, completion: nil)

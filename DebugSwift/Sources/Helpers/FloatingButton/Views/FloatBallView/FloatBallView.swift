@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 protocol FloatViewDelegate: NSObjectProtocol {
     func floatViewBeginMove(floatView: FloatBallView, point: CGPoint)
     func floatViewMoved(floatView: FloatBallView, point: CGPoint)
@@ -110,7 +111,7 @@ extension FloatBallView {
         let label = UILabel()
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = Theme.shared.fontColor
+        label.textColor = UIColor.white
         label.font = .systemFont(ofSize: 8)
         label.text = .init(0)
         ballView.addSubview(label)
@@ -124,9 +125,9 @@ extension FloatBallView {
     private func buildBallView() -> UIView {
         let padding: CGFloat = (DSFloatChat.ballRect.width - DSFloatChat.ballViewSize.width) / 2
         let view = UIView()
-        view.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = UIColor.black
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.borderColor = Theme.shared.fontColor.cgColor
+        view.layer.borderColor = UIColor.white.cgColor
         view.layer.borderWidth = 0.6
 
         addSubview(view)

@@ -17,7 +17,7 @@ final class NetworkViewControllerDetail: BaseController {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.backgroundColor = Theme.shared.backgroundColor
+        tableView.backgroundColor = UIColor.black
 
         return tableView
     }()
@@ -49,7 +49,7 @@ final class NetworkViewControllerDetail: BaseController {
         addRightBarButton(
             actions: [
                 .init(
-                    image: .named("doc.on.doc", default: "copy".localized()),
+                    image: .named("doc.on.doc", default: "Copy"),
                     completion: { [weak self] in
                         self?.copyButtonTapped()
                     }
@@ -61,7 +61,7 @@ final class NetworkViewControllerDetail: BaseController {
                     }
                 ),
                 .init(
-                    image: .named("square.and.arrow.up", default: "share".localized()),
+                    image: .named("square.and.arrow.up", default: "Share"),
                     completion: { [weak self] in
                         self?.shareButtonTapped()
                     }
@@ -71,7 +71,7 @@ final class NetworkViewControllerDetail: BaseController {
     }
 
     private func setup() {
-        title = "network-details-title".localized()
+        title = "Details"
     }
 
     private func setupSearch() {
@@ -98,7 +98,7 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
             NetworkTableViewCellDetail.self,
             forCellReuseIdentifier: "NetworkCellDetail"
         )
-        view.backgroundColor = Theme.shared.backgroundColor
+        view.backgroundColor = UIColor.black
 
         // Configure constraints for the tableView
         NSLayoutConstraint.activate([
@@ -130,7 +130,7 @@ extension NetworkViewControllerDetail: UITableViewDelegate, UITableViewDataSourc
             return nil
         }
         let label = UILabel()
-        label.backgroundColor = Theme.shared.backgroundColor
+        label.backgroundColor = UIColor.black
 
         label.text = "    \(_infos[section - 1].title)"
         label.textColor = .gray

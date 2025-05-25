@@ -11,15 +11,15 @@ import UIKit
 final class CrashViewModel: NSObject {
     var data: [CrashModel] {
         (
-            CrashManager.recover(ofType: .nsexception) +
-                CrashManager.recover(ofType: .signal)
+            CrashManager.shared.recover(ofType: .nsexception) +
+                CrashManager.shared.recover(ofType: .signal)
         ).sorted(by: { $0.details.date > $1.details.date })
     }
 
     // MARK: - ViewModel
 
     func viewTitle() -> String {
-        "actions-crash".localized()
+        "Crashes"
     }
 
     func numberOfItems() -> Int {
@@ -35,16 +35,16 @@ final class CrashViewModel: NSObject {
     }
 
     func handleClearAction() {
-        CrashManager.deleteAll(ofType: .nsexception)
-        CrashManager.deleteAll(ofType: .signal)
+        CrashManager.shared.deleteAll(ofType: .nsexception)
+        CrashManager.shared.deleteAll(ofType: .signal)
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
         let crash = data[index]
-        CrashManager.delete(crash: crash)
+        CrashManager.shared.delete(crash: crash)
     }
 
     func emptyListDescriptionString() -> String {
-        "empty-data".localized() + viewTitle()
+        "No data found in the " + viewTitle()
     }
 }
