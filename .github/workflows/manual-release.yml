@@ -44,10 +44,7 @@ jobs:
       id: previous_tag
       run: |
         if [ "${{ steps.get_release.outcome }}" == "success" ]; then
-          json=$(cat <<-END
-            ${{ steps.get_release.outputs.data }}
-          END
-          )
+          json='${{ steps.get_release.outputs.data }}'
           tag=$(echo "$json" | grep -o '"tag_name": *"[^"]*"' | awk -F'"' '{print $4}')
           echo "PREVIOUS_TAG=$tag" >> $GITHUB_OUTPUT
         else
