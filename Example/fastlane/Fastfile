@@ -2,7 +2,7 @@ desc "Run the tests and prepare for Danger"
 lane :test do
 
   gym(
-    project:                           "Example/Example.xcodeproj",
+    project:                           "Example.xcodeproj",
     scheme:                            "Example",
     clean:                             true,
     output_directory:                  "temp/derived",
@@ -10,7 +10,7 @@ lane :test do
   )
   
   scan(
-    project:                           "Example/Example.xcodeproj",
+    project:                           "Example.xcodeproj",
     scheme:                            "Example",
     derived_data_path:                 "temp/derived",
     clean:                             true,
