@@ -1,21 +1,31 @@
 desc "Run the tests and prepare for Danger"
 lane :test do
-  # 1) Resolve the Swift‐PM manifest in your package root
-  #    (so that DebugSwift itself is fetched)
-  sh "swift package resolve --package-path \"..\"", log: true
+  # figure out where the DebugSwift manifest actually is (two levels up from fastlane/)
+  project_root = File.expand_path("../..", __dir__)
 
-  # 2) Tell Xcode to resolve any SPM dependencies you've just added
-  sh "xcodebuild -resolvePackageDependencies -project Example.xcodeproj -scheme Example", log: true
+  # switch into that directory so `swift package resolve` can see your Package.swift
+  Dir.chdir(project_root) do
+    # 1) pull down all of DebugSwift’s own SPM deps
+    sh "swift package resolve", log: true
 
-  # 3) Build & test with Fastlane's scan
+    # 2) tell Xcode to resolve whatever Swift-PM deps you added in Example.xcodeproj
+    sh <<-CMD.strip_heredoc, log: true
+      xcodebuild \
+        -resolvePackageDependencies \
+        -project Example/Example.xcodeproj \
+        -scheme Example
+    CMD
+  end
+
+  # 3) now build & test
   scan(
-    project:            "Example.xcodeproj",
-    scheme:             "Example",
-    derived_data_path:  "temp/derived",
-    clean:              true,
-    result_bundle:      true,
-    code_coverage:      true,
-    devices:            ['iPhone 16'],
+    project:                           "Example/Example.xcodeproj",
+    scheme:                            "Example",
+    derived_data_path:                 "temp/derived",
+    clean:                             true,
+    result_bundle:                     true,
+    code_coverage:                     true,
+    devices:                           ['iPhone 16'],
     skip_package_dependencies_resolution: false
   )
 end
