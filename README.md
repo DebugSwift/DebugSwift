@@ -1,7 +1,7 @@
 # DebugSwift
 
 <p align="center">
-<img src="https://img.shields.io/badge/Platforms-iOS%2017.0+-blue.svg"/>
+<img src="https://img.shields.io/badge/Platforms-iOS%2014.0+-blue.svg"/>
 <img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=CocoaPods"/>
 <img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=Swift%20Package%20Index&color=red"/>    
 <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FDebugSwift%2FDebugSwift%2Fbadge%3Ftype%3Dswift-versions"/>
@@ -292,7 +292,7 @@ Enhance your understanding by pressing and holding on a specific view to reveal 
 
 ### Breaking Changes in Swift 6 Version
 
-1. **Minimum iOS Version**: Now requires iOS 17.0+ (previously iOS 12.0+)
+1. **Minimum iOS Version**: Now requires iOS 14.0+ (previously iOS 12.0+)
 2. **Swift Version**: Requires Swift 6.0+ with strict concurrency checking
 3. **API Changes**:
    - `DebugSwift` is now a class, not an enum
