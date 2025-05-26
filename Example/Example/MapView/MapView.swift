@@ -42,7 +42,6 @@ struct MapView17: View {
             span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
         )
     )
-
     var manager: MapViewManager
 
     var body: some View {
