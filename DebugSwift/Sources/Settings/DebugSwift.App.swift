@@ -37,5 +37,19 @@ extension DebugSwift {
         }
 
         var disableMethods: [DebugSwiftSwizzleFeature] = []
+        
+        @MainActor
+        @discardableResult
+        public static func presentDebugger() -> App.Type {
+            WindowManager.presentDebugger()
+            return self
+        }
+
+        @MainActor
+        @discardableResult
+        public static func removeDebugger() -> App.Type {
+            WindowManager.removeDebugger()
+            return self
+        }
     }
 }
