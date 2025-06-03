@@ -15,6 +15,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         case keychain
         case coreData
         case httpCookies
+        case database
 
         var localized: String {
             switch self {
@@ -28,6 +29,8 @@ final class ResourcesViewController: BaseController, MainFeatureType {
                 ""
             case .httpCookies:
                 "HTTP Cookies"
+            case .database:
+                "Database Browser"
             }
         }
     }
@@ -47,7 +50,8 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         .fileManager,
         .userDefaults,
         .keychain,
-        .httpCookies
+        .httpCookies,
+        .database
     ]
 
     override init() {
@@ -127,6 +131,8 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
         case .httpCookies:
             let viewModel = ResourcesHTTPCookiesViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
+        case .database:
+            controller = DatabaseBrowserViewController()
         }
         if let controller {
             navigationController?.pushViewController(controller, animated: true)
