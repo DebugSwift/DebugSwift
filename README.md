@@ -50,6 +50,10 @@
   - Create class instances to inspect their default state
   - Export comprehensive reports of all loaded libraries
 
+| Libraries List | Class Explorer | Class Details |
+|:--------------:|:--------------:|:-------------:|
+| ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 29](https://github.com/user-attachments/assets/dc17b475-d184-483d-9535-2d12bd54b42c) | ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 37](https://github.com/user-attachments/assets/fc654df0-d1aa-4e42-b708-ffa389cccd5c) | ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 42](https://github.com/user-attachments/assets/af1634de-d9a4-4d77-9b6f-58c65c2753ab) |
+
 ### Interface
 
 - **Grid:** Overlay a grid on the interface to assist with layout alignment.
