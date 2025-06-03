@@ -42,6 +42,17 @@
 - **Bundle Name:** Retrieve the application's bundle name.
 - **Bundle ID:** Display the unique bundle identifier for the application.
 - **Device Infos:** Access information about the device running the application.
+- **Loaded Libraries:** Explore all loaded libraries (frameworks, dylibs) with detailed information:
+  - View public and private libraries with their file paths and memory addresses
+  - Filter libraries by type (Public/Private) or search by name
+  - Expand libraries to see all their Objective-C classes
+  - Explore class details including properties, methods, and protocols
+  - Create class instances to inspect their default state
+  - Export comprehensive reports of all loaded libraries
+
+| Libraries List | Class Explorer | Class Details |
+|:--------------:|:--------------:|:-------------:|
+| ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 29](https://github.com/user-attachments/assets/dc17b475-d184-483d-9535-2d12bd54b42c) | ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 37](https://github.com/user-attachments/assets/fc654df0-d1aa-4e42-b708-ffa389cccd5c) | ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 42](https://github.com/user-attachments/assets/af1634de-d9a4-4d77-9b6f-58c65c2753ab) |
 
 ### Interface
 
