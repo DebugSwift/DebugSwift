@@ -13,6 +13,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         case fileManager
         case userDefaults
         case keychain
+        case persistentData
         case coreData
         case httpCookies
         case database
@@ -25,6 +26,8 @@ final class ResourcesViewController: BaseController, MainFeatureType {
                 "User Defaults"
             case .keychain:
                 "Keychain"
+            case .persistentData:
+                "Persistent Data"
             case .coreData:
                 ""
             case .httpCookies:
@@ -48,8 +51,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
 
     private let items: [Item] = [
         .fileManager,
-        .userDefaults,
-        .keychain,
+        .persistentData,
         .httpCookies,
         .database
     ]
@@ -124,6 +126,8 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
         case .keychain:
             let viewModel = ResourcesKeychainViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
+        case .persistentData:
+            controller = ResourcesTabbedController()
         case .coreData:
             // Handle "CoreData" selection
             showAlert(with: "TODO")
