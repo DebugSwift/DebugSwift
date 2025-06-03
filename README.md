@@ -42,6 +42,13 @@
 - **Bundle Name:** Retrieve the application's bundle name.
 - **Bundle ID:** Display the unique bundle identifier for the application.
 - **Device Infos:** Access information about the device running the application.
+- **Loaded Libraries:** Explore all loaded libraries (frameworks, dylibs) with detailed information:
+  - View public and private libraries with their file paths and memory addresses
+  - Filter libraries by type (Public/Private) or search by name
+  - Expand libraries to see all their Objective-C classes
+  - Explore class details including properties, methods, and protocols
+  - Create class instances to inspect their default state
+  - Export comprehensive reports of all loaded libraries
 
 ### Interface
 

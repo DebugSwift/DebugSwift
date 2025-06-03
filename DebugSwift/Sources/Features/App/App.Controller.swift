@@ -158,6 +158,9 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .crash:
                 let controller = CrashViewController()
                 navigationController?.pushViewController(controller, animated: true)
+            case .loadedLibraries:
+                let controller = LoadedLibrariesViewController()
+                navigationController?.pushViewController(controller, animated: true)
             }
         default:
             break
@@ -192,6 +195,7 @@ extension AppViewController {
         case crash
         case console
         case location
+        case loadedLibraries
 
         var title: String {
             switch self {
@@ -201,6 +205,8 @@ extension AppViewController {
                 return "Console"
             case .crash:
                 return "Crashes"
+            case .loadedLibraries:
+                return "Loaded Libraries"
             }
         }
 
