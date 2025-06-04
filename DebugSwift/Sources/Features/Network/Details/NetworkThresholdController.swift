@@ -341,10 +341,7 @@ extension NetworkThresholdController {
     }
     
     private func endpointLimitCell(at indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: CellIdentifier.info.rawValue,
-            for: indexPath
-        )
+        let cell = UITableViewCell(style: .value1, reuseIdentifier: nil)
         
         if endpointThresholds.isEmpty {
             cell.textLabel?.text = "No endpoint limits configured"
@@ -383,7 +380,10 @@ extension NetworkThresholdController {
             if #available(iOS 15.0, *) {
                 cell.detailTextLabel?.text = breach.timestamp.formatted(date: .abbreviated, time: .shortened)
             } else {
-
+                let formatter = DateFormatter()
+                formatter.dateStyle = .short
+                formatter.timeStyle = .short
+                cell.detailTextLabel?.text = formatter.string(from: breach.timestamp)
             }
             cell.textLabel?.textColor = .white
             cell.detailTextLabel?.textColor = .gray
@@ -422,6 +422,15 @@ extension NetworkThresholdController {
         guard let section = Section(rawValue: indexPath.section) else { return }
         
         switch section {
+        case .configuration:
+            switch indexPath.row {
+            case 0: // Threshold limit
+                showThresholdLimitPicker()
+            case 1: // Time window
+                showTimeWindowPicker()
+            default:
+                break
+            }
         case .actions:
             if indexPath.row == 0 {
                 clearHistory()
@@ -438,5 +447,61 @@ extension NetworkThresholdController {
             header.textLabel?.textColor = .gray
             header.textLabel?.font = .systemFont(ofSize: 13, weight: .medium)
         }
+    }
+    
+    // MARK: - Picker Methods
+    
+    private func showThresholdLimitPicker() {
+        let alert = UIAlertController(
+            title: "Set Threshold Limit",
+            message: "Enter the maximum number of requests allowed",
+            preferredStyle: .alert
+        )
+        
+        alert.addTextField { textField in
+            textField.text = "\(self.config.limit)"
+            textField.keyboardType = .numberPad
+            textField.placeholder = "e.g., 100"
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Set", style: .default) { [weak self] _ in
+            guard let self = self,
+                  let text = alert.textFields?.first?.text,
+                  let value = Int(text),
+                  value > 0 else { return }
+            
+            self.updateThresholdLimit(value)
+            self.loadData()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func showTimeWindowPicker() {
+        let alert = UIAlertController(
+            title: "Set Time Window",
+            message: "Enter the time window in seconds",
+            preferredStyle: .alert
+        )
+        
+        alert.addTextField { textField in
+            textField.text = "\(Int(self.config.timeWindow))"
+            textField.keyboardType = .numberPad
+            textField.placeholder = "e.g., 60"
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Set", style: .default) { [weak self] _ in
+            guard let self = self,
+                  let text = alert.textFields?.first?.text,
+                  let value = Int(text),
+                  value > 0 else { return }
+            
+            self.updateTimeWindow(TimeInterval(value))
+            self.loadData()
+        })
+        
+        present(alert, animated: true)
     }
 }

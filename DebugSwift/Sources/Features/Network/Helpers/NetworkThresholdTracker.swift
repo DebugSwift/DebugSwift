@@ -27,7 +27,7 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     
     /// Request threshold configuration
     struct ThresholdConfig: Codable {
-        var limit: Int = 100
+        var limit: Int = 1000
         var timeWindow: TimeInterval = 60.0 // Default: 1 minute
         var isEnabled: Bool = false
         var shouldBlockRequests: Bool = false
