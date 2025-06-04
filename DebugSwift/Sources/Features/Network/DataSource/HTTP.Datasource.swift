@@ -36,7 +36,7 @@ final class HttpDatasource: @unchecked Sendable {
         }
 
         // Maximum number limit
-        if httpModels.count >= 1000 {
+        if httpModels.count >= 10000 {
             if !httpModels.isEmpty {
                 httpModels.remove(at: 0)
             }

@@ -44,7 +44,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
-        addDeleteButton()
+        addNavigationButtons()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -113,29 +113,56 @@ final class NetworkViewController: BaseController, MainFeatureType {
         }
     }
 
-    private func addDeleteButton() {
-        guard !viewModel.models.isEmpty else { return }
-        addRightBarButton(
-            image: .named("trash.circle", default: "Clean"),
-            tintColor: .red
-        ) { [weak self] in
-            self?.showAlert(
-                with: "Warning",
-                title: "This action remove all data",
-                leftButtonTitle: "Delete",
-                leftButtonStyle: .destructive,
-                leftButtonHandler: { _ in
-                    self?.clearAction()
-                },
-                rightButtonTitle: "Cancel",
-                rightButtonStyle: .cancel
+    private func addNavigationButtons() {
+        var rightBarButtons: [UIBarButtonItem] = []
+        
+        // Add threshold button
+        let thresholdButton = UIBarButtonItem(
+            image: UIImage(systemName: "speedometer"),
+            style: .plain,
+            target: self,
+            action: #selector(showRequestThreshold)
+        )
+        thresholdButton.tintColor = .systemBlue
+        rightBarButtons.append(thresholdButton)
+        
+        // Add delete button if there are models
+        if !viewModel.models.isEmpty {
+            let deleteButton = UIBarButtonItem(
+                image: UIImage(systemName: "trash.circle"),
+                style: .plain,
+                target: self,
+                action: #selector(showDeleteAlert)
             )
+            deleteButton.tintColor = .systemRed
+            rightBarButtons.append(deleteButton)
         }
+        
+        navigationItem.rightBarButtonItems = rightBarButtons
+    }
+    
+    @objc private func showDeleteAlert() {
+        showAlert(
+            with: "Warning",
+            title: "This action remove all data",
+            leftButtonTitle: "Delete",
+            leftButtonStyle: .destructive,
+            leftButtonHandler: { _ in
+                self.clearAction()
+            },
+            rightButtonTitle: "Cancel",
+            rightButtonStyle: .cancel
+        )
     }
 
     private func clearAction() {
         viewModel.handleClearAction()
         tableView.reloadData()
+    }
+
+    @objc private func showRequestThreshold() {
+        let thresholdController = NetworkThresholdController()
+        navigationController?.pushViewController(thresholdController, animated: true)
     }
 }
 

@@ -8,7 +8,7 @@
 <img src="https://img.shields.io/github/license/DebugSwift/DebugSwift?style=flat"/>
 </p>
 
-| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.<br><br>**Now with Swift 6 support and strict concurrency checking!**</div> |
+| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications. Whether you're troubleshooting issues or optimizing performance, DebugSwift provides a set of powerful features to make your debugging experience more efficient.<br><br>**Now with Swift 6 support, strict concurrency checking**<!/div> |
 |---|---|
 
 ![image1](https://github.com/DebugSwift/DebugSwift/assets/31082311/03d0e0d0-d2ab-4fc2-8d47-e7089fffc2f6)
@@ -64,6 +64,12 @@
 ### Network Logs
 
 - **All Response/Request Logs:** Capture and review detailed logs of all network requests and responses.
+- **Threshold Request Limiter:** Monitor and control network request rates with customizable thresholds:
+  - Set global or endpoint-specific request limits
+  - Configure time windows for rate limiting
+  - Receive alerts when thresholds are exceeded
+  - Optional request blocking when limits are reached
+  - Detailed breach history and analytics
 
 ### Performance
 
@@ -151,6 +157,54 @@ DebugSwift.Network.shared.onlyURLs = ["https://reqres.in/api/users/23"]
 ```
 
 Adjust the URLs in the arrays according to your needs.
+
+### Network Threshold Configuration
+
+Configure request rate limiting to prevent API abuse and monitor network usage:
+
+```swift
+// Basic threshold configuration
+DebugSwift.Network.shared.threshold = 100  // 100 requests per minute
+DebugSwift.Network.shared.enableRequestTracking()
+
+// Advanced configuration with custom time window
+DebugSwift.Network.shared.setThreshold(50, timeWindow: 30.0)  // 50 requests per 30 seconds
+
+// Configure alert settings
+DebugSwift.Network.shared.setThresholdAlert(
+    emoji: "🚨", 
+    message: "Too many requests!"
+)
+
+// Enable request blocking when threshold is exceeded
+DebugSwift.Network.shared.setRequestBlocking(true)
+
+// Set endpoint-specific limits
+DebugSwift.Network.shared.setEndpointThreshold(
+    "api/users", 
+    limit: 50, 
+    timeWindow: 60.0
+)
+
+// Monitor current request count
+let currentCount = DebugSwift.Network.shared.getCurrentRequestCount()
+print("Current requests: \(currentCount)")
+
+// View breach history
+let breaches = DebugSwift.Network.shared.getBreachHistory()
+for breach in breaches {
+    print("Breach at \(breach.timestamp): \(breach.message)")
+}
+```
+
+All threshold configurations are automatically persisted using UserDefaults.
+
+#### Results:
+When the threshold is exceeded, you'll see:
+- Visual alerts in the app with your configured emoji and message
+- Color-coded status in the Network tab header (green → orange → red)
+- Detailed breach history in the threshold configuration screen
+- Optional blocking of requests returning 429 errors
 
 ### App Custom Data
 
@@ -326,12 +380,6 @@ debugSwift.show()
 DebugSwift.App.shared.customInfo = { ... }
 DebugSwift.Network.shared.ignoredURLs = [...]
 ```
-
-### Removed Features
-
-- **Theme Customization**: The `theme(appearance:)` method has been removed. The library now follows the system appearance automatically.
-- **Localization Manager**: Removed in favor of standard iOS localization practices.
-
 ---
 
 ## Fixing Errors
