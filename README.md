@@ -197,6 +197,8 @@ for breach in breaches {
 }
 ```
 
+All threshold configurations are automatically persisted using UserDefaults.
+
 #### Results:
 When the threshold is exceeded, you'll see:
 - Visual alerts in the app with your configured emoji and message
