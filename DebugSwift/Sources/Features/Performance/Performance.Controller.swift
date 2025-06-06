@@ -114,7 +114,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .memory:
             return 4
         case .leaks:
-            return 3
+            return 2
         }
     }
 
@@ -219,18 +219,13 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     func leaksStatisticsCellForRow(at index: Int) -> UITableViewCell? {
         switch index {
         case 0:
-            let cell = reuseCell()
-            cell.textLabel?.text = "All Leaks"
-            cell.detailTextLabel?.text = "\(PerformanceLeakDetector.shared.leaks.count)"
-            return cell
-        case 1:
             let cell = reuseCell(for: .leak)
             cell.setup(
                 title: "⚠️ Show Leaks",
                 image: .named("chevron.right", default: "Action")
             )
             return cell
-        case 2:
+        case 1:
             let cell = reuseCell(for: .leak)
             cell.setup(
                 title: "🧵 Thread Checker",
@@ -288,12 +283,12 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             // Check which leak-related option was selected
             if selectedSection == .leaks {
                 switch indexPath.row {
-                case 1:
+                case 0:
                     // Show Leaks
                     let viewModel = LeaksViewModel()
                     let controller = ResourcesGenericController(viewModel: viewModel)
                     navigationController?.pushViewController(controller, animated: true)
-                case 2:
+                case 1:
                     // Thread Checker
                     let threadCheckerController = PerformanceThreadCheckerViewController()
                     navigationController?.pushViewController(threadCheckerController, animated: true)
