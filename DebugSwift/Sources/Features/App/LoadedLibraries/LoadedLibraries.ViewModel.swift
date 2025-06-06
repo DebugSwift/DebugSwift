@@ -145,7 +145,7 @@ final class LoadedLibrariesViewModel: @unchecked Sendable {
         for i in 0..<imageCount {
             guard let imageName = _dyld_get_image_name(i) else { continue }
             let name = String(cString: imageName)
-            let header = _dyld_get_image_header(i)
+            guard let header = _dyld_get_image_header(i) else { continue }
             _ = _dyld_get_image_vmaddr_slide(i)
             
             // Get file size
@@ -231,14 +231,101 @@ final class LoadedLibrariesViewModel: @unchecked Sendable {
     }
     
     private func getFileSize(at path: String) -> String {
+        // Try file attributes first (works on simulator)
         do {
             let attributes = try FileManager.default.attributesOfItem(atPath: path)
             if let size = attributes[.size] as? Int64 {
                 return ByteCountFormatter.string(fromByteCount: size, countStyle: .binary)
             }
         } catch {
-            // Ignore errors
+            // File attributes failed - try alternative methods for device
         }
-        return "Unknown"
+        
+        // Alternative method: Use mach-o introspection for loaded libraries
+        if let size = getLibrarySizeFromMachO(path: path) {
+            return ByteCountFormatter.string(fromByteCount: size, countStyle: .binary)
+        }
+        
+        // Final fallback: Estimate from memory mapping
+        if let size = estimateSizeFromMemoryLayout(path: path) {
+            return ByteCountFormatter.string(fromByteCount: size, countStyle: .binary)
+        }
+        
+        return "N/A (Device)"
+    }
+    
+    private func getLibrarySizeFromMachO(path: String) -> Int64? {
+        let imageCount = _dyld_image_count()
+        
+        for i in 0..<imageCount {
+            guard let imageName = _dyld_get_image_name(i),
+                  String(cString: imageName) == path else { continue }
+            
+            guard let header = _dyld_get_image_header(i) else { continue }
+            
+            // Calculate actual file size from segments (not vmsize)
+            var totalFileSize: Int64 = 0
+            let headerPtr = UnsafeRawPointer(header)
+            var cmdPtr = headerPtr.advanced(by: MemoryLayout<mach_header_64>.size)
+            
+            for _ in 0..<header.pointee.ncmds {
+                let cmd = cmdPtr.assumingMemoryBound(to: load_command.self)
+                
+                if cmd.pointee.cmd == LC_SEGMENT_64 {
+                    let segment = cmdPtr.assumingMemoryBound(to: segment_command_64.self)
+                    // Use filesize instead of vmsize for accurate disk size
+                    if segment.pointee.filesize > 0 {
+                        totalFileSize += Int64(segment.pointee.filesize)
+                    }
+                }
+                
+                cmdPtr = cmdPtr.advanced(by: Int(cmd.pointee.cmdsize))
+            }
+            
+            return totalFileSize > 0 ? totalFileSize : nil
+        }
+        
+        return nil
+    }
+    
+    private func estimateSizeFromMemoryLayout(path: String) -> Int64? {
+        // Simplified estimation - try to get a reasonable approximation
+        let imageCount = _dyld_image_count()
+        
+        for i in 0..<imageCount {
+            guard let imageName = _dyld_get_image_name(i),
+                  String(cString: imageName) == path else { continue }
+            
+            guard let header = _dyld_get_image_header(i) else { continue }
+            
+            // Count only TEXT and DATA segments for a more realistic estimate
+            var estimatedSize: Int64 = 0
+            let headerPtr = UnsafeRawPointer(header)
+            var cmdPtr = headerPtr.advanced(by: MemoryLayout<mach_header_64>.size)
+            
+            for _ in 0..<header.pointee.ncmds {
+                let cmd = cmdPtr.assumingMemoryBound(to: load_command.self)
+                
+                if cmd.pointee.cmd == LC_SEGMENT_64 {
+                    let segment = cmdPtr.assumingMemoryBound(to: segment_command_64.self)
+                    let segmentName = withUnsafePointer(to: segment.pointee.segname) {
+                        $0.withMemoryRebound(to: CChar.self, capacity: 16) {
+                            String(cString: $0)
+                        }
+                    }
+                    
+                    // Only count essential segments, not virtual memory
+                    if segmentName == "__TEXT" || segmentName == "__DATA" || segmentName == "__DATA_CONST" {
+                        estimatedSize += Int64(segment.pointee.filesize)
+                    }
+                }
+                
+                cmdPtr = cmdPtr.advanced(by: Int(cmd.pointee.cmdsize))
+            }
+            
+            return estimatedSize > 0 ? estimatedSize : nil
+        }
+        
+        return nil
     }
 } 
