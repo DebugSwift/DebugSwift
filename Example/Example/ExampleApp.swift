@@ -7,6 +7,8 @@
 
 import DebugSwift
 import SwiftUI
+import UserNotifications
+import UIKit
 
 @available(iOS 14.0, *)
 @main
@@ -37,6 +39,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // To fix alamorife `uploadProgress`
 //        DebugSwift.Network.delegate = self
+        
+        // Request push notification permissions for APNS token demo
+        requestPushNotificationPermissions()
 
         return true
     }
@@ -45,6 +50,53 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let viewController = UITableViewController()
         viewController.title = "PURE"
         return [viewController]
+    }
+    
+    // MARK: - Push Notification Setup
+    
+    private func requestPushNotificationPermissions() {
+        Task { @MainActor in
+            let center = UNUserNotificationCenter.current()
+            
+            // Inform DebugSwift that we're about to request permissions
+            DebugSwift.APNSToken.willRequestPermissions()
+            
+            do {
+                let granted = try await center.requestAuthorization(options: [.alert, .badge, .sound])
+                if granted {
+                    // Register for remote notifications
+                    UIApplication.shared.registerForRemoteNotifications()
+                } else {
+                    // Inform DebugSwift that permissions were denied
+                    DebugSwift.APNSToken.didDenyPermissions()
+                }
+            } catch {
+                print("Failed to request notification permissions: \(error)")
+                DebugSwift.APNSToken.didFailToRegister(error: error)
+            }
+        }
+    }
+}
+
+// MARK: - Push Notification Delegate Methods
+
+extension AppDelegate {
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Register the device token with DebugSwift for debugging
+        DebugSwift.APNSToken.didRegister(deviceToken: deviceToken)
+        
+        // Your existing push notification setup code would go here
+        // For example, sending the token to your server
+        let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        print("📱 Registered for push notifications with token: \(tokenString)")
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        // Register the failure with DebugSwift for debugging
+        DebugSwift.APNSToken.didFailToRegister(error: error)
+        
+        // Your existing error handling code would go here
+        print("❌ Failed to register for push notifications: \(error.localizedDescription)")
     }
 }
 

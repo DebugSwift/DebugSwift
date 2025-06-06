@@ -7,10 +7,15 @@
 
 import UIKit
 
-enum UserInfo {
-    struct Info {
-        let title: String
-        let detail: String
+public enum UserInfo {
+    public struct Info {
+        public let title: String
+        public let detail: String
+        
+        public init(title: String, detail: String) {
+            self.title = title
+            self.detail = detail
+        }
     }
 
     @MainActor
@@ -23,6 +28,7 @@ enum UserInfo {
             getScreenResolution(),
             getDeviceModelInfo(),
             getIOSVersionInfo(),
+            getAPNSTokenInfo(),
             getMeasureAppStartUpTime(),
             getReachability()
         ].compactMap { $0 }
@@ -104,6 +110,11 @@ enum UserInfo {
             title: "iOS Version:",
             detail: iOSVersion
         )
+    }
+
+    @MainActor
+    static func getAPNSTokenInfo() -> Info {
+        return APNSTokenManager.shared.getTokenInfo()
     }
 
     static func getMeasureAppStartUpTime() -> Info? {

@@ -30,6 +30,7 @@ final class AppViewController: BaseController, MainFeatureType {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTable()
+        setupNavigationBar()
     }
 
     func setupTable() {
@@ -63,6 +64,34 @@ final class AppViewController: BaseController, MainFeatureType {
             image: .named("app"),
             tag: 4
         )
+    }
+    
+    func setupNavigationBar() {
+        // Add refresh button to navigation bar
+        let refreshButton = UIBarButtonItem(
+            barButtonSystemItem: .refresh,
+            target: self,
+            action: #selector(refreshDeviceInfo)
+        )
+        navigationItem.rightBarButtonItem = refreshButton
+    }
+    
+    @objc private func refreshDeviceInfo() {
+        Task { @MainActor in
+            await APNSTokenManager.shared.refreshRegistrationStatus()
+            tableView.reloadData()
+            showToast(message: "Device info refreshed")
+        }
+    }
+    
+    private func showToast(message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        present(alert, animated: true)
+        
+        // Auto-dismiss after 1.5 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            alert.dismiss(animated: true)
+        }
     }
 }
 
@@ -132,8 +161,13 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
         80.0
     }
 
-    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
         switch Sections(rawValue: indexPath.section) {
+        case .infos:
+            handleDeviceInfoTap(at: indexPath)
+            
         case .customData:
             let data = viewModel.customInfos[indexPath.row]
             let viewModel = AppCustomInfoViewModel(data: data)
@@ -167,6 +201,67 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             }
         default:
             break
+        }
+    }
+    
+    private func handleDeviceInfoTap(at indexPath: IndexPath) {
+        let info = viewModel.infos[indexPath.row]
+        
+        // Check if this is the APNS token row
+        if info.title == "Push Token:" {
+            handleAPNSTokenTap()
+        }
+    }
+    
+    private func handleAPNSTokenTap() {
+        let tokenManager = APNSTokenManager.shared
+        
+        switch tokenManager.registrationState {
+        case .registered:
+            if tokenManager.copyTokenToClipboard() {
+                showToast(message: "📋 APNS token copied to clipboard")
+            } else {
+                showToast(message: "❌ No token available to copy")
+            }
+            
+        case .failed:
+            // Show detailed error information
+            let errorMessage = tokenManager.registrationError ?? "Unknown error"
+            let alert = UIAlertController(
+                title: "Push Notification Registration Failed",
+                message: "Error: \(errorMessage)\n\nTo resolve this, check your app's push notification configuration in Apple Developer Console.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            
+        case .notRequested, .pending:
+            // Offer to request permissions
+            let alert = UIAlertController(
+                title: "Push Notifications Not Set Up",
+                message: "This app hasn't requested push notification permissions yet. Would you like to refresh and check again?",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "Refresh", style: .default) { [weak self] _ in
+                self?.refreshDeviceInfo()
+            })
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            present(alert, animated: true)
+            
+        case .denied:
+            // Show instructions to enable in Settings
+            let alert = UIAlertController(
+                title: "Push Notifications Disabled",
+                message: "Push notifications are disabled for this app. To enable them, go to Settings > Notifications > \(Bundle.main.displayName ?? "This App") and turn on notifications.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "Open Settings", style: .default) { _ in
+                if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsUrl)
+                }
+            })
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            present(alert, animated: true)
         }
     }
 }
