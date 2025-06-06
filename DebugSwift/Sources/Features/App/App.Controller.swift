@@ -161,6 +161,9 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .loadedLibraries:
                 let controller = LoadedLibrariesViewController()
                 navigationController?.pushViewController(controller, animated: true)
+            case .pushNotifications:
+                let controller = PushNotificationController()
+                navigationController?.pushViewController(controller, animated: true)
             }
         default:
             break
@@ -196,6 +199,7 @@ extension AppViewController {
         case console
         case location
         case loadedLibraries
+        case pushNotifications
 
         var title: String {
             switch self {
@@ -207,6 +211,8 @@ extension AppViewController {
                 return "Crashes"
             case .loadedLibraries:
                 return "Loaded Libraries"
+            case .pushNotifications:
+                return "Push Notifications"
             }
         }
 
@@ -224,6 +230,10 @@ extension AppViewController {
 
             if disabledActions.contains(.console) {
                 actions.removeAll(where: { $0 == .console })
+            }
+
+            if disabledActions.contains(.pushNotifications) {
+                actions.removeAll(where: { $0 == .pushNotifications })
             }
 
             return actions

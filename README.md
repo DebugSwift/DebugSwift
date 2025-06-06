@@ -75,6 +75,18 @@
 
 - **CPU, Memory, FPS, Memory Leak Detector:** Monitor and analyze CPU usage, memory consumption, and frames per second in real-time.
 
+### Push Notifications
+
+- **Push Notification Simulation:** Test push notifications using local notifications without requiring a server setup. Features include:
+  - **Template System:** Pre-built notification templates for common scenarios (messages, news, marketing, system alerts)
+  - **Custom Notifications:** Create detailed notifications with title, body, subtitle, badge, sound, and custom user info
+  - **Scheduled Delivery:** Support for immediate, delayed, and date-based notification triggers
+  - **Interaction Simulation:** Simulate user taps, dismissals, and custom notification actions
+  - **Foreground/Background Testing:** Test notification behavior in different app states
+  - **History Tracking:** Complete history of sent notifications with status tracking
+  - **Test Scenarios:** Pre-configured test flows for comprehensive notification testing
+  - **Configuration Options:** Customize notification presentation, sounds, badges, and interaction behavior
+
 ### Resources
 
 - **Keychain:** Inspect and manage data stored in the keychain.
@@ -231,6 +243,139 @@ When the threshold is exceeded, you'll see:
 - Detailed breach history in the threshold configuration screen
 - Optional blocking of requests returning 429 errors
 
+### Push Notification Simulation
+
+Test push notifications without setting up a push notification service or server. Perfect for development and testing scenarios.
+
+#### Basic Usage
+
+```swift
+// Enable push notification simulation
+DebugSwift.PushNotification.enableSimulation()
+
+// Simple notification
+DebugSwift.PushNotification.simulate(
+    title: "New Message",
+    body: "You have a new message"
+)
+
+// Detailed notification with all options
+DebugSwift.PushNotification.simulate(
+    title: "Special Offer! 🎉",
+    body: "Get 50% off your next purchase",
+    subtitle: "Limited time offer",
+    badge: 1,
+    sound: "default",
+    userInfo: ["type": "marketing", "discount": "50"],
+    delay: 5.0  // Show after 5 seconds
+)
+```
+
+#### Using Templates
+
+```swift
+// Use predefined templates
+DebugSwift.PushNotification.simulateFromTemplate("Message")
+DebugSwift.PushNotification.simulateFromTemplate("News Update", delay: 3.0)
+
+// Quick convenience methods
+DebugSwift.PushNotification.simulateMessage(from: "John", message: "Hey, how are you?")
+DebugSwift.PushNotification.simulateReminder("Meeting at 3 PM", in: 60.0)
+DebugSwift.PushNotification.simulateNews(headline: "Breaking: New iOS version released", category: "Technology")
+DebugSwift.PushNotification.simulateMarketing(title: "Flash Sale!", offer: "50% off everything", discount: "50")
+```
+
+#### Test Scenarios
+
+```swift
+// Run comprehensive test scenarios
+DebugSwift.PushNotification.runTestScenario(.messageFlow)      // 3 message-related notifications
+DebugSwift.PushNotification.runTestScenario(.newsUpdates)     // News, sports, weather updates
+DebugSwift.PushNotification.runTestScenario(.marketingCampaign) // Welcome, cart reminder, flash sale
+DebugSwift.PushNotification.runTestScenario(.systemAlerts)    // Security, backup, update notifications
+
+// Create custom scenarios
+let customNotifications = [
+    SimulatedNotification(title: "Step 1", body: "First notification"),
+    SimulatedNotification(title: "Step 2", body: "Second notification"),
+    SimulatedNotification(title: "Step 3", body: "Final notification")
+]
+DebugSwift.PushNotification.runTestScenario(.customFlow(customNotifications))
+```
+
+#### Interaction Simulation
+
+```swift
+// Simulate user interactions
+DebugSwift.PushNotification.simulateInteraction(identifier: "notification-id")
+DebugSwift.PushNotification.simulateForegroundNotification(identifier: "notification-id")
+DebugSwift.PushNotification.simulateBackgroundNotification(identifier: "notification-id")
+```
+
+#### Template Management
+
+```swift
+// Add custom templates
+let customTemplate = NotificationTemplate(
+    name: "Custom Alert",
+    title: "System Alert",
+    body: "{{message}}",
+    sound: "alarm",
+    userInfo: ["type": "system"]
+)
+DebugSwift.PushNotification.addTemplate(customTemplate)
+
+// Get all templates
+let templates = DebugSwift.PushNotification.templates
+
+// Remove template
+DebugSwift.PushNotification.removeTemplate(id: "template-id")
+```
+
+#### Configuration
+
+```swift
+// Configure notification behavior
+var config = DebugSwift.PushNotification.configuration
+config.showInForeground = true      // Show notifications while app is active
+config.playSound = true             // Enable notification sounds
+config.showBadge = true             // Show badge numbers
+config.autoInteraction = false      // Automatically interact with notifications
+config.interactionDelay = 3.0       // Delay before auto-interaction
+config.maxHistoryCount = 100        // Maximum notifications to keep in history
+
+DebugSwift.PushNotification.updateConfiguration(config)
+```
+
+#### History Management
+
+```swift
+// Get notification history
+let history = DebugSwift.PushNotification.history
+
+// Clear all history
+DebugSwift.PushNotification.clearHistory()
+
+// Remove specific notification
+DebugSwift.PushNotification.removeNotification(id: "notification-id")
+```
+
+#### Results:
+The push notification simulator provides:
+- **Real Notifications**: Actual system notifications that appear like real push notifications
+- **Status Tracking**: Monitor delivery, interaction, and dismissal status
+- **Template Library**: Pre-built templates for common notification types
+- **Test Scenarios**: Comprehensive flows for thorough testing
+- **History Management**: Complete tracking of all simulated notifications
+- **Configuration Options**: Fine-tune notification behavior and presentation
+
+Perfect for testing:
+- Notification handling logic
+- UI responses to notifications
+- Different notification content types
+- User interaction patterns
+- Foreground vs background behavior
+
 ### App Group Container Configuration
 
 Configure shared app group containers for file system debugging across app extensions and related apps:
@@ -361,7 +506,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 .views, 
                 .crashManager, 
                 .leaksDetector, 
-                .console
+                .console,
+                .pushNotifications
             ]
         )
         debugSwift.show()
