@@ -54,6 +54,14 @@
 |:--------------:|:--------------:|:-------------:|
 | ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 29](https://github.com/user-attachments/assets/dc17b475-d184-483d-9535-2d12bd54b42c) | ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 37](https://github.com/user-attachments/assets/fc654df0-d1aa-4e42-b708-ffa389cccd5c) | ![Simulator Screenshot - iPhone 16 Pro - 2025-06-03 at 14 44 42](https://github.com/user-attachments/assets/af1634de-d9a4-4d77-9b6f-58c65c2753ab) |
 
+#### Enhanced File Browser with App Group Support
+
+The file browser now includes comprehensive support for shared app group containers, allowing you to debug file system interactions across your app and its extensions.
+
+| App Sandbox View | App Groups View | Directory Navigation |
+|:----------------:|:---------------:|:-------------------:|
+| Browse your app's private directories | Access shared containers | Navigate deep into any directory |
+
 ### Interface
 
 - **Grid:** Overlay a grid on the interface to assist with layout alignment.
@@ -79,7 +87,13 @@
 
 - **Keychain:** Inspect and manage data stored in the keychain.
 - **User Defaults:** View and modify user defaults for testing different application states.
-- **Files:** Access and analyze files stored by the application.
+- **Files:** Access and analyze files stored by the application and app group containers:
+  - Browse app sandbox directories with full navigation
+  - Access shared app group containers with automatic detection
+  - Switch between app sandbox and app groups with segmented control
+  - View, delete, and export files from any accessible location
+  - Smart detection of app group identifiers from entitlements
+  - Professional UI with visual indicators for container types
 
 ## Getting Started
 
@@ -139,6 +153,25 @@ extension UIWindow {
     }
 }
 ```
+
+### Quick Start with App Groups (Optional)
+
+If your app uses shared app group containers (for extensions, widgets, etc.), you can configure them for debugging:
+
+```swift
+#if DEBUG
+// Configure app groups for file browser access
+DebugSwift.Resources.shared.configureAppGroups([
+    "group.com.yourcompany.yourapp",
+    "group.com.yourcompany.widgets"
+])
+
+debugSwift.setup()
+debugSwift.show()
+#endif
+```
+
+**Note**: App groups are automatically detected from your app's entitlements if not manually configured.
 
 ## Customization
 
@@ -205,6 +238,48 @@ When the threshold is exceeded, you'll see:
 - Color-coded status in the Network tab header (green → orange → red)
 - Detailed breach history in the threshold configuration screen
 - Optional blocking of requests returning 429 errors
+
+### App Group Container Configuration
+
+Configure shared app group containers for file system debugging across app extensions and related apps:
+
+```swift
+// Configure app group identifiers for file browser access
+DebugSwift.Resources.shared.configureAppGroups([
+    "group.com.yourcompany.yourapp",
+    "group.com.yourcompany.shared"
+])
+
+// Add individual app groups
+DebugSwift.Resources.shared.addAppGroup("group.com.yourcompany.widgets")
+
+// Remove specific app groups
+DebugSwift.Resources.shared.removeAppGroup("group.com.yourcompany.old")
+
+// Get accessible app group containers
+let accessibleGroups = DebugSwift.Resources.shared.getAccessibleAppGroups()
+for (identifier, url) in accessibleGroups {
+    print("App Group: \(identifier) at \(url.path)")
+}
+```
+
+#### Automatic Detection:
+If no app groups are configured, DebugSwift will automatically:
+1. Try to read your app's entitlements plist
+2. Extract app group identifiers from `com.apple.security.application-groups`
+3. Auto-configure detected app groups for immediate use
+
+#### File Browser Features:
+- **Segmented Control**: Switch between "App Sandbox" and "App Groups"
+- **Visual Indicators**: App group containers show clear labels
+- **Full Navigation**: Browse deep into app group directory structures
+- **File Operations**: View, delete, and export files from shared containers
+- **Error Handling**: Clear messages when app groups are inaccessible
+
+#### Results:
+The Files browser will show a segmented control allowing you to switch between:
+- **App Sandbox**: Traditional app documents, library, and tmp directories
+- **App Groups**: Shared containers accessible by your app and extensions
 
 ### App Custom Data
 

@@ -12,9 +12,37 @@ final class ResourcesFilesViewController: BaseTableController {
     enum Constants {
         static let nextSizeAbbreviationThreshold: Double = 1024
     }
+    
+    enum ContainerType: CaseIterable {
+        case appSandbox
+        case appGroup
+        
+        var title: String {
+            switch self {
+            case .appSandbox:
+                return "App Sandbox"
+            case .appGroup:
+                return "App Groups"
+            }
+        }
+    }
 
     private var subdirectories = [String]()
     private var files = [String]()
+    private var currentContainerType: ContainerType = .appSandbox
+    private var appGroupIdentifiers: [String] = []
+
+    private lazy var containerSegmentedControl: UISegmentedControl = {
+        let items = ContainerType.allCases.map { $0.title }
+        let control = UISegmentedControl(items: items)
+        control.selectedSegmentIndex = 0
+        control.addTarget(self, action: #selector(containerTypeChanged), for: .valueChanged)
+        if #available(iOS 13.0, *) {
+            control.selectedSegmentTintColor = .systemBlue
+            control.backgroundColor = .secondarySystemBackground
+        }
+        return control
+    }()
 
     private var pathLabel: UILabel = {
         let label = UILabel()
@@ -43,6 +71,7 @@ final class ResourcesFilesViewController: BaseTableController {
     }()
 
     var path: String?
+    var isRootLevel: Bool = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,9 +80,55 @@ final class ResourcesFilesViewController: BaseTableController {
 
     private func setup() {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: .cell)
+        setupAppGroupIdentifiers()
+        setupHeader()
         setupContents()
         setupViews()
         setupUI()
+    }
+    
+    private func setupAppGroupIdentifiers() {
+        // Use configured app group identifiers from DebugSwift.Resources
+        appGroupIdentifiers = DebugSwift.Resources.shared.appGroupIdentifiers
+        
+        // If no identifiers are configured, try to detect from entitlements
+        if appGroupIdentifiers.isEmpty {
+            if let path = Bundle.main.path(forResource: "Entitlements", ofType: "plist"),
+               let plist = NSDictionary(contentsOfFile: path),
+               let appGroups = plist["com.apple.security.application-groups"] as? [String] {
+                appGroupIdentifiers = appGroups
+                // Auto-configure detected app groups for future use
+                DebugSwift.Resources.shared.configureAppGroups(appGroups)
+            }
+        }
+    }
+    
+    private func setupHeader() {
+        if isRootLevel {
+            let headerView = UIView()
+            headerView.backgroundColor = .black
+            
+            headerView.addSubview(containerSegmentedControl)
+            containerSegmentedControl.translatesAutoresizingMaskIntoConstraints = false
+            
+            NSLayoutConstraint.activate([
+                containerSegmentedControl.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 10),
+                containerSegmentedControl.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20),
+                containerSegmentedControl.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -20),
+                containerSegmentedControl.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -10),
+                containerSegmentedControl.heightAnchor.constraint(equalToConstant: 40)
+            ])
+            
+            tableView.tableHeaderView = headerView
+            headerView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: 60)
+        }
+    }
+    
+    @objc private func containerTypeChanged() {
+        currentContainerType = ContainerType.allCases[containerSegmentedControl.selectedSegmentIndex]
+        path = nil // Reset path when switching container types
+        setupContents()
+        tableView.reloadData()
     }
 
     private func setupContents() {
@@ -65,14 +140,17 @@ final class ResourcesFilesViewController: BaseTableController {
     private func setupPaths() {
         var subdirectories = [String]()
         var files = [String]()
+        
+        let currentPath = getCurrentPath()
+        
         do {
-            let directoryContent = try FileManager.default.contentsOfDirectory(atPath: path!)
+            let directoryContent = try FileManager.default.contentsOfDirectory(atPath: currentPath)
             for element in directoryContent {
                 if element == "DebugSwift" {
                     continue
                 }
                 var isDirectory: ObjCBool = false
-                let fullElementPath = (path! as NSString).appendingPathComponent(element)
+                let fullElementPath = (currentPath as NSString).appendingPathComponent(element)
                 FileManager.default.fileExists(atPath: fullElementPath, isDirectory: &isDirectory)
                 if isDirectory.boolValue {
                     subdirectories.append(element)
@@ -82,10 +160,34 @@ final class ResourcesFilesViewController: BaseTableController {
             }
         } catch {
             Debug.print("Error reading directory: \(error)")
+            
+            // If we're trying to read app groups and failing, show available app group identifiers
+            if currentContainerType == .appGroup && path == nil {
+                subdirectories = appGroupIdentifiers.compactMap { identifier in
+                    if FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: identifier) != nil {
+                        return identifier
+                    }
+                    return nil
+                }
+            }
         }
 
         self.subdirectories = subdirectories.sorted()
         self.files = files.sorted()
+    }
+    
+    private func getCurrentPath() -> String {
+        switch currentContainerType {
+        case .appSandbox:
+            return path ?? NSHomeDirectory()
+        case .appGroup:
+            if let path = path {
+                return path
+            } else {
+                // Show app group identifiers as "directories"
+                return NSTemporaryDirectory() // Placeholder path
+            }
+        }
     }
 
     private func setupViews() {
@@ -100,14 +202,38 @@ final class ResourcesFilesViewController: BaseTableController {
     }
 
     private func refreshLabels() {
-        let textPath = path?.replacingOccurrences(of: NSHomeDirectory(), with: "") ?? "/"
+        let currentPath = getCurrentPath()
+        let textPath: String
+        
+        switch currentContainerType {
+        case .appSandbox:
+            textPath = currentPath.replacingOccurrences(of: NSHomeDirectory(), with: "")
+        case .appGroup:
+            if let path = path {
+                // Show relative path within app group
+                textPath = path.replacingOccurrences(of: NSHomeDirectory(), with: "")
+            } else {
+                textPath = "App Groups"
+            }
+        }
+        
         pathLabel.text = "    \(textPath.isEmpty ? "/" : textPath)"
-        if path == nil { path = NSHomeDirectory() }
 
-        backgroundLabel.text =
-            (subdirectories.count + files.count > 0) ? "" : "This directory is empty."
+        let totalItems = subdirectories.count + files.count
+        backgroundLabel.text = totalItems > 0 ? "" : getEmptyStateMessage()
+    }
+    
+    private func getEmptyStateMessage() -> String {
+        switch currentContainerType {
+        case .appSandbox:
+            return "This directory is empty."
+        case .appGroup:
+            return path == nil ? "No accessible app groups found.\nCheck your app's entitlements." : "This app group directory is empty."
+        }
     }
 }
+
+// MARK: - Table View Methods
 
 extension ResourcesFilesViewController {
     override func numberOfSections(in _: UITableView) -> Int {
@@ -136,7 +262,18 @@ extension ResourcesFilesViewController {
         -> UITableViewCell {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
-            cell.setup(title: subdirectories[indexPath.row])
+            let directoryName = subdirectories[indexPath.row]
+            
+            // Special handling for app group identifiers at root level
+            if currentContainerType == .appGroup && path == nil {
+                cell.setup(
+                    title: directoryName,
+                    subtitle: "App Group Container",
+                    image: .named("folder", default: "📁")
+                )
+            } else {
+                cell.setup(title: directoryName)
+            }
 
             return cell
         }
@@ -181,12 +318,28 @@ extension ResourcesFilesViewController {
         if indexPath.section == .zero {
             let subdirectoryName = subdirectories[indexPath.row]
             let filesTableViewController = ResourcesFilesViewController()
-            filesTableViewController.path = (path! as NSString).appendingPathComponent(subdirectoryName)
+            
+            if currentContainerType == .appGroup && path == nil {
+                // Navigating into an app group container
+                if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: subdirectoryName) {
+                    filesTableViewController.path = containerURL.path
+                    filesTableViewController.currentContainerType = .appGroup
+                    filesTableViewController.isRootLevel = false
+                } else {
+                    showAlert(with: "Unable to access app group: \(subdirectoryName)")
+                    return
+                }
+            } else {
+                // Regular directory navigation
+                filesTableViewController.path = (getCurrentPath() as NSString).appendingPathComponent(subdirectoryName)
+                filesTableViewController.currentContainerType = currentContainerType
+                filesTableViewController.isRootLevel = false
+            }
+            
             filesTableViewController.title = subdirectoryName
-
             navigationController?.pushViewController(filesTableViewController, animated: true)
         } else {
-            let filePath = (path! as NSString).appendingPathComponent(files[indexPath.row])
+            let filePath = (getCurrentPath() as NSString).appendingPathComponent(files[indexPath.row])
             let fileURL = URL(fileURLWithPath: filePath)
             let activity = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
             if let popover = activity.popoverPresentationController {
@@ -200,7 +353,7 @@ extension ResourcesFilesViewController {
     // MARK: - File size
 
     func sizeStringForFileWithName(fileName: String) -> String? {
-        let fullPath = (path! as NSString).appendingPathComponent(fileName)
+        let fullPath = (getCurrentPath() as NSString).appendingPathComponent(fileName)
         do {
             let fileSize = try FileManager.default.attributesOfItem(atPath: fullPath)[.size] as! UInt64
             let sizeUnitAbbreviations = ["B", "KB", "MB", "GB"]
@@ -221,7 +374,7 @@ extension ResourcesFilesViewController {
 
     func fullPathForElement(with indexPath: IndexPath) -> String {
         let elementName = indexPath.section == 0 ? subdirectories[indexPath.row] : files[indexPath.row]
-        return (path! as NSString).appendingPathComponent(elementName)
+        return (getCurrentPath() as NSString).appendingPathComponent(elementName)
     }
 
     func removeElementFromDataSource(with indexPath: IndexPath) {
