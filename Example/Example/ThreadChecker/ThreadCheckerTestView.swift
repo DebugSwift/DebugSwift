@@ -8,7 +8,6 @@
 import SwiftUI
 import DebugSwift
 
-@available(iOS 14.0, *)
 struct ThreadCheckerTestView: View {
     @State private var testResults: [String] = []
     @State private var isRunning = false
@@ -301,7 +300,6 @@ struct ThreadCheckerTestView: View {
 
 // MARK: - Preview
 
-@available(iOS 14.0, *)
 struct ThreadCheckerTestView_Previews: PreviewProvider {
     static var previews: some View {
         ThreadCheckerTestView()

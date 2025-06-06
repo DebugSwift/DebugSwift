@@ -9,5 +9,12 @@
 	</dict>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>We need your location to show it on the map.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+        <string>background-processing</string>
+    </array>
+    <key>NSUserNotificationsUsageDescription</key>
+    <string>This app uses notifications to demonstrate push notification debugging capabilities.</string>
 </dict>
 </plist>
