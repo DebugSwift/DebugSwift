@@ -31,6 +31,16 @@ struct ContentView: View {
                     Text("Memory Leak Demo")
                 }
 
+                if #available(iOS 14.0, *) {
+                    NavigationLink(destination: ThreadCheckerTestView()) {
+                        Text("ThreadChecker Test Suite (SwiftUI)")
+                    }
+                    
+                    NavigationLink(destination: ThreadCheckerUIKitTestView()) {
+                        Text("ThreadChecker Test Suite (UIKit)")
+                    }
+                }
+
                 Button("Show Map") {
                     presentingMap = true
                 }

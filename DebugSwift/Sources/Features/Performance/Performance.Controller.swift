@@ -114,7 +114,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .memory:
             return 4
         case .leaks:
-            return 2
+            return 3
         }
     }
 
@@ -230,6 +230,13 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
                 image: .named("chevron.right", default: "Action")
             )
             return cell
+        case 2:
+            let cell = reuseCell(for: .leak)
+            cell.setup(
+                title: "🧵 Thread Checker",
+                image: .named("chevron.right", default: "Action")
+            )
+            return cell
         default:
             return nil
         }
@@ -278,9 +285,22 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             cell?.simulateButtonTap()
             PerformanceMemoryWarning().generate()
         case .leak:
-            let viewModel = LeaksViewModel()
-            let controller = ResourcesGenericController(viewModel: viewModel)
-            navigationController?.pushViewController(controller, animated: true)
+            // Check which leak-related option was selected
+            if selectedSection == .leaks {
+                switch indexPath.row {
+                case 1:
+                    // Show Leaks
+                    let viewModel = LeaksViewModel()
+                    let controller = ResourcesGenericController(viewModel: viewModel)
+                    navigationController?.pushViewController(controller, animated: true)
+                case 2:
+                    // Thread Checker
+                    let threadCheckerController = PerformanceThreadCheckerViewController()
+                    navigationController?.pushViewController(threadCheckerController, animated: true)
+                default:
+                    break
+                }
+            }
         default:
             break
         }
