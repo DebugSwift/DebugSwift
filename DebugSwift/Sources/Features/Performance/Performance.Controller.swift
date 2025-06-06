@@ -219,14 +219,16 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     func leaksStatisticsCellForRow(at index: Int) -> UITableViewCell? {
         switch index {
         case 0:
-            let cell = reuseCell()
-            cell.textLabel?.text = "All Leaks"
-            cell.detailTextLabel?.text = "\(PerformanceLeakDetector.shared.leaks.count)"
+            let cell = reuseCell(for: .leak)
+            cell.setup(
+                title: "⚠️ Show Leaks",
+                image: .named("chevron.right", default: "Action")
+            )
             return cell
         case 1:
             let cell = reuseCell(for: .leak)
             cell.setup(
-                title: "⚠️ Show Leaks",
+                title: "🧵 Thread Checker",
                 image: .named("chevron.right", default: "Action")
             )
             return cell
@@ -278,9 +280,22 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             cell?.simulateButtonTap()
             PerformanceMemoryWarning().generate()
         case .leak:
-            let viewModel = LeaksViewModel()
-            let controller = ResourcesGenericController(viewModel: viewModel)
-            navigationController?.pushViewController(controller, animated: true)
+            // Check which leak-related option was selected
+            if selectedSection == .leaks {
+                switch indexPath.row {
+                case 0:
+                    // Show Leaks
+                    let viewModel = LeaksViewModel()
+                    let controller = ResourcesGenericController(viewModel: viewModel)
+                    navigationController?.pushViewController(controller, animated: true)
+                case 1:
+                    // Thread Checker
+                    let threadCheckerController = PerformanceThreadCheckerViewController()
+                    navigationController?.pushViewController(threadCheckerController, animated: true)
+                default:
+                    break
+                }
+            }
         default:
             break
         }

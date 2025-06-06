@@ -81,4 +81,48 @@ extension DebugSwift {
             NetworkThresholdTracker.shared.getDetailedLogs()
         }
     }
+    
+    // MARK: - App Groups Configuration
+    
+    public class Resources: @unchecked Sendable {
+        public static let shared = Resources()
+        private init() {
+            // Private initializer for singleton
+        }
+        
+        /// App Group identifiers that should be accessible in the file browser
+        /// Example: ["group.com.yourcompany.yourapp", "group.com.yourcompany.shared"]
+        public var appGroupIdentifiers: [String] = []
+        
+        /// Configure app group identifiers for file browser access
+        /// - Parameter identifiers: Array of app group identifiers from your app's entitlements
+        public func configureAppGroups(_ identifiers: [String]) {
+            appGroupIdentifiers = identifiers
+        }
+        
+        /// Add a single app group identifier
+        /// - Parameter identifier: App group identifier to add
+        public func addAppGroup(_ identifier: String) {
+            if !appGroupIdentifiers.contains(identifier) {
+                appGroupIdentifiers.append(identifier)
+            }
+        }
+        
+        /// Remove an app group identifier
+        /// - Parameter identifier: App group identifier to remove
+        public func removeAppGroup(_ identifier: String) {
+            appGroupIdentifiers.removeAll { $0 == identifier }
+        }
+        
+        /// Get accessible app group containers
+        /// - Returns: Array of accessible app group identifiers with their URLs
+        public func getAccessibleAppGroups() -> [(identifier: String, url: URL)] {
+            return appGroupIdentifiers.compactMap { identifier in
+                guard let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: identifier) else {
+                    return nil
+                }
+                return (identifier, url)
+            }
+        }
+    }
 }

@@ -31,6 +31,10 @@ struct ContentView: View {
                     Text("Memory Leak Demo")
                 }
 
+                NavigationLink(destination: ThreadCheckerTestView()) {
+                    Text("ThreadChecker Test Suite")
+                }
+
                 Button("Show Map") {
                     presentingMap = true
                 }

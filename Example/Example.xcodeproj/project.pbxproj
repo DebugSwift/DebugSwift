@@ -16,6 +16,8 @@
 		2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */; };
 		2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2EA3B66B2B2E8054001B59FE /* DebugSwift */; };
 		396F5EF12DE273F3009CA492 /* LeakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396F5EEF2DE273F3009CA492 /* LeakView.swift */; };
+		399150B02DF28C1900C7539B /* ThreadCheckerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399150AD2DF28C1900C7539B /* ThreadCheckerTestView.swift */; };
+		399150B32DF28DE800C7539B /* ThreadCheckerUIKitTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399150B22DF28DE800C7539B /* ThreadCheckerUIKitTestView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +44,8 @@
 		2EC7DFEE2C12B72A005E58DF /* Example-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Example-Info.plist"; sourceTree = SOURCE_ROOT; };
 		396F5EEF2DE273F3009CA492 /* LeakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakView.swift; sourceTree = "<group>"; };
 		396F5F032DE27523009CA492 /* ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		399150AD2DF28C1900C7539B /* ThreadCheckerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadCheckerTestView.swift; sourceTree = "<group>"; };
+		399150B22DF28DE800C7539B /* ThreadCheckerUIKitTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadCheckerUIKitTestView.swift; sourceTree = "<group>"; };
 		39F846182DE2A37D00EAF1D8 /* Example.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = Example.xctestplan; path = ../Example.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -112,6 +116,7 @@
 				2E60BA122B3383070084C2D9 /* Example.entitlements */,
 				2EA3B65C2B2E7F71001B59FE /* ExampleApp.swift */,
 				2EA3B65E2B2E7F71001B59FE /* ContentView.swift */,
+				399150AF2DF28C1900C7539B /* ThreadChecker */,
 				396F5EF02DE273F3009CA492 /* LeakView */,
 				2E7441B22C1A5519001CF6F1 /* MockRequest */,
 				2E7441AF2C1A54FE001CF6F1 /* MapView */,
@@ -135,6 +140,15 @@
 				396F5EEF2DE273F3009CA492 /* LeakView.swift */,
 			);
 			path = LeakView;
+			sourceTree = "<group>";
+		};
+		399150AF2DF28C1900C7539B /* ThreadChecker */ = {
+			isa = PBXGroup;
+			children = (
+				399150B22DF28DE800C7539B /* ThreadCheckerUIKitTestView.swift */,
+				399150AD2DF28C1900C7539B /* ThreadCheckerTestView.swift */,
+			);
+			path = ThreadChecker;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -251,10 +265,12 @@
 			files = (
 				2E7441B62C1A6F46001CF6F1 /* MapView.swift in Sources */,
 				2E7441AE2C1A54EF001CF6F1 /* MapView_13.swift in Sources */,
+				399150B32DF28DE800C7539B /* ThreadCheckerUIKitTestView.swift in Sources */,
 				2EA3B65F2B2E7F71001B59FE /* ContentView.swift in Sources */,
 				2E7441B12C1A550F001CF6F1 /* MockRequest.swift in Sources */,
 				2EA3B65D2B2E7F71001B59FE /* ExampleApp.swift in Sources */,
 				396F5EF12DE273F3009CA492 /* LeakView.swift in Sources */,
+				399150B02DF28C1900C7539B /* ThreadCheckerTestView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
