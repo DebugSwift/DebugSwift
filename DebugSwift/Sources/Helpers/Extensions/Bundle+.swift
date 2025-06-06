@@ -22,4 +22,9 @@ extension Bundle {
         return resourceBundle
     }()
     #endif
+    
+    var displayName: String? {
+        return infoDictionary?["CFBundleDisplayName"] as? String ??
+               infoDictionary?["CFBundleName"] as? String
+    }
 }

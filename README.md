@@ -42,6 +42,13 @@
 - **Bundle Name:** Retrieve the application's bundle name.
 - **Bundle ID:** Display the unique bundle identifier for the application.
 - **Device Infos:** Access information about the device running the application.
+- **APNS Device Token:** View and copy the Apple Push Notification Service device token for debugging push notifications:
+  - Real-time registration status tracking (not requested, pending, registered, failed, denied)
+  - One-tap token copying to clipboard for manual testing
+  - APNS environment detection (development/production)
+  - Error details for failed registrations
+  - Refresh mechanism to update token status
+  - Direct integration with notification settings
 - **Loaded Libraries:** Explore all loaded libraries (frameworks, dylibs) with detailed information:
   - View public and private libraries with their file paths and memory addresses
   - Filter libraries by type (Public/Private) or search by name
@@ -176,6 +183,106 @@ debugSwift.show()
 ```
 
 **Note**: App groups are automatically detected from your app's entitlements if not manually configured.
+
+### APNS Device Token Integration
+
+To enable APNS device token tracking in DebugSwift, integrate the following code into your AppDelegate:
+
+```swift
+import DebugSwift
+import UserNotifications
+
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Your existing DebugSwift setup
+        #if DEBUG
+        debugSwift.setup().show()
+        #endif
+        
+        // Request push notification permissions
+        requestPushNotificationPermissions()
+        
+        return true
+    }
+    
+    private func requestPushNotificationPermissions() {
+        Task { @MainActor in
+            let center = UNUserNotificationCenter.current()
+            
+            // Inform DebugSwift that we're about to request permissions
+            DebugSwift.APNSToken.willRequestPermissions()
+            
+            do {
+                let granted = try await center.requestAuthorization(options: [.alert, .badge, .sound])
+                if granted {
+                    UIApplication.shared.registerForRemoteNotifications()
+                } else {
+                    DebugSwift.APNSToken.didDenyPermissions()
+                }
+            } catch {
+                DebugSwift.APNSToken.didFailToRegister(error: error)
+            }
+        }
+    }
+    
+    // MARK: - Push Notification Delegate Methods
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Register with DebugSwift for debugging
+        DebugSwift.APNSToken.didRegister(deviceToken: deviceToken)
+        
+        // Your existing token handling code here
+        let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        print("📱 Device token: \(tokenString)")
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        // Register failure with DebugSwift
+        DebugSwift.APNSToken.didFailToRegister(error: error)
+        
+        // Your existing error handling code here
+        print("❌ Failed to register: \(error.localizedDescription)")
+    }
+}
+```
+
+#### APNS Token Features:
+
+- **Status Tracking**: View current registration state in Device Info section
+- **Copy to Clipboard**: Tap the Push Token row to copy the token for manual testing
+- **Environment Detection**: Automatically detects development vs production APNS environment
+- **Error Details**: Tap on failed registrations to see detailed error information
+- **Refresh Button**: Use the refresh button in the navigation bar to update token status
+- **Settings Integration**: Direct links to notification settings when permissions are denied
+
+#### Programmatic Access:
+
+```swift
+// Get current device token
+let token = DebugSwift.APNSToken.deviceToken
+
+// Check registration state
+let state = DebugSwift.APNSToken.registrationState
+
+// Get APNS environment
+let environment = DebugSwift.APNSToken.environment
+
+// Copy token to clipboard programmatically
+let copied = DebugSwift.APNSToken.copyToClipboard()
+
+// Refresh registration status
+await DebugSwift.APNSToken.refreshStatus()
+```
+
+#### Why This Matters:
+
+When debugging push notification flows, developers often need the exact device token to:
+- Send test pushes from their server or testing tools
+- Verify token registration with their backend
+- Debug notification delivery issues
+- Test different APNS environments
+
+DebugSwift eliminates the need for manual token logging and provides a convenient interface for accessing and copying tokens during development.
 
 ## Customization
 
