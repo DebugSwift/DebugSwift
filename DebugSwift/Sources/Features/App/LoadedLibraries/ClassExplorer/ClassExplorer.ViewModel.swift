@@ -61,12 +61,43 @@ final class ClassExplorerViewModel {
     var canCreateInstance: Bool {
         guard let cls = classObject else { return false }
         
-        // Check if it's an NSObject subclass and has init method
-        if class_conformsToProtocol(cls, NSObjectProtocol.self) {
-            return class_respondsToSelector(cls, NSSelectorFromString("init"))
+        // Check if it's an NSObject subclass
+        guard class_conformsToProtocol(cls, NSObjectProtocol.self) else { return false }
+        
+        // Check if class responds to both alloc and init
+        guard class_respondsToSelector(cls, NSSelectorFromString("alloc")),
+              class_respondsToSelector(cls, NSSelectorFromString("init")) else { return false }
+        
+        // Skip certain known problematic classes
+        let className = String(cString: class_getName(cls))
+        let problemClasses = [
+            "NSProxy",
+            "NSInvocation", 
+            "NSMethodSignature",
+            "NSConnection",
+            "NSDistantObject"
+        ]
+        
+        for problemClass in problemClasses {
+            if className.contains(problemClass) {
+                return false
+            }
         }
         
-        return false
+        // Filter out private classes (starting with underscore)
+        if className.hasPrefix("_") {
+            return false
+        }
+        
+        // Additional safety check: verify we can get the method implementations
+        let allocSelector = NSSelectorFromString("alloc")
+        
+        // Check if we can get the alloc method
+        guard class_getClassMethod(cls, allocSelector) != nil else { return false }
+        
+        // For a more thorough check, we could try to allocate, but that's risky
+        // So we'll just verify the methods exist
+        return true
     }
     
     // MARK: - Initialization
@@ -89,8 +120,48 @@ final class ClassExplorerViewModel {
     func createInstance() {
         guard let cls = classObject as? NSObject.Type else { return }
         
-        instance = cls.init()
+        // Use runtime functions for safer instantiation
+        let allocSelector = NSSelectorFromString("alloc")
+        let initSelector = NSSelectorFromString("init")
+        
+        guard cls.responds(to: allocSelector) else {
+            print("Class \(className) does not respond to alloc")
+            return
+        }
+        
+        // Get the alloc method implementation
+        guard let allocMethod = class_getClassMethod(cls, allocSelector) else {
+            print("Unable to get alloc method for \(className)")
+            return
+        }
+        
+        // Call alloc using method implementation
+        let allocImp = method_getImplementation(allocMethod)
+        typealias AllocFunction = @convention(c) (AnyClass, Selector) -> NSObject
+        let allocFunc = unsafeBitCast(allocImp, to: AllocFunction.self)
+        let allocatedInstance = allocFunc(cls, allocSelector)
+        
+        // Check if the allocated instance responds to init
+        guard allocatedInstance.responds(to: initSelector) else {
+            print("Allocated instance of \(className) does not respond to init")
+            return
+        }
+        
+        // Get the init method implementation
+        guard let initMethod = class_getInstanceMethod(type(of: allocatedInstance), initSelector) else {
+            print("Unable to get init method for \(className)")
+            return
+        }
+        
+        // Call init using method implementation
+        let initImp = method_getImplementation(initMethod)
+        typealias InitFunction = @convention(c) (NSObject, Selector) -> NSObject
+        let initFunc = unsafeBitCast(initImp, to: InitFunction.self)
+        let initializedInstance = initFunc(allocatedInstance, initSelector)
+        
+        instance = initializedInstance
         loadInstanceState()
+        print("Successfully created instance of \(className)")
     }
     
     // MARK: - Private Methods
