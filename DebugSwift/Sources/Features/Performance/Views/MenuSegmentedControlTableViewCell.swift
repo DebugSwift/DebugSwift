@@ -26,9 +26,7 @@ final class MenuSegmentedControlTableViewCell: UITableViewCell {
         segmentedControl.addTarget(
             self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged
         )
-        if #available(iOS 13.0, *) {
-            segmentedControl.overrideUserInterfaceStyle = .dark
-        }
+        segmentedControl.overrideUserInterfaceStyle = .dark
         return segmentedControl
     }()
 

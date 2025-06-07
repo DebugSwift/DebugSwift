@@ -1,20 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>We need your location to show it on the map.</string>
+    <!-- Allow insecure loads globally (for testing) -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+
+        <!-- But also explicitly whitelist localhost for HTTP & WebSocket -->
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>localhost</key>
+            <dict>
+                <!-- Allow http:// and ws:// on localhost -->
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+                <key>NSExceptionAllowsInsecureWebSocketLoads</key>
+                <true/>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
+
+    <!-- Push-notification debugging -->
+    <key>NSUserNotificationsUsageDescription</key>
+    <string>This app uses notifications to demonstrate push notification debugging capabilities.</string>
+
+    <!-- Background modes you already had -->
     <key>UIBackgroundModes</key>
     <array>
         <string>remote-notification</string>
         <string>background-processing</string>
     </array>
-    <key>NSUserNotificationsUsageDescription</key>
-    <string>This app uses notifications to demonstrate push notification debugging capabilities.</string>
 </dict>
 </plist>

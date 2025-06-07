@@ -16,7 +16,7 @@ extension DebugSwift {
         
         public var ignoredURLs = [String]()
         public var onlyURLs = [String]()
-        public var onlySchemes = CustomHTTPProtocolURLScheme.allCases
+        public var onlySchemes = CustomHTTPProtocolURLScheme.allCases.filter { $0 != .ws && $0 != .wss }
         public var delegate: CustomHTTPProtocolDelegate?
         
         // MARK: - Threshold Limiter API

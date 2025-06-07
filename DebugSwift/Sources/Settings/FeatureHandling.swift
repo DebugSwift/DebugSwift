@@ -42,6 +42,10 @@ enum FeatureHandling {
             enableNetwork()
         }
 
+        if !methodsToDisable.contains(.webSocket) {
+            enableWebSocket()
+        }
+
         if !methodsToDisable.contains(.location) {
             enableLocation()
         }
@@ -66,6 +70,10 @@ enum FeatureHandling {
     private static func enableNetwork() {
         URLSessionConfiguration.swizzleMethods()
         NetworkHelper.shared.enable()
+    }
+
+    private static func enableWebSocket() {
+        WebSocketMonitor.shared.enable()
     }
 
     private static func enableCrashManager() {

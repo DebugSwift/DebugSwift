@@ -369,10 +369,7 @@ extension PushNotificationSimulator: UNUserNotificationCenterDelegate {
         
         // Default options for foreground notifications
         var options: UNNotificationPresentationOptions = [.banner, .sound, .badge]
-        
-        if #available(iOS 14.0, *) {
-            options.insert(.banner)
-        }
+        options.insert(.banner)
         
         completionHandler(options)
         

@@ -383,14 +383,7 @@ extension UIView {
             .OBJC_ASSOCIATION_RETAIN
         ) // prevents triggering warnings itself
 
-        var iosOnMac = false
-        if #available(
-            iOS 13,
-            tvOS 13,
-            *
-        ) {
-            iosOnMac = ProcessInfo.processInfo.isMacCatalystApp
-        }
+        let iosOnMac = ProcessInfo.processInfo.isMacCatalystApp
         let maxWidth: CGFloat = 240 - (
             iosOnMac ? 12 : 0
         ) // hard coded width for now
@@ -1002,16 +995,12 @@ extension UIResponder {
 extension UIApplication {
     /// get a window, preferably once that is in foreground (active) in case you have multiple windows on iPad
     private var lvcdActiveMainKeyWindow: UIWindow? {
-        if #available(iOS 13, tvOS 13, *) {
-            let activeScenes = connectedScenes.filter {
-                $0.activationState == UIScene.ActivationState.foregroundActive
-            }
-            return (!activeScenes.isEmpty ? activeScenes : connectedScenes).flatMap {
-                ($0 as? UIWindowScene)?.windows ?? []
-            }.first(where: \.isKeyWindow)
-        } else {
-            return UIApplication.keyWindow
+        let activeScenes = connectedScenes.filter {
+            $0.activationState == UIScene.ActivationState.foregroundActive
         }
+        return (!activeScenes.isEmpty ? activeScenes : connectedScenes).flatMap {
+            ($0 as? UIWindowScene)?.windows ?? []
+        }.first(where: \.isKeyWindow)
     }
 
     private final class func lvcdTopViewController(

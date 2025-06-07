@@ -37,10 +37,8 @@ final class ResourcesFilesViewController: BaseTableController {
         let control = UISegmentedControl(items: items)
         control.selectedSegmentIndex = 0
         control.addTarget(self, action: #selector(containerTypeChanged), for: .valueChanged)
-        if #available(iOS 13.0, *) {
-            control.selectedSegmentTintColor = .systemBlue
-            control.backgroundColor = .secondarySystemBackground
-        }
+        control.selectedSegmentTintColor = .systemBlue
+        control.backgroundColor = .secondarySystemBackground
         return control
     }()
 

@@ -29,10 +29,8 @@ final class PerformanceThreadCheckerViewController: BaseTableController {
         let control = UISegmentedControl(items: items)
         control.selectedSegmentIndex = PerformanceThreadChecker.AutoFixMode.allCases.firstIndex(of: PerformanceThreadChecker.shared.autoFixMode) ?? 1
         control.addTarget(self, action: #selector(autoFixModeChanged), for: .valueChanged)
-        if #available(iOS 13.0, *) {
-            control.selectedSegmentTintColor = .systemBlue
-            control.backgroundColor = .secondarySystemBackground
-        }
+        control.selectedSegmentTintColor = .systemBlue
+        control.backgroundColor = .secondarySystemBackground
         return control
     }()
     

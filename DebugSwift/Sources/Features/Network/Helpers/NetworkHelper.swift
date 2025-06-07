@@ -24,11 +24,13 @@ final class NetworkHelper: @unchecked Sendable {
         guard !isNetworkEnable else { return }
         isNetworkEnable = true
         CustomHTTPProtocol.start()
+        WebSocketMonitor.shared.enable()
     }
 
     func disable() {
         guard isNetworkEnable else { return }
         isNetworkEnable = false
         CustomHTTPProtocol.stop()
+        WebSocketMonitor.shared.disable()
     }
 }

@@ -75,3 +75,4 @@ buildServer.json
 .swiftpm
 task_output.log
 .DS_Store
+node_modules
