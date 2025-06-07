@@ -34,6 +34,58 @@ extension DebugSwift {
             WebSocketMonitor.shared.isEnabled
         }
         
+        // MARK: - Manual Registration (Optional)
+        
+        /// Register a WebSocket task with a custom channel name
+        /// 
+        /// This is optional with automatic method swizzling but useful for organizing connections
+        /// by custom channel names in the inspector.
+        /// 
+        /// - Parameters:
+        ///   - task: The WebSocket task to register
+        ///   - channelName: Custom channel name for organization (optional)
+        @MainActor
+        public static func register(task: URLSessionWebSocketTask, channelName: String? = nil) {
+            WebSocketMonitor.shared.register(task: task, channelName: channelName)
+        }
+        
+        // MARK: - Manual Frame Logging (Optional)
+        
+        /// Manually log a sent text frame
+        /// 
+        /// This is optional with automatic method swizzling but can be used for additional
+        /// metadata or custom logging scenarios.
+        /// 
+        /// - Parameters:
+        ///   - task: The WebSocket task
+        ///   - text: The text content that was sent
+        @MainActor
+        public static func logSentFrame(task: URLSessionWebSocketTask, text: String) {
+            WebSocketMonitor.shared.logSentFrame(task: task, message: .string(text))
+        }
+        
+        /// Manually log a sent data frame
+        /// 
+        /// - Parameters:
+        ///   - task: The WebSocket task
+        ///   - data: The data content that was sent
+        @MainActor
+        public static func logSentFrame(task: URLSessionWebSocketTask, data: Data) {
+            WebSocketMonitor.shared.logSentFrame(task: task, message: .data(data))
+        }
+        
+        /// Manually log a sent WebSocket message
+        /// 
+        /// - Parameters:
+        ///   - task: The WebSocket task
+        ///   - message: The WebSocket message that was sent
+        @MainActor
+        public static func logSentFrame(task: URLSessionWebSocketTask, message: URLSessionWebSocketTask.Message) {
+            WebSocketMonitor.shared.logSentFrame(task: task, message: message)
+        }
+        
+        // MARK: - Statistics & Data Management
+        
         /// Get the current number of active WebSocket connections
         @MainActor
         public static var activeConnectionCount: Int {
@@ -57,10 +109,37 @@ extension DebugSwift {
         /// - Parameter url: The WebSocket URL to clear frames for
         @MainActor
         public static func clearFrames(for url: URL) {
-            let connections = WebSocketDataSource.shared.getAllConnections()
-            if let connection = connections.first(where: { $0.url == url }) {
-                WebSocketDataSource.shared.clearFrames(for: connection.id)
+            guard let connection = WebSocketDataSource.shared.getAllConnections().first(where: { $0.url == url }) else {
+                return
             }
+            WebSocketDataSource.shared.clearFrames(for: connection.id)
+        }
+        
+        /// Clear frames for a specific connection by task
+        /// - Parameter task: The WebSocket task to clear frames for
+        @MainActor
+        public static func clearFrames(for task: URLSessionWebSocketTask) {
+            guard let url = task.currentRequest?.url else { return }
+            clearFrames(for: url)
+        }
+        
+        // MARK: - Connection Management
+        
+        /// Get all active WebSocket connections
+        @MainActor
+        public static func getActiveConnections() -> [WebSocketConnection] {
+            WebSocketDataSource.shared.getActiveConnections()
+        }
+        
+        /// Close a specific WebSocket connection
+        /// - Parameter url: The WebSocket URL to close
+        @MainActor
+        public static func closeConnection(for url: URL) {
+            guard let connection = WebSocketDataSource.shared.getAllConnections().first(where: { $0.url == url }) else {
+                return
+            }
+            // Update connection status to closed
+            WebSocketDataSource.shared.updateConnectionStatus(connection.id, status: .closed)
         }
     }
 } 
