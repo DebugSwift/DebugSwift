@@ -198,7 +198,7 @@ class WebSocketTestManager: ObservableObject, @unchecked Sendable {
         }
     }
     
-    func connect() {
+    @MainActor func connect() {
         guard !isConnected else { return }
         
         // Clean up any existing connection
@@ -210,9 +210,10 @@ class WebSocketTestManager: ObservableObject, @unchecked Sendable {
         
         // 1️⃣ Create the WebSocket task
         webSocketTask = urlSession.webSocketTask(with: serverURL)
-        // 2️⃣ Resume it so the handshake actually starts
+
+        // 3️⃣ Resume it so the handshake actually starts
         webSocketTask?.resume()
-        // 3️⃣ Only now kick off your receive loop
+        // 4️⃣ Only now kick off your receive loop
         startListening()
         
         // Timeout fallback
@@ -285,11 +286,6 @@ class WebSocketTestManager: ObservableObject, @unchecked Sendable {
                 }
             }
         }
-        
-        // 🔧 Log the ping as binary data (since ping isn't exposed in public API)
-        Task { @MainActor in
-            DebugSwift.WebSocket.logSentFrame(task: webSocketTask, data: Data("PING".utf8))
-        }
     }
     
     func sendMultipleMessages() {
@@ -346,11 +342,6 @@ class WebSocketTestManager: ObservableObject, @unchecked Sendable {
                 // Success case is handled by the echo response
             }
         }
-        
-        // 🔧 Log the sent frame to DebugSwift WebSocket Inspector
-        Task { @MainActor in
-            DebugSwift.WebSocket.logSentFrame(task: webSocketTask, message: message)
-        }
     }
     
     private func startListening() {
@@ -365,9 +356,7 @@ class WebSocketTestManager: ObservableObject, @unchecked Sendable {
                         self?.isConnected = true
                         self?.connectionStatus = "Connected"
                         self?.addMessage(.received, "✅ WebSocket connected successfully!")
-                        if let task = self?.webSocketTask {
-                            DebugSwift.WebSocket.register(task: task, channelName: "WebSocket Connection")
-                        }
+                        // Note: Registration already happened in connect() method
                     }
                     
                     // Handle incoming payload…

@@ -73,9 +73,7 @@ enum FeatureHandling {
     }
 
     private static func enableWebSocket() {
-        if #available(iOS 13.0, *) {
-            WebSocketMonitor.shared.enable()
-        }
+        WebSocketMonitor.shared.enable()
     }
 
     private static func enableCrashManager() {
