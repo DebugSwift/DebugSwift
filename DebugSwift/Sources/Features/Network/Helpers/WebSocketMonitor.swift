@@ -53,6 +53,12 @@ final class WebSocketMonitor: NSObject, @unchecked Sendable {
         // Start monitoring frames
         monitorFrames(for: task, connectionId: connection.id)
         
+        // Notify UI about new connection
+        NotificationCenter.default.post(
+            name: NSNotification.Name("reloadWebSocket_DebugSwift"),
+            object: nil
+        )
+        
         Debug.print("Started tracking WebSocket connection: \(url.absoluteString)")
     }
     

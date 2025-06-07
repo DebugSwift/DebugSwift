@@ -71,10 +71,17 @@ class FloatBallView: UIView {
     func animate(success: Bool) {
         guard isShowing else { return }
 
-        label.text = .init(HttpDatasource.shared.httpModels.count)
+        updateText()
         startAnimation(text: success ? "🚀" : "❌")
 
         if !success { ImpactFeedback.generate() }
+    }
+    
+    func animateWebSocket(connected: Bool) {
+        guard isShowing else { return }
+
+        updateText()
+        startAnimation(text: connected ? "⚡" : "🔗")
     }
 
     func animateLeek(alloced: Bool) {
@@ -86,7 +93,10 @@ class FloatBallView: UIView {
     }
 
     func updateText() {
-        label.text = .init(HttpDatasource.shared.httpModels.count)
+        let httpCount = HttpDatasource.shared.httpModels.count
+        let webSocketCount = WebSocketDataSource.shared.getAllConnections().count
+        let totalCount = httpCount + webSocketCount
+        label.text = .init(totalCount)
     }
 
     func reset() {

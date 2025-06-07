@@ -33,6 +33,10 @@ final class FloatViewManager: NSObject {
     static func animate(success: Bool) {
         shared.ballView.animate(success: success)
     }
+    
+    static func animateWebSocket(connected: Bool) {
+        shared.ballView.animateWebSocket(connected: connected)
+    }
 
     static func animateLeek(alloced: Bool) {
         shared.ballView.animateLeek(alloced: alloced)
@@ -65,6 +69,7 @@ final class FloatViewManager: NSObject {
     }
 
     func observers() {
+        // HTTP notifications
         NotificationCenter.default.addObserver(
             forName: NSNotification.Name(rawValue: "reloadHttp_DebugSwift"),
             object: nil,
@@ -75,6 +80,18 @@ final class FloatViewManager: NSObject {
                 if let success = success {
                     Self.animate(success: success)
                 }
+            }
+        }
+        
+        // WebSocket notifications
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("reloadWebSocket_DebugSwift"),
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                // Animate with connection success (🔗)
+                Self.animateWebSocket(connected: true)
             }
         }
     }
