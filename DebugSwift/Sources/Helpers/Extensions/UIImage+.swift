@@ -10,11 +10,7 @@ import UIKit
 
 extension UIImage {
     static func named(_ imageName: String, default: String? = nil) -> UIImage? {
-        if #available(iOS 13.0, *) {
-            return UIImage(systemName: imageName)
-        } else {
-            return `default`?.image(with: [.foregroundColor: UIColor.white])
-        }
+        return UIImage(systemName: imageName)
     }
 
     func outline() -> UIImage? {

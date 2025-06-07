@@ -36,10 +36,8 @@ struct ContentView: View {
                     Text("ThreadChecker Test Suite")
                 }
 
-                if #available(iOS 13.0, *) {
-                    NavigationLink(destination: WebSocketTestView()) {
-                        Text("WebSocket Inspector Test")
-                    }
+                NavigationLink(destination: WebSocketTestView()) {
+                    Text("WebSocket Inspector Test")
                 }
 
                 Button("Show Map") {
@@ -47,12 +45,7 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $presentingMap) {
-                if #available(iOS 14.0, *) {
-                    MapView().edgesIgnoringSafeArea(.all)
-                } else {
-                    MapView_13(userTrackingMode: $userTrackingMode)
-                        .edgesIgnoringSafeArea(.all)
-                }
+                MapView()
             }
             .navigationBarTitle("Example")
         }

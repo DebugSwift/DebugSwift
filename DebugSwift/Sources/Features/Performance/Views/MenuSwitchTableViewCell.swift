@@ -27,10 +27,7 @@ final class MenuSwitchTableViewCell: UITableViewCell {
         let switchControl = UISwitch()
         switchControl.translatesAutoresizingMaskIntoConstraints = false
         switchControl.addTarget(self, action: #selector(switchValueChanged(_:)), for: .valueChanged)
-
-        if #available(iOS 13.0, *) {
-            switchControl.overrideUserInterfaceStyle = .dark
-        }
+        switchControl.overrideUserInterfaceStyle = .dark
         switchControl.thumbTintColor = .white
 
         return switchControl

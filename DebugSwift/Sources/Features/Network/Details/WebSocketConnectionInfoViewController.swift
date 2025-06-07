@@ -176,7 +176,7 @@ final class WebSocketConnectionInfoViewController: BaseController {
         }
         
         // Bottom constraint
-        if let lastItem = items.last {
+        if items.last != nil {
             previousAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16).isActive = true
         }
         

@@ -125,9 +125,7 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
             UserInterfaceToolkit.shared.showingTouchesEnabled = isOn
 
         case .darkMode:
-            if #available(iOS 13.0, *) {
-                UserInterfaceToolkit.shared.darkModeEnabled = isOn
-            }
+            UserInterfaceToolkit.shared.darkModeEnabled = isOn
 
         default: break
         }
@@ -169,10 +167,7 @@ extension InterfaceViewController {
             case .animations:
                 return "Slow animations"
             case .darkMode:
-                if #available(iOS 13.0, *) {
-                    return "Dark Mode"
-                }
-                return nil
+                return "Dark Mode"
             }
         }
 
@@ -187,9 +182,7 @@ extension InterfaceViewController {
             case .touches:
                 return UserInterfaceToolkit.shared.showingTouchesEnabled
             case .darkMode:
-                if #available(iOS 13.0, *) {
-                    return UserInterfaceToolkit.shared.darkModeEnabled
-                }
+                return UserInterfaceToolkit.shared.darkModeEnabled
                 return false
             default:
                 return false

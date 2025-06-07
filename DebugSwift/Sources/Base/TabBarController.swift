@@ -34,9 +34,7 @@ class TabBarController: UITabBarController {
         tabBar.unselectedItemTintColor = .gray
         tabBar.setBackgroundColor(color: UIColor.black)
         tabBar.addTopBorderWithColor(color: .gray, thickness: 0.3)
-        if #available(iOS 13.0, *) {
-            overrideUserInterfaceStyle = .dark
-        }
+        overrideUserInterfaceStyle = .dark
     }
 
     private func configureNavigation() {

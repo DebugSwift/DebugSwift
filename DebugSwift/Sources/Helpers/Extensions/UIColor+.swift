@@ -73,7 +73,6 @@ extension UIColor {
     }
 }
 
-@available(iOS 13.0, *)
 extension UIColor {
     convenience init(light: UIColor, dark: UIColor) {
         self.init {

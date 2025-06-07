@@ -193,12 +193,12 @@ final class WebSocketResendFrameViewController: BaseController {
         
         let keyboardFrame = keyboardSize.cgRectValue
         scrollView.contentInset.bottom = keyboardFrame.height
-        scrollView.scrollIndicatorInsets.bottom = keyboardFrame.height
+        scrollView.verticalScrollIndicatorInsets.bottom = keyboardFrame.height
     }
     
     @objc private func keyboardWillHide(_ notification: Notification) {
         scrollView.contentInset.bottom = 0
-        scrollView.scrollIndicatorInsets.bottom = 0
+        scrollView.verticalScrollIndicatorInsets.bottom = 0
     }
     
     @objc private func handleTapToDismissKeyboard() {

@@ -8,7 +8,6 @@
 import SwiftUI
 import DebugSwift
 
-@available(iOS 13.0, *)
 struct WebSocketTestView: View {
     @StateObject private var webSocketManager = WebSocketTestManager()
     
@@ -176,7 +175,6 @@ struct WebSocketTestView: View {
     }
 }
 
-@available(iOS 13.0, *)
 class WebSocketTestManager: ObservableObject, @unchecked Sendable {
     @Published var isConnected = false
     @Published var connectionStatus = "Disconnected"

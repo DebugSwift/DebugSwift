@@ -203,12 +203,12 @@ final class ResourcesGenericEditViewController: BaseController {
         
         let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
         scrollView.contentInset = contentInsets
-        scrollView.scrollIndicatorInsets = contentInsets
+        scrollView.verticalScrollIndicatorInsets = contentInsets
     }
     
     @objc private func keyboardWillHide(notification: NSNotification) {
         scrollView.contentInset = .zero
-        scrollView.scrollIndicatorInsets = .zero
+        scrollView.verticalScrollIndicatorInsets = .zero
     }
     
     @objc private func cancelTapped() {

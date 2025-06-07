@@ -8,7 +8,6 @@
 import Foundation
 import Network
 
-@available(iOS 13.0, *)
 final class WebSocketMonitor: NSObject, @unchecked Sendable {
     static let shared = WebSocketMonitor()
     
