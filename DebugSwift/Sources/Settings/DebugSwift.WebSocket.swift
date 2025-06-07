@@ -10,18 +10,26 @@ import Foundation
 extension DebugSwift {
     public enum WebSocket {
         /// Enable WebSocket monitoring manually
-        /// This is automatically called when DebugSwift is set up, but you can call it manually if needed
+        /// 
+        /// WebSocket monitoring uses automatic method swizzling to detect connections and frames.
+        /// This is automatically called when DebugSwift is set up, but you can call it manually if needed.
+        /// 
+        /// - Note: With method swizzling enabled, all WebSocket traffic is automatically monitored
         public static func enableMonitoring() {
             WebSocketMonitor.shared.enable()
         }
         
         /// Disable WebSocket monitoring
-        /// This will stop intercepting new WebSocket traffic but preserve existing data
+        /// 
+        /// This will stop intercepting new WebSocket traffic but preserve existing data.
+        /// Method swizzling will be disabled until re-enabled.
         public static func disableMonitoring() {
             WebSocketMonitor.shared.disable()
         }
         
         /// Check if WebSocket monitoring is currently enabled
+        /// 
+        /// When enabled, method swizzling automatically captures all WebSocket connections and frames
         public static var isMonitoringEnabled: Bool {
             WebSocketMonitor.shared.isEnabled
         }

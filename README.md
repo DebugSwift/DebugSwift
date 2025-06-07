@@ -45,9 +45,10 @@
 ### Version 2.0+ - Major Updates
 
 - **🌐 Unified Network Inspector:** Combined HTTP and WebSocket monitoring in a single, powerful interface
-- **⚡ WebSocket Inspector:** Real-time WebSocket connection and frame monitoring with smart JSON detection
+- **⚡ WebSocket Inspector:** Automatic WebSocket monitoring with pure Swift method swizzling - zero configuration required
 - **📊 Enhanced Floating Button:** Now tracks both HTTP requests and WebSocket connections with custom animations
 - **🚀 Swift 6 Compatibility:** Full support for Swift 6 with strict concurrency checking
+- **📱 iOS 14+ Optimization:** Removed legacy iOS 13.0 availability checks for cleaner, modern codebase
 - **🔧 Improved API:** More intuitive configuration with `.shared` pattern across all singletons
 - **📱 Better UI/UX:** Refined interface with better visual indicators and smoother animations
 - **⚠️ Memory Leak Detection:** Enhanced leak detection with better reporting and analytics
@@ -108,7 +109,8 @@ Comprehensive network traffic monitoring with unified HTTP and WebSocket inspect
   - Optional request blocking when limits are reached
   - Detailed breach history and analytics
 
-#### WebSocket Inspector (New!)
+#### WebSocket Inspector (Enhanced!)
+- **🤖 Automatic Detection:** Zero-configuration WebSocket monitoring with method swizzling
 - **Real-time Connection Monitoring:** Track WebSocket connections with live status updates
 - **Frame Inspection:** Monitor sent and received frames with timestamp precision
 - **Smart Content Detection:** Automatic JSON formatting with syntax highlighting
@@ -116,6 +118,7 @@ Comprehensive network traffic monitoring with unified HTTP and WebSocket inspect
 - **Connection Management:** Close connections, clear frame history, and connection info
 - **Search & Resend:** Search through frames and resend messages for testing
 - **Channel Organization:** Group connections by custom channel names
+- **Pure Swift Implementation:** Advanced method swizzling without Objective-C dependencies
 
 | HTTP Requests | WebSocket Connections | Frame Timeline |
 |:-------------:|:--------------------:|:--------------:|
@@ -229,7 +232,7 @@ debugSwift.show()
 
 ## Quick Examples
 
-### Complete WebSocket Chat Integration
+### Complete WebSocket Chat Integration (Zero-Config!)
 
 ```swift
 import DebugSwift
@@ -241,10 +244,12 @@ class ChatManager {
         let url = URL(string: "wss://chat.example.com/websocket")!
         webSocketTask = URLSession.shared.webSocketTask(with: url)
         
-        // Register with DebugSwift for monitoring
+        // Optional: Register with custom channel name for better organization
         DebugSwift.WebSocket.register(task: webSocketTask!, channelName: "Chat")
         
         webSocketTask?.resume()
+        // ✅ Connection automatically monitored in DebugSwift!
+        
         startListening()
     }
     
@@ -255,9 +260,8 @@ class ChatManager {
                 print("Send failed: \(error)")
             }
         }
-        
-        // Log sent frame for DebugSwift monitoring
-        DebugSwift.WebSocket.logSentFrame(task: webSocketTask!, text: text)
+        // ✅ Sent message automatically captured with method swizzling!
+        // No manual logging needed
     }
     
     private func startListening() {
@@ -265,13 +269,29 @@ class ChatManager {
             switch result {
             case .success(let message):
                 // Handle received message
+                // ✅ Received message automatically captured!
+                self.handleMessage(message)
                 self.startListening() // Continue listening
             case .failure(let error):
                 print("Receive failed: \(error)")
             }
         }
     }
+    
+    private func handleMessage(_ message: URLSessionWebSocketTask.Message) {
+        switch message {
+        case .string(let text):
+            print("Received text: \(text)")
+        case .data(let data):
+            print("Received data: \(data.count) bytes")
+        @unknown default:
+            print("Unknown message type")
+        }
+    }
 }
+
+// ✨ That's it! Full WebSocket monitoring with zero configuration
+// All frames, connections, and status changes are automatically tracked
 ```
 
 ### Network + Performance Monitoring Setup
@@ -525,49 +545,79 @@ When the threshold is exceeded, you'll see:
 
 Monitor WebSocket connections in real-time with comprehensive frame inspection:
 
-#### Basic Setup
+#### 🤖 Automatic Setup (Recommended)
 
 ```swift
-// WebSocket monitoring is enabled automatically with DebugSwift
-// Register individual connections for tracking
+// WebSocket monitoring is AUTOMATIC with method swizzling
+// No manual registration required - just create and use WebSocket as normal
 let task = URLSession.shared.webSocketTask(with: url)
-DebugSwift.WebSocket.register(task: task, channelName: "Chat Channel")
 task.resume()
-```
+// ✅ Connection automatically detected and monitored in DebugSwift!
 
-#### Advanced Usage
-
-```swift
-// Create and register WebSocket with custom channel name
-let webSocketURL = URL(string: "wss://api.example.com/websocket")!
-let task = URLSession.shared.webSocketTask(with: webSocketURL)
-
-// Register with DebugSwift for monitoring
-DebugSwift.WebSocket.register(task: task, channelName: "Live Updates")
-
-// Send messages and log them automatically
+// Send messages - automatically logged
 task.send(.string("Hello WebSocket!")) { error in
     if let error = error {
         print("Send failed: \(error)")
     }
 }
+// ✅ Sent frames automatically captured and displayed
+```
 
-// Log sent frames manually for complete monitoring
-DebugSwift.WebSocket.logSentFrame(task: task, text: "Hello WebSocket!")
+#### Manual Registration (Optional)
 
-// Start the connection
+```swift
+// Only needed if you want custom channel names or manual control
+let task = URLSession.shared.webSocketTask(with: url)
+DebugSwift.WebSocket.register(task: task, channelName: "Chat Channel")
 task.resume()
 ```
 
-#### Frame Logging
+#### Advanced Usage with Custom Channels
 
 ```swift
-// Log different types of sent frames
+// Create WebSocket with custom channel name for organization
+let webSocketURL = URL(string: "wss://api.example.com/websocket")!
+let task = URLSession.shared.webSocketTask(with: webSocketURL)
+
+// Optional: Register with custom channel name for better organization
+DebugSwift.WebSocket.register(task: task, channelName: "Live Updates")
+
+// Start the connection
+task.resume()
+
+// Send messages - automatically monitored with method swizzling
+task.send(.string("Hello WebSocket!")) { error in
+    if let error = error {
+        print("Send failed: \(error)")
+    }
+}
+// ✅ Sent frames automatically captured
+
+// Receive messages - automatically monitored
+task.receive { result in
+    switch result {
+    case .success(let message):
+        // Handle message - automatically logged in DebugSwift
+        self.handleMessage(message)
+    case .failure(let error):
+        print("Receive error: \(error)")
+    }
+}
+// ✅ Received frames automatically captured
+```
+
+#### Manual Frame Logging (Optional)
+
+```swift
+// Manual logging is OPTIONAL with automatic method swizzling
+// Use only if you need additional control or custom logging
+
+// Log different types of sent frames manually
 DebugSwift.WebSocket.logSentFrame(task: task, text: "Text message")
 DebugSwift.WebSocket.logSentFrame(task: task, data: jsonData)
 DebugSwift.WebSocket.logSentFrame(task: task, message: .string("Direct message"))
 
-// Convenience methods for common patterns
+// Convenience methods for special cases
 let jsonMessage = """
 {
     "type": "message",
@@ -576,6 +626,9 @@ let jsonMessage = """
 }
 """
 DebugSwift.WebSocket.logSentFrame(task: task, text: jsonMessage)
+
+// ⚠️ Note: With method swizzling enabled, frames are automatically captured
+// Manual logging is only needed for special cases or additional metadata
 ```
 
 #### Configuration Options
@@ -599,6 +652,7 @@ DebugSwift.WebSocket.clearFrames(for: webSocketURL)
 
 #### Results:
 The WebSocket Inspector provides:
+- **🤖 Zero Configuration:** Automatic detection via pure Swift method swizzling
 - **🟢 Connected/🟠 Connecting/🔴 Error Status:** Visual connection state indicators
 - **📤📥 Frame Direction:** Clear sent/received frame identification with timestamps
 - **🟢 JSON/🔵 TEXT/🟡 BIN Labels:** Smart content type detection and formatting
@@ -606,13 +660,14 @@ The WebSocket Inspector provides:
 - **🔍 Search & Filter:** Find specific frames by content, type, or direction
 - **🔄 Resend Capability:** Replay frames for testing and debugging
 - **📊 Connection Info:** Detailed connection metadata and statistics
+- **🛡️ Non-Intrusive Monitoring:** No interference with WebSocket handshake or performance
 
 Perfect for debugging:
-- WebSocket connection lifecycle
-- Message formatting and content
-- Real-time data synchronization
-- Chat and live update features
-- API communication protocols
+- WebSocket connection lifecycle (automatic detection)
+- Message formatting and content (zero setup required)
+- Real-time data synchronization (comprehensive frame capture)
+- Chat and live update features (automatic frame logging)
+- API communication protocols (method swizzling captures everything)
 
 ### Push Notification Simulation
 
