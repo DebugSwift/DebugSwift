@@ -120,9 +120,10 @@ Comprehensive network traffic monitoring with unified HTTP and WebSocket inspect
 - **Channel Organization:** Group connections by custom channel names
 - **Pure Swift Implementation:** Advanced method swizzling without Objective-C dependencies
 
-| HTTP Requests | WebSocket Connections | Frame Timeline |
-|:-------------:|:--------------------:|:--------------:|
-| ![HTTP Inspector](https://github.com/user-attachments/assets/http-inspector) | ![WebSocket Connections](https://github.com/user-attachments/assets/websocket-connections) | ![Frame Timeline](https://github.com/user-attachments/assets/frame-timeline) |
+| WebSocket Connections | Frames | Frame Detail |
+|-|-|-|
+| ![WebSocket Connections](https://github.com/user-attachments/assets/6d91d796-0e3d-43ae-9f80-d77506ad2310) | ![Frames](https://github.com/user-attachments/assets/2b421acd-faf0-49ad-aaa8-912285cbfda9) | ![Frame Detail](https://github.com/user-attachments/assets/ee6fc629-0974-40a5-8799-421250f070e8) |
+
 
 ### Performance
 
