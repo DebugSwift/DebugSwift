@@ -11,7 +11,7 @@ import UIKit
 @MainActor
 enum WindowManager {
     nonisolated(unsafe) static var isSelectingWindow = false
-    
+
     static var rootNavigation: UINavigationController? {
         window.rootViewController as? UINavigationController
     }
