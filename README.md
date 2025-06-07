@@ -563,15 +563,6 @@ task.send(.string("Hello WebSocket!")) { error in
 // ✅ Sent frames automatically captured and displayed
 ```
 
-#### Manual Registration (Optional)
-
-```swift
-// Only needed if you want custom channel names or manual control
-let task = URLSession.shared.webSocketTask(with: url)
-DebugSwift.WebSocket.register(task: task, channelName: "Chat Channel")
-task.resume()
-```
-
 #### Advanced Usage with Custom Channels
 
 ```swift
@@ -604,31 +595,6 @@ task.receive { result in
     }
 }
 // ✅ Received frames automatically captured
-```
-
-#### Manual Frame Logging (Optional)
-
-```swift
-// Manual logging is OPTIONAL with automatic method swizzling
-// Use only if you need additional control or custom logging
-
-// Log different types of sent frames manually
-DebugSwift.WebSocket.logSentFrame(task: task, text: "Text message")
-DebugSwift.WebSocket.logSentFrame(task: task, data: jsonData)
-DebugSwift.WebSocket.logSentFrame(task: task, message: .string("Direct message"))
-
-// Convenience methods for special cases
-let jsonMessage = """
-{
-    "type": "message",
-    "content": "Hello World",
-    "timestamp": "\(Date().timeIntervalSince1970)"
-}
-"""
-DebugSwift.WebSocket.logSentFrame(task: task, text: jsonMessage)
-
-// ⚠️ Note: With method swizzling enabled, frames are automatically captured
-// Manual logging is only needed for special cases or additional metadata
 ```
 
 #### Configuration Options
