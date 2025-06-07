@@ -11,15 +11,14 @@ import UIKit
 @MainActor
 enum WindowManager {
     nonisolated(unsafe) static var isSelectingWindow = false
-    
+
     static var rootNavigation: UINavigationController? {
         window.rootViewController as? UINavigationController
     }
 
     static let window: CustomWindow = {
         let window: CustomWindow
-        if #available(iOS 13.0, *),
-           let scene = UIApplication.keyWindow?.windowScene {
+        if let scene = UIApplication.keyWindow?.windowScene {
             window = CustomWindow(windowScene: scene)
         } else {
             window = CustomWindow(frame: UIScreen.main.bounds)
