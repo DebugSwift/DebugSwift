@@ -23,6 +23,7 @@ extension DebugSwift {
                 if _defaultControllers == nil {
                     _defaultControllers = [
                         NetworkViewController(),
+                        WebSocketViewController(),
                         PerformanceViewController(),
                         InterfaceViewController(),
                         ResourcesViewController(),

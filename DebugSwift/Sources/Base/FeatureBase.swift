@@ -14,6 +14,7 @@ public protocol MainFeatureType {
 
 public enum DebugSwiftFeature: String, CaseIterable {
     case network
+    case webSocket
     case performance
     case interface
     case resources
@@ -22,6 +23,7 @@ public enum DebugSwiftFeature: String, CaseIterable {
 
 public enum DebugSwiftSwizzleFeature: String, CaseIterable {
     case network
+    case webSocket
     case location
     case views
     case crashManager

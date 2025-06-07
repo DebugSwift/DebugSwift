@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import DebugSwift
 
 struct ContentView: View {
 
@@ -35,10 +36,15 @@ struct ContentView: View {
                     Text("ThreadChecker Test Suite")
                 }
 
+                if #available(iOS 13.0, *) {
+                    NavigationLink(destination: WebSocketTestView()) {
+                        Text("WebSocket Inspector Test")
+                    }
+                }
+
                 Button("Show Map") {
                     presentingMap = true
                 }
-
             }
             .sheet(isPresented: $presentingMap) {
                 if #available(iOS 14.0, *) {
@@ -51,4 +57,5 @@ struct ContentView: View {
             .navigationBarTitle("Example")
         }
     }
+
 }

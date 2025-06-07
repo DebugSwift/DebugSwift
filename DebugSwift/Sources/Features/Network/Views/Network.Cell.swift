@@ -113,10 +113,12 @@ final class NetworkTableViewCell: UITableViewCell {
     func setupConstraints() {
         // Number Label
         numberLabel.translatesAutoresizingMaskIntoConstraints = false
+        let numberWidthConstraint = numberLabel.widthAnchor.constraint(equalToConstant: 40)
+        numberWidthConstraint.priority = UILayoutPriority(999) // Lower priority to avoid conflicts
         NSLayoutConstraint.activate([
             numberLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: 8),
             numberLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            numberLabel.widthAnchor.constraint(equalToConstant: 40)
+            numberWidthConstraint
         ])
 
         // Method Label
@@ -136,9 +138,17 @@ final class NetworkTableViewCell: UITableViewCell {
 
         // Description Label
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        let descriptionLeadingConstraint = descriptionLabel.leadingAnchor.constraint(equalTo: numberLabel.trailingAnchor, constant: 4)
+        descriptionLeadingConstraint.priority = UILayoutPriority(998) // Lower priority to avoid conflicts
+        
+        // Fallback leading constraint
+        let descriptionFallbackLeadingConstraint = descriptionLabel.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 60)
+        descriptionFallbackLeadingConstraint.priority = UILayoutPriority(997)
+        
         NSLayoutConstraint.activate([
             descriptionLabel.topAnchor.constraint(equalTo: methodLabel.bottomAnchor, constant: 4),
-            descriptionLabel.leadingAnchor.constraint(equalTo: numberLabel.trailingAnchor, constant: 4),
+            descriptionLeadingConstraint,
+            descriptionFallbackLeadingConstraint,
             descriptionLabel.trailingAnchor.constraint(
                 equalTo: contentView.trailingAnchor, constant: -60
             ),

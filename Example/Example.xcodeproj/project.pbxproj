@@ -15,6 +15,7 @@
 		2EA3B6612B2E7F74001B59FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6602B2E7F74001B59FE /* Assets.xcassets */; };
 		2EA3B6642B2E7F74001B59FE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */; };
 		2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2EA3B66B2B2E8054001B59FE /* DebugSwift */; };
+		39150C472DF3CDBC003163BA /* WebSocketTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39150C452DF3CDBC003163BA /* WebSocketTestView.swift */; };
 		396F5EF12DE273F3009CA492 /* LeakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396F5EEF2DE273F3009CA492 /* LeakView.swift */; };
 		399150B02DF28C1900C7539B /* ThreadCheckerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399150AD2DF28C1900C7539B /* ThreadCheckerTestView.swift */; };
 		399150B32DF28DE800C7539B /* ThreadCheckerUIKitTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399150B22DF28DE800C7539B /* ThreadCheckerUIKitTestView.swift */; };
@@ -42,6 +43,7 @@
 		2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2EA3B66D2B2E80C6001B59FE /* DebugSwift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DebugSwift; path = ..; sourceTree = "<group>"; };
 		2EC7DFEE2C12B72A005E58DF /* Example-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Example-Info.plist"; sourceTree = SOURCE_ROOT; };
+		39150C452DF3CDBC003163BA /* WebSocketTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketTestView.swift; sourceTree = "<group>"; };
 		396F5EEF2DE273F3009CA492 /* LeakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakView.swift; sourceTree = "<group>"; };
 		396F5F032DE27523009CA492 /* ExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		399150AD2DF28C1900C7539B /* ThreadCheckerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadCheckerTestView.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				2E60BA122B3383070084C2D9 /* Example.entitlements */,
 				2EA3B65C2B2E7F71001B59FE /* ExampleApp.swift */,
 				2EA3B65E2B2E7F71001B59FE /* ContentView.swift */,
+				39150C462DF3CDBC003163BA /* WebSocket */,
 				399150AF2DF28C1900C7539B /* ThreadChecker */,
 				396F5EF02DE273F3009CA492 /* LeakView */,
 				2E7441B22C1A5519001CF6F1 /* MockRequest */,
@@ -132,6 +135,14 @@
 				2EA3B6632B2E7F74001B59FE /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		39150C462DF3CDBC003163BA /* WebSocket */ = {
+			isa = PBXGroup;
+			children = (
+				39150C452DF3CDBC003163BA /* WebSocketTestView.swift */,
+			);
+			path = WebSocket;
 			sourceTree = "<group>";
 		};
 		396F5EF02DE273F3009CA492 /* LeakView */ = {
@@ -268,6 +279,7 @@
 				399150B32DF28DE800C7539B /* ThreadCheckerUIKitTestView.swift in Sources */,
 				2EA3B65F2B2E7F71001B59FE /* ContentView.swift in Sources */,
 				2E7441B12C1A550F001CF6F1 /* MockRequest.swift in Sources */,
+				39150C472DF3CDBC003163BA /* WebSocketTestView.swift in Sources */,
 				2EA3B65D2B2E7F71001B59FE /* ExampleApp.swift in Sources */,
 				396F5EF12DE273F3009CA492 /* LeakView.swift in Sources */,
 				399150B02DF28C1900C7539B /* ThreadCheckerTestView.swift in Sources */,
@@ -371,6 +383,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Example-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show it on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

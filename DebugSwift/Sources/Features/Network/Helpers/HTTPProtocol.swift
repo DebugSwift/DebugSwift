@@ -26,6 +26,13 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private final class func canServeRequest(_ request: URLRequest) -> Bool {
         if let _ = property(forKey: requestProperty, in: request) { return false }
 
+        // Never intercept WebSocket requests - they should be handled by WebSocketMonitor
+        if let scheme = request.url?.scheme?.lowercased() {
+            if scheme == "ws" || scheme == "wss" {
+                return false
+            }
+        }
+
         for onlyScheme in DebugSwift.Network.shared.onlySchemes {
             if let scheme = request.url?.scheme?.lowercased(), scheme == onlyScheme.rawValue {
                 return true
