@@ -1318,12 +1318,12 @@ private let AttributeAuthenticationType = String(kSecAttrAuthenticationType)
 private let AttributePort = String(kSecAttrPort)
 private let AttributePath = String(kSecAttrPath)
 
-private let SynchronizableAny = kSecAttrSynchronizableAny
+private nonisolated(unsafe) let SynchronizableAny = kSecAttrSynchronizableAny
 
 /** Search Constants */
 private let MatchLimit = String(kSecMatchLimit)
-private let MatchLimitOne = kSecMatchLimitOne
-private let MatchLimitAll = kSecMatchLimitAll
+private nonisolated(unsafe) let MatchLimitOne = kSecMatchLimitOne
+private nonisolated(unsafe) let MatchLimitAll = kSecMatchLimitAll
 
 /** Return Type Key Constants */
 private let ReturnData = String(kSecReturnData)

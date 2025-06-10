@@ -157,6 +157,32 @@ Comprehensive network traffic monitoring with unified HTTP and WebSocket inspect
 
 ### Installation
 
+#### CocoaPods
+
+Add the following line to your `Podfile`:
+
+```ruby
+pod 'DebugSwift', '~> 1.0'
+```
+
+Then run:
+
+```bash
+pod install
+```
+
+For modular installation, you can use subspecs:
+
+```ruby
+# Install only specific features
+pod 'DebugSwift/Core'        # Essential components
+pod 'DebugSwift/Network'     # Network monitoring
+pod 'DebugSwift/Performance' # Performance tools
+pod 'DebugSwift/Interface'   # UI debugging
+pod 'DebugSwift/App'         # App debugging tools
+pod 'DebugSwift/Resources'   # Resource inspection
+```
+
 #### Swift Package Manager (SPM)
 
 Add the following dependency to your `Package.swift` file:

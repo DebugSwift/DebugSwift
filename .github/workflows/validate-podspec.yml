@@ -1,0 +1,119 @@
+name: Validate CocoaPods Podspec
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'DebugSwift.podspec'
+      - 'DebugSwift/**'
+      - '.github/workflows/validate-podspec.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'DebugSwift.podspec'
+      - 'DebugSwift/**'
+      - '.github/workflows/validate-podspec.yml'
+
+jobs:
+  validate-podspec:
+    name: Validate Podspec
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0'
+        bundler-cache: true
+        
+    - name: Install CocoaPods
+      run: |
+        gem install cocoapods
+        pod --version
+        
+    - name: Validate Podspec Syntax
+      run: |
+        echo "🔍 Validating DebugSwift.podspec syntax..."
+        pod spec lint DebugSwift.podspec --quick --allow-warnings --verbose
+        
+    - name: Check Required Files
+      run: |
+        echo "🔍 Checking required files and directories..."
+        
+        # Check required files
+        required_files=("LICENSE" "README.md" "DebugSwift.podspec")
+        for file in "${required_files[@]}"; do
+          if [ -f "$file" ]; then
+            echo "✅ $file exists"
+          else
+            echo "❌ $file is missing!"
+            exit 1
+          fi
+        done
+        
+        # Check source directories
+        source_dirs=(
+          "DebugSwift/Sources/Settings"
+          "DebugSwift/Sources/Base" 
+          "DebugSwift/Sources/Helpers"
+          "DebugSwift/Sources/Features/Network"
+          "DebugSwift/Sources/Features/Performance"
+          "DebugSwift/Sources/Features/Interface"
+          "DebugSwift/Sources/Features/App"
+          "DebugSwift/Sources/Features/Resources"
+        )
+        
+        for dir in "${source_dirs[@]}"; do
+          if [ -d "$dir" ]; then
+            echo "✅ $dir exists"
+          else
+            echo "❌ $dir is missing!"
+            exit 1
+          fi
+        done
+        
+    - name: Check Swift Files
+      run: |
+        echo "🔍 Checking Swift source files..."
+        swift_files=$(find DebugSwift/Sources -name "*.swift" | wc -l)
+        echo "Found $swift_files Swift files"
+        
+        if [ $swift_files -lt 10 ]; then
+          echo "❌ Too few Swift files found. Expected at least 10, found $swift_files"
+          exit 1
+        else
+          echo "✅ Swift files check passed"
+        fi
+        
+    - name: Validate Podspec Structure
+      run: |
+        echo "🔍 Validating podspec structure..."
+        
+        # Check if podspec contains required fields
+        required_fields=("name" "version" "summary" "homepage" "license" "author" "source" "source_files")
+        
+        for field in "${required_fields[@]}"; do
+          if grep -q "spec\.$field" DebugSwift.podspec; then
+            echo "✅ $field field found"
+          else
+            echo "❌ $field field missing!"
+            exit 1
+          fi
+        done
+        
+    - name: Summary
+      run: |
+        echo ""
+        echo "🎉 CocoaPods podspec validation completed successfully!"
+        echo ""
+        echo "📋 Podspec is ready for:"
+        echo "  • Local development: pod install"
+        echo "  • Publishing: pod trunk push DebugSwift.podspec"
+        echo ""
+        echo "📚 Next steps for publishing:"
+        echo "  1. Create and push a git tag: git tag v1.0.0 && git push origin v1.0.0"
+        echo "  2. Register with CocoaPods Trunk (if not done): pod trunk register your-email@example.com"
+        echo "  3. Push to CocoaPods: pod trunk push DebugSwift.podspec" 
