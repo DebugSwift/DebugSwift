@@ -183,7 +183,6 @@ extension InterfaceViewController {
                 return UserInterfaceToolkit.shared.showingTouchesEnabled
             case .darkMode:
                 return UserInterfaceToolkit.shared.darkModeEnabled
-                return false
             default:
                 return false
             }

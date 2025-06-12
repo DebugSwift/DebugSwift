@@ -11,6 +11,7 @@ import CoreLocation
 
 @available(iOS 14.0, *)
 struct MapView: View {
+    @Environment(\.presentationMode) var presentationMode
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
         span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
@@ -19,17 +20,28 @@ struct MapView: View {
     private var manager = MapViewManager()
 
     var body: some View {
-        if #available(iOS 17.0, *) {
-            MapView17(manager: manager)
-        } else {
-            Map(
-                coordinateRegion: $region,
-                showsUserLocation: true,
-                userTrackingMode: .constant(.follow)
-            )
-            .onAppear {
-                manager.start()
+        NavigationView {
+            Group {
+                if #available(iOS 17.0, *) {
+                    MapView17(manager: manager)
+                } else {
+                    Map(
+                        coordinateRegion: $region,
+                        showsUserLocation: true,
+                        userTrackingMode: .constant(.follow)
+                    )
+                    .onAppear {
+                        manager.start()
+                    }
+                }
             }
+            .navigationTitle("Map")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                leading: Button("Done") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            )
         }
     }
 }

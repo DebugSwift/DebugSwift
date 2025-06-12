@@ -16,8 +16,10 @@ final class NetworkViewModel {
     var models = HttpDatasource.shared.httpModels
     var cacheModels = [HttpModel]()
     var searchModels = [HttpModel]()
+    var filteredModels = [HttpModel]()
 
     var networkSearchWord = ""
+    var currentAdvancedFilter: HTTPRequestFilter?
 
     func applyFilter() {
         cacheModels = HttpDatasource.shared.httpModels
@@ -34,6 +36,16 @@ final class NetworkViewModel {
 
             models = searchModels
         }
+        
+        // Apply advanced filter if set
+        if let advancedFilter = currentAdvancedFilter, advancedFilter.isActive {
+            models = models.filter { advancedFilter.matches($0) }
+        }
+    }
+    
+    func applyAdvancedFilter(_ filter: HTTPRequestFilter) {
+        currentAdvancedFilter = filter
+        applyFilter()
     }
 
     func handleClearAction() {
