@@ -124,6 +124,21 @@ struct MockRequestView: View {
             method: "DELETE",
             endpoint: "https://jsonplaceholder.typicode.com/posts/1",
             description: "Delete post with ID 1"
+        ),
+        
+        // Failure Request
+        APIEndpoint(
+            title: "User Not Found (404)",
+            method: "GET",
+            endpoint: "https://reqres.in/api/users/23",
+            description: "Request that returns 404 error"
+        ),
+        
+        APIEndpoint(
+            title: "Invalid Endpoint (404)",
+            method: "GET",
+            endpoint: "https://jsonplaceholder.typicode.com/invalid-endpoint",
+            description: "Test endpoint that doesn't exist"
         )
     ]
 
