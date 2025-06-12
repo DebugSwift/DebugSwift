@@ -17,38 +17,59 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                NavigationLink(
-                    destination: MockRequestView(
-                        endpoint: "https://jsonplaceholder.typicode.com/todos/\(Int.random(in: 1...5))")
-                ) {
-                    Text("Success Mocked Request")
-                }
-
-                NavigationLink(destination: MockRequestView(endpoint: "https://reqres.in/api/users/23")) {
-                    Text("Failure Request")
+                NavigationLink(destination: MockRequestView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("JSONPlaceholder API Demo")
+                            .font(.headline)
+                        Text("Test all HTTP methods with fake REST API")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
                 }
 
                 NavigationLink(destination: LeakView()) {
-                    Text("Memory Leak Demo")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Memory Leak Demo")
+                            .font(.headline)
+                        Text("Test memory leak detection")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
                 }
 
                 NavigationLink(destination: ThreadCheckerTestView()) {
-                    Text("ThreadChecker Test Suite")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("ThreadChecker Test Suite")
+                            .font(.headline)
+                        Text("Test thread safety violations")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
                 }
 
                 NavigationLink(destination: WebSocketTestView()) {
-                    Text("WebSocket Inspector Test")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("WebSocket Inspector Test")
+                            .font(.headline)
+                        Text("Test WebSocket connections")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
                 }
 
                 Button("Show Map") {
                     presentingMap = true
                 }
+                .padding(.vertical, 4)
             }
             .sheet(isPresented: $presentingMap) {
                 MapView()
             }
-            .navigationBarTitle("Example")
+            .navigationBarTitle("DebugSwift Examples")
         }
     }
-
 }
