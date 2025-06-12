@@ -19,7 +19,7 @@ struct ContentView: View {
             List {
                 NavigationLink(
                     destination: MockRequestView(
-                        endpoint: "https://reqres.in/api/users?page=\(Int.random(in: 1...5))")
+                        endpoint: "https://jsonplaceholder.typicode.com/todos/\(Int.random(in: 1...5))")
                 ) {
                     Text("Success Mocked Request")
                 }
