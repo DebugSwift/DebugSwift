@@ -61,6 +61,10 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
+                NavigationLink(destination: WebSocketTestView()) {
+                    Text("WebSocket Inspector Test")
+                }
+
                 Button("Show Map") {
                     presentingMap = true
                 }
@@ -72,4 +76,5 @@ struct ContentView: View {
             .navigationBarTitle("DebugSwift Examples")
         }
     }
+
 }

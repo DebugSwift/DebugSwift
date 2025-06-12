@@ -182,6 +182,17 @@ final class NetworkViewController: BaseController, MainFeatureType {
                 self?.loadWebSocketConnections()
             }
         }
+        
+        // WebSocket notifications
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("reloadWebSocket_DebugSwift"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.loadWebSocketConnections()
+            }
+        }
     }
 
     func reloadHttp(needScrollToEnd: Bool = false, success: Bool = true) {
