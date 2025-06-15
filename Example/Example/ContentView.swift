@@ -61,8 +61,15 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
-                NavigationLink(destination: WebSocketTestView()) {
-                    Text("WebSocket Inspector Test")
+                NavigationLink(destination: HyperionSwiftDemoView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("📏 HyperionSwift Measurement Tool")
+                            .font(.headline)
+                        Text("Interactive UI element measurement and spacing tool")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
                 }
 
                 Button("Show Map") {

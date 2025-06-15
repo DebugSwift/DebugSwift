@@ -23,11 +23,31 @@ final class InterfaceViewController: BaseController, MainFeatureType {
     override init() {
         super.init()
         setupTabBar()
+        setupNotifications()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTable()
+    }
+    
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(measurementStateChanged),
+            name: MeasurementWindowManager.measurementStateChangedNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func measurementStateChanged() {
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
 
     func setupTable() {
@@ -85,7 +105,7 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
             )
             cell.setup(title: title)
             return cell
-        case .touches, .colorize, .animations, .darkMode:
+        case .touches, .colorize, .animations, .darkMode, .measurement:
             return toggleCell(
                 title: title,
                 index: indexPath.row,
@@ -126,6 +146,13 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
 
         case .darkMode:
             UserInterfaceToolkit.shared.darkModeEnabled = isOn
+            
+        case .measurement:
+            if isOn {
+                DebugSwift.Measurement.activate()
+            } else {
+                DebugSwift.Measurement.deactivate()
+            }
 
         default: break
         }
@@ -155,6 +182,7 @@ extension InterfaceViewController {
         case touches
         case grid
         case darkMode
+        case measurement
 
         var title: String? {
             switch self {
@@ -168,6 +196,8 @@ extension InterfaceViewController {
                 return "Slow animations"
             case .darkMode:
                 return "Dark Mode"
+            case .measurement:
+                return "UI measurements"
             }
         }
 
@@ -183,6 +213,8 @@ extension InterfaceViewController {
                 return UserInterfaceToolkit.shared.showingTouchesEnabled
             case .darkMode:
                 return UserInterfaceToolkit.shared.darkModeEnabled
+            case .measurement:
+                return DebugSwift.Measurement.isActive
             default:
                 return false
             }
