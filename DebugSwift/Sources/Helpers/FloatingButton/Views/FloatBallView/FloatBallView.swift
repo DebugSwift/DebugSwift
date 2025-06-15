@@ -164,22 +164,22 @@ extension FloatBallView {
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
             label.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
-
-        let animator = UIViewPropertyAnimator(
-            duration: 2,
-            dampingRatio: 0.7
-        ) {
-            label.transform = CGAffineTransform(translationX: 0, y: -40)
-            label.alpha = 0
-        }
-
-        animator.addCompletion { position in
+        
+        Task { @MainActor in
+            let animator = UIViewPropertyAnimator(
+                duration: 2,
+                dampingRatio: 0.7
+            ) {
+                label.transform = CGAffineTransform(translationX: 0, y: -40)
+                label.alpha = 0
+            }
+            animator.startAnimation()
+            
+            let position = await animator.addCompletion()
             if position == .end {
                 label.removeFromSuperview()
             }
         }
-
-        animator.startAnimation()
     }
 }
 
