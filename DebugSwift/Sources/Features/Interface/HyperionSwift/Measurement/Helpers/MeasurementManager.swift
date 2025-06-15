@@ -74,7 +74,6 @@ class MeasurementManager {
     }
 
     func placeTopMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {
-
         let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: view) ?? CGRect.zero
         let globalComparisonViewRect = comparisonView.superview?.convert(comparisonView.frame, to: view) ?? CGRect.zero
 
@@ -89,11 +88,21 @@ class MeasurementManager {
                 forPath: topMeasurementPath
             )
 
-            let value = String(format: "%0.1fpt", abs(topCompareView.y - topSelectedView.y))
-            let center = CGPoint(x: topCompareView.x, y: topSelectedView.y + (topCompareView.y - topSelectedView.y) / 2)
+            let distance = abs(topCompareView.y - topSelectedView.y)
+            let value = String(format: "%0.1fpt", distance)
+            
+            // Position label closer to measurement line
+            let centerY = topSelectedView.y + (topCompareView.y - topSelectedView.y) / 2
+            let centerX = topCompareView.x
+            
+            // For very top measurements, position label to the side
+            let isNearTop = centerY < 100 // Arbitrary threshold for "near top"
+            let offsetX: CGFloat = isNearTop ? 24 : (distance > 20 ? 0 : 12)
+            
             addMeasureLabel(
                 in: view,
-                value: value, center: center
+                value: value, 
+                center: CGPoint(x: centerX + offsetX, y: centerY)
             )
 
         } else if globalSelectedRect.origin.y >= globalComparisonViewRect.origin.y + globalComparisonViewRect.size.height {
@@ -105,17 +114,24 @@ class MeasurementManager {
                 forPath: topMeasurementPath
             )
 
-            let value = String(format: "%0.1fpt", abs(belowCompareView.y - topSelectedView.y))
-            let center = CGPoint(x: belowCompareView.x, y: topSelectedView.y + (belowCompareView.y - topSelectedView.y) / 2)
+            let distance = abs(belowCompareView.y - topSelectedView.y)
+            let value = String(format: "%0.1fpt", distance)
+            let centerY = topSelectedView.y + (belowCompareView.y - topSelectedView.y) / 2
+            let centerX = belowCompareView.x
+            
+            // For very top measurements, position label to the side
+            let isNearTop = centerY < 100
+            let offsetX: CGFloat = isNearTop ? 24 : (distance > 20 ? 0 : 12)
+            
             addMeasureLabel(
                 in: view,
-                value: value, center: center
+                value: value, 
+                center: CGPoint(x: centerX + offsetX, y: centerY)
             )
         }
     }
 
     func placeBottomMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {
-
         let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: view) ?? CGRect.zero
         let globalComparisonViewRect = comparisonView.superview?.convert(comparisonView.frame, to: view) ?? CGRect.zero
 
@@ -130,9 +146,18 @@ class MeasurementManager {
                 forPath: bottomMeasurementPath
             )
 
+            let distance = abs(belowSelectedView.y - comparisonBottom.y)
+            let value = String(format: "%0.1fpt", distance)
+            let centerY = belowSelectedView.y + ((comparisonBottom.y - belowSelectedView.y) / 2)
+            let centerX = comparisonBottom.x
+            
+            // Smaller offset to keep labels closer
+            let offsetX: CGFloat = distance > 20 ? 0 : 12
+            
             addMeasureLabel(
                 in: view,
-                value: String(format: "%0.1fpt", abs(belowSelectedView.y - comparisonBottom.y)), center: CGPoint(x: comparisonBottom.x, y: belowSelectedView.y + ((comparisonBottom.y - belowSelectedView.y) / 2))
+                value: value, 
+                center: CGPoint(x: centerX + offsetX, y: centerY)
             )
         } else if belowSelectedView.y <= globalComparisonViewRect.origin.y {
             let comparisonTop = CGPoint(x: belowSelectedView.x, y: globalComparisonViewRect.origin.y)
@@ -142,15 +167,23 @@ class MeasurementManager {
                 forPath: bottomMeasurementPath
             )
 
+            let distance = abs(belowSelectedView.y - comparisonTop.y)
+            let value = String(format: "%0.1fpt", distance)
+            let centerY = belowSelectedView.y + ((comparisonTop.y - belowSelectedView.y) / 2)
+            let centerX = comparisonTop.x
+            
+            // Smaller offset to keep labels closer
+            let offsetX: CGFloat = distance > 20 ? 0 : 12
+            
             addMeasureLabel(
                 in: view,
-                value: String(format: "%0.1fpt", abs(belowSelectedView.y - comparisonTop.y)), center: CGPoint(x: comparisonTop.x, y: belowSelectedView.y + ((comparisonTop.y - belowSelectedView.y) / 2))
+                value: value, 
+                center: CGPoint(x: centerX + offsetX, y: centerY)
             )
         }
     }
 
     func placeLeftMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {
-
         let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: view) ?? CGRect.zero
         let globalComparisonViewRect = comparisonView.superview?.convert(comparisonView.frame, to: view) ?? CGRect.zero
 
@@ -165,10 +198,18 @@ class MeasurementManager {
                 forPath: leftMeasurementPath
             )
 
+            let distance = abs(leftSelectedView.x - leftCompareView.x)
+            let value = String(format: "%0.1fpt", distance)
+            let centerX = leftCompareView.x + (leftSelectedView.x - leftCompareView.x) / 2
+            let centerY = leftCompareView.y
+            
+            // Smaller offset to keep labels closer
+            let offsetY: CGFloat = distance > 20 ? 0 : -12 // Reduced from -20 to -12
+            
             addMeasureLabel(
                 in: view,
-                value: String(format: "%0.1fpt", abs(leftSelectedView.x - leftCompareView.x)),
-                center: CGPoint(x: leftCompareView.x + (leftSelectedView.x - leftCompareView.x) / 2, y: leftCompareView.y)
+                value: value,
+                center: CGPoint(x: centerX, y: centerY + offsetY)
             )
         } else if leftSelectedView.x >= globalComparisonViewRect.origin.x + globalComparisonViewRect.size.width {
             let rightCompareView = CGPoint(x: globalComparisonViewRect.origin.x + globalComparisonViewRect.size.width, y: leftSelectedView.y)
@@ -179,16 +220,23 @@ class MeasurementManager {
                 forPath: leftMeasurementPath
             )
 
+            let distance = abs(leftSelectedView.x - rightCompareView.x)
+            let value = String(format: "%0.1fpt", distance)
+            let centerX = rightCompareView.x + (leftSelectedView.x - rightCompareView.x) / 2
+            let centerY = rightCompareView.y
+            
+            // Smaller offset to keep labels closer
+            let offsetY: CGFloat = distance > 20 ? 0 : -12
+            
             addMeasureLabel(
                 in: view,
-                value: String(format: "%0.1fpt", abs(leftSelectedView.x - rightCompareView.x)),
-                center: CGPoint(x: rightCompareView.x + (leftSelectedView.x - rightCompareView.x) / 2, y: rightCompareView.y)
+                value: value,
+                center: CGPoint(x: centerX, y: centerY + offsetY)
             )
         }
     }
 
-    func placeRightMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {
-        
+    func placeRightMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {        
         let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: view) ?? CGRect.zero
         let globalComparisonViewRect = comparisonView.superview?.convert(comparisonView.frame, to: view) ?? CGRect.zero
 
@@ -206,10 +254,18 @@ class MeasurementManager {
                 forPath: leftMeasurementPath
             )
 
+            let distance = abs(rightSelectedView.x - leftCompareView.x)
+            let value = String(format: "%0.1fpt", distance)
+            let centerX = rightSelectedView.x + (leftCompareView.x - rightSelectedView.x) / 2
+            let centerY = leftCompareView.y
+            
+            // Smaller offset to keep labels closer
+            let offsetY: CGFloat = distance > 20 ? 0 : -12
+            
             addMeasureLabel(
                 in: view,
-                value: String(format: "%0.1fpt", abs(rightSelectedView.x - leftCompareView.x)),
-                center: CGPoint(x: rightSelectedView.x + (leftCompareView.x - rightSelectedView.x) / 2, y: leftCompareView.y)
+                value: value,
+                center: CGPoint(x: centerX, y: centerY + offsetY)
             )
         } else if rightSelectedView.x <= globalComparisonViewRect.origin.x {
             let leftGlobalView = CGPoint(x: globalComparisonViewRect.origin.x, y: rightSelectedView.y)
@@ -220,10 +276,18 @@ class MeasurementManager {
                 forPath: leftMeasurementPath
             )
 
+            let distance = abs(rightSelectedView.x - leftGlobalView.x)
+            let value = String(format: "%0.1fpt", distance)
+            let centerX = rightSelectedView.x + (leftGlobalView.x - rightSelectedView.x) / 2
+            let centerY = leftGlobalView.y
+            
+            // Smaller offset to keep labels closer
+            let offsetY: CGFloat = distance > 20 ? 0 : -12
+            
             addMeasureLabel(
                 in: view,
-                value: String(format: "%0.1fpt", abs(rightSelectedView.x - leftGlobalView.x)),
-                center: CGPoint(x: rightSelectedView.x + (leftGlobalView.x - rightSelectedView.x) / 2, y: leftGlobalView.y)
+                value: value,
+                center: CGPoint(x: centerX, y: centerY + offsetY)
             )
         }
     }
@@ -239,7 +303,25 @@ class MeasurementManager {
         let label = measurementFactory.createMeasurementLabel(withText: value)
         measurementsContainer.addSubview(label)
 
-        measurementsContainer.center = center
+        // Calculate the label size to ensure it fits within bounds
+        let labelSize = label.frame.size
+        let standardPadding: CGFloat = 8  // Standard padding from edges
+        let topPadding: CGFloat = 64      // Extra padding for navigation bar area
+        
+        // Clamp the center position to keep the label visible
+        var adjustedCenter = center
+        
+        // Clamp X coordinate
+        let minX = labelSize.width / 2 + standardPadding
+        let maxX = view.bounds.width - labelSize.width / 2 - standardPadding
+        adjustedCenter.x = max(minX, min(maxX, center.x))
+        
+        // Clamp Y coordinate with extra top padding
+        let minY = max(labelSize.height / 2 + topPadding, labelSize.height / 2 + standardPadding)
+        let maxY = view.bounds.height - labelSize.height / 2 - standardPadding
+        adjustedCenter.y = max(minY, min(maxY, center.y))
+        
+        measurementsContainer.center = adjustedCenter
         measurementViews.append(measurementsContainer)
 
         view.addSubview(measurementsContainer)
