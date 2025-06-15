@@ -65,7 +65,9 @@ class MeasurementsView: UIView {
         }
 
         let point = tapGesture.location(in: self)
-        let selectedViews = ViewHelper.findSubviews(in: attachedWindow, intersectingPoint: point)
+        // Convert the tap point to the attached window's coordinate system
+        let pointInAttachedWindow = convert(point, to: attachedWindow)
+        let selectedViews = ViewHelper.findSubviews(in: attachedWindow, intersectingPoint: pointInAttachedWindow)
 
         handleViewSelection(selectedViews.first)
     }
@@ -107,17 +109,13 @@ class MeasurementsView: UIView {
     }
 
     private func displayMeasurementViews(for selectedView: UIView?, comparedTo compareView: UIView?) {
-        guard let attachedWindow = delegate?.attachedWindow else {
-            measurementManager.reset()
-            return
-        }
 
         measurementManager.clearMeasurementViews()
 
         guard let selectedView = selectedView else { return }
 
-        let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: attachedWindow)
-        let globalComparisonViewRect = compareView?.superview?.convert(compareView?.frame ?? CGRect.zero, to: attachedWindow)
+        let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: self)
+        let globalComparisonViewRect = compareView?.superview?.convert(compareView?.frame ?? CGRect.zero, to: self)
 
         let viewsToMeasure: (UIView, UIView)
         if measurementManager.frame(globalSelectedRect, insideFrame: globalComparisonViewRect) {

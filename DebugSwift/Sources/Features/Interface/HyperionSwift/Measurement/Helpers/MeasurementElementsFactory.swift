@@ -18,7 +18,7 @@ class MeasurementElementsFactory {
     func createMeasurementLabel(withText text: String) -> UIView {
         let containerView = UIView()
         containerView.backgroundColor = .white
-        containerView.layer.cornerRadius = 8
+        containerView.layer.cornerRadius = 6
         containerView.layer.borderWidth = 1
         containerView.layer.borderColor = styleManager.primaryColor.cgColor
         containerView.layer.masksToBounds = true
@@ -26,13 +26,13 @@ class MeasurementElementsFactory {
         let label = UILabel()
         label.text = text
         label.textColor = styleManager.primaryColor
-        label.font = UIFont.systemFont(ofSize: 20)
+        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 1
         label.sizeToFit()
         label.isUserInteractionEnabled = false
 
-        let horizontalPadding: CGFloat = 8
-        let verticalPadding: CGFloat = 2
+        let horizontalPadding: CGFloat = 6
+        let verticalPadding: CGFloat = 3
 
         let labelWidth = label.frame.width + horizontalPadding * 2
         let labelHeight = label.frame.height + verticalPadding * 2
@@ -58,9 +58,9 @@ class MeasurementElementsFactory {
     // Calculate
 
     func setPath(in mainView: UIView, for view: UIView, with attachedWindow: UIWindow) -> CAShapeLayer {
-        let globalSelectedRect = view.superview?.convert(view.frame, to: attachedWindow)
+        let globalSelectedRect = view.superview?.convert(view.frame, to: mainView) ?? CGRect.zero
 
-        let path = UIBezierPath(rect: globalSelectedRect ?? CGRect.zero)
+        let path = UIBezierPath(rect: globalSelectedRect)
         let shape = CAShapeLayer()
         shape.bounds = mainView.bounds
         shape.position = mainView.center
@@ -75,9 +75,9 @@ class MeasurementElementsFactory {
     }
 
     func setPath(in mainView: UIView, forCompare view: UIView, with attachedWindow: UIWindow) -> CAShapeLayer {
-        let globalSelectedRect = view.superview?.convert(view.frame, to: attachedWindow)
+        let globalSelectedRect = view.superview?.convert(view.frame, to: mainView) ?? CGRect.zero
 
-        let path = UIBezierPath(rect: globalSelectedRect ?? .zero)
+        let path = UIBezierPath(rect: globalSelectedRect)
         let shape = CAShapeLayer()
         shape.bounds = mainView.bounds
         shape.position = mainView.center
@@ -93,7 +93,7 @@ class MeasurementElementsFactory {
     }
 
     func setLines(in mainView: UIView, for view: UIView, with attachedWindow: UIWindow) -> [CAShapeLayer] {
-        guard let globalSelectedRect = view.superview?.convert(view.frame, to: attachedWindow) else { return [] }
+        guard let globalSelectedRect = view.superview?.convert(view.frame, to: mainView) else { return [] }
 
         let left = UIBezierPath()
         left.move(to: CGPoint(x: globalSelectedRect.origin.x, y: 0))
@@ -105,11 +105,11 @@ class MeasurementElementsFactory {
 
         let top = UIBezierPath()
         top.move(to: CGPoint(x: 0, y: globalSelectedRect.origin.y))
-        top.addLine(to: CGPoint(x: mainView.frame.size.height, y: globalSelectedRect.origin.y))
+        top.addLine(to: CGPoint(x: mainView.frame.size.width, y: globalSelectedRect.origin.y))
 
         let bottom = UIBezierPath()
         bottom.move(to: CGPoint(x: 0, y: globalSelectedRect.maxY))
-        bottom.addLine(to: CGPoint(x: mainView.frame.size.height, y: globalSelectedRect.maxY))
+        bottom.addLine(to: CGPoint(x: mainView.frame.size.width, y: globalSelectedRect.maxY))
 
         let shapes = [left, top, right, bottom].map { path -> CAShapeLayer in
             let shape = CAShapeLayer()

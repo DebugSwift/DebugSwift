@@ -74,13 +74,9 @@ class MeasurementManager {
     }
 
     func placeTopMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {
-        guard let attachedWindow = delegate?.attachedWindow else {
-            reset()
-            return
-        }
 
-        let globalSelectedRect = selectedView.superview!.convert(selectedView.frame, to: attachedWindow)
-        let globalComparisonViewRect = comparisonView.superview!.convert(comparisonView.frame, to: attachedWindow)
+        let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: view) ?? CGRect.zero
+        let globalComparisonViewRect = comparisonView.superview?.convert(comparisonView.frame, to: view) ?? CGRect.zero
 
         let topSelectedView = CGPoint(x: globalSelectedRect.origin.x + globalSelectedRect.size.width / 2, y: globalSelectedRect.origin.y)
 
@@ -119,13 +115,9 @@ class MeasurementManager {
     }
 
     func placeBottomMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {
-        guard let attachedWindow = delegate?.attachedWindow else {
-            reset()
-            return
-        }
 
-        let globalSelectedRect = selectedView.superview!.convert(selectedView.frame, to: attachedWindow)
-        let globalComparisonViewRect = comparisonView.superview!.convert(comparisonView.frame, to: attachedWindow)
+        let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: view) ?? CGRect.zero
+        let globalComparisonViewRect = comparisonView.superview?.convert(comparisonView.frame, to: view) ?? CGRect.zero
 
         let belowSelectedView = CGPoint(x: globalSelectedRect.origin.x + (globalSelectedRect.size.width / 2), y: globalSelectedRect.origin.y + globalSelectedRect.size.height)
 
@@ -158,13 +150,9 @@ class MeasurementManager {
     }
 
     func placeLeftMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {
-        guard let attachedWindow = delegate?.attachedWindow else {
-            reset()
-            return
-        }
 
-        let globalSelectedRect = selectedView.superview!.convert(selectedView.frame, to: attachedWindow)
-        let globalComparisonViewRect = comparisonView.superview!.convert(comparisonView.frame, to: attachedWindow)
+        let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: view) ?? CGRect.zero
+        let globalComparisonViewRect = comparisonView.superview?.convert(comparisonView.frame, to: view) ?? CGRect.zero
 
         let leftSelectedView = CGPoint(x: globalSelectedRect.origin.x, y: globalSelectedRect.origin.y + globalSelectedRect.size.height / 2)
 
@@ -200,12 +188,9 @@ class MeasurementManager {
     }
 
     func placeRightMeasurementBetweenSelectedView(in view: UIView, _ selectedView: UIView, comparisonView: UIView) {
-        guard let attachedWindow = delegate?.attachedWindow else {
-            reset()
-            return
-        }
-        let globalSelectedRect = selectedView.superview!.convert(selectedView.frame, to: attachedWindow)
-        let globalComparisonViewRect = comparisonView.superview!.convert(comparisonView.frame, to: attachedWindow)
+        
+        let globalSelectedRect = selectedView.superview?.convert(selectedView.frame, to: view) ?? CGRect.zero
+        let globalComparisonViewRect = comparisonView.superview?.convert(comparisonView.frame, to: view) ?? CGRect.zero
 
         let rightSelectedView = CGPoint(x: globalSelectedRect.origin.x + globalSelectedRect.size.width, y: globalSelectedRect.origin.y + globalSelectedRect.size.height / 2)
 

@@ -10,8 +10,8 @@ import UIKit
 enum ViewHelper {
     /**
      * Retrieves a list of subviews that intersect a certain point.
-     * @param view The view to find intersecting subviews.
-     * @param point The point at which an intersection of the views should be checked.
+     * @param view The view to find intersecting subviews in.
+     * @param point The point at which an intersection of the views should be checked (in view's coordinate system).
      */
     @MainActor
     static func findSubviews(in view: UIView, intersectingPoint point: CGPoint) -> [UIView] {
@@ -21,9 +21,11 @@ enum ViewHelper {
 
         for subView in subviews.reversed() {
             if subView.alpha > 0, !subView.isHidden {
-                potentialSelectionViews.append(contentsOf: findSubviews(in: subView, intersectingPoint: point))
+                // Convert point to subview's coordinate system for recursive search
+                let pointInSubView = view.convert(point, to: subView)
+                potentialSelectionViews.append(contentsOf: findSubviews(in: subView, intersectingPoint: pointInSubView))
 
-                if Self.view(subView, surroundsPoint: point), !blackList.contains(NSStringFromClass(type(of: subView))) {
+                if Self.view(subView, surroundsPoint: point, relativeTo: view), !blackList.contains(NSStringFromClass(type(of: subView))) {
                     potentialSelectionViews.append(subView)
                 }
             }
@@ -36,13 +38,13 @@ enum ViewHelper {
      * Checks if the view surrounds the given point.
      * @param view The view to check.
      * @param point The point to check.
+     * @param relativeTo The coordinate system to convert to.
      */
     @MainActor
-    static func view(_ view: UIView, surroundsPoint point: CGPoint) -> Bool {
+    static func view(_ view: UIView, surroundsPoint point: CGPoint, relativeTo coordinateView: UIView) -> Bool {
         guard let superview = view.superview else { return false }
-        // Use the app main window for coordinate conversion, not DebugSwift's window
-        // This ensures we get correct coordinates relative to the app's UI
-        let viewRect = superview.convert(view.frame, to: MeasurementWindowManager.appMainWindow)
+        // Convert to the specified coordinate system
+        let viewRect = superview.convert(view.frame, to: coordinateView)
 
         return viewRect.origin.x <= point.x && (viewRect.size.width + viewRect.origin.x) >= point.x &&
             viewRect.origin.y <= point.y && (viewRect.size.height + viewRect.origin.y) >= point.y
