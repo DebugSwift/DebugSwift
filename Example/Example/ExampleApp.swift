@@ -27,6 +27,7 @@ struct ExampleApp: App {
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     private let debugSwift = DebugSwift()
+
     func application(
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil

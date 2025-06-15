@@ -1,12 +1,16 @@
-# Xcode
-#
-# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+# ============================================
+# iOS & Xcode Development
+# ============================================
 
-## Build generated
+# Xcode Build Files
 build/
 DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.hmap
 
-## Various settings
+# Xcode User Settings
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -16,63 +20,187 @@ DerivedData/
 *.perspectivev3
 !default.perspectivev3
 xcuserdata/
-
-## Other
-*.moved-aside
 *.xccheckout
 *.xcscmblueprint
+*.moved-aside
 
-## Obj-C/Swift specific
-*.hmap
-*.ipa
-*.dSYM.zip
-*.dSYM
+# Xcode Workspace & Project Files
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# ============================================
+# Swift Package Manager
+# ============================================
+.build/
+.swiftpm/
+Package.resolved
+*.swiftpm
+
+# ============================================
+# Dependency Managers
+# ============================================
 
 # CocoaPods
-#
-# We recommend against adding the Pods directory to your .gitignore. However
-# you should judge for yourself, the pros and cons are mentioned at:
-# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
-#
-# Pods/
+Pods/
+*.podspec
+Podfile.lock
 
 # Carthage
-#
-# Add this line if you want to avoid checking in source code from Carthage dependencies.
-# Carthage/Checkouts
+Carthage/Build/
+Carthage/Checkouts/
 
-Carthage/Build
+# ============================================
+# System Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
 
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
-# screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/#source-control
+# ============================================
+# IDEs & Editors
+# ============================================
 
+# Xcode
+*.xcuserstate
+*.xcuserdatad
+
+# AppCode
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# ============================================
+# Documentation & Generated Files
+# ============================================
+docs/
+Documentation/
+*.docset
+*.hmap
+
+# Jazzy documentation
+jazzy_output/
+
+# ============================================
+# Testing & CI/CD
+# ============================================
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+test_output/
+report.xml
+coverage/
+*.coverage
+*.gcov
+*.gcda
+*.gcno
+
+# Test results
+*.junit
+TestResults/
+
+# ============================================
+# Certificates & Security
+# ============================================
+*.p12
+*.mobileprovision
+*.cer
+*.certSigningRequest
+*.p8
+AuthKey_*.p8
+
+# ============================================
+# Temporary & Cache Files
+# ============================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Ruby (for fastlane, CocoaPods)
+vendor/
+.bundle/
+Gemfile.lock
+
+# Node.js (if using React Native or other JS tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# Environment & Configuration
+# ============================================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+config.local.json
+secrets.json
+*.secrets
+
+# ============================================
+# Development Tools
+# ============================================
 
 # Code Injection
-#
-# After new code Injection tools there's a generated folder /iOSInjectionProject
-# https://github.com/johnno1962/injectionforxcode
-
 iOSInjectionProject/
 
-*.DS_Store
-vendor
-Gemfile.lock
-temp
-test_output
-report.xml
+# Instruments
+*.trace
+
+# Provisioning
+*.mobileprovision
+
+# Firebase
+GoogleService-Info.plist
+google-services.json
+
+# ============================================
+# Custom Project Files
+# ============================================
 create_tests.sh
-task_output.log
-.build
-buildServer.json
-.swiftpm
-task_output.log
-.DS_Store
-node_modules
+*.backup
+*.bak
+TODO.md
+NOTES.md
+
+# ============================================
+# Archive & Distribution
+# ============================================
+*.ipa
+*.app
+*.xcarchive
+
+# ============================================
+# Misc Development
+# ============================================
+playground.xcworkspace
+MyPlayground.playground
+*.playground

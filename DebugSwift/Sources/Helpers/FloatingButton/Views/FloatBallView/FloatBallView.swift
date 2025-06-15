@@ -40,6 +40,7 @@ class FloatBallView: UIView {
                 UIView.animate(withDuration: DSFloatChat.animationDuration) {
                     self.alpha = 1.0
                 }
+                setupMeasurementStateObserver()
             } else {
                 alpha = 1.0
                 UIView.animate(
@@ -50,6 +51,7 @@ class FloatBallView: UIView {
                 ) { _ in
                     self.removeFromSuperview()
                 }
+                removeMeasurementStateObserver()
             }
         }
     }
@@ -61,11 +63,31 @@ class FloatBallView: UIView {
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
         addGesture()
+        updateBallAppearance()
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
         ballView.layer.cornerRadius = DSFloatChat.ballViewSize.width / 2
+    }
+    
+    private func setupMeasurementStateObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(measurementStateChanged),
+            name: MeasurementWindowManager.measurementStateChangedNotification,
+            object: nil
+        )
+    }
+    
+    private func removeMeasurementStateObserver() {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc private func measurementStateChanged() {
+        DispatchQueue.main.async { [weak self] in
+            self?.updateBallAppearance()
+        }
     }
 
     func animate(success: Bool) {
@@ -106,15 +128,16 @@ class FloatBallView: UIView {
 
 extension FloatBallView {
     private func addGesture() {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(tapGesture))
-        tap.delaysTouchesBegan = true
-        addGestureRecognizer(tap)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(clickBall))
+        addGestureRecognizer(tapGesture)
+        
+        // Add long press gesture for HyperionSwift toggle
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(longPressBall))
+        longPressGesture.minimumPressDuration = 0.8
+        addGestureRecognizer(longPressGesture)
 
-        let longPressGestureRecognizer = UILongPressGestureRecognizer(
-            target: self,
-            action: #selector(handleLongPress)
-        )
-        addGestureRecognizer(longPressGestureRecognizer)
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(ballPan))
+        addGestureRecognizer(panGesture)
     }
 
     private func buildLabel() -> UILabel {
@@ -184,110 +207,94 @@ extension FloatBallView {
 }
 
 extension FloatBallView {
-    @objc private func tapGesture() {
+    @objc func clickBall() {
+        WindowManager.presentDebugger()
         ballDidSelect?()
     }
-
-    @objc private func handleLongPress() {
-        WindowManager.presentViewDebugger()
-    }
-}
-
-// MARK: - Gesture move
-
-extension FloatBallView {
-    override func touchesBegan(_ touches: Set<UITouch>, with _: UIEvent?) {
-        beginPoint = touches.first?.location(in: self)
-        if let beginPoint {
-            delegate?.floatViewBeginMove(floatView: self, point: beginPoint)
-        }
-    }
-
-    override func touchesMoved(_ touches: Set<UITouch>, with _: UIEvent?) {
-        let currentPoint = touches.first?.location(in: self)
-
-        guard let currentP = currentPoint, let beginP = beginPoint else {
-            return
-        }
-
-        delegate?.floatViewMoved(floatView: self, point: currentP)
-
-        let offsetX = currentP.x - beginP.x
-        let offsetY = currentP.y - beginP.y
-        center = CGPoint(x: center.x + offsetX, y: center.y + offsetY)
-    }
-
-    override func touchesEnded(_: Set<UITouch>, with _: UIEvent?) {
-        guard let superview else { return }
-
-        delegate?.floatViewCancelMove(floatView: self)
-
-        let marginLeft = frame.origin.x
-        let marginRight = superview.frame.width - frame.minX - frame.width
-        let marginTop = frame.minY
-        let marginBottom = superview.frame.height - frame.minY - frame.height
-
-        var destinationFrame = frame
-
-        var tempX: CGFloat = .zero
-
-        if marginTop < 60 {
-            if marginLeft < marginRight {
-                if marginLeft < DSFloatChat.padding {
-                    tempX = DSFloatChat.padding
-                } else {
-                    tempX = frame.minX
-                }
-            } else {
-                if marginRight < DSFloatChat.padding {
-                    tempX = superview.frame.width - frame.width - DSFloatChat.padding
-                } else {
-                    tempX = frame.minX
-                }
-            }
-            destinationFrame = .init(
-                x: tempX,
-                y: DSFloatChat.padding + DSFloatChat.topSafeAreaPadding,
-                width: DSFloatChat.ballRect.width,
-                height: DSFloatChat.ballRect.height
-            )
-        } else if marginBottom < 60 {
-            if marginLeft < marginRight {
-                if marginLeft < DSFloatChat.padding {
-                    tempX = DSFloatChat.padding
-                } else {
-                    tempX = frame.minX
-                }
-            } else {
-                if marginRight < DSFloatChat.padding {
-                    tempX = superview.frame.width - frame.width - DSFloatChat.padding
-                } else {
-                    tempX = frame.minX
-                }
-            }
-            destinationFrame = CGRect(
-                x: tempX,
-                y: superview.frame.height - frame.height - DSFloatChat.padding
-                    - DSFloatChat.bottomSafeAreaPadding,
-                width: DSFloatChat.ballRect.width,
-                height: DSFloatChat.ballRect.height
-            )
-        } else {
-            destinationFrame = CGRect(
-                x: marginLeft < marginRight
-                    ? DSFloatChat.padding : superview.frame.width - frame.width - DSFloatChat.padding,
-                y: frame.minY,
-                width: DSFloatChat.ballRect.width,
-                height: DSFloatChat.ballRect.height
-            )
-        }
-
+    
+    @objc func longPressBall(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else { return }
+        
+        // Haptic feedback
+        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+        impactFeedback.impactOccurred()
+        
+        // Toggle HyperionSwift measurement
+        DebugSwift.Measurement.toggle()
+        
+        // Visual feedback - briefly change ball appearance
+        let originalTransform = ballView.transform
         UIView.animate(
-            withDuration: DSFloatChat.animationDuration,
+            withDuration: 0.1,
             animations: {
-                self.frame = destinationFrame
+                self.ballView.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+                self.ballView.backgroundColor = DebugSwift.Measurement.isActive ? 
+                    UIColor.systemBlue : UIColor.systemGray
+            },
+            completion: { _ in
+                UIView.animate(withDuration: 0.2) {
+                    self.ballView.transform = originalTransform
+                    self.updateBallAppearance()
+                }
             }
-        ) { _ in
+        )
+    }
+    
+    private func updateBallAppearance() {
+        // Update ball appearance based on measurement state
+        if DebugSwift.Measurement.isActive {
+            ballView.layer.borderWidth = 2
+            ballView.layer.borderColor = UIColor.systemBlue.cgColor
+        } else {
+            ballView.layer.borderWidth = 0.6
+            ballView.layer.borderColor = UIColor.white.cgColor
+        }
+    }
+
+    @objc func ballPan(pan: UIPanGestureRecognizer) {
+        switch pan.state {
+        case .began:
+            beginPoint = pan.location(in: self)
+            delegate?.floatViewBeginMove(floatView: self, point: beginPoint!)
+        case .changed:
+            let currentPoint = pan.translation(in: self)
+            let x = layer.position.x + currentPoint.x
+            let y = layer.position.y + currentPoint.y
+            layer.position = CGPoint(x: x, y: y)
+            pan.setTranslation(.zero, in: self)
+            delegate?.floatViewMoved(floatView: self, point: .init(x: x, y: y))
+        case .ended, .cancelled:
+            let velocityPoint = pan.velocity(in: self)
+            let bounds = UIScreen.main.bounds
+
+            let targetX: CGFloat
+            if layer.position.x <= bounds.width / 2 {
+                targetX = 20
+            } else {
+                targetX = bounds.width - 20
+            }
+
+            var targetY = layer.position.y
+            if targetY < 80 {
+                targetY = 80
+            } else if targetY > bounds.height - 100 {
+                targetY = bounds.height - 100
+            }
+
+            delegate?.floatViewCancelMove(floatView: self)
+
+            UIView.animate(
+                withDuration: 0.5,
+                delay: 0,
+                usingSpringWithDamping: 0.6,
+                initialSpringVelocity: abs(velocityPoint.x / layer.position.x),
+                options: [],
+                animations: {
+                    self.layer.position = CGPoint(x: targetX, y: targetY)
+                }
+            )
+        default:
+            break
         }
     }
 }
