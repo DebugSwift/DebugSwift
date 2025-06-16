@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 @MainActor
 protocol FloatViewDelegate: NSObjectProtocol {
@@ -26,6 +27,10 @@ class FloatBallView: UIView {
     lazy var label: UILabel = buildLabel()
     lazy var ballView: UIView = buildBallView()
 
+    // MARK: - Storage
+    @AppStorage("debug_swift_float_ball_x") private static var savedX: Double = 20
+    @AppStorage("debug_swift_float_ball_y") private static var savedY: Double = (UIScreen.main.bounds.height / 2 - 80.0)
+
     var show = false {
         didSet {
             updateText()
@@ -33,8 +38,8 @@ class FloatBallView: UIView {
             if show {
                 WindowManager.window.addSubview(self)
                 layer.position = .init(
-                    x: 20,
-                    y: UIScreen.main.bounds.height / 2 - 80
+                    x: Self.savedX,
+                    y: Self.savedY
                 )
                 alpha = .zero
                 UIView.animate(withDuration: DSFloatChat.animationDuration) {
@@ -282,6 +287,10 @@ extension FloatBallView {
             }
 
             delegate?.floatViewCancelMove(floatView: self)
+            
+            // Save the final position
+            Self.savedX = Double(targetX)
+            Self.savedY = Double(targetY)
 
             UIView.animate(
                 withDuration: 0.5,
