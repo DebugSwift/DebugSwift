@@ -273,10 +273,15 @@ private func getViewController(view: UIView) -> UIViewController? {
 
 @MainActor
 private func drawView(_ view: UIView) -> CGImage? {
-    let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1.0 // Use 1.0 scale to avoid resolution issues
+    format.opaque = false
+    
+    let renderer = UIGraphicsImageRenderer(size: view.bounds.size, format: format)
     let image = renderer.image { _ in
         view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
     }
+    
     return image.cgImage
 }
 
@@ -337,21 +342,53 @@ private func snapshotVisualEffectBackdropView(_ view: UIView) -> CGImage? {
 
 @MainActor
 private func snapshotView(_ view: UIView) -> CGImage? {
+    // Handle visual effect views specially
     if let superview = view.superview, let _ = superview as? UIVisualEffectView,
        superview.subviews.first == view {
         return snapshotVisualEffectBackdropView(view)
     }
+
+    // Hide subviews temporarily
     var subviewHidden = [Bool]()
     subviewHidden.reserveCapacity(view.subviews.count)
     for subview in view.subviews {
         subviewHidden.append(subview.isHidden)
         subview.isHidden = true
     }
-    let image = drawView(view)
-    for (subview, isHidden) in zip(view.subviews, subviewHidden) {
-        subview.isHidden = isHidden
+
+    defer {
+        // Restore subview visibility
+        for (subview, isHidden) in zip(view.subviews, subviewHidden) {
+            subview.isHidden = isHidden
+        }
     }
-    return image
+
+    let viewSize = view.bounds.size
+    let maxTextureSize: CGFloat = 8192
+
+    // If view is within texture size limits, snapshot normally
+    if viewSize.height <= maxTextureSize && viewSize.width <= maxTextureSize {
+        return drawView(view)
+    }
+
+    // For oversized views, create a scaled version
+    let scale = maxTextureSize / max(viewSize.width, viewSize.height)
+    let scaledSize = CGSize(
+        width: viewSize.width * scale,
+        height: viewSize.height * scale
+    )
+
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1.0
+    format.opaque = false
+
+    let renderer = UIGraphicsImageRenderer(size: scaledSize, format: format)
+    let image = renderer.image { context in
+        context.cgContext.scaleBy(x: scale, y: scale)
+        view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+    }
+
+    return image.cgImage
 }
 
 @MainActor

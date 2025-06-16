@@ -439,7 +439,7 @@ private func snapshotNode(
         return nil
     }
     // Create a node whose contents are the snapshot of the element.
-    let node = snapshotNode(snapshot: snapshot)
+    let node = snapshotNode(snapshot: snapshot, configuration: configuration)
     node.name = snapshot.identifier
 
     let nodes = SnapshotNodes(snapshot: snapshot, depth: depth)
@@ -536,18 +536,55 @@ private func snapshotNode(
 
 /// Returns a node that renders a snapshot image.
 @MainActor
-private func snapshotNode(snapshot: Snapshot) -> SCNNode {
-    let path = UIBezierPath(rect: CGRect(origin: .zero, size: snapshot.frame.size))
+private func snapshotNode(snapshot: Snapshot, configuration: SnapshotViewConfiguration) -> SCNNode {
+    let size = snapshot.frame.size
+    
+    // Calculate scale factor if view exceeds maximum texture size
+    let scaleFactor: CGFloat = if size.height > configuration.maxTextureSize {
+        configuration.maxTextureSize / size.height
+    } else {
+        1.0
+    }
+    
+    // Create scaled path
+    let scaledSize = CGSize(
+        width: size.width * scaleFactor,
+        height: size.height * scaleFactor
+    )
+    let path = UIBezierPath(rect: CGRect(origin: .zero, size: scaledSize))
     let shape = SCNShape(path: path, extrusionDepth: .zero)
+    
     let material = SCNMaterial()
     material.isDoubleSided = true
-    if let snapshot = snapshot.snapshotImage {
-        material.diffuse.contents = snapshot
+    
+    if let snapshotImage = snapshot.snapshotImage {
+        // Scale down image if needed
+        if scaleFactor < 1.0 {
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 1.0
+            let renderer = UIGraphicsImageRenderer(size: scaledSize, format: format)
+            let scaledImage = renderer.image { context in
+                context.cgContext.interpolationQuality = configuration.scaleInterpolationQuality
+                let rect = CGRect(origin: .zero, size: scaledSize)
+                context.cgContext.draw(snapshotImage, in: rect)
+            }
+            material.diffuse.contents = scaledImage
+        } else {
+            material.diffuse.contents = snapshotImage
+        }
     } else {
         material.diffuse.contents = UIColor.white
     }
+    
     shape.insertMaterial(material, at: .zero)
-    return SCNNode(geometry: shape)
+    
+    let node = SCNNode(geometry: shape)
+    // Scale node back up to original size
+    if scaleFactor < 1.0 {
+        node.scale = SCNVector3(1.0/scaleFactor, 1.0/scaleFactor, 1.0)
+    }
+    
+    return node
 }
 
 /// Returns a node that draws a line between two vertices.

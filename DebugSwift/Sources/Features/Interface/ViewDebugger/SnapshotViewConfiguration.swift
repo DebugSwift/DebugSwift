@@ -26,6 +26,14 @@ final class SnapshotViewConfiguration: NSObject {
         var font = UIFont.boldSystemFont(ofSize: 13)
     }
 
+    /// The maximum allowed texture size for view snapshots. Views larger than this will be scaled down.
+    /// Default is 8192 to match Metal's maximum texture size.
+    var maxTextureSize: CGFloat = 8192
+
+    /// The interpolation quality used when scaling down large views.
+    /// Default is .high for better visual quality.
+    var scaleInterpolationQuality: CGInterpolationQuality = .high
+
     /// The spacing between layers along the z-axis.
     var zSpacing: Float = 20.0
 
@@ -59,4 +67,8 @@ final class SnapshotViewConfiguration: NSObject {
 
     /// The font used to render the description for a selected element.
     var descriptionFont = UIFont.systemFont(ofSize: 14)
+
+    override init() {
+        super.init()
+    }
 }
