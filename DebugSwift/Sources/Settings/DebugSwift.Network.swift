@@ -41,6 +41,15 @@ extension DebugSwift {
             NetworkThresholdTracker.shared.setTrackingEnabled(false)
         }
         
+        /// Reset threshold tracker to ensure it doesn't interfere with network monitoring
+        /// This can be used as a workaround if the Network Inspector stops working
+        public func resetThresholdTracker() {
+            NetworkThresholdTracker.shared.setTrackingEnabled(false)
+            NetworkThresholdTracker.shared.setRequestBlocking(false)
+            NetworkThresholdTracker.shared.clearHistory()
+            NetworkThresholdTracker.shared.clearEndpointThresholds()
+        }
+        
         /// Set threshold with custom time window
         public func setThreshold(_ limit: Int, timeWindow: TimeInterval = 60.0) {
             NetworkThresholdTracker.shared.setThreshold(limit, timeWindow: timeWindow)

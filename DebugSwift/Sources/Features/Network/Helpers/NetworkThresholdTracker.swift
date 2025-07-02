@@ -58,25 +58,41 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     private let queue = DispatchQueue(label: "com.debugswift.network.threshold", attributes: .concurrent)
     private let userDefaults = UserDefaults.standard
     
+    // Cached enabled state for fast access without queue operations
+    private var _isEnabledCache: Bool = false
+    private var _shouldBlockCache: Bool = false
+    
     private init() {
         loadConfiguration()
+        updateCacheValues()
+    }
+    
+    // MARK: - Private Cache Management
+    
+    private func updateCacheValues() {
+        _isEnabledCache = config.isEnabled
+        _shouldBlockCache = config.shouldBlockRequests
     }
     
     // MARK: - Public Methods
     
     /// Set the global request threshold
     func setThreshold(_ limit: Int, timeWindow: TimeInterval = 60.0) {
-        queue.async(flags: .barrier) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
             self.config.limit = limit
             self.config.timeWindow = timeWindow
+            self.updateCacheValues()
             self.saveConfiguration()
         }
     }
     
     /// Enable or disable request tracking
     func setTrackingEnabled(_ enabled: Bool) {
-        queue.async(flags: .barrier) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
             self.config.isEnabled = enabled
+            self.updateCacheValues()
             if !enabled {
                 self.requestHistory.removeAll()
             }
@@ -86,7 +102,8 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     
     /// Configure alert settings
     func configureAlert(emoji: String, message: String) {
-        queue.async(flags: .barrier) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
             self.config.alertEmoji = emoji
             self.config.alertMessage = message
             self.saveConfiguration()
@@ -95,7 +112,8 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     
     /// Set threshold for specific endpoint
     func setEndpointThreshold(_ endpoint: String, limit: Int, timeWindow: TimeInterval = 60.0) {
-        queue.async(flags: .barrier) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
             var endpointConfig = ThresholdConfig()
             endpointConfig.limit = limit
             endpointConfig.timeWindow = timeWindow
@@ -107,12 +125,17 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     
     /// Track a network request
     func trackRequest(url: URL) {
-        guard config.isEnabled else { return }
+        // Fast check using cached value to avoid queue operations
+        guard _isEnabledCache else { return }
+        
+        // Ensure we don't crash on invalid URLs
+        guard url.absoluteString.count > 0 else { return }
         
         let endpoint = extractEndpoint(from: url)
         let entry = RequestEntry(url: url, timestamp: Date(), endpoint: endpoint)
         
-        queue.async(flags: .barrier) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
             self.requestHistory.append(entry)
             self.cleanupOldRequests()
             self.checkThreshold(for: endpoint)
@@ -121,11 +144,15 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     
     /// Get current request count
     func getCurrentRequestCount(endpoint: String? = nil) -> Int {
-        queue.sync {
+        // Fast check using cached value to avoid unnecessary queue operations
+        guard _isEnabledCache else { return 0 }
+        
+        return queue.sync { [weak self] in
+            guard let self = self else { return 0 }
             let now = Date()
-            let timeWindow = endpoint.flatMap { endpointThresholds[$0]?.timeWindow } ?? config.timeWindow
+            let timeWindow = endpoint.flatMap { self.endpointThresholds[$0]?.timeWindow } ?? self.config.timeWindow
             
-            return requestHistory.filter { entry in
+            return self.requestHistory.filter { entry in
                 let isWithinWindow = now.timeIntervalSince(entry.timestamp) <= timeWindow
                 let matchesEndpoint = endpoint == nil || entry.endpoint == endpoint
                 return isWithinWindow && matchesEndpoint
@@ -135,22 +162,26 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     
     /// Get breach history
     func getBreachHistory() -> [ThresholdBreach] {
-        queue.sync {
-            return breachHistory
+        return queue.sync { [weak self] in
+            return self?.breachHistory ?? []
         }
     }
     
     /// Clear request history
     func clearHistory() {
-        queue.async(flags: .barrier) {
-            self.requestHistory.removeAll()
-            self.breachHistory.removeAll()
+        queue.async(flags: .barrier) { [weak self] in
+            self?.requestHistory.removeAll()
+            self?.breachHistory.removeAll()
         }
     }
     
     /// Check if requests should be blocked
     func shouldBlockRequest(url: URL) -> Bool {
-        guard config.isEnabled && config.shouldBlockRequests else { return false }
+        // Fast check using cached values to avoid queue operations
+        guard _isEnabledCache && _shouldBlockCache else { return false }
+        
+        // Ensure we don't crash on invalid URLs
+        guard url.absoluteString.count > 0 else { return false }
         
         let endpoint = extractEndpoint(from: url)
         let currentCount = getCurrentRequestCount(endpoint: endpoint)
@@ -161,8 +192,10 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     
     /// Enable/disable request blocking when threshold is exceeded
     func setRequestBlocking(_ enabled: Bool) {
-        queue.async(flags: .barrier) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
             self.config.shouldBlockRequests = enabled
+            self.updateCacheValues()
             self.saveConfiguration()
         }
     }
@@ -204,27 +237,31 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     
     /// Get current configuration
     func getConfig() -> ThresholdConfig {
-        queue.sync { self.config }
+        return queue.sync { [weak self] in
+            return self?.config ?? ThresholdConfig()
+        }
     }
     
     /// Get endpoint thresholds
     func getEndpointThresholds() -> [String: ThresholdConfig] {
-        queue.sync { self.endpointThresholds }
+        return queue.sync { [weak self] in
+            return self?.endpointThresholds ?? [:]
+        }
     }
     
     /// Remove threshold for specific endpoint
     func removeEndpointThreshold(_ endpoint: String) {
-        queue.async(flags: .barrier) {
-            self.endpointThresholds.removeValue(forKey: endpoint)
-            self.saveConfiguration()
+        queue.async(flags: .barrier) { [weak self] in
+            self?.endpointThresholds.removeValue(forKey: endpoint)
+            self?.saveConfiguration()
         }
     }
     
     /// Clear all endpoint thresholds
     func clearEndpointThresholds() {
-        queue.async(flags: .barrier) {
-            self.endpointThresholds.removeAll()
-            self.saveConfiguration()
+        queue.async(flags: .barrier) { [weak self] in
+            self?.endpointThresholds.removeAll()
+            self?.saveConfiguration()
         }
     }
     
@@ -311,7 +348,9 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
     // MARK: - Private Methods - Configuration Persistence
     
     private func loadConfiguration() {
-        queue.async(flags: .barrier) {
+        queue.async(flags: .barrier) { [weak self] in
+            guard let self = self else { return }
+            
             // Load main config
             if let savedLimit = self.userDefaults.object(forKey: UserDefaultsKeys.limit) as? Int {
                 self.config.limit = savedLimit
@@ -337,6 +376,9 @@ public final class NetworkThresholdTracker: @unchecked Sendable {
                let decoded = try? JSONDecoder().decode([String: ThresholdConfig].self, from: data) {
                 self.endpointThresholds = decoded
             }
+            
+            // Update cache values after loading configuration
+            self.updateCacheValues()
         }
     }
     

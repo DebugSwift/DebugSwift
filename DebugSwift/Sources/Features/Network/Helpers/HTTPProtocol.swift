@@ -99,8 +99,8 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         }
 
         URLProtocol.setProperty(true, forKey: CustomHTTPProtocol.requestProperty, in: newRequest)
-        
-        // Track request for threshold monitoring
+
+        // Track request for threshold monitoring - safe execution to prevent interference
         if let url = request.url {
             NetworkThresholdTracker.shared.trackRequest(url: url)
             
