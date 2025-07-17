@@ -103,21 +103,6 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         // Track request for threshold monitoring
         if let url = request.url {
             NetworkThresholdTracker.shared.trackRequest(url: url)
-            
-            // Check if request should be blocked
-            if NetworkThresholdTracker.shared.shouldBlockRequest(url: url) {
-                // Return 429 Too Many Requests error
-                let error = NSError(
-                    domain: NSURLErrorDomain,
-                    code: 429,
-                    userInfo: [
-                        NSLocalizedDescriptionKey: "Too Many Requests",
-                        NSLocalizedFailureReasonErrorKey: "Request threshold exceeded"
-                    ]
-                )
-                client?.urlProtocol(self, didFailWithError: error)
-                return
-            }
         }
 
         if let cache = URLCache.customHttp.validCache(for: request) {
