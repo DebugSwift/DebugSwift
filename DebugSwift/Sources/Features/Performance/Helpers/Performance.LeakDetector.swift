@@ -476,6 +476,12 @@ extension UIViewController {
     }
 
     private static let lvcdActuallySwizzleLifecycleMethods: Void = {
+        // Check if New Relic is present to avoid conflicts
+        if NSClassFromString("NewRelic") != nil {
+            print("⚠️ DebugSwift: New Relic detected - disabling leak detector to prevent conflicts")
+            return
+        }
+        
         let originalVdaMethod = class_getInstanceMethod(
             UIViewController.self,
             #selector(viewDidLoad)

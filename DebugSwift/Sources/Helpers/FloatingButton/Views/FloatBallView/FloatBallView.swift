@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 @MainActor
 protocol FloatViewDelegate: NSObjectProtocol {
@@ -26,6 +27,10 @@ class FloatBallView: UIView {
     lazy var label: UILabel = buildLabel()
     lazy var ballView: UIView = buildBallView()
 
+    // MARK: - Storage
+    @AppStorage("debug_swift_float_ball_x") private static var savedX: Double = 20
+    @AppStorage("debug_swift_float_ball_y") private static var savedY: Double = (UIScreen.main.bounds.height / 2 - 80.0)
+
     var show = false {
         didSet {
             updateText()
@@ -33,8 +38,8 @@ class FloatBallView: UIView {
             if show {
                 WindowManager.window.addSubview(self)
                 layer.position = .init(
-                    x: 20,
-                    y: UIScreen.main.bounds.height / 2 - 80
+                    x: Self.savedX,
+                    y: Self.savedY
                 )
                 alpha = .zero
                 UIView.animate(withDuration: DSFloatChat.animationDuration) {
@@ -214,30 +219,9 @@ extension FloatBallView {
     
     @objc func longPressBall(_ gesture: UILongPressGestureRecognizer) {
         guard gesture.state == .began else { return }
-        
-        // Haptic feedback
-        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-        impactFeedback.impactOccurred()
-        
-        // Toggle HyperionSwift measurement
-        DebugSwift.Measurement.toggle()
-        
-        // Visual feedback - briefly change ball appearance
-        let originalTransform = ballView.transform
-        UIView.animate(
-            withDuration: 0.1,
-            animations: {
-                self.ballView.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-                self.ballView.backgroundColor = DebugSwift.Measurement.isActive ? 
-                    UIColor.systemBlue : UIColor.systemGray
-            },
-            completion: { _ in
-                UIView.animate(withDuration: 0.2) {
-                    self.ballView.transform = originalTransform
-                    self.updateBallAppearance()
-                }
-            }
-        )
+        DispatchQueue.main.async {
+            WindowManager.presentViewDebugger()
+        }
     }
     
     private func updateBallAppearance() {
@@ -282,6 +266,10 @@ extension FloatBallView {
             }
 
             delegate?.floatViewCancelMove(floatView: self)
+            
+            // Save the final position
+            Self.savedX = Double(targetX)
+            Self.savedY = Double(targetY)
 
             UIView.animate(
                 withDuration: 0.5,

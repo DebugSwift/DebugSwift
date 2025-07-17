@@ -88,9 +88,7 @@ private extension URLSessionConfiguration {
             
             // Only add CustomHTTPProtocol if explicitly requested or if no protocols specified
             // This prevents forcing HTTP protocol on WebSocket configurations
-            let shouldAddHTTPProtocol = newTypes.contains { $0 == CustomHTTPProtocol.self } || newTypes.isEmpty
-            
-            if shouldAddHTTPProtocol && !types.contains(where: { $0 == CustomHTTPProtocol.self }) {
+            if !types.contains(where: { $0 == CustomHTTPProtocol.self }) {
                 types.insert(CustomHTTPProtocol.self, at: 0)
             }
             
@@ -102,9 +100,7 @@ private extension URLSessionConfiguration {
     class var swizzledDefaultSessionConfiguration: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.swizzledDefaultSessionConfiguration
         // Only add CustomHTTPProtocol to default configurations that don't already have protocols specified
-        if configuration.protocolClasses?.isEmpty != false {
-            configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
-        }
+        configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
         return configuration
     }
     
@@ -112,9 +108,7 @@ private extension URLSessionConfiguration {
     class var swizzledEphemeralSessionConfiguration: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.swizzledEphemeralSessionConfiguration
         // Only add CustomHTTPProtocol to ephemeral configurations that don't already have protocols specified
-        if configuration.protocolClasses?.isEmpty != false {
-            configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
-        }
+        configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
         return configuration
     }
 }

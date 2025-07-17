@@ -34,6 +34,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         // Remove comment below to remove specific features and comment DebugSwift.setup() not to double trigger.
         // DebugSwift.setup(hideFeatures: [.interface, .app, .resources, .performance])
+        
+        // If you have New Relic, disable leak detector to prevent conflicts:
+        // debugSwift.setup(disable: [.leaksDetector])
+        
         debugSwift
             .setup()
             .show()
