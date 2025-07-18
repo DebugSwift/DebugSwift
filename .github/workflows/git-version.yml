@@ -4,7 +4,6 @@ on:
   push:
     branches: 
       - "main"
-      - "develop"
   workflow_dispatch:
 
 permissions:
@@ -51,16 +50,7 @@ jobs:
 
     - name: Display GitVersion
       run: |
-        if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-          # For develop branch, create alpha tag
-          # Get the current alpha version count
-          CURRENT_VERSION="${{ steps.gitversion.outputs.majorMinorPatch }}"
-          ALPHA_COUNT=$(git tag -l "${CURRENT_VERSION}-alpha.*" | wc -l | xargs)
-          ALPHA_COUNT=$((ALPHA_COUNT + 1))
-          NEW_TAG="${CURRENT_VERSION}-alpha.${ALPHA_COUNT}"
-        else
-          NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
-        fi
+        NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
         echo "Semantic Version: $NEW_TAG"
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
@@ -80,17 +70,7 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
         
-        if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-          # For develop branch, create alpha tag
-          CURRENT_VERSION="${{ needs.git_version.outputs.majorMinorPatch }}"
-          # Fetch all tags to ensure we have the latest
-          git fetch --tags
-          ALPHA_COUNT=$(git tag -l "${CURRENT_VERSION}-alpha.*" | wc -l | xargs)
-          ALPHA_COUNT=$((ALPHA_COUNT + 1))
-          TAG_NAME="${CURRENT_VERSION}-alpha.${ALPHA_COUNT}"
-        else
-          TAG_NAME="${{ needs.git_version.outputs.semVer }}"
-        fi
+        TAG_NAME="${{ needs.git_version.outputs.semVer }}"
         
         git tag $TAG_NAME
         git push origin $TAG_NAME
