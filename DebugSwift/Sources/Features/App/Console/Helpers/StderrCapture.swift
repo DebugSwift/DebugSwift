@@ -8,7 +8,6 @@
 
 class StderrCapture: @unchecked Sendable {
     
-    // ✅ NEW: Thread-safe state management
     private let stateLock = NSLock()
     private var _isCapturing = false
     var isCapturing: Bool {
@@ -24,7 +23,6 @@ class StderrCapture: @unchecked Sendable {
         }
     }
     
-    // ✅ NEW: Thread-safe serial queue to prevent deadlock
     private let captureQueue = DispatchQueue(
         label: "com.debugswift.stderr.capture",
         qos: .utility
@@ -53,11 +51,9 @@ class StderrCapture: @unchecked Sendable {
         guard !isCapturing else { return }
         isCapturing = true
 
-        // ✅ FIX: Thread-safe readability handler
         inputPipe.fileHandleForReading.readabilityHandler = { [weak self] fileHandle in
             guard let self = self, self.isCapturing else { return }
             
-            // ✅ FIX: Process on dedicated queue to prevent deadlock
             self.captureQueue.async {
                 let data = fileHandle.availableData
                 if let string = String(data: data, encoding: .utf8), !string.isEmpty {
@@ -66,12 +62,11 @@ class StderrCapture: @unchecked Sendable {
                     }
                 }
 
-                // ✅ FIX: Write back to stderr on same queue to prevent contention
+                // Write back to stderr to maintain output
                 self.outputPipe.fileHandleForWriting.write(data)
             }
         }
         
-        // ✅ FIX: Setup stderr redirection with error checking
         setvbuf(stderr, nil, _IONBF, 0)
 
         // Copy STDERR file descriptor to outputPipe for writing strings back to STDERR
@@ -94,7 +89,6 @@ class StderrCapture: @unchecked Sendable {
             return
         }
 
-        // ✅ FIX: Use safer async approach instead of blocking wait
         captureQueue.async { [weak self] in
             guard let self = self, self.isCapturing else { return }
             
@@ -118,14 +112,10 @@ class StderrCapture: @unchecked Sendable {
         guard isCapturing else { return }
         isCapturing = false
         
-        // ✅ FIX: Clean up handlers safely
         inputPipe.fileHandleForReading.readabilityHandler = nil
-        
-        // ✅ FIX: Restore original stderr properly
         freopen("/dev/stderr", "a", stderr)
     }
 
-    // ✅ NEW: Thread-safe message processing without recursive print()
     private func stderrMessageSafe(string: String) {
         if string.contains("OSLOG"),
            let message = string.split(separator: "\t").last {
@@ -139,13 +129,12 @@ class StderrCapture: @unchecked Sendable {
                 split.removeFirst()
                 let message = split.joined().trimmingCharacters(in: .whitespacesAndNewlines)
                 
-                // ✅ CRITICAL FIX: Use direct stderr write instead of print() to avoid infinite recursion
+                // Use direct stderr write instead of print() to avoid infinite recursion
                 self.writeDirectlyToOriginalStderr(message)
             }
         }
     }
     
-    // ✅ NEW: Write directly to original stderr to avoid recursive loops
     private func writeDirectlyToOriginalStderr(_ message: String) {
         let messageWithNewline = message + "\n"
         if let data = messageWithNewline.data(using: .utf8) {

@@ -10,12 +10,12 @@ import UIKit
 
 // MARK: - Global C-Compatible Function and State
 
-/// ✅ FIXED: Global state for C function pointer compatibility
+/// Global state for C function pointer compatibility
 nonisolated(unsafe) private var originalStdoutWriter: (@convention(c) (UnsafeMutableRawPointer?, UnsafePointer<Int8>?, Int32) -> Int32)?
 nonisolated(unsafe) private var stdoutBuffer = ""
 nonisolated(unsafe) private var _isCapturing = false
 
-/// ✅ FIXED: Thread-safe locks for global state
+/// Thread-safe locks for global state
 private let bufferLock = NSLock()
 private let stateLock = NSLock()
 private let processingQueue = DispatchQueue(
@@ -24,7 +24,7 @@ private let processingQueue = DispatchQueue(
     attributes: .concurrent
 )
 
-/// ✅ FIXED: Thread-safe accessors for global state
+/// Thread-safe accessors for global state
 private var isStdoutCapturing: Bool {
     get {
         stateLock.lock()
@@ -38,7 +38,7 @@ private var isStdoutCapturing: Bool {
     }
 }
 
-/// ✅ FIXED: Global thread-safe buffered logging
+/// Global thread-safe buffered logging
 private func logStdoutMessageGlobal(_ string: String) {
     guard isStdoutCapturing else { return }
 
@@ -47,14 +47,14 @@ private func logStdoutMessageGlobal(_ string: String) {
 
     stdoutBuffer += string
 
-    // ✅ IMPROVED: Process complete lines for better log organization
+    // Process complete lines for better log organization
     let newlineSet = CharacterSet.newlines
     if let lastScalar = stdoutBuffer.unicodeScalars.last,
        newlineSet.contains(lastScalar) {
 
         let trimmed = stdoutBuffer.trimmingCharacters(in: newlineSet)
         if !trimmed.isEmpty {
-            // ✅ IMPROVED: Async file writing and console processing
+            // Async file writing and console processing
             processingQueue.async {
                 processCompleteLogLineGlobal(trimmed)
             }
@@ -63,7 +63,7 @@ private func logStdoutMessageGlobal(_ string: String) {
     }
 }
 
-/// ✅ FIXED: Global processing for complete log lines
+/// Global processing for complete log lines
 private func processCompleteLogLineGlobal(_ line: String) {
     // File logging
     if let logUrl = StdoutCapture.shared.logUrl {
@@ -78,11 +78,11 @@ private func processCompleteLogLineGlobal(_ line: String) {
     appendConsoleOutputSafelyGlobal(line)
 }
 
-/// ✅ FIXED: Global thread-safe console output with filtering
+/// Global thread-safe console output with filtering
 private func appendConsoleOutputSafelyGlobal(_ output: String) {
     guard !shouldIgnoreLogGlobal(output), shouldIncludeLogGlobal(output) else { return }
 
-    // ✅ FIX: Direct append without additional async to prevent delays
+    // Direct append without additional async to prevent delays
     ConsoleOutput.shared.printAndNSLogOutput.append(output)
 }
 
@@ -99,7 +99,7 @@ private func shouldIncludeLogGlobal(_ log: String) -> Bool {
 
 // MARK: - C-Convention Handlers
 
-/// ✅ FIXED: Replacement for stdout _write function
+/// Replacement for stdout _write function
 @_cdecl("capturedStdoutWriter")
 private func capturedStdoutWriter(
     fd: UnsafeMutableRawPointer?,
@@ -129,7 +129,7 @@ private func capturedStdoutWriter(
     return result
 }
 
-/// ✅ FIXED: Restorer function to reinstate the original writer
+/// Restorer function to reinstate the original writer
 @_cdecl("standardStdoutWriter")
 private func standardStdoutWriter(
     fd: UnsafeMutableRawPointer?,
