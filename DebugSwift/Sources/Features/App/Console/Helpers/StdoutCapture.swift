@@ -5,20 +5,144 @@
 //  Created by Matheus Gois on 19/12/23.
 //
 
+import Foundation
 import UIKit
+
+// MARK: - Global C-Compatible Function and State
+
+/// Global state for C function pointer compatibility
+nonisolated(unsafe) private var originalStdoutWriter: (@convention(c) (UnsafeMutableRawPointer?, UnsafePointer<Int8>?, Int32) -> Int32)?
+nonisolated(unsafe) private var stdoutBuffer = ""
+nonisolated(unsafe) private var _isCapturing = false
+
+/// Thread-safe locks for global state
+private let bufferLock = NSLock()
+private let stateLock = NSLock()
+private let processingQueue = DispatchQueue(
+    label: "com.debugswift.stdout.processing",
+    qos: .utility,
+    attributes: .concurrent
+)
+
+/// Thread-safe accessors for global state
+private var isStdoutCapturing: Bool {
+    get {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return _isCapturing
+    }
+    set {
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        _isCapturing = newValue
+    }
+}
+
+/// Global thread-safe buffered logging
+private func logStdoutMessageGlobal(_ string: String) {
+    guard isStdoutCapturing else { return }
+
+    bufferLock.lock()
+    defer { bufferLock.unlock() }
+
+    stdoutBuffer += string
+
+    // Process complete lines for better log organization
+    let newlineSet = CharacterSet.newlines
+    if let lastScalar = stdoutBuffer.unicodeScalars.last,
+       newlineSet.contains(lastScalar) {
+
+        let trimmed = stdoutBuffer.trimmingCharacters(in: newlineSet)
+        if !trimmed.isEmpty {
+            // Async file writing and console processing
+            processingQueue.async {
+                processCompleteLogLineGlobal(trimmed)
+            }
+        }
+        stdoutBuffer = ""
+    }
+}
+
+/// Global processing for complete log lines
+private func processCompleteLogLineGlobal(_ line: String) {
+    // File logging
+    if let logUrl = StdoutCapture.shared.logUrl {
+        do {
+            try line.appendLineToURL(logUrl)
+        } catch {
+            // Silent failure for file writing
+        }
+    }
+
+    // Console output processing
+    appendConsoleOutputSafelyGlobal(line)
+}
+
+/// Global thread-safe console output with filtering
+private func appendConsoleOutputSafelyGlobal(_ output: String) {
+    guard !shouldIgnoreLogGlobal(output), shouldIncludeLogGlobal(output) else { return }
+
+    // Direct append without additional async to prevent delays
+    ConsoleOutput.shared.printAndNSLogOutput.append(output)
+}
+
+private func shouldIgnoreLogGlobal(_ log: String) -> Bool {
+    DebugSwift.Console.shared.ignoredLogs.contains { log.contains($0) }
+}
+
+private func shouldIncludeLogGlobal(_ log: String) -> Bool {
+    if DebugSwift.Console.shared.onlyLogs.isEmpty {
+        return true
+    }
+    return DebugSwift.Console.shared.onlyLogs.contains { log.contains($0) }
+}
+
+// MARK: - C-Convention Handlers
+
+/// Replacement for stdout _write function
+@_cdecl("capturedStdoutWriter")
+private func capturedStdoutWriter(
+    fd: UnsafeMutableRawPointer?,
+    buffer: UnsafePointer<Int8>?,
+    size: Int32
+) -> Int32 {
+    // Call the original writer first
+    let result = originalStdoutWriter?(fd, buffer, size) ?? size
+
+    // Only capture if enabled and buffer valid
+    guard isStdoutCapturing, let buf = buffer, size > 0 else {
+        return result
+    }
+
+    // Safe string creation with size limit
+    let safeSize = min(Int(size), 8192)
+    let raw = UnsafeRawBufferPointer(start: buf, count: safeSize)
+    guard let string = String(bytes: raw, encoding: .utf8), !string.isEmpty else {
+        return result
+    }
+
+    // Async processing
+    processingQueue.async {
+        logStdoutMessageGlobal(string)
+    }
+
+    return result
+}
+
+/// Restorer function to reinstate the original writer
+@_cdecl("standardStdoutWriter")
+private func standardStdoutWriter(
+    fd: UnsafeMutableRawPointer?,
+    buffer: UnsafePointer<Int8>?,
+    size: Int32
+) -> Int32 {
+    return originalStdoutWriter?(fd, buffer, size) ?? size
+}
+
+// MARK: - StdoutCapture Class
 
 class StdoutCapture: @unchecked Sendable {
     static let shared = StdoutCapture()
-
-    // MARK: - Properties
-
-    private var inputPipe: Pipe?
-    private var outputPipe: Pipe?
-    private let queue = DispatchQueue(
-        label: "com.debugswift.log.interceptor.queue",
-        qos: .default,
-        attributes: .concurrent
-    )
 
     let logUrl: URL? = {
         if let path = NSSearchPathForDirectoriesInDomains(
@@ -26,112 +150,72 @@ class StdoutCapture: @unchecked Sendable {
             .userDomainMask,
             true
         ).first {
-            let documentsDirectory = URL(fileURLWithPath: path)
-            return documentsDirectory.appendingPathComponent("\(Bundle.main.bundleIdentifier ?? "app")-output.log")
+            let docs = URL(fileURLWithPath: path)
+            return docs.appendingPathComponent("\(Bundle.main.bundleIdentifier ?? "app")-output.log")
         }
         return nil
     }()
 
-    // MARK: - Lifecycle Methods
+    private init() {}
+
+    // MARK: - Public API
 
     func startCapturing() {
+        guard !isStdoutCapturing else { return }
+        isStdoutCapturing = true
+
         Task {
             if let logUrl = logUrl {
                 do {
-                    let header =
-                    """
+                    let header = """
                     Start logger
                     DeviceID: \(await UIDevice.current.identifierForVendor?.uuidString ?? "none")
                     """
                     try header.write(to: logUrl, atomically: true, encoding: .utf8)
-                } catch {}
-            }
-            
-            openConsolePipe()
-        }
-    }
-
-    private func openConsolePipe() {
-        setvbuf(stdout, nil, _IONBF, 0)
-
-        // open a new Pipe to consume the messages on STDOUT and STDERR
-        inputPipe = Pipe()
-        outputPipe = Pipe()
-
-        guard let inputPipe, let outputPipe else {
-            return
-        }
-
-        let pipeReadHandle = inputPipe.fileHandleForReading
-
-        /// from documentation
-        /// dup2() makes newfd (new file descriptor) be the copy of oldfd
-        /// (old file descriptor), closing newfd first if necessary.
-
-        /// here we are copying the STDOUT file descriptor into our output
-        /// pipe's file descriptor this is so we can write the strings back
-        /// to STDOUT, so it can show up on the xcode console
-        dup2(STDOUT_FILENO, outputPipe.fileHandleForWriting.fileDescriptor)
-
-        /// In this case, the newFileDescriptor is the pipe's file descriptor
-        /// and the old file descriptor is STDOUT_FILENO and STDERR_FILENO
-        dup2(inputPipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
-
-        // listen in to the readHandle notification
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handlePipeNotification),
-            name: FileHandle.readCompletionNotification,
-            object: pipeReadHandle
-        )
-
-        // state that you want to be notified of any data coming across the pipe
-        pipeReadHandle.readInBackgroundAndNotify()
-    }
-
-    @objc
-    func handlePipeNotification(notification: Notification) {
-        inputPipe?.fileHandleForReading.readInBackgroundAndNotify()
-
-        if let data = notification.userInfo?[NSFileHandleNotificationDataItem] as? Data,
-           let str = String(data: data, encoding: String.Encoding.utf8),
-           let logUrl {
-            /// write the data back into the output pipe. the output pipe's write
-            /// file descriptor points to STDOUT. this allows the logs to show up
-            /// on the xcode console
-            outputPipe?.fileHandleForWriting.write(data)
-
-            queue.async(flags: .barrier) {
-                do {
-                    try str.appendLineToURL(logUrl)
-                } catch {}
+                } catch {
+                    // Silent failure
+                }
             }
 
-            appendConsoleOutput(str)
-        }
-    }
-
-    private func appendConsoleOutput(_ consoleOutput: String?) {
-        guard let output = consoleOutput else { return }
-
-        if !shouldIgnoreLog(output), shouldIncludeLog(output) {
-            queue.async {
-                ConsoleOutput.shared.printAndNSLogOutput.append(output)
+            await MainActor.run {
+                self.interceptStdoutWriter()
             }
         }
     }
 
-    private func shouldIgnoreLog(_ log: String) -> Bool {
-        DebugSwift.Console.shared.ignoredLogs.contains { log.contains($0) }
+    func stopCapturing() {
+        guard isStdoutCapturing else { return }
+        isStdoutCapturing = false
+
+        // Restore original writer
+        restoreOriginalStdoutWriter()
+
+        // Clear buffer
+        bufferLock.lock()
+        stdoutBuffer = ""
+        bufferLock.unlock()
     }
 
-    private func shouldIncludeLog(_ log: String) -> Bool {
-        if DebugSwift.Console.shared.onlyLogs.isEmpty {
-            return true
+    // MARK: - Private Methods
+
+    @MainActor
+    private func interceptStdoutWriter() {
+        // Store original writer only once
+        if originalStdoutWriter == nil {
+            originalStdoutWriter = stdout.pointee._write
         }
-        return DebugSwift.Console.shared.onlyLogs.contains { log.contains($0) }
+        // Redirect to our C-compatible handler
+        stdout.pointee._write = capturedStdoutWriter
+    }
+
+    private func restoreOriginalStdoutWriter() {
+        guard let original = originalStdoutWriter else { return }
+        stdout.pointee._write = original
+        originalStdoutWriter = nil
     }
 }
+
+// MARK: - File Utilities
 
 extension String {
     fileprivate func appendLineToURL(_ fileURL: URL) throws {
@@ -147,12 +231,10 @@ extension String {
 
 extension Data {
     fileprivate func appendToURL(_ fileURL: URL) throws {
-        if let fileHandle = try? FileHandle(forWritingTo: fileURL) {
-            defer {
-                fileHandle.closeFile()
-            }
-            fileHandle.seekToEndOfFile()
-            fileHandle.write(self)
+        if let handle = try? FileHandle(forWritingTo: fileURL) {
+            defer { handle.closeFile() }
+            handle.seekToEndOfFile()
+            handle.write(self)
         } else {
             try write(to: fileURL, options: .atomic)
         }

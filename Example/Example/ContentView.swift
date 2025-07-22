@@ -27,6 +27,17 @@ struct ContentView: View {
                     }
                     .padding(.vertical, 4)
                 }
+                
+                NavigationLink(destination: DeadlockTestView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("🚨 Console Deadlock Test")
+                            .font(.headline)
+                        Text("Reproduce DebugSwift console interception deadlock")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+                    .padding(.vertical, 4)
+                }
 
                 NavigationLink(destination: LeakView()) {
                     VStack(alignment: .leading, spacing: 4) {

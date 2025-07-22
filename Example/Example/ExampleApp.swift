@@ -38,11 +38,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // If you have New Relic, disable leak detector to prevent conflicts:
         // debugSwift.setup(disable: [.leaksDetector])
         
+        print("Hey, DebugSwift is running! 🎉")
+        
         debugSwift
             .setup()
             .show()
 
-        // To fix alamorife `uploadProgress`
+        // To fix Alamofire `uploadProgress`
 //        DebugSwift.Network.delegate = self
         
         // Request push notification permissions for APNS token demo

@@ -32,6 +32,6 @@ enum Debug {
         _ message: Any...
     ) {
         guard enable else { return }
-        Swift.print("[DebugSwift] 🚀 → \(message)")
+//        Swift.print("[DebugSwift] 🚀 → \(message)")
     }
 }
