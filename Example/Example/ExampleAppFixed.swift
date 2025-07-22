@@ -1,8 +1,8 @@
 //
-//  ExampleApp.swift
+//  ExampleAppFixed.swift
 //  Example
 //
-//  Created by Matheus Gois on 16/12/23.
+//  Shows how to fix the DebugSwift console interception deadlock
 //
 
 import DebugSwift
@@ -10,10 +10,16 @@ import SwiftUI
 import UserNotifications
 import UIKit
 
+/*
+ * FIXED VERSION - To use this instead of the buggy version:
+ * 1. Rename ExampleApp.swift to ExampleAppBuggy.swift
+ * 2. Rename this file to ExampleApp.swift
+ * 3. Update @main to point to this struct
+ */
+
 @available(iOS 14.0, *)
-@main
-struct ExampleApp: App {
-    @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
+struct ExampleAppFixed: App {
+    @UIApplicationDelegateAdaptor private var appDelegate: AppDelegateFixed
 
     var body: some Scene {
         WindowGroup {
@@ -25,28 +31,22 @@ struct ExampleApp: App {
     }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegateFixed: NSObject, UIApplicationDelegate {
     private let debugSwift = DebugSwift()
 
     func application(
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // Remove comment below to remove specific features and comment DebugSwift.setup() not to double trigger.
-        // DebugSwift.setup(hideFeatures: [.interface, .app, .resources, .performance])
+        print("Hey, DebugSwift is running! 🎉 (FIXED VERSION)")
         
-        // If you have New Relic, disable leak detector to prevent conflicts:
-        // debugSwift.setup(disable: [.leaksDetector])
-        
-        print("Hey, DebugSwift is running! 🎉")
-        
+        // ✅ FIXED: Disable console interception to prevent deadlock
         debugSwift
-            .setup()
+            .setup(
+                disable: [.console]  // This prevents the console interception deadlock
+            )
             .show()
 
-        // To fix Alamofire `uploadProgress`
-//        DebugSwift.Network.delegate = self
-        
         // Request push notification permissions for APNS token demo
         requestPushNotificationPermissions()
 
@@ -87,7 +87,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 // MARK: - Push Notification Delegate Methods
 
-extension AppDelegate {
+extension AppDelegateFixed {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         // Register the device token with DebugSwift for debugging
         DebugSwift.APNSToken.didRegister(deviceToken: deviceToken)
@@ -105,33 +105,4 @@ extension AppDelegate {
         // Your existing error handling code would go here
         print("❌ Failed to register for push notifications: \(error.localizedDescription)")
     }
-}
-
-// MARK: - Alamofire bugfix in uploadProgress
-
-extension AppDelegate: @preconcurrency CustomHTTPProtocolDelegate {
-    func urlSession(
-        _ protocol: URLProtocol,
-        _ session: URLSession,
-        task: URLSessionTask,
-        didSendBodyData bytesSent: Int64,
-        totalBytesSent: Int64,
-        totalBytesExpectedToSend: Int64
-    ) {
-        // This is a workaround to fix the uploadProgress bug in Alamofire
-        // It will be removed in the future when Alamofire is fixed
-        // Please check the Alamofire issue for more details:
-//        Session.default.session.getAllTasks { tasks in
-//            let uploadTask = tasks.first(where: { $0.taskIdentifier == task.taskIdentifier }) ?? task
-//            Session.default.rootQueue.async {
-//                Session.default.delegate.urlSession(
-//                    session,
-//                    task: uploadTask,
-//                    didSendBodyData: bytesSent,
-//                    totalBytesSent: totalBytesSent,
-//                    totalBytesExpectedToSend: totalBytesExpectedToSend
-//                )
-//            }
-//        }
-    }
-}
+} 
