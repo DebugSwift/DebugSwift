@@ -123,6 +123,20 @@ extension UIWindow {
 
 ## Examples
 
+
+### App Custom ViewControllers in Tab Bar
+
+```swift
+DebugSwift.App.shared.customControllers = {
+    let controller1 = UITableViewController()
+    controller1.title = "Custom TableVC 1"
+
+    let controller2 = UITableViewController()
+    controller2.title = "Custom TableVC 2"
+    return [controller1, controller2]
+}
+```
+
 ### Custom Debug Actions
 
 ```swift
