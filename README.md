@@ -10,13 +10,13 @@
 | <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications |
 |---|---|
 
-![image1](https://github.com/DebugSwift/DebugSwift/assets/31082311/03d0e0d0-d2ab-4fc2-8d47-e7089fffc2f6)
-![image2](https://github.com/DebugSwift/DebugSwift/assets/31082311/994e75c9-948e-486b-9522-4e2a9779de4e)
-![image3](https://github.com/DebugSwift/DebugSwift/assets/31082311/0aebb4ce-3e0c-4eea-b2a4-4516d916228e)
-![image4](https://github.com/DebugSwift/DebugSwift/assets/31082311/fecff545-405b-493f-99f8-3ed65d453227)
-![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e558c50-6634-4e26-9788-b1b355f121f4)
-![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/d0512b4e-afbd-427f-b8e0-f125afb92416)
-![image11](https://github.com/DebugSwift/DebugSwift/assets/31082311/d5f36843-1f74-49b9-89ef-1875f5ae395b)
+<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/a569b038-9058-4260-ae7c-47f3376cf629" />
+<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/334ccefa-5951-494f-8faa-5f016d39f946" />
+<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/246cde3c-7a14-45de-ae01-e810c42d8e65" />
+<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/fadde188-dcba-46d8-9460-762f9be98bd6" />
+<img width="1970" height="1184" alt="Image" src="https://github.com/user-attachments/assets/8085e55c-a7e6-4e3b-8ceb-8fc7034480fe" />
+<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/a435a660-a4b2-4a3f-852e-a7bf0709e75e" />
+<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/15f34de1-214f-4bc3-95bc-b25efc2d383e" />
 
 ## 📋 Table of Contents
 
