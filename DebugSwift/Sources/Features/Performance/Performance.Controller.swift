@@ -250,6 +250,18 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         chartCell.chartView.measurementsLimit = performanceToolkit.measurementsLimit
         chartCell.chartView.measurementInterval = performanceToolkit.timeBetweenMeasurements
         chartCell.chartView.markedTimesInterval = performanceToolkit.controllerMarked
+        
+        // Set appropriate colors for different chart types
+        switch selectedSection {
+        case .cpu:
+            chartCell.chartView.chartColor = .systemRed
+        case .memory:
+            chartCell.chartView.chartColor = .systemOrange
+        case .fps:
+            chartCell.chartView.chartColor = .systemGreen
+        case .leaks:
+            chartCell.chartView.chartColor = .systemPurple
+        }
     }
 
     private func reuseCell(for reuseIdentifier: Identifier = .value) -> UITableViewCell {

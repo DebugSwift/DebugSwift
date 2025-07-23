@@ -11,6 +11,24 @@ extension DebugSwift {
     public enum Performance {
         public static let shared = PerformanceManager()
         
+        /// Chart configuration for performance monitoring
+        public enum Chart {
+            /// Time window in seconds for performance charts (default: 120 seconds = 2 minutes)
+            nonisolated(unsafe) public static var timeWindowSeconds: Double = 120.0
+            
+            /// Set the time window for performance charts
+            /// - Parameter seconds: Time window in seconds (e.g., 60 for 1 minute, 120 for 2 minutes, 300 for 5 minutes)
+            public static func setTimeWindow(seconds: Double) {
+                timeWindowSeconds = max(10.0, seconds) // Minimum 10 seconds
+            }
+            
+            /// Set the time window for performance charts
+            /// - Parameter minutes: Time window in minutes (e.g., 1.0 for 1 minute, 2.0 for 2 minutes)
+            public static func setTimeWindow(minutes: Double) {
+                setTimeWindow(seconds: minutes * 60.0)
+            }
+        }
+        
         public class LeakDetector {
             /**
              Triggers the callback whenever a leaked `ViewController` or `View` is detected.
