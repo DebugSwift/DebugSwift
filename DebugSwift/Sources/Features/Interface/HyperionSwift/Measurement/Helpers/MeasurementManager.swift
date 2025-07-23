@@ -336,7 +336,7 @@ class MeasurementManager {
         let shapeLayer = CAShapeLayer()
         shapeLayer.path = path.cgPath
         shapeLayer.strokeColor = styleManager.primaryColor.cgColor
-        shapeLayer.lineWidth = 2
+        shapeLayer.lineWidth = 0.8
         shapeLayer.fillColor = UIColor.clear.cgColor
 
         compareViewStyling.append(shapeLayer)

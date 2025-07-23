@@ -57,6 +57,7 @@ class MeasurementElementsFactory {
 
     // Calculate
 
+    // First Target
     func setPath(in mainView: UIView, for view: UIView, with attachedWindow: UIWindow) -> CAShapeLayer {
         let globalSelectedRect = view.superview?.convert(view.frame, to: mainView) ?? CGRect.zero
 
@@ -64,7 +65,7 @@ class MeasurementElementsFactory {
         let shape = CAShapeLayer()
         shape.bounds = mainView.bounds
         shape.position = mainView.center
-        shape.lineWidth = 3
+        shape.lineWidth = 1.5
         shape.borderColor = styleManager.primaryColor.cgColor
         shape.strokeColor = styleManager.primaryColor.cgColor
         shape.path = path.cgPath
@@ -74,6 +75,7 @@ class MeasurementElementsFactory {
         return shape
     }
 
+    // Second Target
     func setPath(in mainView: UIView, forCompare view: UIView, with attachedWindow: UIWindow) -> CAShapeLayer {
         let globalSelectedRect = view.superview?.convert(view.frame, to: mainView) ?? CGRect.zero
 
@@ -92,6 +94,7 @@ class MeasurementElementsFactory {
         return shape
     }
 
+    // Collumns lines
     func setLines(in mainView: UIView, for view: UIView, with attachedWindow: UIWindow) -> [CAShapeLayer] {
         guard let globalSelectedRect = view.superview?.convert(view.frame, to: mainView) else { return [] }
 
