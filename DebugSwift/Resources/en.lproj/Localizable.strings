@@ -10,7 +10,8 @@
 "max-cpu-usage" = "Max CPU usage";
 "memory-usage" = "Memory usage";
 "max-memory-usage" = "Max memory usage";
-"simulate-memory-warning" = "Simulate memory warning";
+"simulate-memory-warning" = "🚨 Simulate Memory Warning";
+"simulate-memory-warning-active" = "⚠️ Simulating Memory Warning...";
 "see-leaks" = "⚠️ Show Leaks";
 "current-leaks" = "All Leaks";
 "leaks" = "Leaks";

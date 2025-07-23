@@ -13,6 +13,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
     var selectedSection: PerformanceSection = .cpu
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)
+    private let memoryWarningSimulator = PerformanceMemoryWarning()
 
     enum Identifier: String {
         case segmentedControl = "SegmentedControlTableViewCell"
@@ -172,8 +173,43 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return cell
         case 2:
             let cell = reuseCell(for: .memoryWarning)
-            cell.textLabel?.text = "Simulate memory warning"
-            cell.contentView.backgroundColor = .systemBlue
+            
+            // Dynamic text based on simulation state
+            if memoryWarningSimulator.isCurrentlySimulating {
+                cell.textLabel?.text = "⚠️ Simulating Memory Warning..."
+                cell.contentView.backgroundColor = .systemOrange
+                cell.selectionStyle = .none
+            } else {
+                cell.textLabel?.text = "🚨 Simulate Memory Warning"
+                cell.contentView.backgroundColor = .systemRed
+                cell.selectionStyle = .default
+            }
+            
+            // Add subtle gradient effect
+            if cell.contentView.layer.sublayers?.first(where: { $0 is CAGradientLayer }) == nil {
+                let gradient = CAGradientLayer()
+                gradient.colors = [
+                    cell.contentView.backgroundColor?.cgColor ?? UIColor.systemRed.cgColor,
+                    cell.contentView.backgroundColor?.withAlphaComponent(0.8).cgColor ?? UIColor.systemRed.withAlphaComponent(0.8).cgColor
+                ]
+                gradient.startPoint = CGPoint(x: 0, y: 0)
+                gradient.endPoint = CGPoint(x: 1, y: 1)
+                gradient.cornerRadius = 8
+                cell.contentView.layer.insertSublayer(gradient, at: 0)
+                
+                // Update gradient frame when cell is laid out
+                DispatchQueue.main.async {
+                    gradient.frame = cell.contentView.bounds
+                }
+            }
+            
+            // Style the text
+            cell.textLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+            cell.textLabel?.textColor = .white
+            cell.contentView.layer.cornerRadius = 8
+            cell.contentView.layer.masksToBounds = true
+            cell.backgroundColor = .clear
+            
             return cell
 
         case 3:
@@ -289,8 +325,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
         switch type {
         case .memoryWarning:
-            cell?.simulateButtonTap()
-            PerformanceMemoryWarning().generate()
+            handleMemoryWarningTap(cell: cell)
         case .leak:
             // Check which leak-related option was selected
             if selectedSection == .leaks {
@@ -310,6 +345,118 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             }
         default:
             break
+        }
+    }
+
+    // MARK: - Memory Warning Handling
+    
+    private func handleMemoryWarningTap(cell: UITableViewCell?) {
+        // If already simulating, offer to stop
+        if memoryWarningSimulator.isCurrentlySimulating {
+            showStopSimulationAlert()
+            return
+        }
+        
+        // Animate button tap
+        cell?.simulateButtonTap()
+        
+        // Show confirmation alert
+        showMemoryWarningConfirmation()
+    }
+    
+    private func showMemoryWarningConfirmation() {
+        let alert = UIAlertController(
+            title: "🚨 Simulate Memory Warning",
+            message: "This will trigger a memory warning throughout your app and simulate memory pressure. This helps test how your app handles low memory conditions.\n\n⚠️ May cause temporary app slowdown.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "🚀 Simulate Now", style: .default) { [weak self] _ in
+            self?.executeMemoryWarningSimulation()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    private func showStopSimulationAlert() {
+        let alert = UIAlertController(
+            title: "Stop Memory Simulation?",
+            message: "A memory warning simulation is currently running. Do you want to stop it?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "🛑 Stop Simulation", style: .destructive) { [weak self] _ in
+            self?.memoryWarningSimulator.stopSimulation()
+            self?.tableView.reloadData() // Refresh UI state
+        })
+        
+        alert.addAction(UIAlertAction(title: "Continue", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    private func executeMemoryWarningSimulation() {
+        // Update UI immediately
+        tableView.reloadData()
+        
+        // Generate the memory warning
+        memoryWarningSimulator.generate()
+        
+        // Show success feedback
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.showSimulationStartedFeedback()
+        }
+        
+        // Auto-refresh UI after simulation completes (about 5 seconds)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) { [weak self] in
+            self?.tableView.reloadData()
+        }
+    }
+    
+    private func showSimulationStartedFeedback() {
+        // Create a subtle toast-like notification
+        let banner = UIView()
+        banner.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.9)
+        banner.layer.cornerRadius = 8
+        banner.translatesAutoresizingMaskIntoConstraints = false
+        
+        let label = UILabel()
+        label.text = "✅ Memory Warning Simulation Started"
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        banner.addSubview(label)
+        view.addSubview(banner)
+        
+        NSLayoutConstraint.activate([
+            banner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            banner.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            banner.heightAnchor.constraint(equalToConstant: 40),
+            
+            label.centerXAnchor.constraint(equalTo: banner.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: banner.centerYAnchor),
+            label.leadingAnchor.constraint(greaterThanOrEqualTo: banner.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: banner.trailingAnchor, constant: -16)
+        ])
+        
+        // Animate in
+        banner.alpha = 0
+        banner.transform = CGAffineTransform(translationX: 0, y: -20)
+        
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+            banner.alpha = 1
+            banner.transform = .identity
+        }) { _ in
+            // Animate out after 2 seconds
+            UIView.animate(withDuration: 0.3, delay: 2.0, options: .curveEaseIn, animations: {
+                banner.alpha = 0
+                banner.transform = CGAffineTransform(translationX: 0, y: -20)
+            }) { _ in
+                banner.removeFromSuperview()
+            }
         }
     }
 
