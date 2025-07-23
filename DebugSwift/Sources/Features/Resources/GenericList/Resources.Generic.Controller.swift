@@ -194,7 +194,17 @@ final class ResourcesGenericController: BaseTableController {
     
     private func updateNormalModeButtons() {
         var rightButtons = [UIBarButtonItem]()
-        var leftButtons = [UIBarButtonItem]()
+        
+        // Edit button - for multi-select mode (moved to right side)
+        if viewModel.isDeleteEnable && viewModel.numberOfItems() > 0 {
+            let editButton = UIBarButtonItem(
+                title: "Edit",
+                style: .plain,
+                target: self,
+                action: #selector(toggleEditMode)
+            )
+            rightButtons.append(editButton)
+        }
         
         // Add button - always visible if enabled (unless hidden by parent)
         if viewModel.isAddEnable && !hideNavigationAddButton {
@@ -206,17 +216,6 @@ final class ResourcesGenericController: BaseTableController {
             )
             addButton.tintColor = .systemBlue
             rightButtons.append(addButton)
-        }
-        
-        // Edit button - for multi-select mode
-        if viewModel.isDeleteEnable && viewModel.numberOfItems() > 0 {
-            let editButton = UIBarButtonItem(
-                title: "Edit",
-                style: .plain,
-                target: self,
-                action: #selector(toggleEditMode)
-            )
-            leftButtons.append(editButton)
         }
         
         // Share button
@@ -243,7 +242,8 @@ final class ResourcesGenericController: BaseTableController {
         }
         
         navigationItem.rightBarButtonItems = rightButtons
-        navigationItem.leftBarButtonItems = leftButtons
+        // Don't set left bar buttons to preserve the back button
+        navigationItem.leftBarButtonItems = []
     }
     
     private func updateEditModeButtons() {
@@ -263,8 +263,9 @@ final class ResourcesGenericController: BaseTableController {
         deleteButton.tintColor = .red
         deleteButton.isEnabled = !selectedIndexPaths.isEmpty
         
-        navigationItem.leftBarButtonItem = doneButton
-        navigationItem.rightBarButtonItem = deleteButton
+        // Move both buttons to the right side to preserve back button
+        navigationItem.rightBarButtonItems = [doneButton, deleteButton]
+        navigationItem.leftBarButtonItems = []
     }
     
     @objc private func toggleEditMode() {
