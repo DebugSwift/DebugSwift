@@ -7,7 +7,8 @@
 "max-cpu-usage" = "Uso máximo da CPU";
 "memory-usage" = "Uso de memória";
 "max-memory-usage" = "Uso máximo de memória";
-"simulate-memory-warning" = "Simular aviso de memória";
+"simulate-memory-warning" = "🚨 Simular Aviso de Memória";
+"simulate-memory-warning-active" = "⚠️ Simulando Aviso de Memória...";
 "see-leaks" = "⚠️ Ver todos os Leaks";
 "current-leaks" = "Número de Leaks";
 "leaks" = "Leaks";
