@@ -97,15 +97,12 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
         let feature = Features.allCasesWithPermissions[indexPath.row]
         let title = feature.title ?? ""
 
-        switch feature {
-        case .grid:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: .cell,
-                for: indexPath
-            )
+        switch Features.allCasesWithPermissions[indexPath.row] {
+        case .grid, .swiftUIRenderSettings:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             cell.setup(title: title)
             return cell
-        case .touches, .colorize, .animations, .darkMode, .measurement, .swiftUIRender, .swiftUIRenderPersistent:
+        case .touches, .colorize, .animations, .darkMode, .measurement:
             return toggleCell(
                 title: title,
                 index: indexPath.row,
@@ -123,6 +120,8 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
         switch Features.allCasesWithPermissions[indexPath.row] {
         case .grid:
             controller = InterfaceGridController()
+        case .swiftUIRenderSettings:
+            controller = InterfaceSwiftUIRenderController()
         default:
             break
         }
@@ -154,16 +153,6 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
                 DebugSwift.Measurement.deactivate()
             }
             
-        case .swiftUIRender:
-            UserInterfaceToolkit.shared.swiftUIRenderTrackingEnabled = isOn
-            
-        case .swiftUIRenderPersistent:
-            SwiftUIRenderTracker.shared.persistentOverlays = isOn
-            // If turning off persistent overlays, clear any existing ones
-            if !isOn {
-                SwiftUIRenderTracker.shared.clearAllPersistentOverlays()
-            }
-
         default: break
         }
     }
@@ -193,8 +182,7 @@ extension InterfaceViewController {
         case grid
         case darkMode
         case measurement
-        case swiftUIRender
-        case swiftUIRenderPersistent
+        case swiftUIRenderSettings
 
         var title: String? {
             switch self {
@@ -210,10 +198,8 @@ extension InterfaceViewController {
                 return "Dark Mode"
             case .measurement:
                 return "UI measurements"
-            case .swiftUIRender:
-                return "SwiftUI render borders"
-            case .swiftUIRenderPersistent:
-                return "Persistent render overlays"
+            case .swiftUIRenderSettings:
+                return "SwiftUI render tracking"
             }
         }
 
@@ -231,10 +217,6 @@ extension InterfaceViewController {
                 return UserInterfaceToolkit.shared.darkModeEnabled
             case .measurement:
                 return DebugSwift.Measurement.isActive
-            case .swiftUIRender:
-                return UserInterfaceToolkit.shared.swiftUIRenderTrackingEnabled
-            case .swiftUIRenderPersistent:
-                return SwiftUIRenderTracker.shared.persistentOverlays
             default:
                 return false
             }
@@ -247,7 +229,7 @@ extension InterfaceViewController {
             }
             
             if DebugSwift.App.shared.disableMethods.contains(.swiftUIRender) {
-                cases.removeAll(where: { $0 == .swiftUIRender || $0 == .swiftUIRenderPersistent })
+                cases.removeAll(where: { $0 == .swiftUIRenderSettings })
             }
 
             return cases

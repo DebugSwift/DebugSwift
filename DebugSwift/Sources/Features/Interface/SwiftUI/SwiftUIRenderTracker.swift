@@ -42,7 +42,7 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
         }
     }
     
-    /// Controls the visual overlay style for render highlights
+    /// Visual style for render highlights
     public var overlayStyle: RenderOverlayStyle = .borderWithCount
     
     /// Duration for the render highlight overlay
@@ -68,9 +68,7 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
     // MARK: - Render Overlay Styles
     
     public enum RenderOverlayStyle {
-        case flash          // Quick colored flash
         case border         // Colored border that fades
-        case pulse          // Pulsing effect
         case borderWithCount // Border with render count text
         case none           // Only logging, no visual
     }
@@ -233,54 +231,12 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
         }
         
         switch overlayStyle {
-        case .flash:
-            showFlashOverlay(on: view, identifier: identifier)
         case .border:
             showBorderOverlay(on: view, identifier: identifier)
-        case .pulse:
-            showPulseOverlay(on: view, identifier: identifier)
         case .borderWithCount:
             showBorderWithCountOverlay(on: view, viewType: viewType, renderCount: renderCount, identifier: identifier)
         case .none:
             break
-        }
-    }
-    
-    private func showFlashOverlay(on view: UIView, identifier: String) {
-        guard let window = view.window else {
-            activeOverlays.remove(identifier)
-            return
-        }
-        
-        // If persistent overlays are enabled and we already have one, skip
-        if persistentOverlays && persistentOverlayViews[identifier] != nil {
-            activeOverlays.remove(identifier)
-            return
-        }
-        
-        let viewFrame = view.convert(view.bounds, to: window)
-        let overlayView = UIView(frame: viewFrame)
-        overlayView.backgroundColor = UIColor.systemRed.withAlphaComponent(0.3)
-        overlayView.layer.cornerRadius = view.layer.cornerRadius
-        overlayView.isUserInteractionEnabled = false
-        
-        window.addSubview(overlayView)
-        
-        if persistentOverlays {
-            persistentOverlayViews[identifier] = overlayView
-            overlayViewAssociations[identifier] = WeakViewReference(view)
-            activeOverlays.remove(identifier)
-        } else {
-            UIView.animate(
-                withDuration: overlayDuration,
-                animations: {
-                    overlayView.alpha = 0
-                },
-                completion: { _ in
-                    overlayView.removeFromSuperview()
-                    self.activeOverlays.remove(identifier)
-                }
-            )
         }
     }
     
@@ -299,8 +255,8 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
         let viewFrame = view.convert(view.bounds, to: window)
         let overlayView = UIView(frame: viewFrame)
         overlayView.backgroundColor = UIColor.clear
-        overlayView.layer.borderColor = UIColor.systemBlue.cgColor
-        overlayView.layer.borderWidth = 2.0
+        overlayView.layer.borderColor = UIColor.systemOrange.cgColor
+        overlayView.layer.borderWidth = 1.0
         overlayView.layer.cornerRadius = view.layer.cornerRadius
         overlayView.isUserInteractionEnabled = false
         
@@ -319,53 +275,6 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
                 completion: { _ in
                     overlayView.removeFromSuperview()
                     self.activeOverlays.remove(identifier)
-                }
-            )
-        }
-    }
-    
-    private func showPulseOverlay(on view: UIView, identifier: String) {
-        guard let window = view.window else {
-            activeOverlays.remove(identifier)
-            return
-        }
-        
-        // If persistent overlays are enabled and we already have one, skip
-        if persistentOverlays && persistentOverlayViews[identifier] != nil {
-            activeOverlays.remove(identifier)
-            return
-        }
-        
-        let viewFrame = view.convert(view.bounds, to: window)
-        let overlayView = UIView(frame: viewFrame)
-        overlayView.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.2)
-        overlayView.layer.cornerRadius = view.layer.cornerRadius
-        overlayView.isUserInteractionEnabled = false
-        
-        window.addSubview(overlayView)
-        
-        if persistentOverlays {
-            persistentOverlayViews[identifier] = overlayView
-            overlayViewAssociations[identifier] = WeakViewReference(view)
-            activeOverlays.remove(identifier)
-        } else {
-            UIView.animate(
-                withDuration: self.overlayDuration / 2,
-                animations: {
-                    overlayView.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
-                },
-                completion: { [self] _ in
-                    UIView.animate(
-                        withDuration: self.overlayDuration / 2,
-                        animations: {
-                            overlayView.alpha = 0
-                            overlayView.transform = .identity
-                        },
-                        completion: { _ in
-                            overlayView.removeFromSuperview()
-                            self.activeOverlays.remove(identifier)
-                        }
-                    )
                 }
             )
         }
