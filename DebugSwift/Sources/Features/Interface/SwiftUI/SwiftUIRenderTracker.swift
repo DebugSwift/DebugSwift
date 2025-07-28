@@ -397,72 +397,7 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
 
 // MARK: - UIView Extensions for SwiftUI Hosting Detection
 
-extension UIView {
-    
-    /// Enables SwiftUI render tracking through method swizzling
-    static func enableSwiftUIRenderTracking() {
-        DispatchQueue.once(token: "debugswift.swiftuirendertracker.enable") {
-            // Note: We integrate with existing UIView swizzling rather than creating new swizzling
-            // The actual tracking happens in the existing layoutSubviews swizzling
-            NotificationCenter.default.addObserver(
-                forName: UserInterfaceToolkit.notification,
-                object: nil,
-                queue: .main
-            ) { _ in
-                // React to UI toolkit state changes
-            }
-        }
-    }
-    
-    /// Call this from existing layoutSubviews swizzling to check for SwiftUI renders
-    func checkForSwiftUIRender() {
-        // Check if this is a SwiftUI-related view
-        if isSwiftUIHostingView {
-            let viewType = detectSwiftUIViewType()
-            SwiftUIRenderTracker.shared.trackRender(for: self, viewType: viewType)
-        }
-    }
-    
-    /// Detects if this view is part of SwiftUI's hosting infrastructure
-    private var isSwiftUIHostingView: Bool {
-        let className = NSStringFromClass(type(of: self))
-        
-        // Check for known SwiftUI hosting classes
-        return className.contains("UIHosting") ||
-               className.contains("SwiftUI") ||
-               className.contains("_UIHosting") ||
-               className.contains("_SwiftUI") ||
-               className.hasPrefix("SwiftUI.") ||
-               className.contains("ViewHost") ||
-               className.contains("PlatformView") ||
-               // Additional SwiftUI internal classes
-               className.contains("DisplayList") ||
-               className.contains("ViewGraph") ||
-               className.contains("ModifiedContent")
-    }
-    
-    /// Attempts to detect the specific SwiftUI view type
-    private func detectSwiftUIViewType() -> String {
-        let className = NSStringFromClass(type(of: self))
-        
-        // Extract meaningful SwiftUI view type
-        if className.contains("UIHostingView") {
-            return "UIHostingView"
-        } else if className.contains("UIHostingController") {
-            return "UIHostingController"
-        } else if className.contains("PlatformView") {
-            return "PlatformView"
-        } else if className.contains("ViewHost") {
-            return "ViewHost"
-        } else if className.contains("SwiftUI") {
-            // Try to extract the actual SwiftUI view name
-            let components = className.components(separatedBy: ".")
-            return components.last?.replacingOccurrences(of: "Host", with: "") ?? "SwiftUIView"
-        } else {
-            return className
-        }
-    }
-}
+
 
 // MARK: - Notification Names
 
