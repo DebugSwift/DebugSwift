@@ -230,6 +230,7 @@ extension UIView {
     
     // MARK: - SwiftUI Detection & Tracking
     
+    @MainActor
     func checkForSwiftUIRender() {
         guard isSwiftUIHostingView else { return }
         
@@ -273,6 +274,7 @@ extension UIView {
     
     // MARK: - Render Tracking Implementation
     
+    @MainActor
     private func trackSwiftUIRender(viewType: String) {
         let identifier = "\(viewType)_\(ObjectIdentifier(self))"
         let currentCount = getRenderCount(for: identifier) + 1
@@ -335,7 +337,7 @@ extension UIView {
     private static func setActiveOverlays(_ overlays: Set<String>) {
         objc_setAssociatedObject(UIView.self, &activeOverlaysKey, overlays, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
-    
+
     static func clearAllPersistentOverlays() {
         let persistentOverlays = getPersistentOverlays()
         for (_, overlayView) in persistentOverlays {
@@ -352,6 +354,7 @@ extension UIView {
     
     // MARK: - Visual Overlays
     
+    @MainActor
     private func showBorderOverlay(viewType: String, renderCount: Int, identifier: String) {
         guard let window = self.window else { return }
         
@@ -363,8 +366,8 @@ extension UIView {
         
         // If persistent overlays are enabled, check for existing overlay
         if Self.persistentOverlaysEnabled {
-            var persistentOverlays = Self.getPersistentOverlays()
-            if let existingOverlay = persistentOverlays[identifier] {
+            let persistentOverlays = Self.getPersistentOverlays()
+            if persistentOverlays[identifier] != nil {
                 // Just update the existing overlay (no count to update for plain border)
                 activeOverlays.remove(identifier)
                 Self.setActiveOverlays(activeOverlays)
@@ -402,6 +405,7 @@ extension UIView {
         }
     }
     
+    @MainActor
     private func showBorderWithCountOverlay(viewType: String, renderCount: Int, identifier: String) {
         guard let window = self.window else { return }
         
@@ -455,6 +459,7 @@ extension UIView {
     
     // MARK: - Overlay Creation Helpers
     
+    @MainActor
     private func createBorderOverlay(frame: CGRect) -> UIView {
         let overlayView = UIView(frame: frame)
         overlayView.backgroundColor = UIColor.clear
@@ -465,6 +470,7 @@ extension UIView {
         return overlayView
     }
     
+    @MainActor
     private func createBorderWithCountOverlay(frame: CGRect, count: Int) -> UIView {
         let overlayView = createBorderOverlay(frame: frame)
         
@@ -493,6 +499,7 @@ extension UIView {
         return overlayView
     }
     
+    @MainActor
     private func updateCountLabel(in overlayView: UIView, count: Int) {
         if let countLabel = overlayView.viewWithTag(999) as? UILabel {
             countLabel.text = "\(count)"

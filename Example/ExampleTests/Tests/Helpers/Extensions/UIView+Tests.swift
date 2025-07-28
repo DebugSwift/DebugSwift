@@ -147,6 +147,7 @@ final class UIViewTests: XCTestCase {
         UIView.disableSwiftUIRenderTracking()
     }
     
+    @MainActor
     func testClearAllPersistentOverlays() {
         // Given
         UIView.setPersistentOverlays(true)

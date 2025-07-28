@@ -10,6 +10,7 @@ import XCTest
 
 final class DebugSwiftSwiftUIRenderTests: XCTestCase {
     
+    @MainActor
     override func setUp() {
         super.setUp()
         // Reset to default state
@@ -22,6 +23,7 @@ final class DebugSwiftSwiftUIRenderTests: XCTestCase {
         UIView.clearAllPersistentOverlays()
     }
     
+    @MainActor
     override func tearDown() {
         // Clean up after tests
         UIView.disableSwiftUIRenderTracking()
@@ -184,6 +186,7 @@ final class DebugSwiftSwiftUIRenderTests: XCTestCase {
     
     // MARK: - Persistent Overlays Management Tests
     
+    @MainActor
     func testClearPersistentOverlays() {
         // Given & When & Then - should not crash
         UIView.clearAllPersistentOverlays()

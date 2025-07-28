@@ -49,7 +49,7 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
     public var overlayDuration: TimeInterval = 1
     
     /// Controls logging of render events
-    public var loggingEnabled: Bool = true
+    public var loggingEnabled: Bool = false
     
     /// When true, overlays will persist and not fade out automatically
     public var persistentOverlays: Bool = false {
