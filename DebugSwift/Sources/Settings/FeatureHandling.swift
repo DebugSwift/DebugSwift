@@ -65,6 +65,10 @@ enum FeatureHandling {
         if !methodsToDisable.contains(.console) {
             enableConsole()
         }
+        
+        if !methodsToDisable.contains(.swiftUIRender) {
+            enableSwiftUIRender()
+        }
     }
 
     private static func enableNetwork() {
@@ -102,5 +106,11 @@ enum FeatureHandling {
 
     private static func enableConsole() {
         StdoutCapture.shared.startCapturing()
+    }
+    
+    private static func enableSwiftUIRender() {
+        Task {
+            UIView.enableSwiftUIRenderTracking()
+        }
     }
 }

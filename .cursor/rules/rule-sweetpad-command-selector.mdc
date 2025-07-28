@@ -1,7 +1,6 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+globs: *.swift
+alwaysApply: false
 ---
 # Rule: Sweetpad Command Selector (rule-sweetpad-command-selector)
 

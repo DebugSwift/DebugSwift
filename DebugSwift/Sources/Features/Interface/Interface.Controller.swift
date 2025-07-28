@@ -105,7 +105,7 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
             )
             cell.setup(title: title)
             return cell
-        case .touches, .colorize, .animations, .darkMode, .measurement:
+        case .touches, .colorize, .animations, .darkMode, .measurement, .swiftUIRender:
             return toggleCell(
                 title: title,
                 index: indexPath.row,
@@ -153,6 +153,9 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
             } else {
                 DebugSwift.Measurement.deactivate()
             }
+            
+        case .swiftUIRender:
+            UserInterfaceToolkit.shared.swiftUIRenderTrackingEnabled = isOn
 
         default: break
         }
@@ -183,6 +186,7 @@ extension InterfaceViewController {
         case grid
         case darkMode
         case measurement
+        case swiftUIRender
 
         var title: String? {
             switch self {
@@ -198,6 +202,8 @@ extension InterfaceViewController {
                 return "Dark Mode"
             case .measurement:
                 return "UI measurements"
+            case .swiftUIRender:
+                return "SwiftUI render borders"
             }
         }
 
@@ -215,6 +221,8 @@ extension InterfaceViewController {
                 return UserInterfaceToolkit.shared.darkModeEnabled
             case .measurement:
                 return DebugSwift.Measurement.isActive
+            case .swiftUIRender:
+                return UserInterfaceToolkit.shared.swiftUIRenderTrackingEnabled
             default:
                 return false
             }
@@ -224,6 +232,10 @@ extension InterfaceViewController {
             var cases = Features.allCases
             if DebugSwift.App.shared.disableMethods.contains(.views) {
                 cases.removeAll(where: { $0 == .colorize || $0 == .touches })
+            }
+            
+            if DebugSwift.App.shared.disableMethods.contains(.swiftUIRender) {
+                cases.removeAll(where: { $0 == .swiftUIRender })
             }
 
             return cases

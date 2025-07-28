@@ -64,6 +64,13 @@ class UserInterfaceToolkit: @unchecked Sendable {
         }
     }
     
+    var swiftUIRenderTrackingEnabled: Bool = false {
+        didSet {
+            guard oldValue != swiftUIRenderTrackingEnabled else { return }
+            SwiftUIRenderTracker.shared.isEnabled = swiftUIRenderTrackingEnabled
+        }
+    }
+    
     var selectedGridOverlayColorSchemeIndex: Int = 0 {
         didSet {
             if gridOverlayColorSchemes.indices.contains(selectedGridOverlayColorSchemeIndex) {

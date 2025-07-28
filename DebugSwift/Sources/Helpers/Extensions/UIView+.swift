@@ -115,6 +115,13 @@ extension UIView {
                 originalSelector: #selector(UIView.init(frame:)),
                 swizzledSelector: #selector(UIView.swizzledInitWithFrame(_:))
             )
+            
+            // Add layoutSubviews swizzling for SwiftUI render tracking
+            SwizzleManager.swizzle(
+                self,
+                originalSelector: #selector(UIView.layoutSubviews),
+                swizzledSelector: #selector(UIView.swizzledLayoutSubviews)
+            )
         }
     }
 
@@ -135,6 +142,14 @@ extension UIView {
     @objc private func swizzledDealloc() {
         NotificationCenter.default.removeObserver(self)
         swizzledDealloc()
+    }
+    
+    @objc private func swizzledLayoutSubviews() {
+        // Call original implementation first
+        swizzledLayoutSubviews()
+        
+        // Check for SwiftUI render tracking if enabled
+        checkForSwiftUIRender()
     }
 
     // MARK: - Colorized debug borders notifications
