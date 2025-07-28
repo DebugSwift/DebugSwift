@@ -171,15 +171,18 @@ extension UIView {
     
     /// Enable SwiftUI render tracking with method swizzling
     static func enableSwiftUIRenderTracking() {
-        guard !hasSwizzledLayoutSubviews else { return }
-        
         swiftUIRenderTrackingEnabled = true
-        hasSwizzledLayoutSubviews = true
+        
+        // Only swizzle if we haven't already done so
+        if !hasSwizzledLayoutSubviews {
+            hasSwizzledLayoutSubviews = true
+        }
     }
     
     /// Disable SwiftUI render tracking
     static func disableSwiftUIRenderTracking() {
         swiftUIRenderTrackingEnabled = false
+        persistentOverlaysEnabled = false
         clearAllPersistentOverlays()
     }
     
@@ -340,6 +343,11 @@ extension UIView {
         }
         setPersistentOverlays([:])
         setActiveOverlays(Set<String>())
+    }
+    
+    /// Clear persistent overlays (public API for tests)
+    static func clearPersistentOverlays() {
+        clearAllPersistentOverlays()
     }
     
     // MARK: - Visual Overlays
