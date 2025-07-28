@@ -81,19 +81,19 @@ final class SwiftUIRenderTrackingTests: XCTestCase {
     
     func testLoggingConfiguration() {
         // Given
-        XCTAssertFalse(UIView.isLoggingEnabled) // Default should be true
-        
-        // When
-        UIView.setLoggingEnabled(false)
-        
-        // Then
-        XCTAssertFalse(UIView.isLoggingEnabled)
+        XCTAssertFalse(UIView.isLoggingEnabled) // Default should be false
         
         // When
         UIView.setLoggingEnabled(true)
         
         // Then
         XCTAssertTrue(UIView.isLoggingEnabled)
+        
+        // When
+        UIView.setLoggingEnabled(false)
+        
+        // Then
+        XCTAssertFalse(UIView.isLoggingEnabled)
     }
     
     func testOverlayStyleConfiguration() {
