@@ -31,10 +31,26 @@ extension DebugSwift {
             set { SwiftUIRenderTracker.shared.overlayDuration = newValue }
         }
         
-        /// Enable or disable logging of render events
+        /// Enable or disable logging of render events to console
         public var loggingEnabled: Bool {
             get { SwiftUIRenderTracker.shared.loggingEnabled }
             set { SwiftUIRenderTracker.shared.loggingEnabled = newValue }
+        }
+        
+        /// When enabled, overlays will persist and not fade out automatically
+        public var persistentOverlays: Bool {
+            get { SwiftUIRenderTracker.shared.persistentOverlays }
+            set { SwiftUIRenderTracker.shared.persistentOverlays = newValue }
+        }
+        
+        /// Clear all persistent overlays from the screen
+        public func clearPersistentOverlays() {
+            SwiftUIRenderTracker.shared.clearAllPersistentOverlays()
+        }
+        
+        /// Clean up orphaned overlays whose original views are no longer visible
+        public func cleanupOrphanedOverlays() {
+            SwiftUIRenderTracker.shared.cleanupOrphanedOverlays()
         }
         
         /// Get render statistics

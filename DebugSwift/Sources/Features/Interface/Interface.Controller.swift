@@ -105,7 +105,7 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
             )
             cell.setup(title: title)
             return cell
-        case .touches, .colorize, .animations, .darkMode, .measurement, .swiftUIRender:
+        case .touches, .colorize, .animations, .darkMode, .measurement, .swiftUIRender, .swiftUIRenderPersistent:
             return toggleCell(
                 title: title,
                 index: indexPath.row,
@@ -156,6 +156,13 @@ extension InterfaceViewController: MenuSwitchTableViewCellDelegate {
             
         case .swiftUIRender:
             UserInterfaceToolkit.shared.swiftUIRenderTrackingEnabled = isOn
+            
+        case .swiftUIRenderPersistent:
+            SwiftUIRenderTracker.shared.persistentOverlays = isOn
+            // If turning off persistent overlays, clear any existing ones
+            if !isOn {
+                SwiftUIRenderTracker.shared.clearAllPersistentOverlays()
+            }
 
         default: break
         }
@@ -187,6 +194,7 @@ extension InterfaceViewController {
         case darkMode
         case measurement
         case swiftUIRender
+        case swiftUIRenderPersistent
 
         var title: String? {
             switch self {
@@ -204,6 +212,8 @@ extension InterfaceViewController {
                 return "UI measurements"
             case .swiftUIRender:
                 return "SwiftUI render borders"
+            case .swiftUIRenderPersistent:
+                return "Persistent render overlays"
             }
         }
 
@@ -223,6 +233,8 @@ extension InterfaceViewController {
                 return DebugSwift.Measurement.isActive
             case .swiftUIRender:
                 return UserInterfaceToolkit.shared.swiftUIRenderTrackingEnabled
+            case .swiftUIRenderPersistent:
+                return SwiftUIRenderTracker.shared.persistentOverlays
             default:
                 return false
             }
@@ -235,7 +247,7 @@ extension InterfaceViewController {
             }
             
             if DebugSwift.App.shared.disableMethods.contains(.swiftUIRender) {
-                cases.removeAll(where: { $0 == .swiftUIRender })
+                cases.removeAll(where: { $0 == .swiftUIRender || $0 == .swiftUIRenderPersistent })
             }
 
             return cases
