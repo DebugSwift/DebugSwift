@@ -58,6 +58,7 @@
 - **Touch Indicators:** Visual feedback for touch interactions
 - **Animation Control:** Slow down animations for easier debugging
 - **View Borders:** Highlight view boundaries with colorization
+- **SwiftUI Render Tracking:** Automatically detect and visualize SwiftUI view re-renders with dedicated settings screen
 
 ### 📁 Resources
 - **File Browser:** Navigate app sandbox and shared app group containers
@@ -220,6 +221,31 @@ DebugSwift.PushNotification.simulate(
     title: "Test Notification",
     body: "This is a test notification"
 )
+```
+
+### SwiftUI Render Tracking
+
+```swift
+// Enable SwiftUI render tracking
+DebugSwift.SwiftUIRender.shared.isEnabled = true
+
+// Configure persistent overlays (stay visible until manually cleared)
+DebugSwift.SwiftUIRender.shared.persistentOverlays = true
+
+// Set overlay style (border, borderWithCount, none)
+DebugSwift.SwiftUIRender.shared.overlayStyle = .borderWithCount
+
+// Configure overlay duration
+DebugSwift.SwiftUIRender.shared.overlayDuration = 1.0
+
+// Enable console logging
+DebugSwift.SwiftUIRender.shared.loggingEnabled = true
+
+// Clear render statistics
+DebugSwift.SwiftUIRender.shared.clearStats()
+
+// Clear persistent overlays
+DebugSwift.SwiftUIRender.shared.clearPersistentOverlays()
 ```
 
 ---
