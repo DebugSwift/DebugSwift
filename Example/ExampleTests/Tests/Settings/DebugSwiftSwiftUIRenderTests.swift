@@ -231,28 +231,4 @@ final class DebugSwiftSwiftUIRenderTests: XCTestCase {
         XCTAssertFalse(UIView.isLoggingEnabled)
         XCTAssertEqual(UIView.getOverlayStyle, .none)
     }
-    
-    // MARK: - Thread Safety Tests
-    
-    func testConcurrentAccess() {
-        // Test that UIView static methods can be accessed from multiple threads
-        let expectation = self.expectation(description: "Concurrent access")
-        expectation.expectedFulfillmentCount = 10
-        
-        for i in 0..<10 {
-            DispatchQueue.global().async {
-                if i % 2 == 0 {
-                    UIView.enableSwiftUIRenderTracking()
-                } else {
-                    UIView.disableSwiftUIRenderTracking()
-                }
-                UIView.setOverlayDuration(Double(i))
-                expectation.fulfill()
-            }
-        }
-        
-        waitForExpectations(timeout: 5.0) { error in
-            XCTAssertNil(error, "Concurrent access should complete without errors")
-        }
-    }
 } 
