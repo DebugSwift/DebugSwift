@@ -9,10 +9,11 @@ import Foundation
 
 class ConsoleOutput: @unchecked Sendable {
     
-    private init() {}
     static let shared = ConsoleOutput()
-    let lock = NSLock()
+    
+    private init() {}
 
+    private let lock = NSLock()
     private var printAndNSLogOutput = [String]()
     private var errorOutput = [String]()
 

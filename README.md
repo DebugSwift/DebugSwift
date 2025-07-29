@@ -124,6 +124,25 @@ extension UIWindow {
 
 ## Examples
 
+### Enhanced Hierarchy Tree for Deeper Application Insights (Beta)
+Harness the Power of Visual Information within the iOS Hierarchy Tree to Uncover Intricate Layouts and Element Relationships in Your Application.
+
+#### How to Use
+Simply press and hold the circle button to reveal the Snapshot and Hierarchy for a comprehensive overview.
+
+#### Results:
+![image8](https://github.com/DebugSwift/DebugSwift/assets/31082311/fdc117a2-e9f9-4246-9e9e-fcae818b7ea1)
+
+#### Explore Additional Details
+
+Enhance your understanding by pressing and holding on a specific view to reveal information such as:
+- Class
+- Subviews
+- Background Color
+- Specific attributes based on the type (e.g., UILabel: Text, Font, and TextColor).
+
+#### Results:
+![image10](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e9c3a8b-3d26-4b7c-b671-1894cb32e562)
 
 ### App Custom ViewControllers in Tab Bar
 
@@ -155,6 +174,27 @@ DebugSwift.App.shared.customAction = {
     ]
 }
 ```
+
+#### Results:
+![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/f9c23835-e17e-49a8-b971-4b9880403b15)
+
+### App Custom Data
+
+```swift
+DebugSwift.App.shared.customInfo = {
+    [
+        .init(
+            title: "Info 1",
+            infos: [
+                .init(title: "title 1", subtitle: "title 2")
+            ]
+        )
+    ]
+}
+```
+
+#### Results:
+![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/2a38e758-1418-4f14-805f-432d124ad071)
 
 ### APNS Token Integration
 
@@ -293,3 +333,10 @@ Contributions are welcome! If you have suggestions, improvements, or bug fixes, 
 ## License
 
 DebugSwift is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## References
+
+- [InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger) 
+- [CocoaDebug](https://github.com/CocoaDebug/CocoaDebug) 
+- [DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)
+- [LeakedViewControllerDetector](https://github.com/Janneman84/LeakedViewControllerDetector)
