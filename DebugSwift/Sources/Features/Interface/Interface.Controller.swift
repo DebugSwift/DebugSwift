@@ -231,6 +231,11 @@ extension InterfaceViewController {
             if DebugSwift.App.shared.disableMethods.contains(.swiftUIRender) {
                 cases.removeAll(where: { $0 == .swiftUIRenderSettings })
             }
+            
+            // Hide SwiftUI render tracking if beta features are not enabled
+            if !FeatureHandling.enabledBetaFeatures.contains(.swiftUIRenderTracking) {
+                cases.removeAll(where: { $0 == .swiftUIRenderSettings })
+            }
 
             return cases
         }

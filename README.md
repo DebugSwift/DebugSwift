@@ -58,7 +58,7 @@
 - **Touch Indicators:** Visual feedback for touch interactions
 - **Animation Control:** Slow down animations for easier debugging
 - **View Borders:** Highlight view boundaries with colorization
-- **SwiftUI Render Tracking:** Automatically detect and visualize SwiftUI view re-renders with dedicated settings screen
+- **SwiftUI Render Tracking (Beta):** Automatically detect and visualize SwiftUI view re-renders with dedicated settings screen
 
 ### 📁 Resources
 - **File Browser:** Navigate app sandbox and shared app group containers
@@ -192,6 +192,15 @@ debugSwift.setup(
 )
 ```
 
+### Beta Features
+
+```swift
+// Enable beta features (disabled by default)
+debugSwift.setup(
+    enableBetaFeatures: [.swiftUIRenderTracking] // Enable experimental SwiftUI render tracking
+)
+```
+
 ### App Group Configuration
 
 ```swift
@@ -223,10 +232,15 @@ DebugSwift.PushNotification.simulate(
 )
 ```
 
-### SwiftUI Render Tracking
+### SwiftUI Render Tracking (Beta)
+
+⚠️ **Beta Feature**: SwiftUI render tracking is experimental and must be enabled explicitly.
 
 ```swift
-// Enable SwiftUI render tracking
+// First enable the beta feature in setup
+debugSwift.setup(enableBetaFeatures: [.swiftUIRenderTracking])
+
+// Then enable SwiftUI render tracking
 DebugSwift.SwiftUIRender.shared.isEnabled = true
 
 // Configure persistent overlays (stay visible until manually cleared)

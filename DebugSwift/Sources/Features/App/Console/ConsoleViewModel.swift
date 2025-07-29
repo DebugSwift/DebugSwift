@@ -8,7 +8,7 @@
 import Foundation
 
 final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
-    private var data: [String] { ConsoleOutput.shared.printAndNSLogOutput }
+    private var data: [String] { ConsoleOutput.shared.getPrintAndNSLogOutput() }
 
     private var filteredInfo = [String]()
 
@@ -39,9 +39,9 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
     func handleDeleteItemAction(atIndex index: Int) {
         if isSearchActived {
             let info = filteredInfo.remove(at: index)
-            ConsoleOutput.shared.printAndNSLogOutput.removeAll(where: { $0 == info })
+            ConsoleOutput.shared.removeAllPrintAndNSLogOutput(info)
         } else {
-            ConsoleOutput.shared.printAndNSLogOutput.remove(at: index)
+            ConsoleOutput.shared.removePrintAndNSLogOutput(at: index)
         }
     }
 
