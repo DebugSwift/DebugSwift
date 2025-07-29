@@ -32,6 +32,17 @@ class FeatureBaseTests: XCTestCase {
         XCTAssertEqual(allCases, expectedCases, "DebugSwiftSwizzleFeature.allCases should return all defined cases")
     }
 
+    func testDebugSwiftBetaFeature_allCases() {
+        // Given
+        let expectedCases: [DebugSwiftBetaFeature] = [.swiftUIRenderTracking]
+
+        // When
+        let allCases = DebugSwiftBetaFeature.allCases
+
+        // Then
+        XCTAssertEqual(allCases, expectedCases, "DebugSwiftBetaFeature.allCases should return all defined cases")
+    }
+
     func testDebugSwiftFeatures_deprecated() {
         // Given
         let expectedType: DebugSwiftFeature.Type = DebugSwiftFeature.self

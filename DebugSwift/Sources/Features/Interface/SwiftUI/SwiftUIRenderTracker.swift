@@ -1,12 +1,10 @@
 //
 //  SwiftUIRenderTracker.swift
-//  DebugSwift
-//
-//  Created by DebugSwift on 2025/01/27.
+//  Copyright © 2025 DoorDash. All rights reserved.
 //
 
-import UIKit
 import SwiftUI
+import UIKit
 
 /// Weak reference to track original views for overlay cleanup
 private class WeakViewReference {
@@ -49,7 +47,10 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
     public var overlayDuration: TimeInterval = 1
     
     /// Controls logging of render events
-    public var loggingEnabled: Bool = false
+    public var loggingEnabled: Bool = true
+    
+    /// When enabled, uses SwiftUI's _printChanges for detailed render reasons
+    public var printChangesEnabled: Bool = false
     
     /// When true, overlays will persist and not fade out automatically
     public var persistentOverlays: Bool = false {
@@ -68,9 +69,9 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
     // MARK: - Render Overlay Styles
     
     public enum RenderOverlayStyle {
-        case border         // Colored border that fades
+        case border // Colored border that fades
         case borderWithCount // Border with render count text
-        case none           // Only logging, no visual
+        case none // Only logging, no visual
     }
     
     // MARK: - Notifications
@@ -92,7 +93,7 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
             "totalViews": renderCounts.count,
             "totalRenders": renderCounts.values.reduce(0, +),
             "renderCounts": renderCounts,
-            "lastRenderTimes": lastRenderTimes
+            "lastRenderTimes": lastRenderTimes,
         ]
     }
     
@@ -157,10 +158,9 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
         // Only update if the frame has changed significantly (avoid micro-adjustments)
         let currentFrame = overlayView.frame
         if abs(newFrame.origin.x - currentFrame.origin.x) > 1 ||
-           abs(newFrame.origin.y - currentFrame.origin.y) > 1 ||
-           abs(newFrame.size.width - currentFrame.size.width) > 1 ||
-           abs(newFrame.size.height - currentFrame.size.height) > 1 {
-            
+            abs(newFrame.origin.y - currentFrame.origin.y) > 1 ||
+            abs(newFrame.size.width - currentFrame.size.width) > 1 ||
+            abs(newFrame.size.height - currentFrame.size.height) > 1 {
             overlayView.frame = newFrame
             
             // Update count label position as well
@@ -199,7 +199,7 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
         // Log render event
         if loggingEnabled {
             let renderCount = renderCounts[identifier] ?? 0
-            Debug.print("🎨 SwiftUI Render: \(viewType) - Render #\(renderCount)")
+            print("🎨 SwiftUI Render: \(viewType) - Render #\(renderCount)")
         }
         
         // Show visual overlay (with protection against loops)
@@ -211,7 +211,7 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
             object: [
                 "view": view,
                 "viewType": viewType,
-                "renderCount": renderCounts[identifier] ?? 0
+                "renderCount": renderCounts[identifier] ?? 0,
             ]
         )
     }
@@ -247,7 +247,7 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
         }
         
         // If persistent overlays are enabled and we already have one, skip
-        if persistentOverlays && persistentOverlayViews[identifier] != nil {
+        if persistentOverlays, persistentOverlayViews[identifier] != nil {
             activeOverlays.remove(identifier)
             return
         }
@@ -397,10 +397,226 @@ public class SwiftUIRenderTracker: @unchecked Sendable {
 
 // MARK: - UIView Extensions for SwiftUI Hosting Detection
 
-
+extension UIView {
+    // MARK: - SwiftUI Render Tracking
+    
+    private static var swiftUIRenderTrackingEnabled: Bool = false
+    private static var hasSwizzledLayoutSubviews: Bool = false
+    
+    /// Enable SwiftUI render tracking with method swizzling
+    public static func enableSwiftUIRenderTracking() {
+        guard !hasSwizzledLayoutSubviews else { return }
+        
+        swizzleLayoutSubviews()
+        swiftUIRenderTrackingEnabled = true
+        hasSwizzledLayoutSubviews = true
+    }
+    
+    /// Disable SwiftUI render tracking
+    public static func disableSwiftUIRenderTracking() {
+        swiftUIRenderTrackingEnabled = false
+    }
+    
+    /// Check if SwiftUI render tracking is enabled
+    public static var isSwiftUIRenderTrackingEnabled: Bool {
+        return swiftUIRenderTrackingEnabled
+    }
+    
+    // MARK: - Method Swizzling
+    
+    private static func swizzleLayoutSubviews() {
+        let originalSelector = #selector(UIView.layoutSubviews)
+        let swizzledSelector = #selector(UIView.swizzled_layoutSubviews)
+        
+        guard let originalMethod = class_getInstanceMethod(UIView.self, originalSelector),
+              let swizzledMethod = class_getInstanceMethod(UIView.self, swizzledSelector) else {
+            print("⚠️ Failed to get methods for SwiftUI render tracking swizzling")
+            return
+        }
+        
+        let didAddMethod = class_addMethod(
+            UIView.self,
+            originalSelector,
+            method_getImplementation(swizzledMethod),
+            method_getTypeEncoding(swizzledMethod)
+        )
+        
+        if didAddMethod {
+            class_replaceMethod(
+                UIView.self,
+                swizzledSelector,
+                method_getImplementation(originalMethod),
+                method_getTypeEncoding(originalMethod)
+            )
+        } else {
+            method_exchangeImplementations(originalMethod, swizzledMethod)
+        }
+    }
+    
+    @objc private func swizzled_layoutSubviews() {
+        // Call original implementation
+        swizzled_layoutSubviews()
+        
+        // Check for SwiftUI renders if tracking is enabled
+        if Self.swiftUIRenderTrackingEnabled {
+            checkForSwiftUIRender()
+        }
+    }
+    
+    // MARK: - SwiftUI Detection & Tracking
+    
+    /// Call this from existing layoutSubviews swizzling to check for SwiftUI renders
+    func checkForSwiftUIRender() {
+        // Only proceed if this is a SwiftUI-related view
+        guard isSwiftUIHostingView else { return }
+        
+        let viewType = detectSwiftUIViewType()
+        
+        // Track the render - you'll need to implement SwiftUIRenderTracker separately
+        // For now, we'll just log it
+        trackSwiftUIRender(viewType: viewType)
+    }
+    
+    /// Detects if this view is part of SwiftUI's hosting infrastructure
+    private var isSwiftUIHostingView: Bool {
+        let className = NSStringFromClass(type(of: self))
+        
+        // Check for known SwiftUI hosting classes
+        return className.contains("UIHosting") ||
+            className.contains("SwiftUI") ||
+            className.contains("_UIHosting") ||
+            className.contains("_SwiftUI") ||
+            className.hasPrefix("SwiftUI.") ||
+            className.contains("ViewHost") ||
+            className.contains("PlatformView") ||
+            // Additional SwiftUI internal classes
+            className.contains("DisplayList") ||
+            className.contains("ViewGraph") ||
+            className.contains("ModifiedContent")
+    }
+    
+    /// Attempts to detect the specific SwiftUI view type
+    private func detectSwiftUIViewType() -> String {
+        let className = NSStringFromClass(type(of: self))
+        
+        // Extract meaningful SwiftUI view type
+        if className.contains("UIHostingView") {
+            return "UIHostingView"
+        } else if className.contains("UIHostingController") {
+            return "UIHostingController"
+        } else if className.contains("PlatformView") {
+            return "PlatformView"
+        } else if className.contains("ViewHost") {
+            return "ViewHost"
+        } else if className.contains("SwiftUI") {
+            // Try to extract the actual SwiftUI view name
+            let components = className.components(separatedBy: ".")
+            return components.last?.replacingOccurrences(of: "Host", with: "") ?? "SwiftUIView"
+        } else {
+            return className
+        }
+    }
+    
+    // MARK: - Render Tracking Implementation
+    
+    private func trackSwiftUIRender(viewType: String) {
+        // Delegate to the shared SwiftUIRenderTracker instance
+        SwiftUIRenderTracker.shared.trackRender(for: self, viewType: viewType)
+    }
+    
+    /// Clear all render statistics - delegates to shared tracker
+    static func clearSwiftUIRenderStats() {
+        SwiftUIRenderTracker.shared.clearStats()
+    }
+}
 
 // MARK: - Notification Names
 
 extension Notification.Name {
     static let swiftUIViewDidRender = Notification.Name("SwiftUIViewDidRender")
+}
+
+// MARK: - SwiftUI _printChanges Integration
+
+public struct RenderTrackingModifier: ViewModifier {
+    let viewName: String
+    
+    public func body(content: Content) -> some View {
+        let tracker = SwiftUIRenderTracker.shared
+        
+        return content
+            .onChange(of: tracker.isEnabled) { _ in
+                // Force a render when tracking state changes
+            }
+            .background(
+                // This invisible view will re-render whenever the parent does
+                RenderDetectionView(viewName: viewName)
+                    .frame(width: 0, height: 0)
+                    .hidden()
+            )
+    }
+}
+
+private struct RenderDetectionView: View {
+    let viewName: String
+    @State private var renderCount = 0
+    
+    var body: some View {
+        let tracker = SwiftUIRenderTracker.shared
+        
+        if tracker.isEnabled {
+            renderCount += 1
+            
+            if tracker.printChangesEnabled {
+                // Use SwiftUI's _printChanges for detailed render information
+                if #available(iOS 15.0, *) {
+                    let _ = Self._printChanges()
+                } else {
+                    // Fallback on earlier versions
+                }
+            }
+            
+            if tracker.loggingEnabled {
+                print("🎨 SwiftUI Render: \(viewName) - Render #\(renderCount)")
+            }
+            
+            // Post notification for external observers
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(
+                    name: .swiftUIViewDidRender,
+                    object: [
+                        "viewName": viewName,
+                        "renderCount": renderCount,
+                        "timestamp": Date(),
+                    ]
+                )
+            }
+        }
+        
+        return Rectangle()
+            .fill(Color.clear)
+    }
+}
+
+// MARK: - SwiftUI View Extension
+
+public extension View {
+    /// Adds render tracking to a SwiftUI view using _printChanges
+    /// - Parameter viewName: Custom name for the view (defaults to type name)
+    func trackRenders(as viewName: String? = nil) -> some View {
+        let name = viewName ?? String(describing: type(of: self))
+        return modifier(RenderTrackingModifier(viewName: name))
+    }
+    
+    /// Convenience method to enable _printChanges on a view
+    func printChanges(_ enabled: Bool = true) -> some View {
+        if enabled, SwiftUIRenderTracker.shared.isEnabled, SwiftUIRenderTracker.shared.printChangesEnabled {
+            if #available(iOS 15.0, *) {
+                let _ = Self._printChanges()
+            } else {
+                // Fallback on earlier versions
+            }
+        }
+        return self
+    }
 }

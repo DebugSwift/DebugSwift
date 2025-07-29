@@ -83,7 +83,7 @@ private func appendConsoleOutputSafelyGlobal(_ output: String) {
     guard !shouldIgnoreLogGlobal(output), shouldIncludeLogGlobal(output) else { return }
 
     // Direct append without additional async to prevent delays
-    ConsoleOutput.shared.printAndNSLogOutput.append(output)
+    ConsoleOutput.shared.addPrintAndNSLogOutput(output)
 }
 
 private func shouldIgnoreLogGlobal(_ log: String) -> Bool {

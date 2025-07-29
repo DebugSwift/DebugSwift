@@ -15,9 +15,10 @@ public class DebugSwift {
     @MainActor
     public func setup(
         hideFeatures features: [DebugSwiftFeature] = [],
-        disable methods: [DebugSwiftSwizzleFeature] = []
+        disable methods: [DebugSwiftSwizzleFeature] = [],
+        enableBetaFeatures betaFeatures: [DebugSwiftBetaFeature] = []
     ) -> Self {
-        FeatureHandling.setup(hide: features, disable: methods)
+        FeatureHandling.setup(hide: features, disable: methods, enableBeta: betaFeatures)
         LaunchTimeTracker.shared.measureAppStartUpTime()
 
         return self

@@ -41,7 +41,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         print("Hey, DebugSwift is running! 🎉")
         
         debugSwift
-            .setup()
+            .setup(enableBetaFeatures: [.swiftUIRenderTracking])
             .show()
 
         // To fix Alamofire `uploadProgress`

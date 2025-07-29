@@ -120,9 +120,9 @@ class StderrCapture: @unchecked Sendable {
         if string.contains("OSLOG"),
            let message = string.split(separator: "\t").last {
             let message = String(message).trimmingCharacters(in: .whitespacesAndNewlines)
-            ConsoleOutput.shared.printAndNSLogOutput.append("\(message)")
+            ConsoleOutput.shared.addPrintAndNSLogOutput("\(message)")
         } else {
-            ConsoleOutput.shared.errorOutput.append(string)
+            ConsoleOutput.shared.addErrorOutput(string)
 
             if string.contains("]") {
                 var split = string.split(separator: "]")

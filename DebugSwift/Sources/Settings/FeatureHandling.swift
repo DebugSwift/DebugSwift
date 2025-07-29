@@ -10,6 +10,7 @@ import UIKit
 
 @MainActor
 enum FeatureHandling {
+    static var enabledBetaFeatures: [DebugSwiftBetaFeature] = []
     static func setup(
         only featuresToShow: [DebugSwiftFeature] = DebugSwiftFeature.allCases
     ) {
@@ -23,8 +24,10 @@ enum FeatureHandling {
 
     static func setup(
         hide features: [DebugSwiftFeature],
-        disable methods: [DebugSwiftSwizzleFeature]
+        disable methods: [DebugSwiftSwizzleFeature],
+        enableBeta betaFeatures: [DebugSwiftBetaFeature] = []
     ) {
+        setupBetaFeatures(betaFeatures)
         setupMethods(methods)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -109,8 +112,15 @@ enum FeatureHandling {
     }
     
     private static func enableSwiftUIRender() {
+        // Only enable if beta features include SwiftUI render tracking
+        guard enabledBetaFeatures.contains(.swiftUIRenderTracking) else { return }
+        
         Task {
             UIView.enableSwiftUIRenderTracking()
         }
+    }
+    
+    private static func setupBetaFeatures(_ betaFeatures: [DebugSwiftBetaFeature]) {
+        enabledBetaFeatures = betaFeatures
     }
 }
