@@ -50,6 +50,42 @@ jobs:
         else
           echo "PREVIOUS_TAG=" >> $GITHUB_OUTPUT
         fi
+
+    - name: Extract version from tag
+      id: extract_version
+      run: |
+        TAG_NAME="${{ github.event.inputs.tag_name }}"
+        # Remove 'v' prefix if present
+        VERSION=$(echo "$TAG_NAME" | sed 's/^v//')
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Extracted version: $VERSION"
+
+    - name: Update podspec version
+      run: |
+        VERSION="${{ steps.extract_version.outputs.VERSION }}"
+        echo "Updating podspec version to: $VERSION"
+        
+        # Update the version in DebugSwift.podspec
+        sed -i "s/s\.version.*=.*/s.version          = '$VERSION'/" DebugSwift.podspec
+        
+        # Verify the change
+        grep "s.version" DebugSwift.podspec
+
+    - name: Commit podspec changes
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        
+        VERSION="${{ steps.extract_version.outputs.VERSION }}"
+        
+        # Check if there are changes to commit
+        if git diff --quiet DebugSwift.podspec; then
+          echo "No changes to podspec version"
+        else
+          git add DebugSwift.podspec
+          git commit -m "chore: update podspec version to $VERSION [skip ci]"
+          git push origin main
+        fi
       
     - name: Create Release
       id: create_release
@@ -62,4 +98,36 @@ jobs:
         body: |
           ${{ steps.previous_tag.outputs.PREVIOUS_TAG && format('Full changelog: [{0}...{1}](https://github.com/{2}/compare/{0}...{1})', steps.previous_tag.outputs.PREVIOUS_TAG, github.event.inputs.tag_name, github.repository) || 'Initial release' }}
         draft: false
-        prerelease: ${{ github.event.inputs.is_prerelease == 'true' }} 
+        prerelease: ${{ github.event.inputs.is_prerelease == 'true' }}
+
+    - name: Upload podspec artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifact
+        path: DebugSwift.podspec
+
+  publish_pod:
+    name: Publish pod
+    needs: 
+      - create_release
+    runs-on: macos-latest
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Delete old Podspec
+      run: |
+        if [ -e DebugSwift.podspec ]; then
+          rm DebugSwift.podspec
+        fi
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: artifact
+
+    - run: "pod trunk push DebugSwift.podspec --allow-warnings"
+      env:
+        COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+    # - run: "pod trunk me clean-sessions --all" 

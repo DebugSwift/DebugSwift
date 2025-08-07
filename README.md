@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/github/license/DebugSwift/DebugSwift?style=flat"/>
 </p>
 
-| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to simplify and enhance the debugging process for Swift-based applications |
+| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to streamline and elevate the debugging experience for Swift-based applications. Whether you are troubleshooting issues or optimizing performance, DebugSwift offers a powerful set of features to make your debugging process more efficient and effective. |
 |---|---|
 
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/a569b038-9058-4260-ae7c-47f3376cf629" />
