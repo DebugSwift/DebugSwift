@@ -96,34 +96,4 @@ jobs:
         draft: false
         prerelease: ${{ github.event.inputs.is_prerelease == 'true' }}
 
-    - name: Upload podspec artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifact
-        path: DebugSwift.podspec
-
-  publish_pod:
-    name: Publish pod
-    needs: 
-      - create_release
-    runs-on: macos-latest
-    steps:
-    
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Delete old Podspec
-      run: |
-        if [ -e DebugSwift.podspec ]; then
-          rm DebugSwift.podspec
-        fi
-
-    - name: Download Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: artifact
-
-    - run: "pod trunk push DebugSwift.podspec --allow-warnings"
-      env:
-        COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-    # - run: "pod trunk me clean-sessions --all" 
+ 

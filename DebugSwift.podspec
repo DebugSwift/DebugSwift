@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'DebugSwift'
-    s.version          = '1.7.13.1'
+    s.version          = '1.7.10'
     s.summary          = 'A robust toolkit for simplifying and enhancing the debugging process in Swift applications.'
     s.description      = <<-DESC
       DebugSwift is a comprehensive toolkit designed to streamline and elevate the debugging experience for Swift-based applications. Whether you are troubleshooting issues or optimizing performance, DebugSwift offers a powerful set of features to make your debugging process more efficient and effective.
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
     s.source           = { :git => 'https://github.com/DebugSwift/DebugSwift.git', :tag => s.version.to_s }
   
     s.ios.deployment_target = '14.0'
-    s.swift_version = '6.0'
+    s.swift_version = '5.7'
   
     s.source_files = 'DebugSwift/Sources/**/*'
     s.resource_bundles = {
