@@ -19,4 +19,8 @@ Pod::Spec.new do |s|
         'DebugSwift/Resources/*.lproj/*.strings',
       ]
     }
+    
+    s.pod_target_xcconfig = {
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+    }
   end
