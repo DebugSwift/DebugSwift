@@ -78,14 +78,10 @@ jobs:
         
         VERSION="${{ steps.extract_version.outputs.VERSION }}"
         
-        # Check if there are changes to commit
-        if git diff --quiet DebugSwift.podspec; then
-          echo "No changes to podspec version"
-        else
-          git add DebugSwift.podspec
-          git commit -m "chore: update podspec version to $VERSION [skip ci]"
-          git push origin main
-        fi
+        # For manual releases, we just update the podspec for the artifact
+        # The commit will be made separately if needed
+        echo "Podspec updated to version $VERSION for manual release"
+        echo "Skipping commit for manual release workflow"
       
     - name: Create Release
       id: create_release
