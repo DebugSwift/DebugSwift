@@ -55,7 +55,7 @@ jobs:
         echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
   tag:
-    name: Create tag
+    name: Create tag and update podspec
     needs: 
       - git_version
     runs-on: ubuntu-latest
@@ -64,6 +64,33 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Update podspec version
+      run: |
+        NEW_VERSION="${{ needs.git_version.outputs.majorMinorPatch }}"
+        echo "Updating podspec version to: $NEW_VERSION"
+        
+        # Update the version in DebugSwift.podspec
+        sed -i "s/s\.version.*=.*/s.version          = '$NEW_VERSION'/" DebugSwift.podspec
+        
+        # Verify the change
+        grep "s.version" DebugSwift.podspec
+
+    - name: Commit podspec changes
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        
+        NEW_VERSION="${{ needs.git_version.outputs.majorMinorPatch }}"
+        
+        # Check if there are changes to commit
+        if git diff --quiet DebugSwift.podspec; then
+          echo "No changes to podspec version"
+        else
+          git add DebugSwift.podspec
+          git commit -m "chore: update podspec version to $NEW_VERSION [skip ci]"
+          git push origin main
+        fi
 
     - name: Push Git Tag
       run: |
@@ -74,3 +101,5 @@ jobs:
         
         git tag $TAG_NAME
         git push origin $TAG_NAME
+
+
