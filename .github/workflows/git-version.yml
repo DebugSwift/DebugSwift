@@ -64,6 +64,8 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
 
     - name: Update podspec version
       run: |
