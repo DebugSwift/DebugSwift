@@ -123,6 +123,14 @@ extension WKWebView {
             
             const messageHandler = '__debugswift_webview_net__';
             
+            // Log navigation for debugging
+            safePostMessage({
+                type: 'navigation',
+                url: window.location.href,
+                timestamp: Date.now(),
+                userAgent: navigator.userAgent
+            });
+            
             function safePostMessage(data) {
                 try {
                     window.webkit?.messageHandlers?.[messageHandler]?.postMessage(data);
@@ -286,6 +294,60 @@ extension WKWebView {
                 return originalXHRSend.apply(this, arguments);
             };
             
+            // Monitor page visibility changes (useful for SPA navigation)
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && window.location.href) {
+                    safePostMessage({
+                        type: 'navigation',
+                        url: window.location.href,
+                        timestamp: Date.now(),
+                        userAgent: navigator.userAgent,
+                        trigger: 'visibility_change'
+                    });
+                }
+            });
+            
+            // Monitor popstate events (back/forward navigation)
+            window.addEventListener('popstate', function(event) {
+                safePostMessage({
+                    type: 'navigation',
+                    url: window.location.href,
+                    timestamp: Date.now(),
+                    userAgent: navigator.userAgent,
+                    trigger: 'popstate'
+                });
+            });
+            
+            // Monitor pushState/replaceState for SPA navigation
+            const originalPushState = history.pushState;
+            const originalReplaceState = history.replaceState;
+            
+            history.pushState = function() {
+                originalPushState.apply(this, arguments);
+                setTimeout(() => {
+                    safePostMessage({
+                        type: 'navigation',
+                        url: window.location.href,
+                        timestamp: Date.now(),
+                        userAgent: navigator.userAgent,
+                        trigger: 'pushstate'
+                    });
+                }, 0);
+            };
+            
+            history.replaceState = function() {
+                originalReplaceState.apply(this, arguments);
+                setTimeout(() => {
+                    safePostMessage({
+                        type: 'navigation',
+                        url: window.location.href,
+                        timestamp: Date.now(),
+                        userAgent: navigator.userAgent,
+                        trigger: 'replacestate'
+                    });
+                }, 0);
+            };
+            
             console.log('🌐 DebugSwift: WebView network monitoring active');
             
         })();
@@ -324,6 +386,8 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
             handleResponseReceived(data, webView: webView)
         case "request_error":
             handleRequestError(data, webView: webView)
+        case "navigation":
+            handleNavigation(data, webView: webView)
         default:
             break
         }
@@ -352,6 +416,40 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         WebViewRequestCache.shared.store(requestId: requestId, requestInfo: requestInfo)
         
         Debug.print("🌐 WebView Request: \(method) \(url)")
+    }
+    
+    private func handleNavigation(_ data: [String: Any], webView: WKWebView?) {
+        let url = data["url"] as? String ?? "unknown"
+        let userAgent = data["userAgent"] as? String ?? ""
+        
+        Debug.print("🧭 WebView Navigation: \(url)")
+        
+        // Optional: You could also create a navigation event in the network log
+        // This helps track page changes in the debug interface
+        if DebugSwift.WKWebView.shared.isEnabled {
+            let model = HttpModel()
+            model.url = URL(string: url)
+            model.method = "NAVIGATION"
+            model.statusCode = "200"
+            model.startTime = Date().formatted()
+            model.endTime = Date().formatted()
+            model.totalDuration = "0.000 (s)"
+            model.requestId = "nav_\(UUID().uuidString)"
+            
+            // Add navigation-specific headers
+            model.responseHeaderFields = [
+                "X-DebugSwift-Source": "WKWebView",
+                "X-DebugSwift-Type": "Navigation",
+                "User-Agent": userAgent
+            ]
+            
+            if HttpDatasource.shared.addHttpRequest(model) {
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("reloadHttp_DebugSwift"),
+                    object: true
+                )
+            }
+        }
     }
     
     private func handleResponseReceived(_ data: [String: Any], webView: WKWebView?) {
