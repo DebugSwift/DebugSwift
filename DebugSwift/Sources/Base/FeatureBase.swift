@@ -23,6 +23,7 @@ public enum DebugSwiftFeature: String, CaseIterable {
 public enum DebugSwiftSwizzleFeature: String, CaseIterable {
     case network
     case webSocket
+    case wkWebView
     case location
     case views
     case crashManager
