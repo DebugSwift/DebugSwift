@@ -91,7 +91,7 @@ jobs:
         else
           git add DebugSwift.podspec
           git commit -m "chore: update podspec version to $NEW_VERSION [skip ci]"
-          git push
+          git push origin main
         fi
 
     - name: Push Git Tag
