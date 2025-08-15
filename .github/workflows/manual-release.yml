@@ -50,6 +50,38 @@ jobs:
         else
           echo "PREVIOUS_TAG=" >> $GITHUB_OUTPUT
         fi
+
+    - name: Extract version from tag
+      id: extract_version
+      run: |
+        TAG_NAME="${{ github.event.inputs.tag_name }}"
+        # Remove 'v' prefix if present
+        VERSION=$(echo "$TAG_NAME" | sed 's/^v//')
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Extracted version: $VERSION"
+
+    - name: Update podspec version
+      run: |
+        VERSION="${{ steps.extract_version.outputs.VERSION }}"
+        echo "Updating podspec version to: $VERSION"
+        
+        # Update the version in DebugSwift.podspec
+        sed -i "s/s\.version.*=.*/s.version          = '$VERSION'/" DebugSwift.podspec
+        
+        # Verify the change
+        grep "s.version" DebugSwift.podspec
+
+    - name: Commit podspec changes
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        
+        VERSION="${{ steps.extract_version.outputs.VERSION }}"
+        
+        # For manual releases, we just update the podspec for the artifact
+        # The commit will be made separately if needed
+        echo "Podspec updated to version $VERSION for manual release"
+        echo "Skipping commit for manual release workflow"
       
     - name: Create Release
       id: create_release
@@ -62,4 +94,6 @@ jobs:
         body: |
           ${{ steps.previous_tag.outputs.PREVIOUS_TAG && format('Full changelog: [{0}...{1}](https://github.com/{2}/compare/{0}...{1})', steps.previous_tag.outputs.PREVIOUS_TAG, github.event.inputs.tag_name, github.repository) || 'Initial release' }}
         draft: false
-        prerelease: ${{ github.event.inputs.is_prerelease == 'true' }} 
+        prerelease: ${{ github.event.inputs.is_prerelease == 'true' }}
+
+ 
