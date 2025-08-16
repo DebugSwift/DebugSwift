@@ -13,6 +13,7 @@ enum PerformanceSection: Int {
     case memory
     case fps
     case leaks
+    case heap
 }
 
 final class PerformanceWidgetView: TopLevelViewWrapper {
