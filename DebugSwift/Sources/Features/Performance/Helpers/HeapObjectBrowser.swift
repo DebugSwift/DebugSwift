@@ -82,10 +82,10 @@ public class HeapObjectBrowser: @unchecked Sendable {
                 return []
             }
             
-            defer { free(classes) }
+            defer { free(UnsafeMutableRawPointer(classes)) }
             
             for i in 0..<Int(classCount) {
-                let cls = classes[i]
+                let cls: AnyClass = classes[i]
                 let className = String(cString: class_getName(cls))
                 
                 // Skip private system classes that might not be safe to enumerate
@@ -278,7 +278,12 @@ public class HeapObjectBrowser: @unchecked Sendable {
             let propertyName = String(cString: property_getName(property))
             
             // Get property attributes to determine type
-            let attributes = String(cString: property_getAttributes(property) ?? "")
+            let attributes: String
+            if let attributesPtr = property_getAttributes(property) {
+                attributes = String(cString: attributesPtr)
+            } else {
+                attributes = ""
+            }
             let type = parsePropertyType(from: attributes)
             
             // Try to get the value safely
@@ -321,15 +326,18 @@ public class HeapObjectBrowser: @unchecked Sendable {
     }
     
     private func getPropertyValue(object: AnyObject, propertyName: String) -> String {
-        // Safely get property value using KVC
-        do {
-            if let value = object.value(forKey: propertyName) {
-                return String(describing: value)
-            } else {
-                return "<nil>"
+        // Safely get property value using KVC - this can throw NSException which can't be caught in Swift
+        @objc class ExceptionCatcher: NSObject {
+            @objc static func getValue(from object: AnyObject, forKey key: String) -> Any? {
+                return object.value(forKey: key)
             }
-        } catch {
-            return "<inaccessible>"
+        }
+        
+        // Use a simple approach that won't throw
+        if let value = object.value(forKey: propertyName) {
+            return String(describing: value)
+        } else {
+            return "<nil>"
         }
     }
 }

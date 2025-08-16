@@ -49,7 +49,7 @@ final class HeapInstancesController: BaseController {
     init(className: String, heapBrowser: HeapObjectBrowser) {
         self.className = className
         self.heapBrowser = heapBrowser
-        super.init(nibName: nil, bundle: nil)
+        super.init()
     }
     
     required init?(coder: NSCoder) {

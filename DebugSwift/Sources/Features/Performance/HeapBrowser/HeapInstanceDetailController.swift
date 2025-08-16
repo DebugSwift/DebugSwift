@@ -39,7 +39,7 @@ final class HeapInstanceDetailController: BaseController {
     
     init(instance: HeapObjectBrowser.InstanceInfo) {
         self.instance = instance
-        super.init(nibName: nil, bundle: nil)
+        super.init()
     }
     
     required init?(coder: NSCoder) {
