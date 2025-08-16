@@ -48,6 +48,10 @@ enum FeatureHandling {
         if !methodsToDisable.contains(.webSocket) {
             enableWebSocket()
         }
+        
+        if !methodsToDisable.contains(.wkWebView) {
+            enableWKWebView()
+        }
 
         if !methodsToDisable.contains(.location) {
             enableLocation()
@@ -81,6 +85,12 @@ enum FeatureHandling {
 
     private static func enableWebSocket() {
         WebSocketMonitor.shared.enable()
+    }
+    
+    private static func enableWKWebView() {
+        Task { @MainActor in
+            WKWebViewNetworkMonitor.shared.install()
+        }
     }
 
     private static func enableCrashManager() {

@@ -12,13 +12,14 @@ import SwiftUI
 enum NetworkInspectorMode {
     case http
     case websocket
+    case webview
 }
 
 final class NetworkViewController: BaseController, MainFeatureType {
     var controllerType: DebugSwiftFeature { .network }
 
     private let segmentedControl: UISegmentedControl = {
-        let items = ["HTTP", "WebSocket"]
+        let items = ["HTTP", "WebSocket", "WebView"]
         let control = UISegmentedControl(items: items)
         control.translatesAutoresizingMaskIntoConstraints = false
         control.selectedSegmentIndex = 0
@@ -197,10 +198,10 @@ final class NetworkViewController: BaseController, MainFeatureType {
 
     func reloadHttp(needScrollToEnd: Bool = false, success: Bool = true) {
         guard viewModel.reloadDataFinish else { return }
-        guard currentMode == .http else { return }
+        guard currentMode == .http || currentMode == .webview else { return }
 
         FloatViewManager.animate(success: success)
-        viewModel.applyFilter()
+        viewModel.applyFilter(for: currentMode)
         applyAdvancedFilter()
         tableView.reloadData()
 
@@ -269,7 +270,8 @@ final class NetworkViewController: BaseController, MainFeatureType {
     }
     
     private func updateHTTPStatistics() {
-        let requests = HttpDatasource.shared.httpModels
+        // Use appropriate data based on current mode
+        let requests = currentMode == .webview ? viewModel.webViewModels : viewModel.httpModels
         
         // Total requests
         totalRequestsLabel.text = "\(requests.count)"
@@ -318,7 +320,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
     private func startStatsTimer() {
         statsUpdateTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             DispatchQueue.main.async {
-                if self?.currentMode == .http {
+                if self?.currentMode == .http || self?.currentMode == .webview {
                     self?.updateHTTPStatistics()
                 }
             }
@@ -374,9 +376,9 @@ final class NetworkViewController: BaseController, MainFeatureType {
     }
     
     private func applyAdvancedFilter() {
-        guard currentMode == .http else { return }
+        guard currentMode == .http || currentMode == .webview else { return }
         
-        viewModel.applyAdvancedFilter(currentFilter)
+        viewModel.applyAdvancedFilter(currentFilter, for: currentMode)
     }
     
     // MARK: - Segmented Control
@@ -394,7 +396,16 @@ final class NetworkViewController: BaseController, MainFeatureType {
     }
     
     @objc private func segmentedControlChanged() {
-        currentMode = segmentedControl.selectedSegmentIndex == 0 ? .http : .websocket
+        switch segmentedControl.selectedSegmentIndex {
+        case 0:
+            currentMode = .http
+        case 1:
+            currentMode = .websocket
+        case 2:
+            currentMode = .webview
+        default:
+            currentMode = .http
+        }
         updateSearchPlaceholder()
         updateVisibilityForMode()
         loadCurrentModeData()
@@ -403,8 +414,8 @@ final class NetworkViewController: BaseController, MainFeatureType {
     
     private func updateVisibilityForMode() {
         UIView.animate(withDuration: 0.3) {
-            self.httpStatsView.isHidden = self.currentMode != .http
-            self.filterButton.isHidden = self.currentMode != .http
+            self.httpStatsView.isHidden = self.currentMode != .http && self.currentMode != .webview
+            self.filterButton.isHidden = self.currentMode != .http && self.currentMode != .webview
         }
     }
     
@@ -414,6 +425,8 @@ final class NetworkViewController: BaseController, MainFeatureType {
             searchController.searchBar.placeholder = "Search requests"
         case .websocket:
             searchController.searchBar.placeholder = "Search connections"
+        case .webview:
+            searchController.searchBar.placeholder = "Search WebView requests"
         }
     }
     
@@ -422,10 +435,15 @@ final class NetworkViewController: BaseController, MainFeatureType {
     private func loadCurrentModeData() {
         switch currentMode {
         case .http:
+            viewModel.applyFilter(for: .http)
             updateHTTPStatistics()
             tableView.reloadData()
         case .websocket:
             loadWebSocketConnections()
+        case .webview:
+            viewModel.applyFilter(for: .webview)
+            updateHTTPStatistics() // WebView requests use HTTP statistics
+            tableView.reloadData()
         }
     }
     
@@ -469,7 +487,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
         var rightBarButtons: [UIBarButtonItem] = []
         
         switch currentMode {
-        case .http:
+        case .http, .webview:
             // Add threshold button
             let thresholdButton = UIBarButtonItem(
                 image: UIImage(systemName: "speedometer"),
@@ -520,9 +538,10 @@ final class NetworkViewController: BaseController, MainFeatureType {
     }
     
     @objc private func showDeleteAlert() {
+        let dataType = currentMode == .webview ? "WebView requests" : "HTTP requests"
         showAlert(
             with: "Warning",
-            title: "This action remove all data",
+            title: "This action will remove all \(dataType)",
             leftButtonTitle: "Delete",
             leftButtonStyle: .destructive,
             leftButtonHandler: { _ in
@@ -534,7 +553,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
     }
 
     private func clearAction() {
-        viewModel.handleClearAction()
+        viewModel.handleClearAction(for: currentMode)
         tableView.reloadData()
     }
 
@@ -570,9 +589,9 @@ extension NetworkViewController: UISearchResultsUpdating {
         guard let searchText = searchController.searchBar.text else { return }
         
         switch currentMode {
-        case .http:
+        case .http, .webview:
             viewModel.networkSearchWord = searchText
-            viewModel.applyFilter()
+            viewModel.applyFilter(for: currentMode)
         case .websocket:
             applyWebSocketFilter()
         }
@@ -608,7 +627,7 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         switch currentMode {
-        case .http:
+        case .http, .webview:
             return viewModel.models.count
         case .websocket:
             return filteredWebSocketConnections.count
@@ -617,7 +636,7 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch currentMode {
-        case .http:
+        case .http, .webview:
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: "NetworkCell",
                 for: indexPath
@@ -639,7 +658,7 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         
         switch currentMode {
-        case .http:
+        case .http, .webview:
             let model = viewModel.models[indexPath.row]
             let controller = NetworkViewControllerDetail(model: model)
             navigationController?.pushViewController(controller, animated: true)
@@ -660,7 +679,7 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         switch currentMode {
-        case .http:
+        case .http, .webview:
             let action = UIContextualAction(style: .normal, title: "") { [weak self] _, _, _ in
                 guard let self else { return }
 

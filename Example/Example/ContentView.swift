@@ -83,6 +83,28 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
+                NavigationLink(destination: WebViewTestView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("🌐 Google WebView")
+                            .font(.headline)
+                        Text("Test WebKit integration with controls")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                NavigationLink(destination: NavigationTestView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("🧭 Navigation Test")
+                            .font(.headline)
+                        Text("Test WebView navigation & monitoring")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+
                 Button("Show Map") {
                     presentingMap = true
                 }

@@ -138,10 +138,17 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             dataTask = nil
         }
 
-        guard NetworkHelper.shared.isNetworkEnable else {
-            return
+        Task { @MainActor in
+            guard NetworkHelper.shared.isNetworkEnable else {
+                return
+            }
+            
+            await processNetworkData()
         }
-
+    }
+    
+    @MainActor
+    private func processNetworkData() async {
         var model = HttpModel()
         model.url = request.url
         model.method = request.httpMethod
