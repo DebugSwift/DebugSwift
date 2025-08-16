@@ -123,13 +123,153 @@ extension WKWebView {
             
             const messageHandler = '__debugswift_webview_net__';
             
-            // Log navigation for debugging
-            safePostMessage({
-                type: 'navigation',
-                url: window.location.href,
-                timestamp: Date.now(),
-                userAgent: navigator.userAgent
+            // Comprehensive navigation data collection
+            function collectNavigationInfo(trigger = 'initial_load') {
+                const navData = {
+                    type: 'navigation',
+                    trigger: trigger,
+                    timestamp: Date.now(),
+                    
+                    // URL Information
+                    url: window.location.href,
+                    protocol: window.location.protocol,
+                    hostname: window.location.hostname,
+                    port: window.location.port,
+                    pathname: window.location.pathname,
+                    search: window.location.search,
+                    hash: window.location.hash,
+                    
+                    // Page Information
+                    title: document.title,
+                    referrer: document.referrer,
+                    readyState: document.readyState,
+                    
+                    // Browser Information
+                    userAgent: navigator.userAgent,
+                    language: navigator.language,
+                    platform: navigator.platform,
+                    cookieEnabled: navigator.cookieEnabled,
+                    
+                    // Viewport Information
+                    viewport: {
+                        width: window.innerWidth,
+                        height: window.innerHeight,
+                        screenWidth: window.screen?.width,
+                        screenHeight: window.screen?.height,
+                        devicePixelRatio: window.devicePixelRatio
+                    },
+                    
+                    // History Information
+                    historyLength: window.history?.length,
+                    
+                    // Performance Timing (if available)
+                    timing: getPerformanceTiming(),
+                    
+                    // Storage Information
+                    storage: getStorageInfo(),
+                    
+                    // Console Errors (recent)
+                    errors: getRecentErrors()
+                };
+                
+                safePostMessage(navData);
+            }
+            
+            // Collect detailed performance timing
+            function getPerformanceTiming() {
+                try {
+                    const perf = window.performance;
+                    if (!perf || !perf.timing) return null;
+                    
+                    const timing = perf.timing;
+                    const navigationStart = timing.navigationStart;
+                    
+                    return {
+                        // Network timing
+                        dnsLookup: timing.domainLookupEnd - timing.domainLookupStart,
+                        tcpConnection: timing.connectEnd - timing.connectStart,
+                        sslHandshake: timing.secureConnectionStart ? timing.connectEnd - timing.secureConnectionStart : 0,
+                        
+                        // Request/Response timing
+                        requestStart: timing.requestStart - navigationStart,
+                        responseStart: timing.responseStart - navigationStart,
+                        responseEnd: timing.responseEnd - navigationStart,
+                        
+                        // DOM timing
+                        domLoading: timing.domLoading - navigationStart,
+                        domInteractive: timing.domInteractive - navigationStart,
+                        domContentLoaded: timing.domContentLoadedEventEnd - navigationStart,
+                        domComplete: timing.domComplete - navigationStart,
+                        
+                        // Page load timing
+                        loadEventStart: timing.loadEventStart - navigationStart,
+                        loadEventEnd: timing.loadEventEnd - navigationStart,
+                        
+                        // Total page load time
+                        totalLoadTime: timing.loadEventEnd - navigationStart
+                    };
+                } catch (error) {
+                    return { error: error.message };
+                }
+            }
+            
+            // Get storage information
+            function getStorageInfo() {
+                try {
+                    const storage = {};
+                    
+                    // Local Storage
+                    if (window.localStorage) {
+                        storage.localStorage = {
+                            length: localStorage.length,
+                            keys: Object.keys(localStorage)
+                        };
+                    }
+                    
+                    // Session Storage  
+                    if (window.sessionStorage) {
+                        storage.sessionStorage = {
+                            length: sessionStorage.length,
+                            keys: Object.keys(sessionStorage)
+                        };
+                    }
+                    
+                    // Cookies
+                    storage.cookies = {
+                        count: document.cookie ? document.cookie.split(';').length : 0,
+                        enabled: navigator.cookieEnabled
+                    };
+                    
+                    return storage;
+                } catch (error) {
+                    return { error: error.message };
+                }
+            }
+            
+            // Track recent JavaScript errors
+            let recentErrors = [];
+            window.addEventListener('error', function(event) {
+                recentErrors.push({
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    timestamp: Date.now(),
+                    stack: event.error?.stack
+                });
+                
+                // Keep only last 10 errors
+                if (recentErrors.length > 10) {
+                    recentErrors = recentErrors.slice(-10);
+                }
             });
+            
+            function getRecentErrors() {
+                return recentErrors.slice(); // Return copy
+            }
+            
+            // Initial navigation data collection
+            collectNavigationInfo('initial_load');
             
             function safePostMessage(data) {
                 try {
@@ -297,25 +437,13 @@ extension WKWebView {
             // Monitor page visibility changes (useful for SPA navigation)
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden && window.location.href) {
-                    safePostMessage({
-                        type: 'navigation',
-                        url: window.location.href,
-                        timestamp: Date.now(),
-                        userAgent: navigator.userAgent,
-                        trigger: 'visibility_change'
-                    });
+                    collectNavigationInfo('visibility_change');
                 }
             });
             
             // Monitor popstate events (back/forward navigation)
             window.addEventListener('popstate', function(event) {
-                safePostMessage({
-                    type: 'navigation',
-                    url: window.location.href,
-                    timestamp: Date.now(),
-                    userAgent: navigator.userAgent,
-                    trigger: 'popstate'
-                });
+                collectNavigationInfo('popstate');
             });
             
             // Monitor pushState/replaceState for SPA navigation
@@ -325,28 +453,26 @@ extension WKWebView {
             history.pushState = function() {
                 originalPushState.apply(this, arguments);
                 setTimeout(() => {
-                    safePostMessage({
-                        type: 'navigation',
-                        url: window.location.href,
-                        timestamp: Date.now(),
-                        userAgent: navigator.userAgent,
-                        trigger: 'pushstate'
-                    });
+                    collectNavigationInfo('pushstate');
                 }, 0);
             };
             
             history.replaceState = function() {
                 originalReplaceState.apply(this, arguments);
                 setTimeout(() => {
-                    safePostMessage({
-                        type: 'navigation',
-                        url: window.location.href,
-                        timestamp: Date.now(),
-                        userAgent: navigator.userAgent,
-                        trigger: 'replacestate'
-                    });
+                    collectNavigationInfo('replacestate');
                 }, 0);
             };
+            
+            // Monitor DOM content loaded for additional timing data
+            document.addEventListener('DOMContentLoaded', function() {
+                collectNavigationInfo('dom_content_loaded');
+            });
+            
+            // Monitor window load for complete page timing
+            window.addEventListener('load', function() {
+                collectNavigationInfo('window_load');
+            });
             
             console.log('🌐 DebugSwift: WebView network monitoring active');
             
@@ -420,12 +546,13 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
     
     private func handleNavigation(_ data: [String: Any], webView: WKWebView?) {
         let url = data["url"] as? String ?? "unknown"
+        let trigger = data["trigger"] as? String ?? "unknown"
+        let title = data["title"] as? String ?? ""
         let userAgent = data["userAgent"] as? String ?? ""
         
-        Debug.print("🧭 WebView Navigation: \(url)")
+        Debug.print("🧭 WebView Navigation (\(trigger)): \(url)")
         
-        // Optional: You could also create a navigation event in the network log
-        // This helps track page changes in the debug interface
+        // Create comprehensive navigation event in the network log
         if DebugSwift.WKWebView.shared.isEnabled {
             let model = HttpModel()
             model.url = URL(string: url)
@@ -433,15 +560,93 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
             model.statusCode = "200"
             model.startTime = Date().formatted()
             model.endTime = Date().formatted()
-            model.totalDuration = "0.000 (s)"
+            model.totalDuration = formatNavigationTiming(data["timing"] as? [String: Any])
             model.requestId = "nav_\(UUID().uuidString)"
             
-            // Add navigation-specific headers
-            model.responseHeaderFields = [
+            // Build comprehensive navigation headers
+            var headers: [String: String] = [
                 "X-DebugSwift-Source": "WKWebView",
                 "X-DebugSwift-Type": "Navigation",
+                "X-Navigation-Trigger": trigger,
                 "User-Agent": userAgent
             ]
+            
+            // Add page information
+            if !title.isEmpty {
+                headers["X-Page-Title"] = title
+            }
+            
+            if let referrer = data["referrer"] as? String, !referrer.isEmpty {
+                headers["X-Referrer"] = referrer
+            }
+            
+            if let readyState = data["readyState"] as? String {
+                headers["X-Document-State"] = readyState
+            }
+            
+            // Add viewport information
+            if let viewport = data["viewport"] as? [String: Any] {
+                if let width = viewport["width"] as? Int,
+                   let height = viewport["height"] as? Int {
+                    headers["X-Viewport-Size"] = "\(width)x\(height)"
+                }
+                if let devicePixelRatio = viewport["devicePixelRatio"] as? Double {
+                    headers["X-Device-Pixel-Ratio"] = String(format: "%.2f", devicePixelRatio)
+                }
+            }
+            
+            // Add browser information
+            if let language = data["language"] as? String {
+                headers["X-Browser-Language"] = language
+            }
+            
+            if let platform = data["platform"] as? String {
+                headers["X-Platform"] = platform
+            }
+            
+            // Add storage information
+            if let storage = data["storage"] as? [String: Any] {
+                if let localStorage = storage["localStorage"] as? [String: Any],
+                   let localCount = localStorage["length"] as? Int {
+                    headers["X-LocalStorage-Items"] = "\(localCount)"
+                }
+                
+                if let sessionStorage = storage["sessionStorage"] as? [String: Any],
+                   let sessionCount = sessionStorage["length"] as? Int {
+                    headers["X-SessionStorage-Items"] = "\(sessionCount)"
+                }
+                
+                if let cookies = storage["cookies"] as? [String: Any],
+                   let cookieCount = cookies["count"] as? Int {
+                    headers["X-Cookie-Count"] = "\(cookieCount)"
+                }
+            }
+            
+            // Add performance timing summary
+            if let timing = data["timing"] as? [String: Any] {
+                if let totalLoadTime = timing["totalLoadTime"] as? Double, totalLoadTime > 0 {
+                    headers["X-Page-Load-Time"] = "\(Int(totalLoadTime))ms"
+                }
+                
+                if let domContentLoaded = timing["domContentLoaded"] as? Double, domContentLoaded > 0 {
+                    headers["X-DOM-Ready-Time"] = "\(Int(domContentLoaded))ms"
+                }
+            }
+            
+            // Add error information
+            if let errors = data["errors"] as? [[String: Any]], !errors.isEmpty {
+                headers["X-JavaScript-Errors"] = "\(errors.count)"
+                if let lastError = errors.last?["message"] as? String {
+                    headers["X-Last-JS-Error"] = String(lastError.prefix(100)) // Truncate for header
+                }
+            }
+            
+            model.responseHeaderFields = headers
+            
+            // Store detailed navigation data as response body for debugging
+            if let jsonData = try? JSONSerialization.data(withJSONObject: data, options: .prettyPrinted) {
+                model.responseData = jsonData
+            }
             
             if HttpDatasource.shared.addHttpRequest(model) {
                 NotificationCenter.default.post(
@@ -450,6 +655,16 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
                 )
             }
         }
+    }
+    
+    private func formatNavigationTiming(_ timing: [String: Any]?) -> String {
+        guard let timing = timing,
+              let totalLoadTime = timing["totalLoadTime"] as? Double,
+              totalLoadTime > 0 else {
+            return "0.000 (s)"
+        }
+        
+        return String(format: "%.3f (s)", totalLoadTime / 1000.0)
     }
     
     private func handleResponseReceived(_ data: [String: Any], webView: WKWebView?) {
