@@ -138,8 +138,8 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             dataTask = nil
         }
 
-        Task { @MainActor in
-            guard NetworkHelper.shared.isNetworkEnable else {
+        Task { @Sendable in
+            guard await NetworkHelper.shared.isNetworkEnable else {
                 return
             }
             
