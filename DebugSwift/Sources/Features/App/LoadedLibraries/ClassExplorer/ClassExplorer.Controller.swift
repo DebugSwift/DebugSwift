@@ -12,7 +12,7 @@ final class ClassExplorerViewController: BaseController {
     // MARK: - Properties
     
     private let libraryName: String
-    private let className: String
+    private let clazzName: String
     private let viewModel: ClassExplorerViewModel
     
     private lazy var tableView: UITableView = {
@@ -41,7 +41,7 @@ final class ClassExplorerViewController: BaseController {
     
     init(libraryName: String, className: String) {
         self.libraryName = libraryName
-        self.className = className
+        self.clazzName = className
         self.viewModel = ClassExplorerViewModel(className: className)
         super.init()
     }
@@ -57,7 +57,7 @@ final class ClassExplorerViewController: BaseController {
     // MARK: - Setup
     
     private func setup() {
-        title = className
+        title = clazzName
         
         view.addSubview(tableView)
         
