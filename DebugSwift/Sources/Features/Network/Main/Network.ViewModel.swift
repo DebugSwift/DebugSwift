@@ -73,13 +73,13 @@ final class NetworkViewModel {
             let webViewRequests = webViewModels
             HttpDatasource.shared.removeAll()
             // Re-add WebView requests
-            webViewRequests.forEach { HttpDatasource.shared.addHttpRequest($0) }
+            webViewRequests.forEach { _ = HttpDatasource.shared.addHttpRequest($0) }
         case .webview:
             // Remove only WebView requests
             let httpRequests = httpModels
             HttpDatasource.shared.removeAll()
             // Re-add HTTP requests
-            httpRequests.forEach { HttpDatasource.shared.addHttpRequest($0) }
+            httpRequests.forEach { _ = HttpDatasource.shared.addHttpRequest($0) }
         case .websocket:
             // WebSocket clearing handled elsewhere
             break
