@@ -774,24 +774,72 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
 
 // MARK: - Request Cache
 
+struct WebViewRequestInfo: Sendable {
+    let requestId: String
+    let url: String
+    let method: String
+    let startTime: Date
+    let headers: [String: String]
+    let body: String?
+    
+    init(from dictionary: [String: Any]) {
+        self.requestId = dictionary["requestId"] as? String ?? ""
+        self.url = dictionary["url"] as? String ?? ""
+        self.method = dictionary["method"] as? String ?? "GET"
+        self.startTime = dictionary["startTime"] as? Date ?? Date()
+        self.headers = dictionary["headers"] as? [String: String] ?? [:]
+        
+        // Convert body to string if needed
+        if let bodyData = dictionary["body"] {
+            if let bodyString = bodyData as? String {
+                self.body = bodyString
+            } else if let bodyDict = bodyData as? [String: Any],
+                      let data = try? JSONSerialization.data(withJSONObject: bodyDict),
+                      let jsonString = String(data: data, encoding: .utf8) {
+                self.body = jsonString
+            } else {
+                self.body = "\(bodyData)"
+            }
+        } else {
+            self.body = nil
+        }
+    }
+    
+    func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = [
+            "requestId": requestId,
+            "url": url,
+            "method": method,
+            "startTime": startTime,
+            "headers": headers
+        ]
+        
+        if let body = body {
+            dict["body"] = body
+        }
+        
+        return dict
+    }
+}
+
 final class WebViewRequestCache: @unchecked Sendable {
     static let shared = WebViewRequestCache()
     
-    private var cache: [String: [String: Any]] = [:]
+    private var cache: [String: WebViewRequestInfo] = [:]
     private let queue = DispatchQueue(label: "com.debugswift.webview.cache", attributes: .concurrent)
     
     private init() {}
     
     nonisolated func store(requestId: String, requestInfo: [String: Any]) {
-        queue.async(flags: .barrier) { [weak self, requestInfo] in
-            // Safe: We control the threading and dictionary access via barriers
-            self?.cache[requestId] = requestInfo
+        let sendableInfo = WebViewRequestInfo(from: requestInfo)
+        queue.async(flags: .barrier) { [weak self] in
+            self?.cache[requestId] = sendableInfo
         }
     }
     
     nonisolated func retrieve(requestId: String) -> [String: Any]? {
         return queue.sync { [weak self] in
-            return self?.cache[requestId]
+            return self?.cache[requestId]?.toDictionary()
         }
     }
     
