@@ -116,6 +116,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return 4
         case .leaks:
             return 2
+        case .heap:
+            return 1
         }
     }
 
@@ -129,6 +131,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return fpsStatisticsCellForRow(at: index)
         case .leaks:
             return leaksStatisticsCellForRow(at: index)
+        case .heap:
+            return heapStatisticsCellForRow(at: index)
         }
     }
 
@@ -272,6 +276,20 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return nil
         }
     }
+    
+    func heapStatisticsCellForRow(at index: Int) -> UITableViewCell? {
+        switch index {
+        case 0:
+            let cell = reuseCell(for: .leak)
+            cell.setup(
+                title: "🗄️ Browse Heap Objects",
+                image: .named("chevron.right", default: "Action")
+            )
+            return cell
+        default:
+            return nil
+        }
+    }
 
     private func configureChartCell(
         _ chartCell: MenuChartTableViewCell,
@@ -297,6 +315,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             chartCell.chartView.chartColor = .systemGreen
         case .leaks:
             chartCell.chartView.chartColor = .systemPurple
+        case .heap:
+            chartCell.chartView.chartColor = .systemTeal
         }
     }
 
@@ -339,6 +359,15 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
                     // Thread Checker
                     let threadCheckerController = PerformanceThreadCheckerViewController()
                     navigationController?.pushViewController(threadCheckerController, animated: true)
+                default:
+                    break
+                }
+            } else if selectedSection == .heap {
+                switch indexPath.row {
+                case 0:
+                    // Browse Heap Objects
+                    let heapBrowserController = HeapObjectBrowserController()
+                    navigationController?.pushViewController(heapBrowserController, animated: true)
                 default:
                     break
                 }
@@ -511,6 +540,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         if !DebugSwift.App.shared.disableMethods.contains(.leaksDetector) {
             segmentTitles.append("Leaks")
         }
+        
+        segmentTitles.append("Heap")
 
         cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)
         cell.delegate = self
