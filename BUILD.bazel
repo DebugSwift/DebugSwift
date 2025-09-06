@@ -1,0 +1,23 @@
+load("@rules_swift//swift:swift.bzl", "swift_library")
+load("@rules_apple//apple:ios.bzl", "ios_framework")
+
+# Main DebugSwift library
+swift_library(
+    name = "DebugSwift",
+    srcs = glob([
+        "DebugSwift/Sources/**/*.swift",
+    ]),
+    module_name = "DebugSwift",
+    visibility = ["//visibility:public"],
+)
+
+# iOS Framework target for distribution
+ios_framework(
+    name = "DebugSwiftFramework",
+    minimum_os_version = "14.0",
+    deps = [":DebugSwift"],
+    bundle_id = "com.debugswift.framework",
+    families = ["iphone", "ipad"],
+    infoplists = [],
+    visibility = ["//visibility:public"],
+)

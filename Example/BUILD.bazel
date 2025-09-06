@@ -1,0 +1,28 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+load("@build_bazel_rules_apple//apple:ios.bzl", "ios_application")
+
+# Example app sources
+swift_library(
+    name = "ExampleLib",
+    srcs = glob([
+        "Example/**/*.swift",
+    ]),
+    module_name = "Example",
+    deps = [
+        "//:DebugSwift",
+    ],
+)
+
+# iOS Application
+ios_application(
+    name = "ExampleApp",
+    deps = [
+        ":ExampleLib",
+        "//:DebugSwift",
+    ],
+    bundle_id = "com.debugswift.example",
+    families = ["iphone", "ipad"],
+    infoplists = ["Example/Example-Info.plist"],
+    minimum_os_version = "14.0",
+    visibility = ["//visibility:public"],
+)

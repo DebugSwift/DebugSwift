@@ -1,0 +1,29 @@
+workspace(name = "DebugSwift")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Swift rules
+http_archive(
+    name = "build_bazel_rules_swift",
+    urls = ["https://github.com/bazelbuild/rules_swift/releases/download/2.0.0/rules_swift.2.0.0.tar.gz"],
+)
+
+load(
+    "@build_bazel_rules_swift//swift:repositories.bzl",
+    "swift_rules_dependencies",
+)
+
+swift_rules_dependencies()
+
+# Apple rules
+http_archive(
+    name = "build_bazel_rules_apple",
+    urls = ["https://github.com/bazelbuild/rules_apple/releases/download/3.0.0/rules_apple.3.0.0.tar.gz"],
+)
+
+load(
+    "@build_bazel_rules_apple//apple:repositories.bzl",
+    "apple_rules_dependencies",
+)
+
+apple_rules_dependencies()
