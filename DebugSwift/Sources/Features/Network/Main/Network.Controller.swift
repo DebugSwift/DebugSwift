@@ -572,7 +572,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
         navigationController?.pushViewController(thresholdController, animated: true)
     }
     
-    @objc private func toggleEncryptionDecryption() {
+    @objc internal func toggleEncryptionDecryption() {
         DebugSwift.Network.shared.setDecryptionEnabled(!DebugSwift.Network.shared.isDecryptionEnabled)
         addNavigationButtons()
         

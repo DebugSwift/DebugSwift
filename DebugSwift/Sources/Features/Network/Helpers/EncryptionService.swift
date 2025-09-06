@@ -14,6 +14,8 @@ public protocol EncryptionServiceProtocol {
     func decrypt(_ data: Data, using key: Data?) -> Data?
     func isEncrypted(_ data: Data) -> Bool
     func getDecryptionKey(for url: URL?) -> Data?
+    func registerCustomDecryptor(for urlPattern: String, decryptor: @escaping (Data) -> Data?)
+    func customDecrypt(_ data: Data, for url: URL?) -> Data?
 }
 
 final class EncryptionService: EncryptionServiceProtocol, @unchecked Sendable {

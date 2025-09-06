@@ -96,12 +96,10 @@ extension DebugSwift {
                 service.registerDecryptionKey(for: urlPattern, key: key)
             }
         }
-        
+
         /// Register a custom decryptor for specific URL patterns
         public func registerCustomDecryptor(for urlPattern: String, decryptor: @escaping (Data) -> Data?) {
-            if let service = encryptionService as? EncryptionService {
-                service.registerCustomDecryptor(for: urlPattern, decryptor: decryptor)
-            }
+            encryptionService.registerCustomDecryptor(for: urlPattern, decryptor: decryptor)
         }
         
         /// Set a custom encryption service

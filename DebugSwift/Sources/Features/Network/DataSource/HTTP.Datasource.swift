@@ -55,10 +55,8 @@ final class HttpDatasource: @unchecked Sendable {
             
             if model.isEncrypted {
                 // Try custom decryptor first
-                if let service = encryptionService as? EncryptionService {
-                    model.decryptedResponseData = service.customDecrypt(responseData, for: model.url)
-                }
-                
+                model.decryptedResponseData = encryptionService.customDecrypt(responseData, for: model.url)
+
                 // If custom decryptor didn't work, try with registered keys
                 if model.decryptedResponseData == nil {
                     let decryptionKey = encryptionService.getDecryptionKey(for: model.url)
