@@ -38,6 +38,7 @@
 - **WebSocket Inspector:** Zero-config automatic monitoring of WebSocket connections and frames
 - **Request Limiting:** Set thresholds to monitor and control API usage
 - **Smart Content:** Automatic JSON formatting with syntax highlighting
+- **Encryption Support:** Automatic decryption of encrypted API responses with AES-256/128 and custom decryptors
 
 ### ⚡ Performance
 - **Real-time Metrics:** Monitor CPU, memory, and FPS in real-time
@@ -222,6 +223,35 @@ DebugSwift.Network.shared.ignoredURLs = ["https://analytics.com"]
 // Monitor only specific URLs
 DebugSwift.Network.shared.onlyURLs = ["https://api.myapp.com"]
 ```
+
+### Network Encryption/Decryption
+
+DebugSwift supports automatic decryption of encrypted API responses, making it easier to debug apps with end-to-end encryption.
+
+```swift
+// Enable decryption feature
+DebugSwift.Network.shared.setDecryptionEnabled(true)
+
+// Register decryption key for specific API endpoints
+if let key = "your-32-byte-aes-key-here-123456".data(using: .utf8) {
+    DebugSwift.Network.shared.registerDecryptionKey(for: "api.example.com", key: key)
+}
+
+// Register custom decryptor for complex encryption schemes
+DebugSwift.Network.shared.registerCustomDecryptor(for: "api.myapp.com") { encryptedData in
+    // Your custom decryption logic here
+    return customDecrypt(encryptedData)
+}
+```
+
+**Features:**
+- 🔍 Automatic encryption detection using entropy analysis
+- 🔑 AES-256/128 decryption support with CryptoKit
+- 🛠 Custom decryptor registration for proprietary encryption
+- 📊 Shows both raw encrypted and decrypted responses
+- 🔒 Toggle encryption/decryption with lock/unlock button in Network inspector
+
+📖 **For more advanced examples and real-world implementations, see:** [`EncryptionExample.swift`](Example/Example/WebView/EncryptionExample.swift)
 
 ### Selective Features
 

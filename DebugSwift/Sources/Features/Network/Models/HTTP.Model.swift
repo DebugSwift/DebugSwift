@@ -17,6 +17,7 @@ final class HttpModel: NSObject {
     var url: URL?
     var requestData: Data?
     var responseData: Data?
+    var decryptedResponseData: Data?
     var requestId: String?
     var method: String?
     var statusCode: String?
@@ -25,6 +26,7 @@ final class HttpModel: NSObject {
     var endTime: String?
     var totalDuration: String?
     var isImage = false
+    var isEncrypted = false
 
     var requestHeaderFields: [String: Any]?
     var responseHeaderFields: [String: Any]?

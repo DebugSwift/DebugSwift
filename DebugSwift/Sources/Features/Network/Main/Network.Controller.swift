@@ -488,6 +488,16 @@ final class NetworkViewController: BaseController, MainFeatureType {
         
         switch currentMode {
         case .http, .webview:
+            // Add encryption toggle button
+            let encryptionButton = UIBarButtonItem(
+                image: UIImage(systemName: DebugSwift.Network.shared.isDecryptionEnabled ? "lock.open" : "lock"),
+                style: .plain,
+                target: self,
+                action: #selector(toggleEncryptionDecryption)
+            )
+            encryptionButton.tintColor = DebugSwift.Network.shared.isDecryptionEnabled ? .systemGreen : .systemGray
+            rightBarButtons.append(encryptionButton)
+            
             // Add threshold button
             let thresholdButton = UIBarButtonItem(
                 image: UIImage(systemName: "speedometer"),
@@ -560,6 +570,19 @@ final class NetworkViewController: BaseController, MainFeatureType {
     @objc private func showRequestThreshold() {
         let thresholdController = NetworkThresholdController()
         navigationController?.pushViewController(thresholdController, animated: true)
+    }
+    
+    @objc internal func toggleEncryptionDecryption() {
+        DebugSwift.Network.shared.setDecryptionEnabled(!DebugSwift.Network.shared.isDecryptionEnabled)
+        addNavigationButtons()
+        
+        showAlert(
+            with: "Encryption Decryption",
+            title: DebugSwift.Network.shared.isDecryptionEnabled ? 
+                "Decryption enabled. Encrypted responses will be automatically decrypted." : 
+                "Decryption disabled. Only raw responses will be shown.",
+            rightButtonTitle: "OK"
+        )
     }
     
     @objc private func showWebSocketClearAlert() {

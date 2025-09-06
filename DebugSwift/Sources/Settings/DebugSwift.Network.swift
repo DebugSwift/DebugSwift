@@ -18,6 +18,8 @@ extension DebugSwift {
         public var onlyURLs = [String]()
         public var onlySchemes = CustomHTTPProtocolURLScheme.allCases.filter { $0 != .ws && $0 != .wss }
         public var delegate: CustomHTTPProtocolDelegate?
+        public var encryptionService: EncryptionServiceProtocol = EncryptionService.shared
+        public var isDecryptionEnabled = false
         
         // MARK: - Threshold Limiter API
         
@@ -79,6 +81,30 @@ extension DebugSwift {
         /// Get detailed threshold logs
         public func getThresholdLogs() -> String {
             NetworkThresholdTracker.shared.getDetailedLogs()
+        }
+        
+        // MARK: - Encryption/Decryption API
+        
+        /// Enable or disable response decryption
+        public func setDecryptionEnabled(_ enabled: Bool) {
+            isDecryptionEnabled = enabled
+        }
+        
+        /// Register a decryption key for specific URL patterns
+        public func registerDecryptionKey(for urlPattern: String, key: Data) {
+            if let service = encryptionService as? EncryptionService {
+                service.registerDecryptionKey(for: urlPattern, key: key)
+            }
+        }
+
+        /// Register a custom decryptor for specific URL patterns
+        public func registerCustomDecryptor(for urlPattern: String, decryptor: @escaping (Data) -> Data?) {
+            encryptionService.registerCustomDecryptor(for: urlPattern, decryptor: decryptor)
+        }
+        
+        /// Set a custom encryption service
+        public func setEncryptionService(_ service: EncryptionServiceProtocol) {
+            encryptionService = service
         }
     }
     

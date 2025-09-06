@@ -47,6 +47,24 @@ final class HttpDatasource: @unchecked Sendable {
             return false
         }
         model.index = httpModels.count
+        
+        // Check if decryption is enabled and try to decrypt response
+        if DebugSwift.Network.shared.isDecryptionEnabled, let responseData = model.responseData {
+            let encryptionService = DebugSwift.Network.shared.encryptionService
+            model.isEncrypted = encryptionService.isEncrypted(responseData)
+            
+            if model.isEncrypted {
+                // Try custom decryptor first
+                model.decryptedResponseData = encryptionService.customDecrypt(responseData, for: model.url)
+
+                // If custom decryptor didn't work, try with registered keys
+                if model.decryptedResponseData == nil {
+                    let decryptionKey = encryptionService.getDecryptionKey(for: model.url)
+                    model.decryptedResponseData = encryptionService.decrypt(responseData, using: decryptionKey)
+                }
+            }
+        }
+        
         httpModels.append(model)
         return true
     }

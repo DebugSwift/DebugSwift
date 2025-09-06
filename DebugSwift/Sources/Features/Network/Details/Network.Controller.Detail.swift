@@ -189,36 +189,58 @@ extension NetworkViewControllerDetail {
 
 extension [NetworkViewControllerDetail.Config] {
     init(model: HttpModel) {
-        self = [
-            .init(
+        var configs: [NetworkViewControllerDetail.Config] = [
+            NetworkViewControllerDetail.Config(
                 title: "TOTAL TIME",
                 description: model.totalDuration ?? "No data"
             ),
-            .init(
+            NetworkViewControllerDetail.Config(
                 title: "REQUEST HEADER",
                 description: model.requestHeaderFields?.formattedString() ?? "No data"
             ),
-            .init(
+            NetworkViewControllerDetail.Config(
                 title: "REQUEST",
                 description: model.requestData?.formattedString() ?? "No data"
             ),
-            .init(
+            NetworkViewControllerDetail.Config(
                 title: "RESPONSE HEADER",
                 description: model.responseHeaderFields?.formattedString() ?? "No data"
             ),
-            .init(
-                title: "RESPONSE",
+            NetworkViewControllerDetail.Config(
+                title: "RESPONSE (RAW)",
                 description: model.responseData?.formattedString() ?? "No data"
-            ),
-            .init(
+            )
+        ]
+        
+        // Add decrypted response if available
+        if model.isEncrypted && model.decryptedResponseData != nil {
+            configs.append(NetworkViewControllerDetail.Config(
+                title: "RESPONSE (DECRYPTED)",
+                description: model.decryptedResponseData?.formattedString() ?? "No data"
+            ))
+            configs.append(NetworkViewControllerDetail.Config(
+                title: "ENCRYPTION STATUS",
+                description: "🔓 Response was encrypted and successfully decrypted"
+            ))
+        } else if model.isEncrypted {
+            configs.append(NetworkViewControllerDetail.Config(
+                title: "ENCRYPTION STATUS",
+                description: "🔒 Response is encrypted (no decryption key available)"
+            ))
+        }
+        
+        configs.append(contentsOf: [
+            NetworkViewControllerDetail.Config(
                 title: "RESPONSE SIZE",
                 description: model.responseData?.formattedSize() ?? "No data"
             ),
-            .init(
+            NetworkViewControllerDetail.Config(
                 title: "MIME TYPE",
                 description: model.mineType ?? "No data"
             )
-        ]
+        ])
+        
+        self = configs
     }
 }
 
