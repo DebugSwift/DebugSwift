@@ -99,16 +99,43 @@ private extension URLSessionConfiguration {
     @objc
     class var swizzledDefaultSessionConfiguration: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.swizzledDefaultSessionConfiguration
-        // Only add CustomHTTPProtocol to default configurations that don't already have protocols specified
-        configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
+        
+        // Fix: Ensure protocolClasses is not nil before trying to insert
+        if configuration.protocolClasses == nil {
+            configuration.protocolClasses = [CustomHTTPProtocol.self]
+        } else if !configuration.protocolClasses!.contains(where: { $0 == CustomHTTPProtocol.self }) {
+            configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
+        }
+        
+        // Store TLS configuration in UserDefaults for preservation
+        storeTLSConfiguration(configuration)
+        
         return configuration
     }
     
     @objc
     class var swizzledEphemeralSessionConfiguration: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.swizzledEphemeralSessionConfiguration
-        // Only add CustomHTTPProtocol to ephemeral configurations that don't already have protocols specified
-        configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
+        
+        // Fix: Ensure protocolClasses is not nil before trying to insert
+        if configuration.protocolClasses == nil {
+            configuration.protocolClasses = [CustomHTTPProtocol.self]
+        } else if !configuration.protocolClasses!.contains(where: { $0 == CustomHTTPProtocol.self }) {
+            configuration.protocolClasses?.insert(CustomHTTPProtocol.self, at: .zero)
+        }
+        
+        // Store TLS configuration in UserDefaults for preservation
+        storeTLSConfiguration(configuration)
+        
         return configuration
+    }
+    
+    private static func storeTLSConfiguration(_ configuration: URLSessionConfiguration) {
+        // Store TLS settings if they're not default
+        if configuration.tlsMinimumSupportedProtocolVersion != .TLSv10 {
+            UserDefaults.standard.set(true, forKey: "DebugSwift.HasTLSConfig")
+            UserDefaults.standard.set(configuration.tlsMinimumSupportedProtocolVersion.rawValue, forKey: "DebugSwift.TLSMinVersion")
+            UserDefaults.standard.set(configuration.tlsMaximumSupportedProtocolVersion.rawValue, forKey: "DebugSwift.TLSMaxVersion")
+        }
     }
 }

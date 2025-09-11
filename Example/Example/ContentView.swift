@@ -19,22 +19,11 @@ struct ContentView: View {
             List {
                 NavigationLink(destination: MockRequestView()) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("JSONPlaceholder API Demo")
+                        Text("REST API Demo")
                             .font(.headline)
-                        Text("Test all HTTP methods with fake REST API")
+                        Text("Test all HTTP methods with fake REST API + TLS security example")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-                
-                NavigationLink(destination: DeadlockTestView()) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("🚨 Console Deadlock Test")
-                            .font(.headline)
-                        Text("Reproduce DebugSwift console interception deadlock")
-                            .font(.caption)
-                            .foregroundColor(.red)
                     }
                     .padding(.vertical, 4)
                 }
