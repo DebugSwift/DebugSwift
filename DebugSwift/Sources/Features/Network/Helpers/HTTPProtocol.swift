@@ -124,10 +124,35 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         startTime = Date()
         prevUrl = request.url
         prevStartTime = startTime
-        let config = URLSessionConfiguration.default
+        
+        // Use preserved configuration if available, otherwise fall back to default
+        let config = getPreservedConfigurationForRequest() ?? URLSessionConfiguration.default
+        
         session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         dataTask = session?.dataTask(with: newRequest as URLRequest)
         dataTask?.resume()
+    }
+    
+    private func getPreservedConfigurationForRequest() -> URLSessionConfiguration? {
+        // Check if we have stored TLS configuration settings
+        guard UserDefaults.standard.bool(forKey: "DebugSwift.HasTLSConfig") else {
+            return nil
+        }
+        
+        // Create a configuration with preserved TLS settings
+        let config = URLSessionConfiguration.default
+        
+        let minVersion = UserDefaults.standard.integer(forKey: "DebugSwift.TLSMinVersion")
+        let maxVersion = UserDefaults.standard.integer(forKey: "DebugSwift.TLSMaxVersion")
+        
+        if minVersion > 0, let tlsMin = tls_protocol_version_t(rawValue: UInt16(minVersion)) {
+            config.tlsMinimumSupportedProtocolVersion = tlsMin
+        }
+        if maxVersion > 0, let tlsMax = tls_protocol_version_t(rawValue: UInt16(maxVersion)) {
+            config.tlsMaximumSupportedProtocolVersion = tlsMax
+        }
+        
+        return config
     }
 
     override func stopLoading() {
