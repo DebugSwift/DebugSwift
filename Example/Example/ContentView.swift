@@ -83,17 +83,6 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
-                NavigationLink(destination: TLSSecurityExampleView()) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("🔒 TLS Security Example")
-                            .font(.headline)
-                        Text("Test TLS security with DebugSwift")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-
                 Button("Show Map") {
                     presentingMap = true
                 }
