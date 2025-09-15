@@ -244,15 +244,6 @@ DebugSwift.Network.shared.registerCustomDecryptor(for: "api.myapp.com") { encryp
 }
 ```
 
-**Features:**
-- 🔍 Automatic encryption detection using entropy analysis
-- 🔑 AES-256/128 decryption support with CryptoKit
-- 🛠 Custom decryptor registration for proprietary encryption
-- 📊 Shows both raw encrypted and decrypted responses
-- 🔒 Toggle encryption/decryption with lock/unlock button in Network inspector
-
-📖 **For more advanced examples and real-world implementations, see:** [`EncryptionExample.swift`](Example/Example/WebView/EncryptionExample.swift)
-
 ### Selective Features
 
 ```swift

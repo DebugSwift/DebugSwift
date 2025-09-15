@@ -3,6 +3,7 @@
 //  Example
 //
 //  Created by Matheus Gois on 12/06/24.
+//  Updated to include TLS v1.2+ security example with DebugSwift interception
 //
 
 import SwiftUI
@@ -139,6 +140,14 @@ struct MockRequestView: View {
             method: "GET",
             endpoint: "https://jsonplaceholder.typicode.com/invalid-endpoint",
             description: "Test endpoint that doesn't exist"
+        ),
+        
+        // TLS Security Example
+        APIEndpoint(
+            title: "TLS v1.2+ Secure Request",
+            method: "GET",
+            endpoint: "https://jsonplaceholder.typicode.com/posts/1",
+            description: "Secure request with TLS v1.2+ (intercepted by DebugSwift)"
         )
     ]
 
@@ -151,7 +160,7 @@ struct MockRequestView: View {
                         .font(.title2)
                         .fontWeight(.bold)
                     
-                    Text("Test various HTTP methods with fake REST API")
+                    Text("Test various HTTP methods with fake REST API + TLS security example")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -241,6 +250,20 @@ struct EndpointRow: View {
                         .background(methodColor)
                         .cornerRadius(4)
                     
+                    // Show TLS security icon for TLS example
+                    if endpoint.title == "TLS v1.2+ Secure Request" {
+                        HStack(spacing: 2) {
+                            Image(systemName: "lock.shield.fill")
+                            Text("TLS v1.2+")
+                        }
+                        .font(.caption2)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(Color.green)
+                        .cornerRadius(3)
+                    }
+                    
                     Spacer()
                 }
                 
@@ -312,6 +335,40 @@ struct RequestResponseView: View {
                             Text(endpoint.endpoint)
                                 .font(.system(.caption, design: .monospaced))
                                 .foregroundColor(.secondary)
+                        }
+                        
+                        // Show TLS security info for TLS example
+                        if endpoint.title == "TLS v1.2+ Secure Request" {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Security:")
+                                    .fontWeight(.medium)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                            .font(.caption)
+                                        Text("TLS Minimum: v1.2")
+                                            .font(.caption)
+                                    }
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                            .font(.caption)
+                                        Text("DebugSwift Interception: Enabled")
+                                            .font(.caption)
+                                    }
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                            .font(.caption)
+                                        Text("Configuration Preserved: ✓")
+                                            .font(.caption)
+                                    }
+                                }
+                                .padding(6)
+                                .background(Color.green.opacity(0.1))
+                                .cornerRadius(4)
+                            }
                         }
                         
                         if let body = endpoint.body {
@@ -421,16 +478,25 @@ struct RequestResponseView: View {
                 request.httpBody = try JSONSerialization.data(withJSONObject: body)
             }
             
-            let (data, response) = try await URLSession.shared.data(for: request)
+            // Use TLS-secured session for TLS example
+            let (data, response): (Data, URLResponse)
+            if endpoint.title == "TLS v1.2+ Secure Request" {
+                let tlsSession = createSecureTLSSession()
+                (data, response) = try await tlsSession.data(for: request)
+                responseText = "🔒 Used TLS v1.2+ secured URLSession\n\n"
+            } else {
+                (data, response) = try await URLSession.shared.data(for: request)
+                responseText = ""
+            }
             
             if let httpResponse = response as? HTTPURLResponse {
                 statusCode = httpResponse.statusCode
             }
             
             if let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) {
-                responseText = formatJSON(jsonObject)
+                responseText += formatJSON(jsonObject)
             } else {
-                responseText = String(data: data, encoding: .utf8) ?? "Unable to decode response"
+                responseText += String(data: data, encoding: .utf8) ?? "Unable to decode response"
             }
             
         } catch {
@@ -438,6 +504,28 @@ struct RequestResponseView: View {
         }
         
         isLoading = false
+    }
+    
+    /// Creates a TLS-secured URLSession that will be properly intercepted by DebugSwift
+    private func createSecureTLSSession() -> URLSession {
+        let configuration = URLSessionConfiguration.default
+        
+        // Security configuration - now preserved by DebugSwift
+        configuration.tlsMinimumSupportedProtocolVersion = .TLSv12
+        configuration.tlsMaximumSupportedProtocolVersion = .TLSv13
+        
+        // Additional security settings
+        configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        configuration.urlCredentialStorage = nil
+        configuration.httpCookieStorage = nil
+        
+        // Timeouts
+        configuration.timeoutIntervalForRequest = 30.0
+        configuration.timeoutIntervalForResource = 60.0
+        
+        print("🔒 Created TLS-secured URLSession with minimum TLSv1.2 for DebugSwift interception")
+        
+        return URLSession(configuration: configuration)
     }
     
     private func formatJSON(_ object: Any) -> String {
