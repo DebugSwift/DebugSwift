@@ -79,9 +79,101 @@ final class NetworkViewControllerDetail: BaseController {
     }
 
     private func setupSearch() {
+        // iOS 26+ compatibility fix for search bar visibility issues
+        if #available(iOS 18.0, *) {
+            // Use broader version check since iOS 26 behavior might apply to newer iOS versions
+            setupSearchBarForModernIOS()
+        } else {
+            setupSearchBarLegacy()
+        }
+        definesPresentationContext = true
+    }
+    
+    @available(iOS 18.0, *)
+    private func setupSearchBarForModernIOS() {
+        // Enhanced setup for modern iOS versions (18+) including iOS 26
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
-        definesPresentationContext = true
+        
+        // Configure search controller for better compatibility
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.automaticallyShowsSearchResultsController = false
+        searchController.obscuresBackgroundDuringPresentation = false
+        
+        // Force search bar placement if available
+        if #available(iOS 16.0, *) {
+            navigationItem.preferredSearchBarPlacement = .stacked
+        }
+        
+        // Force immediate setup
+        DispatchQueue.main.async { [weak self] in
+            self?.forceSearchBarVisibilityDetail()
+        }
+    }
+    
+    private func setupSearchBarLegacy() {
+        // Standard setup for iOS versions before 18
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        searchController.hidesNavigationBarDuringPresentation = false
+    }
+    
+    private func forceSearchBarVisibilityDetail() {
+        // Force layout and ensure search bar is functional
+        guard let navigationController = navigationController else { return }
+        
+        navigationController.navigationBar.setNeedsLayout()
+        navigationController.navigationBar.layoutIfNeeded()
+        
+        // Verify search controller is properly set up
+        if let searchController = navigationItem.searchController {
+            searchController.searchBar.isUserInteractionEnabled = true
+            searchController.searchBar.alpha = 1.0
+            
+        }
+    }
+    
+    private func addSearchBarFallbackDetail() {
+        // Fallback method for iOS 26 if standard setup fails
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        
+        // Remove search controller and add search bar directly
+        navigationItem.searchController = nil
+        
+        // Create a container view for the search bar
+        let searchBarContainer = UIView()
+        searchBarContainer.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Configure search bar for direct embedding
+        let searchBar = searchController.searchBar
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.delegate = self
+        
+        searchBarContainer.addSubview(searchBar)
+        navigationBar.addSubview(searchBarContainer)
+        
+        NSLayoutConstraint.activate([
+            searchBarContainer.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
+            searchBarContainer.leadingAnchor.constraint(equalTo: navigationBar.leadingAnchor),
+            searchBarContainer.trailingAnchor.constraint(equalTo: navigationBar.trailingAnchor),
+            searchBarContainer.heightAnchor.constraint(equalToConstant: 44),
+            
+            searchBar.topAnchor.constraint(equalTo: searchBarContainer.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: searchBarContainer.leadingAnchor, constant: 8),
+            searchBar.trailingAnchor.constraint(equalTo: searchBarContainer.trailingAnchor, constant: -8),
+            searchBar.bottomAnchor.constraint(equalTo: searchBarContainer.bottomAnchor)
+        ])
+        
+        // Update tableView constraints to account for the search bar
+        updateTableViewConstraintsForFallbackSearchBarDetail()
+    }
+    
+    private func updateTableViewConstraintsForFallbackSearchBarDetail() {
+        // Adjust tableView top constraint when using fallback search bar
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44)
+        ])
     }
 }
 
@@ -174,6 +266,32 @@ extension NetworkViewControllerDetail: UISearchResultsUpdating {
                 ? infos
                 : infos.filter { $0.description.localizedCaseInsensitiveContains(searchText) }
 
+        tableView.reloadData()
+    }
+}
+
+// MARK: - UISearchBarDelegate for iOS 26 fallback support
+extension NetworkViewControllerDetail: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        // Handle search text changes for fallback search bar
+        filteredInfos =
+            searchText.isEmpty
+                ? infos
+                : infos.filter { $0.description.localizedCaseInsensitiveContains(searchText) }
+        
+        tableView.reloadData()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        
+        // Clear search results
+        filteredInfos = infos
         tableView.reloadData()
     }
 }
