@@ -10,7 +10,7 @@ import Foundation
 import Security
 
 final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel {
-    private var keys = [String]()
+    private var keychainItems = [(service: String, key: String)]()
     private var keychain = Keychain()
 
     // MARK: - Initialization
@@ -21,17 +21,13 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     private func setupKeys() {
-        keys = keychain.allKeys()
-
-        if let latitudeIndex = keys.firstIndex(
-            of: LocationToolkit.Constants.simulatedLatitude
-        ) {
-            keys.remove(at: latitudeIndex)
-        }
-        if let longitudeIndex = keys.firstIndex(
-            of: LocationToolkit.Constants.simulatedLongitude
-        ) {
-            keys.remove(at: longitudeIndex)
+        // Get all keychain items regardless of service
+        keychainItems = Keychain.allKeys(.genericPassword)
+        
+        // Remove location-related keys that DebugSwift uses internally
+        keychainItems.removeAll { item in
+            item.key == LocationToolkit.Constants.simulatedLatitude ||
+            item.key == LocationToolkit.Constants.simulatedLongitude
         }
     }
 
@@ -50,27 +46,39 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func numberOfItems() -> Int {
-        isSearchActived ? filteredKeys.count : keys.count
+        isSearchActived ? filteredItems.count : keychainItems.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> ViewData {
-        let key = isSearchActived ? filteredKeys[index] : keys[index]
-        let value = (try? keychain.get(key)) ?? ""
-        return .init(title: key, value: value)
+        let item = isSearchActived ? filteredItems[index] : keychainItems[index]
+        let value = getKeychainValue(for: item) ?? ""
+        return .init(title: item.key, value: value)
+    }
+    
+    private func getKeychainValue(for item: (service: String, key: String)) -> String? {
+        // Create keychain instance with the specific service to retrieve the value
+        let serviceKeychain = Keychain(service: item.service)
+        return try? serviceKeychain.get(item.key)
     }
 
     func handleClearAction() {
-        try? keychain.removeAll()
-        keys.removeAll()
-        filteredKeys.removeAll()
+        // Remove items from all services
+        let uniqueServices = Set(keychainItems.map { $0.service })
+        for service in uniqueServices {
+            let serviceKeychain = Keychain(service: service)
+            try? serviceKeychain.removeAll()
+        }
+        keychainItems.removeAll()
+        filteredItems.removeAll()
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
-        let key = isSearchActived ? filteredKeys.remove(at: index) : keys.remove(at: index)
-        try? keychain.remove(key)
+        let item = isSearchActived ? filteredItems.remove(at: index) : keychainItems.remove(at: index)
+        let serviceKeychain = Keychain(service: item.service)
+        try? serviceKeychain.remove(item.key)
 
         if isSearchActived {
-            keys.removeAll(where: { $0 == key })
+            keychainItems.removeAll(where: { $0.service == item.service && $0.key == item.key })
         }
     }
 
@@ -85,11 +93,11 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func getEditItemData(atIndex index: Int) -> ResourcesGenericController.EditItemData {
-        let key = isSearchActived ? filteredKeys[index] : keys[index]
-        let value = (try? keychain.get(key)) ?? ""
+        let item = isSearchActived ? filteredItems[index] : keychainItems[index]
+        let value = getKeychainValue(for: item) ?? ""
         
         return .init(
-            key: key,
+            key: item.key,
             value: value,
             keyPlaceholder: "Enter keychain item name",
             valuePlaceholder: "Enter secure value",
@@ -98,16 +106,17 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func updateItem(atIndex index: Int, key: String, value: String) {
-        let currentKey = isSearchActived ? filteredKeys[index] : keys[index]
+        let currentItem = isSearchActived ? filteredItems[index] : keychainItems[index]
+        let serviceKeychain = Keychain(service: currentItem.service)
         
         do {
             // If key changed, remove the old key
-            if currentKey != key {
-                try keychain.remove(currentKey)
+            if currentItem.key != key {
+                try serviceKeychain.remove(currentItem.key)
             }
             
-            // Set the new value
-            try keychain.set(value, key: key)
+            // Set the new value (using the same service as the original item)
+            try serviceKeychain.set(value, key: key)
             
             // Refresh keys
             setupKeys()
@@ -130,12 +139,15 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func exportData() -> Data {
-        var exportDict = [String: String]()
+        var exportDict = [String: Any]()
         
-        for key in keys {
-            if let value = try? keychain.get(key) {
-                // Keychain values are already strings, but let's ensure they're valid for JSON
-                exportDict[key] = value
+        for item in keychainItems {
+            if let value = getKeychainValue(for: item) {
+                // Include service information in the export for clarity
+                exportDict[item.key] = [
+                    "value": value,
+                    "service": item.service
+                ]
             }
         }
         
@@ -150,17 +162,20 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
 
     // MARK: - Search Functionality
 
-    private var filteredKeys = [String]()
+    private var filteredItems = [(service: String, key: String)]()
 
     func filterContentForSearchText(_ searchText: String) {
         if searchText.isEmpty {
-            filteredKeys = keys
+            filteredItems = keychainItems
         } else {
-            filteredKeys = keys.filter { $0.localizedCaseInsensitiveContains(searchText) }
+            filteredItems = keychainItems.filter { 
+                $0.key.localizedCaseInsensitiveContains(searchText) ||
+                $0.service.localizedCaseInsensitiveContains(searchText)
+            }
         }
     }
     
     func keyExists(_ key: String) -> Bool {
-        return keys.contains(key)
+        return keychainItems.contains { $0.key == key }
     }
 }
