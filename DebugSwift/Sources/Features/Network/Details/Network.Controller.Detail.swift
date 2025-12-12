@@ -309,6 +309,10 @@ extension [NetworkViewControllerDetail.Config] {
     init(model: HttpModel) {
         var configs: [NetworkViewControllerDetail.Config] = [
             NetworkViewControllerDetail.Config(
+                title: "URL",
+                description: model.url?.absoluteString ?? "No data"
+            ),
+            NetworkViewControllerDetail.Config(
                 title: "TOTAL TIME",
                 description: model.totalDuration ?? "No data"
             ),
