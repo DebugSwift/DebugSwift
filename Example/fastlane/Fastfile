@@ -8,8 +8,6 @@ lane :test do
     clean:                            true,
     result_bundle:                    true,
     code_coverage:                    true,
-    devices:                          ['iPhone 16'],
-    skip_package_dependencies_resolution: false,
-    disable_package_automatic_updates: true
+    devices:                          ['iPhone 16']
   )
 end

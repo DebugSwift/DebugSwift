@@ -36,7 +36,9 @@ final class NetworkTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         label.textColor = .lightGray
-        label.numberOfLines = 2
+        label.numberOfLines = 0
+        label.setContentCompressionResistancePriority(.required, for: .vertical)
+        label.setContentHuggingPriority(.defaultLow, for: .vertical)
         return label
     }()
 
@@ -124,7 +126,7 @@ final class NetworkTableViewCell: UITableViewCell {
         let path = url.path.isEmpty ? "/" : url.path
         
         if let query = url.query, !query.isEmpty {
-            return "\(domain)\(path)?\(query.prefix(50))\(query.count > 50 ? "..." : "")"
+            return "\(domain)\(path)?\(query)"
         }
         
         return "\(domain)\(path)"
@@ -308,8 +310,11 @@ final class NetworkTableViewCell: UITableViewCell {
             timestampLabel.trailingAnchor.constraint(equalTo: statusCodeLabel.trailingAnchor),
             timestampLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             
-            // Cell height
-            contentView.heightAnchor.constraint(greaterThanOrEqualToConstant: 85)
+            // Ensure content type indicator also respects bottom boundary
+            contentTypeIndicator.bottomAnchor.constraint(lessThanOrEqualTo: timestampLabel.topAnchor, constant: -4),
+            
+            // Cell height - allow dynamic expansion based on content
+            contentView.heightAnchor.constraint(greaterThanOrEqualToConstant: 70)
         ])
     }
 }
