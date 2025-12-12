@@ -97,7 +97,13 @@ class UserInterfaceToolkit: @unchecked Sendable {
     // MARK: - Setup
     
     private func setupInitialState() {
-        darkModeEnabled = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+        // Check if app explicitly overridden the user interface style
+        if let window = UIWindow.keyWindow {
+            darkModeEnabled = window.traitCollection.userInterfaceStyle == .dark
+        } else {
+            // Fallback to system preference if no window is available yet
+            darkModeEnabled = UIScreen.main.traitCollection.userInterfaceStyle == .dark
+        }
         
         // Set initial color scheme
         if let colorScheme = gridOverlay.colorScheme,
