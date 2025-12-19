@@ -67,6 +67,9 @@ jobs:
                    BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
                    SKIP_INSTALL=NO \
                    BUILD_DIR="$BUILD_DIR" \
+                   SWIFT_EMIT_MODULE_INTERFACE=NO \
+                   SWIFT_EMIT_PRIVATE_MODULE_INTERFACE=NO \
+                   SWIFT_EMIT_PACKAGE_MODULE_INTERFACE=NO \
                    clean build
         
         # Build for iOS Simulator (arm64 + x86_64)
@@ -80,6 +83,9 @@ jobs:
                    BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
                    SKIP_INSTALL=NO \
                    BUILD_DIR="$BUILD_DIR" \
+                   SWIFT_EMIT_MODULE_INTERFACE=NO \
+                   SWIFT_EMIT_PRIVATE_MODULE_INTERFACE=NO \
+                   SWIFT_EMIT_PACKAGE_MODULE_INTERFACE=NO \
                    clean build
         
         echo "Building for iOS Simulator (x86_64)..."
@@ -92,6 +98,9 @@ jobs:
                    BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
                    SKIP_INSTALL=NO \
                    BUILD_DIR="$BUILD_DIR/x86_64" \
+                   SWIFT_EMIT_MODULE_INTERFACE=NO \
+                   SWIFT_EMIT_PRIVATE_MODULE_INTERFACE=NO \
+                   SWIFT_EMIT_PACKAGE_MODULE_INTERFACE=NO \
                    clean build
         
         # Find the built frameworks
