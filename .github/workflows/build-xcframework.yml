@@ -1,0 +1,220 @@
+name: Build and Release XCFramework
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub release'
+        required: false
+        default: 'true'
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build-xcframework:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Cache Build Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Caches/org.swift.swiftpm/
+          ~/Library/Developer/Xcode/DerivedData
+        key: ${{ runner.os }}-build-${{ hashFiles('Package.swift', 'Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
+          
+    - name: Create Build Scripts Directory
+      run: mkdir -p Scripts
+      
+    - name: Set Execute Permissions
+      run: |
+        chmod +x Scripts/build_xcframework_spm.sh || true
+        
+    - name: Build XCFramework
+      run: |
+        echo "Building XCFramework..."
+        
+        # Configuration
+        FRAMEWORK_NAME="DebugSwift"
+        BUILD_DIR="$(pwd)/build"
+        XCFRAMEWORK_DIR="$(pwd)/XCFramework"
+        
+        # Clean previous builds
+        rm -rf "$BUILD_DIR" "$XCFRAMEWORK_DIR"
+        mkdir -p "$BUILD_DIR" "$XCFRAMEWORK_DIR"
+        
+        # Build for iOS Device (arm64)
+        echo "Building for iOS Device (arm64)..."
+        xcodebuild -scheme DebugSwift \
+                   -destination "generic/platform=iOS" \
+                   -configuration Release \
+                   -sdk iphoneos \
+                   BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+                   SKIP_INSTALL=NO \
+                   BUILD_DIR="$BUILD_DIR" \
+                   clean build
+        
+        # Build for iOS Simulator (arm64 + x86_64)
+        echo "Building for iOS Simulator (arm64)..."
+        xcodebuild -scheme DebugSwift \
+                   -destination "generic/platform=iOS Simulator" \
+                   -configuration Release \
+                   -sdk iphonesimulator \
+                   ARCHS="arm64" \
+                   VALID_ARCHS="arm64" \
+                   BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+                   SKIP_INSTALL=NO \
+                   BUILD_DIR="$BUILD_DIR" \
+                   clean build
+        
+        echo "Building for iOS Simulator (x86_64)..."
+        xcodebuild -scheme DebugSwift \
+                   -destination "generic/platform=iOS Simulator" \
+                   -configuration Release \
+                   -sdk iphonesimulator \
+                   ARCHS="x86_64" \
+                   VALID_ARCHS="x86_64" \
+                   BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+                   SKIP_INSTALL=NO \
+                   BUILD_DIR="$BUILD_DIR/x86_64" \
+                   clean build
+        
+        # Find the built frameworks
+        echo "Locating built frameworks..."
+        DEVICE_FRAMEWORK=$(find "$BUILD_DIR" -name "DebugSwift.framework" -path "*iphoneos*" | head -1)
+        ARM64_SIM_FRAMEWORK=$(find "$BUILD_DIR" -name "DebugSwift.framework" -path "*iphonesimulator*" | grep -v x86_64 | head -1)
+        X86_64_SIM_FRAMEWORK=$(find "$BUILD_DIR/x86_64" -name "DebugSwift.framework" -path "*iphonesimulator*" | head -1)
+        
+        echo "Device framework: $DEVICE_FRAMEWORK"
+        echo "ARM64 simulator framework: $ARM64_SIM_FRAMEWORK" 
+        echo "x86_64 simulator framework: $X86_64_SIM_FRAMEWORK"
+        
+        # Create universal simulator framework
+        echo "Creating universal simulator framework..."
+        UNIVERSAL_SIM_DIR="$BUILD_DIR/universal-simulator"
+        mkdir -p "$UNIVERSAL_SIM_DIR"
+        
+        if [[ -d "$ARM64_SIM_FRAMEWORK" && -d "$X86_64_SIM_FRAMEWORK" ]]; then
+          # Copy ARM64 framework as base
+          cp -R "$ARM64_SIM_FRAMEWORK" "$UNIVERSAL_SIM_DIR/DebugSwift.framework"
+          
+          # Create universal binary
+          lipo -create \
+               "$ARM64_SIM_FRAMEWORK/DebugSwift" \
+               "$X86_64_SIM_FRAMEWORK/DebugSwift" \
+               -output "$UNIVERSAL_SIM_DIR/DebugSwift.framework/DebugSwift"
+               
+          SIMULATOR_FRAMEWORK="$UNIVERSAL_SIM_DIR/DebugSwift.framework"
+        else
+          echo "Warning: Could not create universal simulator framework, using ARM64 only"
+          SIMULATOR_FRAMEWORK="$ARM64_SIM_FRAMEWORK"
+        fi
+        
+        # Create XCFramework
+        echo "Creating XCFramework..."
+        if [[ -d "$DEVICE_FRAMEWORK" && -d "$SIMULATOR_FRAMEWORK" ]]; then
+          xcodebuild -create-xcframework \
+                     -framework "$DEVICE_FRAMEWORK" \
+                     -framework "$SIMULATOR_FRAMEWORK" \
+                     -output "$XCFRAMEWORK_DIR/DebugSwift.xcframework"
+        else
+          echo "Error: Required frameworks not found"
+          echo "Device: $DEVICE_FRAMEWORK"
+          echo "Simulator: $SIMULATOR_FRAMEWORK"
+          exit 1
+        fi
+        
+        # Validate XCFramework
+        echo "Validating XCFramework..."
+        find "$XCFRAMEWORK_DIR/DebugSwift.xcframework" -name "*.framework" | while read framework; do
+          echo "Framework: $(basename "$framework")"
+          if [[ -f "$framework/DebugSwift" ]]; then
+            echo "  Architectures: $(lipo -archs "$framework/DebugSwift" 2>/dev/null || echo "Unknown")"
+          fi
+        done
+        
+    - name: Create ZIP Archive
+      run: |
+        cd XCFramework
+        zip -r DebugSwift.xcframework.zip DebugSwift.xcframework
+        echo "ZIP_PATH=$(pwd)/DebugSwift.xcframework.zip" >> $GITHUB_ENV
+        
+    - name: Upload XCFramework Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DebugSwift-XCFramework
+        path: XCFramework/DebugSwift.xcframework.zip
+        
+    - name: Get Version from Tag
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/}
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Release version: $VERSION"
+        
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/') && (github.event.inputs.create_release != 'false')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: XCFramework/DebugSwift.xcframework.zip
+        name: DebugSwift ${{ env.VERSION }}
+        body: |
+          ## DebugSwift ${{ env.VERSION }}
+          
+          ### 🎉 Apple Silicon Support
+          This release includes full Apple Silicon simulator support with XCFramework distribution.
+          
+          ### 📦 Installation Options
+          
+          #### CocoaPods (Source)
+          ```ruby
+          pod 'DebugSwift', '~> ${{ env.VERSION }}'
+          ```
+          
+          #### CocoaPods (XCFramework - Faster builds)
+          ```ruby
+          pod 'DebugSwift', :http => 'https://github.com/DebugSwift/DebugSwift/releases/download/${{ env.VERSION }}/DebugSwift.xcframework.zip'
+          ```
+          
+          #### Swift Package Manager
+          ```swift
+          dependencies: [
+              .package(url: "https://github.com/DebugSwift/DebugSwift", from: "${{ env.VERSION }}")
+          ]
+          ```
+          
+          ### 🏗️ Supported Architectures
+          - **iOS Device**: arm64
+          - **iOS Simulator**: arm64 (Apple Silicon) + x86_64 (Intel)
+          
+          ### 📋 What's Changed
+          - ✅ Full Apple Silicon simulator support
+          - ✅ XCFramework distribution for faster builds
+          - ✅ Removed simulator architecture exclusions
+          - ✅ Automated CI/CD builds
+          
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Update Release Description
+      if: startsWith(github.ref, 'refs/tags/') && (github.event.inputs.create_release != 'false')
+      run: |
+        echo "✅ Release ${{ env.VERSION }} created successfully!"
+        echo "📦 XCFramework uploaded to: https://github.com/DebugSwift/DebugSwift/releases/tag/${{ env.VERSION }}"

@@ -22,6 +22,7 @@
 
 - [🚀 Features](#features)
 - [🛠 Installation & Setup](#installation--setup)
+- [🔧 Troubleshooting](#troubleshooting)
 - [📝 Examples](#examples)
 - [🔧 Configuration](#configuration)
 
@@ -70,7 +71,7 @@
 
 ## Installation & Setup
 
-### Swift Package Manager
+### 🍃 Swift Package Manager (Recommended)
 
 Add to your `Package.swift`:
 
@@ -79,6 +80,37 @@ dependencies: [
     .package(url: "https://github.com/DebugSwift/DebugSwift.git", from: "2.0.0")
 ]
 ```
+
+Or add through Xcode: `File` > `Add Package Dependencies` > Enter URL:
+```
+https://github.com/DebugSwift/DebugSwift
+```
+
+### 🎯 CocoaPods
+
+#### Option 1: Source Distribution (Standard)
+Add to your `Podfile`:
+
+```ruby
+pod 'DebugSwift'
+```
+
+#### Option 2: XCFramework Distribution (Faster Builds) ⚡
+Add to your `Podfile`:
+
+```ruby
+pod 'DebugSwift', :http => 'https://github.com/DebugSwift/DebugSwift/releases/latest/download/DebugSwift.xcframework.zip'
+```
+
+### 🍎 Apple Silicon Support
+
+DebugSwift **fully supports Apple Silicon Macs** with native arm64 simulator builds! No more architecture exclusions or compatibility issues.
+
+**Supported Architectures:**
+- 📱 **iOS Device**: arm64
+- 🖥️ **iOS Simulator**: arm64 (Apple Silicon) + x86_64 (Intel)
+
+**Migration Note:** If you were using architecture exclusions like `'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'`, you can now **remove them** as they are no longer needed.
 
 ### Basic Setup
 
@@ -122,6 +154,55 @@ extension UIWindow {
     }
 }
 ```
+
+## 🔧 Troubleshooting
+
+### Apple Silicon Build Issues
+
+If you encounter build errors like `error unsupported Swift architecture` or `DebugSwift.framework only contains x86_64 slice for simulator` on Apple Silicon Macs:
+
+#### Solution 1: Update to Latest Version
+Ensure you're using the latest version of DebugSwift which includes full Apple Silicon support:
+
+```ruby
+# CocoaPods
+pod 'DebugSwift', '~> 1.8.1'
+
+# Swift Package Manager - update to latest
+```
+
+#### Solution 2: Use XCFramework Distribution (Recommended)
+For faster builds and guaranteed architecture compatibility:
+
+```ruby
+pod 'DebugSwift', :http => 'https://github.com/DebugSwift/DebugSwift/releases/latest/download/DebugSwift.xcframework.zip'
+```
+
+#### Solution 3: Remove Architecture Exclusions
+If you have custom architecture exclusions in your project, remove them:
+
+```ruby
+# Remove this from your Podfile or target configuration:
+# config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+```
+
+#### Solution 4: Clean Build
+Clean your build folder and derived data:
+
+```bash
+# Xcode
+Product → Clean Build Folder (⌘⇧K)
+
+# Command line
+rm -rf ~/Library/Developer/Xcode/DerivedData
+```
+
+### Build Performance
+
+- **XCFramework Distribution**: Up to 50% faster build times
+- **Source Distribution**: Full source access and debugging capabilities
+
+Choose XCFramework for production builds, source for active development.
 
 ## Examples
 
