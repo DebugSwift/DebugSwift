@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension DebugSwift {
+extension DS {
     public enum APNSToken {
         
         /// Call this method when your app successfully registers for remote notifications

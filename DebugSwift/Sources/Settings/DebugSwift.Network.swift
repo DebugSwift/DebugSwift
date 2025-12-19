@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension DebugSwift {
+extension DS {
     public class Network: @unchecked Sendable {
         public static let shared = Network()
         private init() {

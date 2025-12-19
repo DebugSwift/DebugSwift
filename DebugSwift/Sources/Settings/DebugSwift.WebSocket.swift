@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension DebugSwift {
+extension DS {
     public enum WebSocket {
         /// Enable WebSocket monitoring manually
         /// 

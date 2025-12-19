@@ -8,7 +8,7 @@
 import Foundation
 import UserNotifications
 
-extension DebugSwift {
+extension DS {
     public enum PushNotification {
         
         // MARK: - Core Configuration

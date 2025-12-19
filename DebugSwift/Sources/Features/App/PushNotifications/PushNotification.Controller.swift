@@ -126,7 +126,7 @@ class PushNotificationController: BaseController {
         })
         
         alert.addAction(UIAlertAction(title: "Test Scenario - Messages", style: .default) { _ in
-            DebugSwift.PushNotification.runTestScenario(.messageFlow)
+            DS.PushNotification.runTestScenario(.messageFlow)
         })
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -416,19 +416,19 @@ extension PushNotificationController {
         let alert = UIAlertController(title: "Test Scenarios", message: "Choose a scenario to test", preferredStyle: .actionSheet)
         
         alert.addAction(UIAlertAction(title: "📱 Message Flow", style: .default) { _ in
-            DebugSwift.PushNotification.runTestScenario(.messageFlow)
+            DS.PushNotification.runTestScenario(.messageFlow)
         })
         
         alert.addAction(UIAlertAction(title: "📰 News Updates", style: .default) { _ in
-            DebugSwift.PushNotification.runTestScenario(.newsUpdates)
+            DS.PushNotification.runTestScenario(.newsUpdates)
         })
         
         alert.addAction(UIAlertAction(title: "🛍️ Marketing Campaign", style: .default) { _ in
-            DebugSwift.PushNotification.runTestScenario(.marketingCampaign)
+            DS.PushNotification.runTestScenario(.marketingCampaign)
         })
         
         alert.addAction(UIAlertAction(title: "⚠️ System Alerts", style: .default) { _ in
-            DebugSwift.PushNotification.runTestScenario(.systemAlerts)
+            DS.PushNotification.runTestScenario(.systemAlerts)
         })
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))

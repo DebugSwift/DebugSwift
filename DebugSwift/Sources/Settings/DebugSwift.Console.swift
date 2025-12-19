@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension DebugSwift {
+extension DS {
     public class Console: @unchecked Sendable {
         public static let shared = Console()
         private init() {}

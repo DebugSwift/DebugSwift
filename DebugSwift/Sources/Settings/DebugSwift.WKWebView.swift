@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension DebugSwift {
+extension DS {
     
     /// Configuration and utilities for WKWebView network monitoring
     public final class WKWebView: @unchecked Sendable {

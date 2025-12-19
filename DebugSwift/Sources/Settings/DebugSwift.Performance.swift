@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension DebugSwift {
+extension DS {
     public enum Performance {
         public static let shared = PerformanceManager()
         
@@ -125,7 +125,7 @@ extension DebugSwift {
 // MARK: - Performance Manager
 
 public class PerformanceManager: @unchecked Sendable {
-    public let leakDetector = DebugSwift.Performance.LeakDetector()
+    public let leakDetector = DS.Performance.LeakDetector()
     
     internal init() {}
     
@@ -160,7 +160,7 @@ public class PerformanceManager: @unchecked Sendable {
 
 // MARK: - Public Types
 
-extension DebugSwift.Performance {
+extension DS.Performance {
     public enum AutoFixMode: String, CaseIterable, Sendable {
         case disabled = "Disabled"
         case logOnly = "Log Only"

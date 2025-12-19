@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension DebugSwift {
+extension DS {
     @MainActor
     public class SwiftUIRender: @unchecked Sendable {
         public static let shared = SwiftUIRender()

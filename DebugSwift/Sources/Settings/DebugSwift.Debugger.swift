@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension DebugSwift {
+extension DS {
     public class Debugger {
         /// Enable/Disable logs in Xcode console
         public var logEnable: Bool {

@@ -192,7 +192,7 @@ final class ChartView: UIView {
         )
         
         // Only show configurable time window of data
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let maxMeasurements = Int(maxTimeSeconds / measurementInterval)
         let measurementsToShow = Array(measurements.suffix(maxMeasurements))
         
@@ -253,7 +253,7 @@ final class ChartView: UIView {
         }
         
         // Vertical grid lines - adjusted for configurable time window
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let maxMeasurements = Int(maxTimeSeconds / measurementInterval)
         let measurementsToShow = Array(measurements.suffix(maxMeasurements))
         let verticalLines = min(5, max(measurementsToShow.count - 1, 1)) // Show reasonable number of vertical lines
@@ -317,7 +317,7 @@ final class ChartView: UIView {
         ]
         
         // Show configurable time window, with time flowing left (oldest) to right (newest)
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let timePerMeasurement = measurementInterval
         
         // Calculate how many measurements we should show (max 2 minutes worth)
@@ -373,7 +373,7 @@ final class ChartView: UIView {
     
     private func drawGraph(in context: CGContext, graphRect: CGRect) {
         // Only show configurable time window of data
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let maxMeasurements = Int(maxTimeSeconds / measurementInterval)
         let measurementsToShow = Array(measurements.suffix(maxMeasurements))
         
@@ -403,7 +403,7 @@ final class ChartView: UIView {
         path.lineCapStyle = .round
         
         // Only show configurable time window of data
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let maxMeasurements = Int(maxTimeSeconds / measurementInterval)
         let measurementsToShow = Array(measurements.suffix(maxMeasurements))
         
@@ -504,7 +504,7 @@ final class ChartView: UIView {
     
     private func drawDataPoints(in context: CGContext, graphRect: CGRect) {
         // Only show configurable time window of data
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let maxMeasurements = Int(maxTimeSeconds / measurementInterval)
         let measurementsToShow = Array(measurements.suffix(maxMeasurements))
         
@@ -539,7 +539,7 @@ final class ChartView: UIView {
     
     private func drawSinglePoint(in context: CGContext, graphRect: CGRect) {
         // Only show configurable time window of data
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let maxMeasurements = Int(maxTimeSeconds / measurementInterval)
         let measurementsToShow = Array(measurements.suffix(maxMeasurements))
         
@@ -572,7 +572,7 @@ final class ChartView: UIView {
         guard markedValue > 0 else { return }
         
         // Only show configurable time window of data
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let maxMeasurements = Int(maxTimeSeconds / measurementInterval)
         let measurementsToShow = Array(measurements.suffix(maxMeasurements))
         
@@ -628,7 +628,7 @@ final class ChartView: UIView {
         guard let lastValue = measurements.last else { return }
         
         // Only show configurable time window of data
-        let maxTimeSeconds = DebugSwift.Performance.Chart.timeWindowSeconds
+        let maxTimeSeconds = DS.Performance.Chart.timeWindowSeconds
         let maxMeasurements = Int(maxTimeSeconds / measurementInterval)
         let measurementsToShow = Array(measurements.suffix(maxMeasurements))
         

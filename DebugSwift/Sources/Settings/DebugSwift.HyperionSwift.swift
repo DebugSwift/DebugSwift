@@ -7,7 +7,7 @@
 
 import UIKit
 
-extension DebugSwift {
+extension DS {
     
     /// HyperionSwift UI measurement tools
     public enum Measurement {

@@ -48,3 +48,25 @@ public class DebugSwift {
         return self
     }
 }
+
+// MARK: - Namespace Enum to avoid module/class name conflicts
+public enum DS {
+    // This namespace enum prevents Swift module interface conflicts
+    // between the module name 'DebugSwift' and the class name 'DebugSwift'
+}
+
+// MARK: - Backward Compatibility Extensions
+extension DebugSwift {
+    // Provide backward compatibility for existing public API
+    public typealias Performance = DS.Performance
+    public typealias PushNotification = DS.PushNotification
+    public typealias APNSToken = DS.APNSToken
+    public typealias App = DS.App
+    public typealias Console = DS.Console
+    public typealias Debugger = DS.Debugger
+    public typealias HyperionSwift = DS.HyperionSwift
+    public typealias Network = DS.Network
+    public typealias SwiftUIRender = DS.SwiftUIRender
+    public typealias WebSocket = DS.WebSocket
+    public typealias WKWebView = DS.WKWebView
+}
