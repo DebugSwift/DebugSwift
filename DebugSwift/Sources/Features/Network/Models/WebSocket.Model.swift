@@ -29,7 +29,7 @@ public enum WebSocketConnectionStatus: Equatable {
     case closed
     case error(Error)
     
-    static func == (lhs: WebSocketConnectionStatus, rhs: WebSocketConnectionStatus) -> Bool {
+    public static func == (lhs: WebSocketConnectionStatus, rhs: WebSocketConnectionStatus) -> Bool {
         switch (lhs, rhs) {
         case (.connecting, .connecting),
              (.connected, .connected),
