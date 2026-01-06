@@ -8,83 +8,83 @@
 import Foundation
 
 @MainActor
-final class WebSocketDataSource: ObservableObject {
-    static let shared = WebSocketDataSource()
-    
+public final class WebSocketDataSource: ObservableObject {
+    public static let shared = WebSocketDataSource()
+
     @Published private var connections: [WebSocketConnection] = []
     private let queue = DispatchQueue(label: "WebSocketDataSource", qos: .utility)
-    
+
     private init() {}
     
     // MARK: - Connection Management
-    
-    func addConnection(_ connection: WebSocketConnection) {
+
+    public func addConnection(_ connection: WebSocketConnection) {
         connections.append(connection)
         postUpdateNotification()
     }
-    
-    func removeConnection(withId id: String) {
+
+    public func removeConnection(withId id: String) {
         connections.removeAll { $0.id == id }
         postUpdateNotification()
     }
-    
-    func getConnection(withId id: String) -> WebSocketConnection? {
+
+    public func getConnection(withId id: String) -> WebSocketConnection? {
         return connections.first { $0.id == id }
     }
-    
-    func getAllConnections() -> [WebSocketConnection] {
+
+    public func getAllConnections() -> [WebSocketConnection] {
         return connections
     }
-    
-    func getActiveConnections() -> [WebSocketConnection] {
+
+    public func getActiveConnections() -> [WebSocketConnection] {
         return connections.filter { $0.isActive }
     }
-    
-    func getConnectionsSortedByActivity() -> [WebSocketConnection] {
+
+    public func getConnectionsSortedByActivity() -> [WebSocketConnection] {
         return connections.sorted { $0.lastActivityAt > $1.lastActivityAt }
     }
-    
+
     // MARK: - Frame Management
-    
-    func addFrame(_ frame: WebSocketFrame) {
+
+    public func addFrame(_ frame: WebSocketFrame) {
         guard let connection = getConnection(withId: frame.connectionId) else {
             return
         }
-        
+
         connection.addFrame(frame)
         postUpdateNotification()
     }
-    
-    func clearFrames(for connectionId: String) {
+
+    public func clearFrames(for connectionId: String) {
         guard let connection = getConnection(withId: connectionId) else {
             return
         }
-        
+
         connection.clearFrames()
         postUpdateNotification()
     }
-    
-    func clearAllFrames() {
+
+    public func clearAllFrames() {
         connections.forEach { $0.clearFrames() }
         postUpdateNotification()
     }
-    
-    func markConnectionAsRead(_ connectionId: String) {
+
+    public func markConnectionAsRead(_ connectionId: String) {
         guard let connection = getConnection(withId: connectionId) else {
             return
         }
-        
+
         connection.markAsRead()
         postUpdateNotification()
     }
-    
+
     // MARK: - Connection Status Updates
-    
-    func updateConnectionStatus(_ connectionId: String, status: WebSocketConnectionStatus) {
+
+    public func updateConnectionStatus(_ connectionId: String, status: WebSocketConnectionStatus) {
         guard let connection = getConnection(withId: connectionId) else {
             return
         }
-        
+
         connection.updateStatus(status)
         postUpdateNotification()
     }

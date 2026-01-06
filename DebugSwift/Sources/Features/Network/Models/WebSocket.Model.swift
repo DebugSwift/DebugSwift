@@ -8,12 +8,12 @@
 import Foundation
 import UIKit
 
-enum WebSocketFrameDirection {
+public enum WebSocketFrameDirection {
     case sent
     case received
 }
 
-enum WebSocketFrameType {
+public enum WebSocketFrameType {
     case text
     case binary
     case ping
@@ -22,7 +22,7 @@ enum WebSocketFrameType {
     case continuation
 }
 
-enum WebSocketConnectionStatus: Equatable {
+public enum WebSocketConnectionStatus: Equatable {
     case connecting
     case connected
     case reconnecting
@@ -72,14 +72,14 @@ enum WebSocketConnectionStatus: Equatable {
     }
 }
 
-final class WebSocketFrame: NSObject {
-    let id = UUID().uuidString
-    let timestamp: Date
-    let direction: WebSocketFrameDirection
-    let type: WebSocketFrameType
-    let payload: Data
-    let payloadSize: Int
-    let connectionId: String
+public final class WebSocketFrame: NSObject {
+    public let id = UUID().uuidString
+    public let timestamp: Date
+    public let direction: WebSocketFrameDirection
+    public let type: WebSocketFrameType
+    public let payload: Data
+    public let payloadSize: Int
+    public let connectionId: String
     
     var payloadString: String? {
         // Try to convert any payload to string if it's valid UTF-8
@@ -126,7 +126,7 @@ final class WebSocketFrame: NSObject {
         return payload.map { String(format: "%02X", $0) }.joined(separator: " ")
     }
     
-    init(direction: WebSocketFrameDirection, type: WebSocketFrameType, payload: Data, connectionId: String) {
+    public init(direction: WebSocketFrameDirection, type: WebSocketFrameType, payload: Data, connectionId: String) {
         self.timestamp = Date()
         self.direction = direction
         self.type = type
@@ -137,15 +137,15 @@ final class WebSocketFrame: NSObject {
     }
 }
 
-final class WebSocketConnection: NSObject {
-    let id = UUID().uuidString
-    let url: URL
-    let channelName: String?
-    var status: WebSocketConnectionStatus = .connecting
-    var frames: [WebSocketFrame] = []
-    let createdAt: Date
-    var lastActivityAt: Date
-    var unreadFrameCount: Int = 0
+public final class WebSocketConnection: NSObject {
+    public let id: String
+    public let url: URL
+    public let channelName: String?
+    public var status: WebSocketConnectionStatus = .connecting
+    public var frames: [WebSocketFrame] = []
+    public let createdAt: Date
+    public var lastActivityAt: Date
+    public var unreadFrameCount: Int = 0
     
     private let maxFrames = 1000 // Prevent unbounded memory usage
     
@@ -162,15 +162,16 @@ final class WebSocketConnection: NSObject {
         }
     }
     
-    init(url: URL, channelName: String? = nil) {
+    public init(url: URL, channelName: String? = nil, id: String = UUID().uuidString) {
+        self.id = id
         self.url = url
         self.channelName = channelName
         self.createdAt = Date()
         self.lastActivityAt = Date()
         super.init()
     }
-    
-    func addFrame(_ frame: WebSocketFrame) {
+
+    public func addFrame(_ frame: WebSocketFrame) {
         frames.append(frame)
         lastActivityAt = Date()
         unreadFrameCount += 1
@@ -181,16 +182,16 @@ final class WebSocketConnection: NSObject {
         }
     }
     
-    func clearFrames() {
+    public func clearFrames() {
         frames.removeAll()
         unreadFrameCount = 0
     }
-    
-    func markAsRead() {
+
+    public func markAsRead() {
         unreadFrameCount = 0
     }
-    
-    func updateStatus(_ status: WebSocketConnectionStatus) {
+
+    public func updateStatus(_ status: WebSocketConnectionStatus) {
         self.status = status
         lastActivityAt = Date()
     }
