@@ -8,44 +8,44 @@
 
 import Foundation
 
-enum RequestSerializer: UInt {
+public enum RequestSerializer: UInt {
     case json = 0
     case form
 }
 
-final class HttpModel: NSObject {
-    var url: URL?
-    var requestData: Data?
-    var responseData: Data?
-    var decryptedResponseData: Data?
-    var requestId: String?
-    var method: String?
-    var statusCode: String?
-    var mineType: String?
-    var startTime: String?
-    var endTime: String?
-    var totalDuration: String?
-    var isImage = false
-    var isEncrypted = false
+public final class HttpModel: NSObject {
+    public var url: URL?
+    public var requestData: Data?
+    public var responseData: Data?
+    public var decryptedResponseData: Data?
+    public var requestId: String?
+    public var method: String?
+    public var statusCode: String?
+    public var mineType: String?
+    public var startTime: String?
+    public var endTime: String?
+    public var totalDuration: String?
+    public var isImage = false
+    public var isEncrypted = false
 
-    var requestHeaderFields: [String: Any]?
-    var responseHeaderFields: [String: Any]?
-    var isTag = false
-    var isSelected = false
-    var requestSerializer: RequestSerializer = .json
-    var errorDescription: String?
-    var errorLocalizedDescription: String?
-    var size: String?
-    var index: Int = .zero
-    var id: String { String(index) }
+    public var requestHeaderFields: [String: Any]?
+    public var responseHeaderFields: [String: Any]?
+    public var isTag = false
+    public var isSelected = false
+    public var requestSerializer: RequestSerializer = .json
+    public var errorDescription: String?
+    public var errorLocalizedDescription: String?
+    public var size: String?
+    public var index: Int = .zero
+    public var id: String { String(index) }
 
-    override init() {
+    public override init() {
         super.init()
         self.statusCode = "0"
         self.url = URL(string: "")
     }
 
-    var isSuccess: Bool {
+    public var isSuccess: Bool {
         errorDescription == nil || errorDescription?.isEmpty == true
     }
 }

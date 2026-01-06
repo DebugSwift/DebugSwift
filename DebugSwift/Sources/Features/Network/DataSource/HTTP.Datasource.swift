@@ -8,12 +8,12 @@
 
 import Foundation
 
-final class HttpDatasource: @unchecked Sendable {
-    static let shared = HttpDatasource()
+public final class HttpDatasource: @unchecked Sendable {
+    public static let shared = HttpDatasource()
 
-    var httpModels: [HttpModel] = []
+    public var httpModels: [HttpModel] = []
 
-    func addHttpRequest(_ model: HttpModel) -> Bool {
+    public func addHttpRequest(_ model: HttpModel) -> Bool {
         if model.url?.absoluteString.isEmpty == true {
             return false
         }
