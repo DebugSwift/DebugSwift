@@ -39,6 +39,9 @@ public final class HttpModel: NSObject {
     public var index: Int = .zero
     public var id: String { String(index) }
 
+    /// Optional custom title to display instead of the URL (e.g., GraphQL operation name)
+    public var title: String?
+
     public override init() {
         super.init()
         self.statusCode = "0"

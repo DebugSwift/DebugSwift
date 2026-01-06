@@ -103,7 +103,12 @@ final class NetworkTableViewCell: UITableViewCell {
         methodLabel.text = "[\(model.method ?? "GET")]"
         numberLabel.text = model.id
         statusCodeLabel.text = model.statusCode
-        descriptionLabel.text = formatURL(model.url?.absoluteString)
+        // Use custom title if available, otherwise format the URL
+        if let title = model.title, !title.isEmpty {
+            descriptionLabel.text = title
+        } else {
+            descriptionLabel.text = formatURL(model.url?.absoluteString)
+        }
         timestampLabel.text = formatTimestamp(model.startTime)
         
         // Performance indicators
