@@ -83,6 +83,50 @@ extension DebugSwift {
             NetworkThresholdTracker.shared.getDetailedLogs()
         }
         
+        // MARK: - Network History Management
+        
+        /// Clear all HTTP/HTTPS network request history
+        /// Use this to clear the Network tab when switching environments or testing different scenarios
+        ///
+        /// Example:
+        /// ```swift
+        /// // Clear network history when switching from dev to prod
+        /// DebugSwift.Network.shared.clearNetworkHistory()
+        /// ```
+        public func clearNetworkHistory() {
+            HttpDatasource.shared.removeAll()
+            NotificationCenter.default.post(
+                name: NSNotification.Name("reloadHttp_DebugSwift"),
+                object: nil
+            )
+        }
+        
+        /// Clear all WebSocket connection and frame history
+        /// Use this to clear WebSocket data when switching environments
+        ///
+        /// Example:
+        /// ```swift
+        /// DebugSwift.Network.shared.clearWebSocketHistory()
+        /// ```
+        @MainActor
+        public func clearWebSocketHistory() {
+            WebSocketDataSource.shared.removeAllConnections()
+        }
+        
+        /// Clear all network data including HTTP requests and WebSocket connections
+        /// This is a convenience method that clears both HTTP and WebSocket history
+        ///
+        /// Example:
+        /// ```swift
+        /// // Clear all network data when switching stands (dev/prod)
+        /// DebugSwift.Network.shared.clearAllNetworkData()
+        /// ```
+        @MainActor
+        public func clearAllNetworkData() {
+            clearNetworkHistory()
+            clearWebSocketHistory()
+        }
+        
         // MARK: - Encryption/Decryption API
         
         /// Enable or disable response decryption

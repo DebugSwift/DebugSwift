@@ -305,6 +305,35 @@ DebugSwift.Network.shared.ignoredURLs = ["https://analytics.com"]
 DebugSwift.Network.shared.onlyURLs = ["https://api.myapp.com"]
 ```
 
+### Network History Management
+
+```swift
+// Clear HTTP/HTTPS request history (useful when switching environments)
+DebugSwift.Network.shared.clearNetworkHistory()
+
+// Clear WebSocket connection history
+await DebugSwift.Network.shared.clearWebSocketHistory()
+
+// Clear all network data (HTTP + WebSocket)
+await DebugSwift.Network.shared.clearAllNetworkData()
+
+// Example: Clear network data when switching environments
+DebugSwift.App.shared.customAction = {
+    [
+        .init(title: "Environment", actions: [
+            .init(title: "Switch to Production") {
+                // Your environment switch logic
+                DebugSwift.Network.shared.clearNetworkHistory()
+            },
+            .init(title: "Switch to Development") {
+                // Your environment switch logic
+                DebugSwift.Network.shared.clearNetworkHistory()
+            }
+        ])
+    ]
+}
+```
+
 ### Manual URLSessionConfiguration Injection
 
 If you create `URLSessionConfiguration` instances **before** calling `DebugSwift.setup()`, you can manually inject the network monitoring protocol:

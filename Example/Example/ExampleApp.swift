@@ -47,6 +47,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // To fix Alamofire `uploadProgress`
 //        DebugSwift.Network.delegate = self
         
+        // MARK: Custom Actions Demo - Including Network History Clear
+        setupCustomActions()
+        
         // Request push notification permissions for APNS token demo
         requestPushNotificationPermissions()
 
@@ -57,6 +60,48 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let viewController = UITableViewController()
         viewController.title = "PURE"
         return [viewController]
+    }
+    
+    // MARK: - Custom Actions Setup
+    
+    private func setupCustomActions() {
+        DebugSwift.App.shared.customAction = {
+            [
+                .init(title: "Environment Management", actions: [
+                    .init(title: "Clear Network History") {
+                        DebugSwift.Network.shared.clearNetworkHistory()
+                        print("✅ Network history cleared!")
+                    },
+                    .init(title: "Clear All Network Data") {
+                        Task { @MainActor in
+                            await DebugSwift.Network.shared.clearAllNetworkData()
+                            print("✅ All network data cleared!")
+                        }
+                    },
+                    .init(title: "Switch to Development") {
+                        // Your environment switch logic here
+                        print("🔄 Switching to Development...")
+                        DebugSwift.Network.shared.clearNetworkHistory()
+                        print("✅ Switched to Development & cleared network history")
+                    },
+                    .init(title: "Switch to Production") {
+                        // Your environment switch logic here
+                        print("🔄 Switching to Production...")
+                        DebugSwift.Network.shared.clearNetworkHistory()
+                        print("✅ Switched to Production & cleared network history")
+                    }
+                ]),
+                .init(title: "Development Tools", actions: [
+                    .init(title: "Clear UserDefaults") {
+                        // Example: Clear specific user data
+                        print("🗑️ UserDefaults cleared")
+                    },
+                    .init(title: "Reset App State") {
+                        print("🔄 App state reset")
+                    }
+                ])
+            ]
+        }
     }
     
     // MARK: - Push Notification Setup
