@@ -305,6 +305,33 @@ DebugSwift.Network.shared.ignoredURLs = ["https://analytics.com"]
 DebugSwift.Network.shared.onlyURLs = ["https://api.myapp.com"]
 ```
 
+### Manual URLSessionConfiguration Injection
+
+If you create `URLSessionConfiguration` instances **before** calling `DebugSwift.setup()`, you can manually inject the network monitoring protocol:
+
+```swift
+// Option 1: Inject into existing configuration
+let config = URLSessionConfiguration.default
+DebugSwift.Network.shared.injectIntoConfiguration(config)
+let session = URLSession(configuration: config)
+
+// Option 2: Get pre-configured default configuration
+let config = DebugSwift.Network.shared.defaultConfiguration()
+let session = URLSession(configuration: config)
+
+// Option 3: Get pre-configured ephemeral configuration
+let config = DebugSwift.Network.shared.ephemeralConfiguration()
+let session = URLSession(configuration: config)
+
+// Option 4: Direct protocol class injection (advanced)
+var config = URLSessionConfiguration.default
+var protocolClasses = config.protocolClasses ?? []
+protocolClasses.insert(CustomHTTPProtocol.self, at: 0)
+config.protocolClasses = protocolClasses
+```
+
+**Note:** This is particularly useful when migrating from other network debugging tools like Netfox or when working with pre-existing URLSession configurations.
+
 ### Network Encryption/Decryption
 
 DebugSwift supports automatic decryption of encrypted API responses, making it easier to debug apps with end-to-end encryption.
