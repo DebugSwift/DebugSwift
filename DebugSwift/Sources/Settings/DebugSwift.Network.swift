@@ -106,6 +106,61 @@ extension DebugSwift {
         public func setEncryptionService(_ service: EncryptionServiceProtocol) {
             encryptionService = service
         }
+        
+        // MARK: - Manual URLSessionConfiguration Injection
+        
+        /// Manually inject CustomHTTPProtocol into an existing URLSessionConfiguration
+        /// Use this when you need to inject DebugSwift into configurations created before setup() is called
+        ///
+        /// Example:
+        /// ```swift
+        /// let config = URLSessionConfiguration.default
+        /// DebugSwift.Network.shared.injectIntoConfiguration(config)
+        /// let session = URLSession(configuration: config)
+        /// ```
+        ///
+        /// - Parameter configuration: The URLSessionConfiguration to inject into
+        public func injectIntoConfiguration(_ configuration: URLSessionConfiguration) {
+            var protocolClasses = configuration.protocolClasses ?? []
+            
+            // Only add if not already present
+            if !protocolClasses.contains(where: { $0 == CustomHTTPProtocol.self }) {
+                protocolClasses.insert(CustomHTTPProtocol.self, at: 0)
+                configuration.protocolClasses = protocolClasses
+            }
+        }
+        
+        /// Manually inject CustomHTTPProtocol and return a new configuration
+        /// Use this when you need a new configuration with DebugSwift already injected
+        ///
+        /// Example:
+        /// ```swift
+        /// let config = DebugSwift.Network.shared.defaultConfiguration()
+        /// let session = URLSession(configuration: config)
+        /// ```
+        ///
+        /// - Returns: A new URLSessionConfiguration with CustomHTTPProtocol injected
+        public func defaultConfiguration() -> URLSessionConfiguration {
+            let configuration = URLSessionConfiguration.default
+            injectIntoConfiguration(configuration)
+            return configuration
+        }
+        
+        /// Manually inject CustomHTTPProtocol and return a new ephemeral configuration
+        /// Use this when you need an ephemeral configuration with DebugSwift already injected
+        ///
+        /// Example:
+        /// ```swift
+        /// let config = DebugSwift.Network.shared.ephemeralConfiguration()
+        /// let session = URLSession(configuration: config)
+        /// ```
+        ///
+        /// - Returns: A new ephemeral URLSessionConfiguration with CustomHTTPProtocol injected
+        public func ephemeralConfiguration() -> URLSessionConfiguration {
+            let configuration = URLSessionConfiguration.ephemeral
+            injectIntoConfiguration(configuration)
+            return configuration
+        }
     }
     
     // MARK: - App Groups Configuration

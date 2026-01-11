@@ -1,6 +1,6 @@
 //
 //  SwiftUIRenderTracker.swift
-//  Copyright © 2025 DoorDash. All rights reserved.
+//  Copyright © 2025 Matheus Gois. All rights reserved.
 //
 
 import SwiftUI

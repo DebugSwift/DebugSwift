@@ -8,18 +8,18 @@
 
 import Foundation
 
-final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
+public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private static let requestProperty = "com.custom.http.protocol"
 
-    final class func clearCache() {
+    public final class func clearCache() {
         URLCache.customHttp.removeAllCachedResponses()
     }
 
-    final class func start() {
+    public final class func start() {
         URLProtocol.registerClass(self)
     }
 
-    final class func stop() {
+    public final class func stop() {
         URLProtocol.unregisterClass(self)
     }
 
@@ -42,16 +42,16 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         return false
     }
 
-    override final class func canInit(with request: URLRequest) -> Bool {
+    public override final class func canInit(with request: URLRequest) -> Bool {
         canServeRequest(request)
     }
 
-    override final class func canInit(with task: URLSessionTask) -> Bool {
+    public override final class func canInit(with task: URLSessionTask) -> Bool {
         guard let request = task.currentRequest else { return false }
         return canServeRequest(request)
     }
 
-    override final class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    public override final class func canonicalRequest(for request: URLRequest) -> URLRequest {
         request
     }
 
@@ -93,7 +93,7 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         client?.urlProtocolDidFinishLoading(self)
     }
 
-    override func startLoading() {
+    public override func startLoading() {
         guard let newRequest = (request as NSObject).mutableCopy() as? NSMutableURLRequest else {
             fatalError("Can not convert to NSMutableURLRequest")
         }
@@ -155,7 +155,7 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         return config
     }
 
-    override func stopLoading() {
+    public override func stopLoading() {
         dataTask?.cancel()
 
         if let task = dataTask {
@@ -248,7 +248,7 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
 }
 
 extension CustomHTTPProtocol: URLSessionDataDelegate {
-    func urlSession(
+    public func urlSession(
         _: URLSession,
         task _: URLSessionTask,
         willPerformHTTPRedirection response: HTTPURLResponse,
@@ -265,7 +265,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         }
     }
 
-    func urlSession(
+    public func urlSession(
         _: URLSession,
         dataTask: URLSessionDataTask,
         didReceive response: URLResponse,
@@ -289,7 +289,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         }
     }
 
-    func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
+    public func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             Debug.print(#function)
@@ -345,7 +345,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         }
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             if let error {
@@ -375,7 +375,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
 }
 
 extension CustomHTTPProtocol: URLSessionTaskDelegate {
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         didSendBodyData bytesSent: Int64,
