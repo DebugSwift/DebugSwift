@@ -83,8 +83,11 @@ final class RawBodyViewController: BaseController {
             loadingIndicator.startAnimating()
             textView.isHidden = true
             
+            let capturedData = data
+            let capturedHeaders = headers
+            
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-                let formatted = self?.formatRawWithHeaders() ?? "No data"
+                let formatted = Self.formatRawWithHeaders(data: capturedData, headers: capturedHeaders)
                 
                 DispatchQueue.main.async {
                     self?.textView.text = formatted
@@ -93,11 +96,11 @@ final class RawBodyViewController: BaseController {
                 }
             }
         } else {
-            textView.text = formatRawWithHeaders()
+            textView.text = Self.formatRawWithHeaders(data: data, headers: headers)
         }
     }
     
-    private func formatRawWithHeaders() -> String {
+    private static func formatRawWithHeaders(data: Data?, headers: [String: Any]?) -> String {
         var result = ""
         
         // Add headers section
@@ -126,6 +129,10 @@ final class RawBodyViewController: BaseController {
     }
     
     private func estimatedHeadersSize() -> Int {
+        Self.calculateHeadersSize(headers)
+    }
+    
+    private static func calculateHeadersSize(_ headers: [String: Any]?) -> Int {
         guard let headers = headers else { return 0 }
         return headers.reduce(0) { $0 + $1.key.count + "\($1.value)".count }
     }

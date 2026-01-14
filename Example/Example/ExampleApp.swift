@@ -73,10 +73,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                         print("✅ Network history cleared!")
                     },
                     .init(title: "Clear All Network Data") {
-                        Task { @MainActor in
-                            await DebugSwift.Network.shared.clearAllNetworkData()
-                            print("✅ All network data cleared!")
-                        }
+                        DebugSwift.Network.shared.clearAllNetworkData()
+                        print("✅ All network data cleared!")
                     },
                     .init(title: "Switch to Development") {
                         // Your environment switch logic here
