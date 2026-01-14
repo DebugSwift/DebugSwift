@@ -84,7 +84,8 @@ final class RawBodyViewController: BaseController {
             textView.isHidden = true
             
             let capturedData = data
-            let capturedHeaders = headers
+            // Convert to Sendable array of tuples
+            let capturedHeaders = headers?.map { ($0.key, "\($0.value)") } ?? []
             
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
                 let formatted = Self.formatRawWithHeaders(data: capturedData, headers: capturedHeaders)
@@ -96,19 +97,20 @@ final class RawBodyViewController: BaseController {
                 }
             }
         } else {
-            textView.text = Self.formatRawWithHeaders(data: data, headers: headers)
+            let headersArray = headers?.map { ($0.key, "\($0.value)") } ?? []
+            textView.text = Self.formatRawWithHeaders(data: data, headers: headersArray)
         }
     }
     
-    private static func formatRawWithHeaders(data: Data?, headers: [String: Any]?) -> String {
+    nonisolated private static func formatRawWithHeaders(data: Data?, headers: [(String, String)]) -> String {
         var result = ""
         
         // Add headers section
-        if let headers = headers, !headers.isEmpty {
+        if !headers.isEmpty {
             result += "Headers:\n"
             result += String(repeating: "─", count: 60) + "\n"
             
-            let sortedHeaders = headers.sorted { $0.key.lowercased() < $1.key.lowercased() }
+            let sortedHeaders = headers.sorted { $0.0.lowercased() < $1.0.lowercased() }
             for (key, value) in sortedHeaders {
                 result += "\(key): \(value)\n"
             }
