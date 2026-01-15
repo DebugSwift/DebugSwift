@@ -216,17 +216,10 @@ fileprivate extension UnitTestValidator {
     }
 
     func checkUnitTestCoverage() {
-        // Temporarily disabled due to xcresult format incompatibility with Xcode 16.4+
-        // Error: XCResultStorage.ResultBundleFactory.Error - Failed to read metadata
-        // The DangerSwiftCoverage plugin needs updates for newer xcresult formats
-        // TODO: Re-enable when DangerSwiftCoverage supports Xcode 16.4+ or use alternative
-        
-        warn("⚠️ Code coverage check is temporarily disabled due to xcresult format incompatibility. Please verify coverage manually in Xcode.")
-        
-        // Coverage.xcodeBuildCoverage(
-        //     .xcresultBundle("Example/fastlane/test_output/Example.xcresult"),
-        //     minimumCoverage: 70,
-        //     excludedTargets: ["DangerSwiftCoverageTests.xctest"]
-        // )
+        Coverage.xcodeBuildCoverage(
+            .xcresultBundle("Example/fastlane/test_output/Example.xcresult"),
+            minimumCoverage: 70,
+            excludedTargets: ["DangerSwiftCoverageTests.xctest"]
+        )
     }
 }
