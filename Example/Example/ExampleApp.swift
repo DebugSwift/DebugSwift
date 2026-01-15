@@ -74,7 +74,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                     },
                     .init(title: "Clear All Network Data") {
                         DebugSwift.Network.shared.clearAllNetworkData()
-                        print("✅ All network data cleared!")
+                            print("✅ All network data cleared!")
                     },
                     .init(title: "Switch to Development") {
                         // Your environment switch logic here

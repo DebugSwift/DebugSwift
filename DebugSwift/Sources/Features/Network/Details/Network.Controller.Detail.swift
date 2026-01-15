@@ -149,7 +149,7 @@ final class NetworkViewControllerDetail: BaseTableController {
         let vc = BodyBrowserViewController(data: data, title: title, isRequest: isRequest)
         navigationController?.pushViewController(vc, animated: true)
     }
-
+    
     private func showRawBody(_ data: Data?, title: String, headers: [String: Any]?, isRequest: Bool) {
         let vc = RawBodyViewController(data: data, headers: headers, title: title, isRequest: isRequest)
         navigationController?.pushViewController(vc, animated: true)
@@ -228,9 +228,9 @@ extension NetworkViewControllerDetail {
                 let connectionType = detectConnectionType(headers: headers)
                 if !connectionType.isEmpty {
                     basicItems.append(DetailItem(title: "CONNECTION TYPE", value: connectionType))
-                }
-            }
-            
+    }
+}
+
             // Stream status for SSE
             if isServerSentEvent(model: model) {
                 basicItems.append(DetailItem(title: "STREAM STATUS", value: "Completed"))
@@ -240,8 +240,8 @@ extension NetworkViewControllerDetail {
             
             if !basicItems.isEmpty {
                 sections.append(DetailSection(title: "GENERAL", items: basicItems))
-            }
-            
+}
+
             // Request section
             let requestHeadersCount = model.requestHeaderFields?.count ?? 0
             var requestItems: [DetailItem] = [
@@ -253,8 +253,8 @@ extension NetworkViewControllerDetail {
                 let badge = bodyCount > 0 ? "\(bodyCount)" : nil
                 requestItems.append(DetailItem(title: "Browse Request Body", action: .showRequestBody, badge: badge))
                 requestItems.append(DetailItem(title: "Raw Request", action: .showRequestBodyRaw))
-            }
-            
+    }
+    
             sections.append(DetailSection(title: "REQUEST", items: requestItems))
             
             // Response section
@@ -376,8 +376,8 @@ extension NetworkViewControllerDetail {
                 }
             }
             return count
-        }
     }
+}
 }
 
 // MARK: - Actions
