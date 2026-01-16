@@ -68,6 +68,9 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private var prevStartTime: Date?
 
     private var threadOperator: ThreadOperator?
+    
+    // Store reference to original delegate for forwarding
+    private weak var originalDelegate: URLSessionDelegate?
 
     private func use(_ cache: CachedURLResponse) {
         DebugSwift.Network.shared.delegate?.urlSession(
@@ -124,6 +127,9 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         startTime = Date()
         prevUrl = request.url
         prevStartTime = startTime
+        
+        // Capture the most recent application delegate for forwarding authentication challenges
+        originalDelegate = URLSessionDelegateRegistry.shared.getMostRecentDelegate()
         
         // Use preserved configuration if available, otherwise fall back to default
         let config = getPreservedConfigurationForRequest() ?? URLSessionConfiguration.default
@@ -394,6 +400,98 @@ extension CustomHTTPProtocol: URLSessionTaskDelegate {
                 totalBytesSent: totalBytesSent,
                 totalBytesExpectedToSend: totalBytesExpectedToSend
             )
+        }
+    }
+    
+    // MARK: - Authentication Challenge Forwarding (Fix for issue #240)
+    
+    public func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        threadOperator?.execute { [weak self] in
+            guard let self else {
+                completionHandler(.performDefaultHandling, nil)
+                return
+            }
+            
+            Debug.print(#function)
+            
+            // Forward to original delegate if available and implements the method
+            if let originalDelegate = self.originalDelegate,
+               originalDelegate.responds(to: #selector(URLSessionDelegate.urlSession(_:didReceive:completionHandler:))) {
+                originalDelegate.urlSession?(session, didReceive: challenge, completionHandler: completionHandler)
+            } else {
+                // Default handling if no original delegate
+                completionHandler(.performDefaultHandling, nil)
+            }
+        }
+    }
+    
+    public func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        threadOperator?.execute { [weak self] in
+            guard let self else {
+                completionHandler(.performDefaultHandling, nil)
+                return
+            }
+            
+            Debug.print(#function)
+            
+            // Forward to original delegate if available and implements the method
+            if let originalDelegate = self.originalDelegate as? URLSessionTaskDelegate,
+               originalDelegate.responds(to: #selector(URLSessionTaskDelegate.urlSession(_:task:didReceive:completionHandler:))) {
+                originalDelegate.urlSession?(session, task: task, didReceive: challenge, completionHandler: completionHandler)
+            } else {
+                // Fallback to session-level challenge if task-level not implemented
+                self.urlSession(session, didReceive: challenge, completionHandler: completionHandler)
+            }
+        }
+    }
+    
+    public func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willBeginDelayedRequest request: URLRequest,
+        completionHandler: @escaping @Sendable (URLSession.DelayedRequestDisposition, URLRequest?) -> Void
+    ) {
+        threadOperator?.execute { [weak self] in
+            guard let self else {
+                completionHandler(.continueLoading, nil)
+                return
+            }
+            
+            Debug.print(#function)
+            
+            // Forward to original delegate if available and implements the method
+            if let originalDelegate = self.originalDelegate as? URLSessionTaskDelegate,
+               originalDelegate.responds(to: #selector(URLSessionTaskDelegate.urlSession(_:task:willBeginDelayedRequest:completionHandler:))) {
+                originalDelegate.urlSession?(session, task: task, willBeginDelayedRequest: request, completionHandler: completionHandler)
+            } else {
+                completionHandler(.continueLoading, nil)
+            }
+        }
+    }
+    
+    public func urlSession(
+        _ session: URLSession,
+        taskIsWaitingForConnectivity task: URLSessionTask
+    ) {
+        threadOperator?.execute { [weak self] in
+            guard let self else { return }
+            
+            Debug.print(#function)
+            
+            // Forward to original delegate if available and implements the method
+            if let originalDelegate = self.originalDelegate as? URLSessionTaskDelegate,
+               originalDelegate.responds(to: #selector(URLSessionTaskDelegate.urlSession(_:taskIsWaitingForConnectivity:))) {
+                originalDelegate.urlSession?(session, taskIsWaitingForConnectivity: task)
+            }
         }
     }
 }
