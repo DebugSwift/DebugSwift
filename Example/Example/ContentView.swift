@@ -83,6 +83,19 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
+                #if canImport(Apollo)
+                NavigationLink(destination: ApolloTestView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("🚀 Apollo GraphQL Test")
+                            .font(.headline)
+                        Text("Test Apollo Client with DebugSwift logging (Issue #231)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+                #endif
+
                 Button("Show Map") {
                     presentingMap = true
                 }
