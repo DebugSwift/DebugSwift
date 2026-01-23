@@ -157,13 +157,14 @@ extension UIView {
                     )
                     Debug.print("\(errorTitle) \(errorMessage)")
 
-                    let screenshot = leakedView.makeScreenshot()
+                    // Disable screenshots on false positives (UIPageViewController's child viewcontrollers are incorrectly flagged as leaking)
+                    // let screenshot = leakedView.makeScreenshot()
 
                     FloatViewManager.animateLeek(alloced: true)
                     PerformanceLeakDetector.shared.leaks.append(
                         .init(
                             details: errorMessage,
-                            screenshot: screenshot,
+                            screenshot: nil,
                             id: Int(bitPattern: ObjectIdentifier(leakedView))
                         )
                     )
@@ -175,7 +176,7 @@ extension UIView {
                     deallocator.objectType = "VIEW"
                     deallocator.subviews = leakedView.subviews
                     deallocator.weakView = leakedView
-                    deallocator.screenshot = screenshot
+                    deallocator.screenshot = nil
                     objc_setAssociatedObject(
                         leakedView,
                         &LVCDDeallocator.key,
