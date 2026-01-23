@@ -801,7 +801,8 @@ extension UIViewController {
                     )
                     Debug.print("\(errorTitle) \(errorMessage)")
 
-                    let screenshot = self.view?.rootView.makeScreenshot()
+                    // Disable screenshots on false positives (UIPageViewController's child viewcontrollers are incorrectly flagged as leaking)
+//                    let screenshot = self.view?.rootView.makeScreenshot()
                     let id = Int(bitPattern: ObjectIdentifier(self))
 
                     if !PerformanceLeakDetector.shared.leaks.contains(where: { $0.id == id }) {
@@ -809,7 +810,7 @@ extension UIViewController {
                         PerformanceLeakDetector.shared.leaks.append(
                             .init(
                                 details: errorMessage,
-                                screenshot: screenshot,
+                                screenshot: nil,
                                 id: id
                             )
                         )
@@ -819,7 +820,7 @@ extension UIViewController {
                     deallocator.errorMessage = errorMessage
                     deallocator.objectIdentifier = Int(bitPattern: ObjectIdentifier(self))
                     deallocator.objectType = "VIEWCONTROLLER"
-                    deallocator.screenshot = screenshot
+                    deallocator.screenshot = nil
                 }
             }
         }
