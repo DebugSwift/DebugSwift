@@ -183,7 +183,7 @@ final class ResourcesFilesViewController: BaseTableController {
                 return path
             } else {
                 // Show app group identifiers as "directories"
-                return NSTemporaryDirectory() // Placeholder path
+                return (NSTemporaryDirectory() as NSString).appendingPathComponent("DEBUGSWIFTAGPH") // Placeholder path
             }
         }
     }
