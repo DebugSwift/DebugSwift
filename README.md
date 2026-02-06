@@ -40,6 +40,9 @@
 - **Request Limiting:** Set thresholds to monitor and control API usage
 - **Smart Content:** Automatic JSON formatting with syntax highlighting
 - **Encryption Support:** Automatic decryption of encrypted API responses with AES-256/128 and custom decryptors
+- **Network Injection:** Simulate delays and failures to test loading states, timeouts, and error handling
+  - **Request Delay Injection:** Add artificial delays (fixed or random) to test loading indicators
+  - **Failure Injection:** Simulate timeouts, connection errors, HTTP errors (4xx/5xx), and more
 
 ### ⚡ Performance
 - **Real-time Metrics:** Monitor CPU, memory, and FPS in real-time
@@ -380,6 +383,100 @@ DebugSwift.Network.shared.registerCustomDecryptor(for: "api.myapp.com") { encryp
     return customDecrypt(encryptedData)
 }
 ```
+
+### Network Injection (Testing & Debugging)
+
+Simulate various network conditions to test loading states, timeouts, and error handling.
+
+#### Request Delay Injection
+
+```swift
+// Add fixed 3-second delay to all requests
+DebugSwift.Network.shared.enableRequestDelay(3.0)
+
+// Random delay between 1-5 seconds
+DebugSwift.Network.shared.enableRequestDelay(min: 1.0, max: 5.0)
+
+// Delay specific endpoints only
+DebugSwift.Network.shared.enableRequestDelay(
+    2.0,
+    urlPatterns: ["api.example.com/users"],
+    httpMethods: ["GET", "POST"]
+)
+
+// Disable delay
+DebugSwift.Network.shared.disableRequestDelay()
+```
+
+#### Network Failure Injection
+
+```swift
+// Simulate timeout errors (100% failure rate)
+DebugSwift.Network.shared.enableFailureInjection(
+    failureRate: 1.0,
+    failureType: .timeout
+)
+
+// Simulate connection lost (50% failure rate)
+DebugSwift.Network.shared.enableFailureInjection(
+    failureRate: 0.5,
+    failureType: .connectionLost
+)
+
+// Simulate no internet connection
+DebugSwift.Network.shared.enableFailureInjection(
+    failureRate: 1.0,
+    failureType: .notConnectedToInternet
+)
+```
+
+#### HTTP Error Injection
+
+```swift
+// Random HTTP errors (400, 401, 403, 404, 500, 502, 503)
+DebugSwift.Network.shared.enableHTTPErrorInjection(failureRate: 0.5)
+
+// Specific status codes
+DebugSwift.Network.shared.enableHTTPErrorInjection(
+    failureRate: 1.0,
+    statusCodes: [404, 500]
+)
+
+// Target specific endpoints
+DebugSwift.Network.shared.enableHTTPErrorInjection(
+    failureRate: 1.0,
+    statusCodes: [401],
+    urlPatterns: ["*/api/auth/*"],
+    httpMethods: ["POST"]
+)
+
+// Disable failure injection
+DebugSwift.Network.shared.disableFailureInjection()
+```
+
+#### Combined Delay + Failure
+
+```swift
+// Add delay then fail - perfect for testing timeout handling
+DebugSwift.Network.shared.enableRequestDelay(2.0)
+DebugSwift.Network.shared.enableFailureInjection(
+    failureRate: 1.0,
+    failureType: .timeout
+)
+```
+
+#### Available Failure Types
+- `.timeout` - Request timeout
+- `.connectionLost` - Network connection lost
+- `.notConnectedToInternet` - No internet connection
+- `.cannotFindHost` - DNS resolution failed
+- `.dnsLookupFailed` - DNS lookup failed
+- `.httpError(statusCode:)` - HTTP error with specific status code
+- `.sslError` - SSL/TLS certificate error
+- `.cancelled` - Request cancelled
+- `.custom(domain:code:description:)` - Custom error
+
+**See [NetworkInjection.md](Documentation/NetworkInjection.md) for complete documentation and examples.**
 
 ### Selective Features
 
