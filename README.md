@@ -386,7 +386,31 @@ DebugSwift.Network.shared.registerCustomDecryptor(for: "api.myapp.com") { encryp
 
 ### Network Injection (Testing & Debugging)
 
-Simulate various network conditions to test loading states, timeouts, and error handling.
+Simulate various network conditions to test loading states, timeouts, and error handling. Configure injection **at runtime** from the Network tab or programmatically.
+
+#### Runtime Configuration (Recommended)
+
+Access network injection settings directly in the DebugSwift UI:
+
+1. **From Network Tab**: Tap the syringe icon (🧪) in the navigation bar
+2. **From Request Detail**: Tap syringe icon for quick actions on specific endpoints
+
+**Quick Actions** (from request detail):
+- Add 2s or 5s delay to endpoint
+- Inject timeout errors
+- Inject HTTP 404 or 500 errors
+- Clear all injection
+
+**Full Settings Screen**:
+- Enable/disable delay and failure injection
+- Configure delay type (fixed or random)
+- Set failure rates and error types
+- Add URL patterns and HTTP method filters
+- Visual indicator when injection is active (orange icon)
+
+#### Programmatic Configuration
+
+You can also configure injection programmatically:
 
 #### Request Delay Injection
 
