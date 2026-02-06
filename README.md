@@ -476,8 +476,6 @@ DebugSwift.Network.shared.enableFailureInjection(
 - `.cancelled` - Request cancelled
 - `.custom(domain:code:description:)` - Custom error
 
-**See [NetworkInjection.md](Documentation/NetworkInjection.md) for complete documentation and examples.**
-
 ### Selective Features
 
 ```swift
