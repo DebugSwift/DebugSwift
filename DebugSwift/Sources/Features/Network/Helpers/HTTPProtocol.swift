@@ -123,6 +123,24 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         }
 
         Debug.print(request.requestId)
+        
+        // Apply delay injection first (synchronous)
+        NetworkInjectionManager.shared.applyDelayIfNeeded(for: request)
+        
+        // Check for failure injection
+        let (shouldInject, injectedError, statusCode) = NetworkInjectionManager.shared.shouldInjectFailure(for: request)
+        
+        if shouldInject {
+            // Inject HTTP error with status code if specified
+            if let statusCode = statusCode {
+                injectHTTPError(statusCode: statusCode, for: request)
+            } else if let error = injectedError {
+                // Inject network error
+                injectNetworkError(error)
+            }
+            return
+        }
+        
         threadOperator = ThreadOperator()
         startTime = Date()
         prevUrl = request.url
@@ -137,6 +155,56 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         dataTask = session?.dataTask(with: newRequest as URLRequest)
         dataTask?.resume()
+    }
+    
+    private func injectHTTPError(statusCode: Int, for request: URLRequest) {
+        guard let url = request.url else { return }
+        
+        // Create a mock HTTP response with error status code
+        let httpResponse = HTTPURLResponse(
+            url: url,
+            statusCode: statusCode,
+            httpVersion: "HTTP/1.1",
+            headerFields: ["Content-Type": "application/json"]
+        )
+        
+        // Create error response body
+        let errorBody = """
+        {
+            "error": "Injected HTTP Error",
+            "statusCode": \(statusCode),
+            "message": "This is a simulated HTTP \(statusCode) error for testing purposes.",
+            "injected": true
+        }
+        """.data(using: .utf8) ?? Data()
+        
+        // Notify client of response
+        if let response = httpResponse {
+            self.response = response
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: errorBody)
+            
+            self.data = errorBody
+        }
+        
+        client?.urlProtocolDidFinishLoading(self)
+        
+        // Process for DebugSwift tracking
+        Task { @Sendable [weak self] in
+            guard let self = self else { return }
+            await self.processNetworkData()
+        }
+    }
+    
+    private func injectNetworkError(_ error: Error) {
+        self.error = error
+        client?.urlProtocol(self, didFailWithError: error)
+        
+        // Process for DebugSwift tracking
+        Task { @Sendable [weak self] in
+            guard let self = self else { return }
+            await self.processNetworkData()
+        }
     }
     
     private func getPreservedConfigurationForRequest() -> URLSessionConfiguration? {

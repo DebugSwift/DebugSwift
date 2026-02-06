@@ -34,6 +34,12 @@ final class NetworkViewControllerDetail: BaseTableController {
         title = "Request Details"
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(
+                image: UIImage(systemName: "syringe"),
+                style: .plain,
+                target: self,
+                action: #selector(configureInjectionForEndpoint)
+            ),
+            UIBarButtonItem(
                 image: UIImage(systemName: "square.and.arrow.up"),
                 style: .plain,
                 target: self,
@@ -58,6 +64,129 @@ final class NetworkViewControllerDetail: BaseTableController {
                 action: #selector(replayButtonTapped)
             )
         ]
+    }
+    
+    @objc private func configureInjectionForEndpoint() {
+        guard let url = model.url else { return }
+        
+        let alertController = UIAlertController(
+            title: "Configure Injection",
+            message: "Configure delay or failure injection for:\n\(url.host ?? url.absoluteString)",
+            preferredStyle: .actionSheet
+        )
+        
+        // Quick delay options
+        alertController.addAction(UIAlertAction(title: "Add 2s Delay", style: .default) { [weak self] _ in
+            self?.applyDelayToEndpoint(delay: 2.0)
+        })
+        
+        alertController.addAction(UIAlertAction(title: "Add 5s Delay", style: .default) { [weak self] _ in
+            self?.applyDelayToEndpoint(delay: 5.0)
+        })
+        
+        // Quick failure options
+        alertController.addAction(UIAlertAction(title: "Inject Timeout (100%)", style: .default) { [weak self] _ in
+            self?.applyFailureToEndpoint(type: .timeout)
+        })
+        
+        alertController.addAction(UIAlertAction(title: "Inject HTTP 404 (100%)", style: .default) { [weak self] _ in
+            self?.applyHTTPErrorToEndpoint(statusCode: 404)
+        })
+        
+        alertController.addAction(UIAlertAction(title: "Inject HTTP 500 (100%)", style: .default) { [weak self] _ in
+            self?.applyHTTPErrorToEndpoint(statusCode: 500)
+        })
+        
+        // Advanced settings
+        alertController.addAction(UIAlertAction(title: "Advanced Settings...", style: .default) { [weak self] _ in
+            let settingsController = NetworkInjectionSettingsController()
+            self?.navigationController?.pushViewController(settingsController, animated: true)
+        })
+        
+        // Clear injection
+        alertController.addAction(UIAlertAction(title: "Clear All Injection", style: .destructive) { [weak self] _ in
+            self?.clearInjectionForEndpoint()
+        })
+        
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(alertController, animated: true)
+    }
+    
+    private func applyDelayToEndpoint(delay: TimeInterval) {
+        guard let url = model.url else { return }
+        let urlPattern = url.host ?? url.absoluteString
+        
+        var config = NetworkInjectionManager.shared.getDelayConfig()
+        config.isEnabled = true
+        config.fixedDelay = delay
+        config.urlPatterns = [urlPattern]
+        config.httpMethods = model.method.map { [$0] } ?? []
+        
+        NetworkInjectionManager.shared.setDelayConfig(config)
+        
+        showAlert(
+            with: "Injection Applied",
+            title: String(format: "%.1fs delay applied to \(urlPattern)", delay),
+            rightButtonTitle: "OK"
+        )
+    }
+    
+    private func applyFailureToEndpoint(type: NetworkFailureConfig.FailureType) {
+        guard let url = model.url else { return }
+        let urlPattern = url.host ?? url.absoluteString
+        
+        var config = NetworkInjectionManager.shared.getFailureConfig()
+        config.isEnabled = true
+        config.failureRate = 1.0
+        config.failureType = type
+        config.urlPatterns = [urlPattern]
+        config.httpMethods = model.method.map { [$0] } ?? []
+        
+        NetworkInjectionManager.shared.setFailureConfig(config)
+        
+        showAlert(
+            with: "Injection Applied",
+            title: "Failure injection applied to \(urlPattern)",
+            rightButtonTitle: "OK"
+        )
+    }
+    
+    private func applyHTTPErrorToEndpoint(statusCode: Int) {
+        guard let url = model.url else { return }
+        let urlPattern = url.host ?? url.absoluteString
+        
+        var config = NetworkInjectionManager.shared.getFailureConfig()
+        config.isEnabled = true
+        config.failureRate = 1.0
+        config.failureType = .httpError(statusCode: nil)
+        config.urlPatterns = [urlPattern]
+        config.httpMethods = model.method.map { [$0] } ?? []
+        config.customStatusCodes = [statusCode]
+        
+        NetworkInjectionManager.shared.setFailureConfig(config)
+        
+        showAlert(
+            with: "Injection Applied",
+            title: "HTTP \(statusCode) error injection applied to \(urlPattern)",
+            rightButtonTitle: "OK"
+        )
+    }
+    
+    private func clearInjectionForEndpoint() {
+        var delayConfig = NetworkInjectionManager.shared.getDelayConfig()
+        delayConfig.isEnabled = false
+        NetworkInjectionManager.shared.setDelayConfig(delayConfig)
+        
+        var failureConfig = NetworkInjectionManager.shared.getFailureConfig()
+        failureConfig.isEnabled = false
+        NetworkInjectionManager.shared.setFailureConfig(failureConfig)
+        
+        showAlert(
+            with: "Injection Cleared",
+            title: "All network injection has been disabled",
+            rightButtonTitle: "OK"
+        )
     }
 
     private func setup() {

@@ -585,6 +585,19 @@ final class NetworkViewController: BaseController, MainFeatureType {
         
         switch currentMode {
         case .http, .webview:
+            // Add network injection settings button
+            let injectionButton = UIBarButtonItem(
+                image: UIImage(systemName: "syringe"),
+                style: .plain,
+                target: self,
+                action: #selector(showNetworkInjectionSettings)
+            )
+            let injectionManager = NetworkInjectionManager.shared
+            let isInjectionActive = injectionManager.getDelayConfig().isEnabled || 
+                                    injectionManager.getFailureConfig().isEnabled
+            injectionButton.tintColor = isInjectionActive ? .systemOrange : .systemGray
+            rightBarButtons.append(injectionButton)
+            
             // Add encryption toggle button
             let encryptionButton = UIBarButtonItem(
                 image: UIImage(systemName: DebugSwift.Network.shared.isDecryptionEnabled ? "lock.open" : "lock"),
@@ -642,6 +655,11 @@ final class NetworkViewController: BaseController, MainFeatureType {
         }
         
         navigationItem.rightBarButtonItems = rightBarButtons
+    }
+    
+    @objc private func showNetworkInjectionSettings() {
+        let settingsController = NetworkInjectionSettingsController()
+        navigationController?.pushViewController(settingsController, animated: true)
     }
     
     @objc private func showDeleteAlert() {
