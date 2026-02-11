@@ -11,20 +11,14 @@ import DebugSwift
 /// Example demonstrating how to use custom URLSessionDelegate with DebugSwift
 /// This addresses issue #240 where DebugSwift's network sniffing would interfere
 /// with custom authentication challenge handling
-final class CustomAuthenticationExample: NSObject {
+final class CustomAuthenticationExample: NSObject, @unchecked Sendable {
     
-    private var session: URLSession!
-    
-    override init() {
-        super.init()
-        
-        // Create URLSession with custom delegate for authentication
+    private lazy var session: URLSession = {
         let configuration = URLSessionConfiguration.default
-        session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
-        
-        // Register delegate with DebugSwift for authentication forwarding
+        let session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
         session.registerDelegateForDebugSwift()
-    }
+        return session
+    }()
     
     /// Make a request that requires authentication
     func makeAuthenticatedRequest(to url: URL, completion: @escaping (Result<Data, Error>) -> Void) {
@@ -54,7 +48,7 @@ extension CustomAuthenticationExample: URLSessionDelegate {
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
         print("🔐 Custom authentication challenge received")
         print("   Protection space: \(challenge.protectionSpace.authenticationMethod)")
@@ -105,7 +99,7 @@ extension CustomAuthenticationExample: URLSessionTaskDelegate {
         _ session: URLSession,
         task: URLSessionTask,
         didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
         print("🔐 Task-level authentication challenge received for: \(task.originalRequest?.url?.absoluteString ?? "unknown")")
         
