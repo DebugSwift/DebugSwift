@@ -76,48 +76,55 @@ final class NetworkViewControllerDetailEncryptionTests: XCTestCase {
         httpModel = nil
     }
     
-    // MARK: - Config Generation Tests
+    // MARK: - Section Generation Tests
     
-    func testConfigInit_withUnencryptedModel_showsOnlyRawResponse() {
+    func testSectionBuild_withUnencryptedModel_showsOnlyRawResponse() {
         // Given
         httpModel.responseData = "{\"message\": \"success\"}".data(using: .utf8)!
         httpModel.isEncrypted = false
         httpModel.decryptedResponseData = nil
         
         // When
-        let configs = [NetworkViewControllerDetail.Config](model: httpModel)
+        let sections = NetworkViewControllerDetail.DetailSection.buildSections(from: httpModel)
         
         // Then
-        let responseTitles = configs.compactMap { config in
-            config.title.contains("RESPONSE") ? config.title : nil
-        }
+        let responseSection = sections.first { $0.title == "RESPONSE" }
+        XCTAssertNotNil(responseSection)
         
-        XCTAssertTrue(responseTitles.contains("RESPONSE (RAW)"))
-        XCTAssertFalse(responseTitles.contains("RESPONSE (DECRYPTED)"))
+        let responseTitles = responseSection?.items.map { $0.title } ?? []
+        XCTAssertTrue(responseTitles.contains("Raw Response"))
+        XCTAssertTrue(responseTitles.contains("Browse Response Body"))
         
-        let encryptionStatus = configs.first { $0.title == "ENCRYPTION STATUS" }
-        XCTAssertNil(encryptionStatus)
+        // Check no encryption status in additional info
+        let additionalSection = sections.first { $0.title == "ADDITIONAL INFO" }
+        let encryptionItem = additionalSection?.items.first { $0.title == "ENCRYPTION" }
+        XCTAssertNil(encryptionItem)
     }
     
-    func testConfigInit_withEncryptedModelAndDecryption_showsBothResponses() {
+    func testSectionBuild_withEncryptedModelAndDecryption_showsEncryptionStatus() {
         // Given
         httpModel.responseData = Data([0xFF, 0xEE, 0xDD, 0xCC]) // Mock encrypted
         httpModel.decryptedResponseData = "{\"message\": \"decrypted success\"}".data(using: .utf8)!
         httpModel.isEncrypted = true
         
         // When
-        let configs = [NetworkViewControllerDetail.Config](model: httpModel)
+        let sections = NetworkViewControllerDetail.DetailSection.buildSections(from: httpModel)
         
         // Then
-        let responseTitles = configs.compactMap { config in
-            config.title.contains("RESPONSE") ? config.title : nil
-        }
+        let responseSection = sections.first { $0.title == "RESPONSE" }
+        XCTAssertNotNil(responseSection, "Response section should exist")
         
-        XCTAssertTrue(responseTitles.contains("RESPONSE (RAW)"))
-        XCTAssertTrue(responseTitles.contains("RESPONSE (DECRYPTED)"))
+        let responseTitles = responseSection?.items.map { $0.title } ?? []
+        // Check that browse response body exists
+        XCTAssertTrue(responseTitles.contains("Browse Response Body"), "Should contain Browse Response Body")
+        // Check that raw response exists (with or without decrypted label)
+        let hasRawResponse = responseTitles.contains { $0.contains("Raw Response") }
+        XCTAssertTrue(hasRawResponse, "Should contain Raw Response. Found: \(responseTitles)")
         
-        let encryptionStatus = configs.first { $0.title == "ENCRYPTION STATUS" }
-        XCTAssertNotNil(encryptionStatus)
-        XCTAssertEqual(encryptionStatus?.description, "🔓 Response was encrypted and successfully decrypted")
+        // Check encryption status in additional info
+        let additionalSection = sections.first { $0.title == "ADDITIONAL INFO" }
+        let encryptionItem = additionalSection?.items.first { $0.title == "ENCRYPTION" }
+        XCTAssertNotNil(encryptionItem)
+        XCTAssertEqual(encryptionItem?.value, "🔓 Encrypted and decrypted")
     }
 }

@@ -27,6 +27,17 @@ struct ContentView: View {
                     }
                     .padding(.vertical, 4)
                 }
+                
+                NavigationLink(destination: NetworkInjectionExampleView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Network Injection Testing")
+                            .font(.headline)
+                        Text("Test delay and failure injection for network requests")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
 
                 NavigationLink(destination: LeakView()) {
                     VStack(alignment: .leading, spacing: 4) {

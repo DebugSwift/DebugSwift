@@ -32,14 +32,14 @@ import LocalAuthentication
 import AuthenticationServices
 #endif
 
-public let KeychainAccessErrorDomain = "com.kishikawakatsumi.KeychainAccess.error"
+let KeychainAccessErrorDomain = "com.kishikawakatsumi.KeychainAccess.error"
 
-public enum ItemClass {
+enum ItemClass {
     case genericPassword
     case internetPassword
 }
 
-public enum ProtocolType {
+enum ProtocolType {
     case ftp
     case ftpAccount
     case http
@@ -73,7 +73,7 @@ public enum ProtocolType {
     case pop3S
 }
 
-public enum AuthenticationType {
+enum AuthenticationType {
     case ntlm
     case msn
     case dpa
@@ -84,7 +84,7 @@ public enum AuthenticationType {
     case `default`
 }
 
-public enum Accessibility {
+enum Accessibility {
     /**
      Item data can only be accessed
      while the device is unlocked. This is recommended for items that only
@@ -163,7 +163,7 @@ public enum Accessibility {
  If the key kSecUseAuthenticationUI not provided then kSecUseAuthenticationUIAllow
  is used as default.
  */
-public enum AuthenticationUI {
+enum AuthenticationUI {
     /**
      Specifies that authenticate UI can appear.
      */
@@ -186,7 +186,7 @@ public enum AuthenticationUI {
 
 @available(iOS 9.0, OSX 10.11, *)
 extension AuthenticationUI {
-    public var rawValue: String {
+    var rawValue: String {
         switch self {
         case .allow:
             return UseAuthenticationUIAllow
@@ -197,7 +197,7 @@ extension AuthenticationUI {
         }
     }
 
-    public var description: String {
+    var description: String {
         switch self {
         case .allow:
             return "allow"
@@ -209,14 +209,14 @@ extension AuthenticationUI {
     }
 }
 
-public struct AuthenticationPolicy: OptionSet, Sendable {
+struct AuthenticationPolicy: OptionSet, Sendable {
     /**
      User presence policy using Touch ID or Passcode. Touch ID does not
      have to be available or enrolled. Item is still accessible by Touch ID
      even if fingers are added or removed.
      */
     @available(iOS 8.0, OSX 10.10, watchOS 2.0, tvOS 8.0, *)
-    public static let userPresence = AuthenticationPolicy(rawValue: 1 << 0)
+    static let userPresence = AuthenticationPolicy(rawValue: 1 << 0)
 
     /**
      Constraint: Touch ID (any finger) or Face ID. Touch ID or Face ID must be available. With Touch ID
@@ -224,7 +224,7 @@ public struct AuthenticationPolicy: OptionSet, Sendable {
      if fingers are added or removed. Item is still accessible by Face ID if user is re-enrolled.
      */
     @available(iOS 11.3, OSX 10.13.4, watchOS 4.3, tvOS 11.3, *)
-    public static let biometryAny = AuthenticationPolicy(rawValue: 1 << 1)
+    static let biometryAny = AuthenticationPolicy(rawValue: 1 << 1)
 
     /**
      Deprecated, please use biometryAny instead.
@@ -233,14 +233,14 @@ public struct AuthenticationPolicy: OptionSet, Sendable {
     @available(OSX, introduced: 10.12.1, deprecated: 10.13.4, renamed: "biometryAny")
     @available(watchOS, introduced: 2.0, deprecated: 4.3, renamed: "biometryAny")
     @available(tvOS, introduced: 9.0, deprecated: 11.3, renamed: "biometryAny")
-    public static let touchIDAny = AuthenticationPolicy(rawValue: 1 << 1)
+    static let touchIDAny = AuthenticationPolicy(rawValue: 1 << 1)
 
     /**
      Constraint: Touch ID from the set of currently enrolled fingers. Touch ID must be available and at least one finger must
      be enrolled. When fingers are added or removed, the item is invalidated. When Face ID is re-enrolled this item is invalidated.
      */
     @available(iOS 11.3, OSX 10.13, watchOS 4.3, tvOS 11.3, *)
-    public static let biometryCurrentSet = AuthenticationPolicy(rawValue: 1 << 3)
+    static let biometryCurrentSet = AuthenticationPolicy(rawValue: 1 << 3)
 
     /**
      Deprecated, please use biometryCurrentSet instead.
@@ -249,13 +249,13 @@ public struct AuthenticationPolicy: OptionSet, Sendable {
     @available(OSX, introduced: 10.12.1, deprecated: 10.13.4, renamed: "biometryCurrentSet")
     @available(watchOS, introduced: 2.0, deprecated: 4.3, renamed: "biometryCurrentSet")
     @available(tvOS, introduced: 9.0, deprecated: 11.3, renamed: "biometryCurrentSet")
-    public static let touchIDCurrentSet = AuthenticationPolicy(rawValue: 1 << 3)
+    static let touchIDCurrentSet = AuthenticationPolicy(rawValue: 1 << 3)
 
     /**
      Constraint: Device passcode
      */
     @available(iOS 9.0, OSX 10.11, watchOS 2.0, tvOS 9.0, *)
-    public static let devicePasscode = AuthenticationPolicy(rawValue: 1 << 4)
+    static let devicePasscode = AuthenticationPolicy(rawValue: 1 << 4)
 
     /**
      Constraint: Watch
@@ -264,72 +264,72 @@ public struct AuthenticationPolicy: OptionSet, Sendable {
     @available(OSX 10.15, *)
     @available(watchOS, unavailable)
     @available(tvOS, unavailable)
-    public static let watch = AuthenticationPolicy(rawValue: 1 << 5)
+    static let watch = AuthenticationPolicy(rawValue: 1 << 5)
 
     /**
      Constraint logic operation: when using more than one constraint,
      at least one of them must be satisfied.
      */
     @available(iOS 9.0, OSX 10.12.1, watchOS 2.0, tvOS 9.0, *)
-    public static let or = AuthenticationPolicy(rawValue: 1 << 14)
+    static let or = AuthenticationPolicy(rawValue: 1 << 14)
 
     /**
      Constraint logic operation: when using more than one constraint,
      all must be satisfied.
      */
     @available(iOS 9.0, OSX 10.12.1, watchOS 2.0, tvOS 9.0, *)
-    public static let and = AuthenticationPolicy(rawValue: 1 << 15)
+    static let and = AuthenticationPolicy(rawValue: 1 << 15)
 
     /**
      Create access control for private key operations (i.e. sign operation)
      */
     @available(iOS 9.0, OSX 10.12.1, watchOS 2.0, tvOS 9.0, *)
-    public static let privateKeyUsage = AuthenticationPolicy(rawValue: 1 << 30)
+    static let privateKeyUsage = AuthenticationPolicy(rawValue: 1 << 30)
 
     /**
      Security: Application provided password for data encryption key generation.
      This is not a constraint but additional item encryption mechanism.
      */
     @available(iOS 9.0, OSX 10.12.1, watchOS 2.0, tvOS 9.0, *)
-    public static let applicationPassword = AuthenticationPolicy(rawValue: 1 << 31)
+    static let applicationPassword = AuthenticationPolicy(rawValue: 1 << 31)
 
     #if swift(>=2.3)
-    public let rawValue: UInt
+    let rawValue: UInt
 
-    public init(rawValue: UInt) {
+    init(rawValue: UInt) {
         self.rawValue = rawValue
     }
     #else
-    public let rawValue: Int
+    let rawValue: Int
 
-    public init(rawValue: Int) {
+    init(rawValue: Int) {
         self.rawValue = rawValue
     }
     #endif
 }
 
-public struct Attributes {
-    public var `class`: String? {
+struct Attributes {
+    var `class`: String? {
         attributes[Class] as? String
     }
 
-    public var data: Data? {
+    var data: Data? {
         attributes[ValueData] as? Data
     }
 
-    public var ref: Data? {
+    var ref: Data? {
         attributes[ValueRef] as? Data
     }
 
-    public var persistentRef: Data? {
+    var persistentRef: Data? {
         attributes[ValuePersistentRef] as? Data
     }
 
-    public var accessible: String? {
+    var accessible: String? {
         attributes[AttributeAccessible] as? String
     }
 
-    public var accessControl: SecAccessControl? {
+    var accessControl: SecAccessControl? {
         if #available(OSX 10.10, *) {
             if let accessControl = attributes[AttributeAccessControl] {
                 return (accessControl as! SecAccessControl)
@@ -340,83 +340,83 @@ public struct Attributes {
         }
     }
 
-    public var accessGroup: String? {
+    var accessGroup: String? {
         attributes[AttributeAccessGroup] as? String
     }
 
-    public var synchronizable: Bool? {
+    var synchronizable: Bool? {
         attributes[AttributeSynchronizable] as? Bool
     }
 
-    public var creationDate: Date? {
+    var creationDate: Date? {
         attributes[AttributeCreationDate] as? Date
     }
 
-    public var modificationDate: Date? {
+    var modificationDate: Date? {
         attributes[AttributeModificationDate] as? Date
     }
 
-    public var attributeDescription: String? {
+    var attributeDescription: String? {
         attributes[AttributeDescription] as? String
     }
 
-    public var comment: String? {
+    var comment: String? {
         attributes[AttributeComment] as? String
     }
 
-    public var creator: String? {
+    var creator: String? {
         attributes[AttributeCreator] as? String
     }
 
-    public var type: String? {
+    var type: String? {
         attributes[AttributeType] as? String
     }
 
-    public var label: String? {
+    var label: String? {
         attributes[AttributeLabel] as? String
     }
 
-    public var isInvisible: Bool? {
+    var isInvisible: Bool? {
         attributes[AttributeIsInvisible] as? Bool
     }
 
-    public var isNegative: Bool? {
+    var isNegative: Bool? {
         attributes[AttributeIsNegative] as? Bool
     }
 
-    public var account: String? {
+    var account: String? {
         attributes[AttributeAccount] as? String
     }
 
-    public var service: String? {
+    var service: String? {
         attributes[AttributeService] as? String
     }
 
-    public var generic: Data? {
+    var generic: Data? {
         attributes[AttributeGeneric] as? Data
     }
 
-    public var securityDomain: String? {
+    var securityDomain: String? {
         attributes[AttributeSecurityDomain] as? String
     }
 
-    public var server: String? {
+    var server: String? {
         attributes[AttributeServer] as? String
     }
 
-    public var `protocol`: String? {
+    var `protocol`: String? {
         attributes[AttributeProtocol] as? String
     }
 
-    public var authenticationType: String? {
+    var authenticationType: String? {
         attributes[AttributeAuthenticationType] as? String
     }
 
-    public var port: Int? {
+    var port: Int? {
         attributes[AttributePort] as? Int
     }
 
-    public var path: String? {
+    var path: String? {
         attributes[AttributePath] as? String
     }
 
@@ -426,74 +426,74 @@ public struct Attributes {
         self.attributes = attributes
     }
 
-    public subscript(key: String) -> Any? {
+    subscript(key: String) -> Any? {
         attributes[key]
     }
 }
 
-public final class Keychain {
-    public var itemClass: ItemClass {
+final class Keychain {
+    var itemClass: ItemClass {
         options.itemClass
     }
 
-    public var service: String {
+    var service: String {
         options.service
     }
 
     // This attribute (kSecAttrAccessGroup) applies to macOS keychain items only if you also set a value of true for the
     // kSecUseDataProtectionKeychain key, the kSecAttrSynchronizable key, or both.
-    public var accessGroup: String? {
+    var accessGroup: String? {
         options.accessGroup
     }
 
-    public var server: URL {
+    var server: URL {
         options.server
     }
 
-    public var protocolType: ProtocolType {
+    var protocolType: ProtocolType {
         options.protocolType
     }
 
-    public var authenticationType: AuthenticationType {
+    var authenticationType: AuthenticationType {
         options.authenticationType
     }
 
-    public var accessibility: Accessibility {
+    var accessibility: Accessibility {
         options.accessibility
     }
 
     @available(iOS 8.0, OSX 10.10, *)
     @available(watchOS, unavailable)
-    public var authenticationPolicy: AuthenticationPolicy? {
+    var authenticationPolicy: AuthenticationPolicy? {
         options.authenticationPolicy
     }
 
-    public var synchronizable: Bool {
+    var synchronizable: Bool {
         options.synchronizable
     }
 
-    public var label: String? {
+    var label: String? {
         options.label
     }
 
-    public var comment: String? {
+    var comment: String? {
         options.comment
     }
 
     @available(iOS 8.0, OSX 10.10, *)
     @available(watchOS, unavailable)
-    public var authenticationPrompt: String? {
+    var authenticationPrompt: String? {
         options.authenticationPrompt
     }
 
     @available(iOS 9.0, OSX 10.11, *)
-    public var authenticationUI: AuthenticationUI {
+    var authenticationUI: AuthenticationUI {
         options.authenticationUI ?? .allow
     }
 
     #if os(iOS) || os(OSX)
     @available(iOS 9.0, OSX 10.11, *)
-    public var authenticationContext: LAContext? {
+    var authenticationContext: LAContext? {
         options.authenticationContext as? LAContext
     }
     #endif
@@ -502,7 +502,7 @@ public final class Keychain {
 
     // MARK: 
 
-    public convenience init() {
+    convenience init() {
         var options = Options()
         if let bundleIdentifier = Bundle.main.bundleIdentifier {
             options.service = bundleIdentifier
@@ -510,13 +510,13 @@ public final class Keychain {
         self.init(options)
     }
 
-    public convenience init(service: String) {
+    convenience init(service: String) {
         var options = Options()
         options.service = service
         self.init(options)
     }
 
-    public convenience init(accessGroup: String) {
+    convenience init(accessGroup: String) {
         var options = Options()
         if let bundleIdentifier = Bundle.main.bundleIdentifier {
             options.service = bundleIdentifier
@@ -525,18 +525,18 @@ public final class Keychain {
         self.init(options)
     }
 
-    public convenience init(service: String, accessGroup: String) {
+    convenience init(service: String, accessGroup: String) {
         var options = Options()
         options.service = service
         options.accessGroup = accessGroup
         self.init(options)
     }
 
-    public convenience init(server: String, protocolType: ProtocolType, accessGroup: String? = nil, authenticationType: AuthenticationType = .default) {
+    convenience init(server: String, protocolType: ProtocolType, accessGroup: String? = nil, authenticationType: AuthenticationType = .default) {
         self.init(server: URL(string: server)!, protocolType: protocolType, accessGroup: accessGroup, authenticationType: authenticationType)
     }
 
-    public convenience init(server: URL, protocolType: ProtocolType, accessGroup: String? = nil, authenticationType: AuthenticationType = .default) {
+    convenience init(server: URL, protocolType: ProtocolType, accessGroup: String? = nil, authenticationType: AuthenticationType = .default) {
         var options = Options()
         options.itemClass = .internetPassword
         options.server = server
@@ -552,7 +552,7 @@ public final class Keychain {
 
     // MARK: 
 
-    public func accessibility(_ accessibility: Accessibility) -> Keychain {
+    func accessibility(_ accessibility: Accessibility) -> Keychain {
         var options = options
         options.accessibility = accessibility
         return Keychain(options)
@@ -560,32 +560,32 @@ public final class Keychain {
 
     @available(iOS 8.0, OSX 10.10, *)
     @available(watchOS, unavailable)
-    public func accessibility(_ accessibility: Accessibility, authenticationPolicy: AuthenticationPolicy) -> Keychain {
+    func accessibility(_ accessibility: Accessibility, authenticationPolicy: AuthenticationPolicy) -> Keychain {
         var options = options
         options.accessibility = accessibility
         options.authenticationPolicy = authenticationPolicy
         return Keychain(options)
     }
 
-    public func synchronizable(_ synchronizable: Bool) -> Keychain {
+    func synchronizable(_ synchronizable: Bool) -> Keychain {
         var options = options
         options.synchronizable = synchronizable
         return Keychain(options)
     }
 
-    public func label(_ label: String) -> Keychain {
+    func label(_ label: String) -> Keychain {
         var options = options
         options.label = label
         return Keychain(options)
     }
 
-    public func comment(_ comment: String) -> Keychain {
+    func comment(_ comment: String) -> Keychain {
         var options = options
         options.comment = comment
         return Keychain(options)
     }
 
-    public func attributes(_ attributes: [String: Any]) -> Keychain {
+    func attributes(_ attributes: [String: Any]) -> Keychain {
         var options = options
         attributes.forEach { options.attributes.updateValue($1, forKey: $0) }
         return Keychain(options)
@@ -593,14 +593,14 @@ public final class Keychain {
 
     @available(iOS 8.0, OSX 10.10, *)
     @available(watchOS, unavailable)
-    public func authenticationPrompt(_ authenticationPrompt: String) -> Keychain {
+    func authenticationPrompt(_ authenticationPrompt: String) -> Keychain {
         var options = options
         options.authenticationPrompt = authenticationPrompt
         return Keychain(options)
     }
 
     @available(iOS 9.0, OSX 10.11, *)
-    public func authenticationUI(_ authenticationUI: AuthenticationUI) -> Keychain {
+    func authenticationUI(_ authenticationUI: AuthenticationUI) -> Keychain {
         var options = options
         options.authenticationUI = authenticationUI
         return Keychain(options)
@@ -608,7 +608,7 @@ public final class Keychain {
 
     #if os(iOS) || os(OSX)
     @available(iOS 9.0, OSX 10.11, *)
-    public func authenticationContext(_ authenticationContext: LAContext) -> Keychain {
+    func authenticationContext(_ authenticationContext: LAContext) -> Keychain {
         var options = options
         options.authenticationContext = authenticationContext
         return Keychain(options)
@@ -617,11 +617,11 @@ public final class Keychain {
 
     // MARK: 
 
-    public func get(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws -> String? {
+    func get(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws -> String? {
         try getString(key, ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
     }
 
-    public func getString(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws -> String? {
+    func getString(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws -> String? {
         guard let data = try getData(key, ignoringAttributeSynchronizable: ignoringAttributeSynchronizable) else {
             return nil
         }
@@ -632,7 +632,7 @@ public final class Keychain {
         return string
     }
 
-    public func getData(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws -> Data? {
+    func getData(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws -> Data? {
         var query = options.query(ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
 
         query[MatchLimit] = MatchLimitOne
@@ -656,7 +656,7 @@ public final class Keychain {
         }
     }
 
-    public func get<T>(_ key: String, ignoringAttributeSynchronizable: Bool = true, handler: (Attributes?) -> T) throws -> T {
+    func get<T>(_ key: String, ignoringAttributeSynchronizable: Bool = true, handler: (Attributes?) -> T) throws -> T {
         var query = options.query(ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
 
         query[MatchLimit] = MatchLimitOne
@@ -686,7 +686,7 @@ public final class Keychain {
 
     // MARK: 
 
-    public func set(_ value: String, key: String, ignoringAttributeSynchronizable: Bool = true) throws {
+    func set(_ value: String, key: String, ignoringAttributeSynchronizable: Bool = true) throws {
         guard let data = value.data(using: .utf8, allowLossyConversion: false) else {
             print("failed to convert string to data")
             throw Status.conversionError
@@ -694,7 +694,7 @@ public final class Keychain {
         try set(data, key: key, ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
     }
 
-    public func set(_ value: Data, key: String, ignoringAttributeSynchronizable: Bool = true) throws {
+    func set(_ value: Data, key: String, ignoringAttributeSynchronizable: Bool = true) throws {
         var query = options.query(ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
         query[AttributeAccount] = key
         #if os(iOS)
@@ -754,7 +754,7 @@ public final class Keychain {
         }
     }
 
-    public subscript(key: String) -> String? {
+    subscript(key: String) -> String? {
         get {
             #if swift(>=5.0)
             return try? get(key)
@@ -776,7 +776,7 @@ public final class Keychain {
         }
     }
 
-    public subscript(string key: String) -> String? {
+    subscript(string key: String) -> String? {
         get {
             self[key]
         }
@@ -786,7 +786,7 @@ public final class Keychain {
         }
     }
 
-    public subscript(data key: String) -> Data? {
+    subscript(data key: String) -> Data? {
         get {
             #if swift(>=5.0)
             return try? getData(key)
@@ -808,7 +808,7 @@ public final class Keychain {
         }
     }
 
-    public subscript(attributes key: String) -> Attributes? {
+    subscript(attributes key: String) -> Attributes? {
         #if swift(>=5.0)
         return try? get(key) { $0 }
         #else
@@ -818,7 +818,7 @@ public final class Keychain {
 
     // MARK: 
 
-    public func remove(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws {
+    func remove(_ key: String, ignoringAttributeSynchronizable: Bool = true) throws {
         var query = options.query(ignoringAttributeSynchronizable: ignoringAttributeSynchronizable)
         query[AttributeAccount] = key
 
@@ -828,7 +828,7 @@ public final class Keychain {
         }
     }
 
-    public func removeAll() throws {
+    func removeAll() throws {
         var query = options.query()
         #if !os(iOS) && !os(watchOS) && !os(tvOS)
         query[MatchLimit] = MatchLimitAll
@@ -842,7 +842,7 @@ public final class Keychain {
 
     // MARK: 
 
-    public func contains(_ key: String, withoutAuthenticationUI: Bool = false) throws -> Bool {
+    func contains(_ key: String, withoutAuthenticationUI: Bool = false) throws -> Bool {
         var query = options.query()
         query[AttributeAccount] = key
 
@@ -870,7 +870,7 @@ public final class Keychain {
 
     // MARK: 
 
-    public final class func allKeys(_ itemClass: ItemClass) -> [(String, String)] {
+    final class func allKeys(_ itemClass: ItemClass) -> [(String, String)] {
         var query = [String: Any]()
         query[Class] = itemClass.rawValue
         query[AttributeSynchronizable] = SynchronizableAny
@@ -901,7 +901,7 @@ public final class Keychain {
         return []
     }
 
-    public func allKeys() -> [String] {
+    func allKeys() -> [String] {
         let allItems = Self.prettify(itemClass: itemClass, items: items())
         let filter: ([String: Any]) -> String? = { $0["key"] as? String }
 
@@ -912,7 +912,7 @@ public final class Keychain {
         #endif
     }
 
-    public final class func allItems(_ itemClass: ItemClass) -> [[String: Any]] {
+    final class func allItems(_ itemClass: ItemClass) -> [[String: Any]] {
         var query = [String: Any]()
         query[Class] = itemClass.rawValue
         query[MatchLimit] = MatchLimitAll
@@ -938,13 +938,13 @@ public final class Keychain {
         return []
     }
 
-    public func allItems() -> [[String: Any]] {
+    func allItems() -> [[String: Any]] {
         Self.prettify(itemClass: itemClass, items: items())
     }
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    public func getSharedPassword(_ completion: @escaping (_ account: String?, _ password: String?, _ error: Error?) -> Void = { _, _, _ in }) {
+    func getSharedPassword(_ completion: @escaping @Sendable (_ account: String?, _ password: String?, _ error: Error?) -> Void = { _, _, _ in }) {
         if let domain = server.host {
             Self.requestSharedWebCredential(domain: domain, account: nil) { credentials, error in
                 if let credential = credentials.first {
@@ -964,7 +964,7 @@ public final class Keychain {
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    public func getSharedPassword(_ account: String, completion: @escaping (_ password: String?, _ error: Error?) -> Void = { _, _ in }) {
+    func getSharedPassword(_ account: String, completion: @escaping @Sendable (_ password: String?, _ error: Error?) -> Void = { _, _ in }) {
         if let domain = server.host {
             Self.requestSharedWebCredential(domain: domain, account: account) { credentials, error in
                 if let credential = credentials.first {
@@ -986,14 +986,14 @@ public final class Keychain {
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    public func setSharedPassword(_ password: String, account: String, completion: @escaping (_ error: Error?) -> Void = { _ in }) {
+    func setSharedPassword(_ password: String, account: String, completion: @escaping @Sendable (_ error: Error?) -> Void = { _ in }) {
         setSharedPassword(password as String?, account: account, completion: completion)
     }
     #endif
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    fileprivate func setSharedPassword(_ password: String?, account: String, completion: @escaping (_ error: Error?) -> Void = { _ in }) {
+    fileprivate func setSharedPassword(_ password: String?, account: String, completion: @escaping @Sendable (_ error: Error?) -> Void = { _ in }) {
         if let domain = server.host {
             if #available(iOS 14.0, *) {
                 // Use ASCredentialIdentityStore for iOS 14.0+
@@ -1007,8 +1007,10 @@ public final class Keychain {
                     completion(Status.unsupportedOperation)
                 } else {
                     // Remove credential
-                    credentialIdentityStore.removeAllCredentialIdentities { success, error in
-                        completion(error)
+                    // Explicitly capture completion as @Sendable closure
+                    let completionHandler: @Sendable (Error?) -> Void = completion
+                    credentialIdentityStore.removeAllCredentialIdentities { _, error in
+                        completionHandler(error)
                     }
                 }
             } else {
@@ -1030,35 +1032,35 @@ public final class Keychain {
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    public func removeSharedPassword(_ account: String, completion: @escaping (_ error: Error?) -> Void = { _ in }) {
+    func removeSharedPassword(_ account: String, completion: @escaping @Sendable (_ error: Error?) -> Void = { _ in }) {
         setSharedPassword(nil, account: account, completion: completion)
     }
     #endif
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    public final class func requestSharedWebCredential(_ completion: @escaping (_ credentials: [[String: String]], _ error: Error?) -> Void = { _, _ in }) {
+    final class func requestSharedWebCredential(_ completion: @escaping @Sendable (_ credentials: [[String: String]], _ error: Error?) -> Void = { _, _ in }) {
         requestSharedWebCredential(domain: nil, account: nil, completion: completion)
     }
     #endif
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    public final class func requestSharedWebCredential(domain: String, completion: @escaping (_ credentials: [[String: String]], _ error: Error?) -> Void = { _, _ in }) {
+    final class func requestSharedWebCredential(domain: String, completion: @escaping @Sendable (_ credentials: [[String: String]], _ error: Error?) -> Void = { _, _ in }) {
         requestSharedWebCredential(domain: domain, account: nil, completion: completion)
     }
     #endif
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    public final class func requestSharedWebCredential(domain: String, account: String, completion: @escaping (_ credentials: [[String: String]], _ error: Error?) -> Void = { _, _ in }) {
+    final class func requestSharedWebCredential(domain: String, account: String, completion: @escaping @Sendable (_ credentials: [[String: String]], _ error: Error?) -> Void = { _, _ in }) {
         requestSharedWebCredential(domain: Optional(domain), account: Optional(account)!, completion: completion)
     }
     #endif
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     @available(iOS 8.0, *)
-    fileprivate final class func requestSharedWebCredential(domain: String?, account: String?, completion: @escaping (_ credentials: [[String: String]], _ error: Error?) -> Void) {
+    fileprivate final class func requestSharedWebCredential(domain: String?, account: String?, completion: @escaping @Sendable (_ credentials: [[String: String]], _ error: Error?) -> Void) {
         if #available(iOS 14.0, *) {
             // Note: ASAuthorizationController must be presented from a view controller
             // In this context, we cannot use ASAuthorizationController properly
@@ -1105,7 +1107,7 @@ public final class Keychain {
      @return String password in the form xxx-xxx-xxx-xxx where x is taken from the sets "abcdefghkmnopqrstuvwxy", "ABCDEFGHJKLMNPQRSTUVWXYZ", "3456789" with at least one character from each set being present.
      */
     @available(iOS 8.0, *)
-    public final class func generatePassword() -> String {
+    final class func generatePassword() -> String {
         if #available(iOS 14.0, *) {
             // Generate password manually for iOS 14.0+ to avoid deprecated API
             let lowercase = "abcdefghkmnopqrstuvwxy"
@@ -1388,7 +1390,7 @@ private let SharedPassword = String(kSecSharedPassword)
 #endif
 
 extension Keychain: CustomStringConvertible, CustomDebugStringConvertible {
-    public var description: String {
+    var description: String {
         let items = allItems()
         if items.isEmpty {
             return "[]"
@@ -1402,7 +1404,7 @@ extension Keychain: CustomStringConvertible, CustomDebugStringConvertible {
         return description
     }
 
-    public var debugDescription: String {
+    var debugDescription: String {
         "\(items())"
     }
 }
@@ -1507,17 +1509,17 @@ extension Options {
 // MARK: 
 
 extension Attributes: CustomStringConvertible, CustomDebugStringConvertible {
-    public var description: String {
+    var description: String {
         "\(attributes)"
     }
 
-    public var debugDescription: String {
+    var debugDescription: String {
         description
     }
 }
 
 extension ItemClass: RawRepresentable, CustomStringConvertible {
-    public init?(rawValue: String) {
+    init?(rawValue: String) {
         switch rawValue {
         case String(kSecClassGenericPassword):
             self = .genericPassword
@@ -1528,7 +1530,7 @@ extension ItemClass: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var rawValue: String {
+    var rawValue: String {
         switch self {
         case .genericPassword:
             return String(kSecClassGenericPassword)
@@ -1537,7 +1539,7 @@ extension ItemClass: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var description: String {
+    var description: String {
         switch self {
         case .genericPassword:
             return "GenericPassword"
@@ -1548,7 +1550,7 @@ extension ItemClass: RawRepresentable, CustomStringConvertible {
 }
 
 extension ProtocolType: RawRepresentable, CustomStringConvertible {
-    public init?(rawValue: String) {
+    init?(rawValue: String) {
         switch rawValue {
         case String(kSecAttrProtocolFTP):
             self = .ftp
@@ -1617,7 +1619,7 @@ extension ProtocolType: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var rawValue: String {
+    var rawValue: String {
         switch self {
         case .ftp:
             return String(kSecAttrProtocolFTP)
@@ -1684,7 +1686,7 @@ extension ProtocolType: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var description: String {
+    var description: String {
         switch self {
         case .ftp:
             return "FTP"
@@ -1753,7 +1755,7 @@ extension ProtocolType: RawRepresentable, CustomStringConvertible {
 }
 
 extension AuthenticationType: RawRepresentable, CustomStringConvertible {
-    public init?(rawValue: String) {
+    init?(rawValue: String) {
         switch rawValue {
         case String(kSecAttrAuthenticationTypeNTLM):
             self = .ntlm
@@ -1776,7 +1778,7 @@ extension AuthenticationType: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var rawValue: String {
+    var rawValue: String {
         switch self {
         case .ntlm:
             return String(kSecAttrAuthenticationTypeNTLM)
@@ -1797,7 +1799,7 @@ extension AuthenticationType: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var description: String {
+    var description: String {
         switch self {
         case .ntlm:
             return "NTLM"
@@ -1820,7 +1822,7 @@ extension AuthenticationType: RawRepresentable, CustomStringConvertible {
 }
 
 extension Accessibility: RawRepresentable, CustomStringConvertible {
-    public init?(rawValue: String) {
+    init?(rawValue: String) {
         if #available(OSX 10.10, *) {
             switch rawValue {
             case String(kSecAttrAccessibleWhenUnlocked):
@@ -1860,7 +1862,7 @@ extension Accessibility: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var rawValue: String {
+    var rawValue: String {
         switch self {
         case .whenUnlocked:
             return String(kSecAttrAccessibleWhenUnlocked)
@@ -1881,7 +1883,7 @@ extension Accessibility: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var description: String {
+    var description: String {
         switch self {
         case .whenUnlocked:
             return "WhenUnlocked"
@@ -1915,7 +1917,7 @@ extension CFError {
     }
 }
 
-public enum Status: OSStatus, Error {
+enum Status: OSStatus, Error {
     case success = 0
     case unimplemented = -4
     case diskFull = -34
@@ -2322,7 +2324,7 @@ public enum Status: OSStatus, Error {
 }
 
 extension Status: RawRepresentable, CustomStringConvertible {
-    public init(status: OSStatus) {
+    init(status: OSStatus) {
         if let mappedStatus = Status(rawValue: status) {
             self = mappedStatus
         } else {
@@ -2330,7 +2332,7 @@ extension Status: RawRepresentable, CustomStringConvertible {
         }
     }
 
-    public var description: String {
+    var description: String {
         switch self {
         case .success:
             return "No error."
@@ -3143,13 +3145,13 @@ extension Status: RawRepresentable, CustomStringConvertible {
 }
 
 extension Status: CustomNSError {
-    public static let errorDomain = KeychainAccessErrorDomain
+    static let errorDomain = KeychainAccessErrorDomain
 
-    public var errorCode: Int {
+    var errorCode: Int {
         Int(rawValue)
     }
 
-    public var errorUserInfo: [String: Any] {
+    var errorUserInfo: [String: Any] {
         [NSLocalizedDescriptionKey: description]
     }
 }
@@ -3157,9 +3159,9 @@ extension Status: CustomNSError {
 #if os(iOS) && !targetEnvironment(macCatalyst)
 @available(iOS 14.0, *)
 private final class AuthorizationControllerDelegate: NSObject, ASAuthorizationControllerDelegate {
-    private let completion: ([[String: String]], Error?) -> Void
+    private let completion: @Sendable ([[String: String]], Error?) -> Void
     
-    init(completion: @escaping ([[String: String]], Error?) -> Void) {
+    init(completion: @escaping @Sendable ([[String: String]], Error?) -> Void) {
         self.completion = completion
         super.init()
     }

@@ -83,6 +83,125 @@ extension DebugSwift {
             NetworkThresholdTracker.shared.getDetailedLogs()
         }
         
+        // MARK: - Network Injection API
+        
+        /// Enable request delay injection with a fixed delay
+        /// - Parameters:
+        ///   - delay: Fixed delay in seconds
+        ///   - urlPatterns: Optional URL patterns to match (empty means all URLs)
+        ///   - httpMethods: Optional HTTP methods to apply delay to (empty means all methods)
+        public func enableRequestDelay(
+            _ delay: TimeInterval,
+            urlPatterns: [String] = [],
+            httpMethods: [String] = []
+        ) {
+            let config = RequestDelayConfig(
+                isEnabled: true,
+                fixedDelay: delay,
+                urlPatterns: urlPatterns,
+                httpMethods: httpMethods
+            )
+            NetworkInjectionManager.shared.setDelayConfig(config)
+        }
+        
+        /// Enable request delay injection with a random delay range
+        /// - Parameters:
+        ///   - minDelay: Minimum delay in seconds
+        ///   - maxDelay: Maximum delay in seconds
+        ///   - urlPatterns: Optional URL patterns to match (empty means all URLs)
+        ///   - httpMethods: Optional HTTP methods to apply delay to (empty means all methods)
+        public func enableRequestDelay(
+            min minDelay: TimeInterval,
+            max maxDelay: TimeInterval,
+            urlPatterns: [String] = [],
+            httpMethods: [String] = []
+        ) {
+            let config = RequestDelayConfig(
+                isEnabled: true,
+                fixedDelay: nil,
+                minDelay: minDelay,
+                maxDelay: maxDelay,
+                urlPatterns: urlPatterns,
+                httpMethods: httpMethods
+            )
+            NetworkInjectionManager.shared.setDelayConfig(config)
+        }
+        
+        /// Disable request delay injection
+        public func disableRequestDelay() {
+            var config = NetworkInjectionManager.shared.getDelayConfig()
+            config.isEnabled = false
+            NetworkInjectionManager.shared.setDelayConfig(config)
+        }
+        
+        /// Enable network failure injection
+        /// - Parameters:
+        ///   - failureRate: Failure rate from 0.0 to 1.0 (1.0 = 100% failure)
+        ///   - failureType: Type of failure to inject
+        ///   - urlPatterns: Optional URL patterns to match (empty means all URLs)
+        ///   - httpMethods: Optional HTTP methods to apply failure to (empty means all methods)
+        public func enableFailureInjection(
+            failureRate: Double = 0.5,
+            failureType: NetworkFailureConfig.FailureType = .timeout,
+            urlPatterns: [String] = [],
+            httpMethods: [String] = []
+        ) {
+            let config = NetworkFailureConfig(
+                isEnabled: true,
+                failureRate: failureRate,
+                failureType: failureType,
+                urlPatterns: urlPatterns,
+                httpMethods: httpMethods
+            )
+            NetworkInjectionManager.shared.setFailureConfig(config)
+        }
+        
+        /// Enable HTTP error injection with specific status codes
+        /// - Parameters:
+        ///   - failureRate: Failure rate from 0.0 to 1.0 (1.0 = 100% failure)
+        ///   - statusCodes: Array of HTTP status codes to randomly return
+        ///   - urlPatterns: Optional URL patterns to match (empty means all URLs)
+        ///   - httpMethods: Optional HTTP methods to apply failure to (empty means all methods)
+        public func enableHTTPErrorInjection(
+            failureRate: Double = 0.5,
+            statusCodes: [Int] = [400, 401, 403, 404, 500, 502, 503],
+            urlPatterns: [String] = [],
+            httpMethods: [String] = []
+        ) {
+            let config = NetworkFailureConfig(
+                isEnabled: true,
+                failureRate: failureRate,
+                failureType: .httpError(statusCode: nil),
+                urlPatterns: urlPatterns,
+                httpMethods: httpMethods,
+                customStatusCodes: statusCodes
+            )
+            NetworkInjectionManager.shared.setFailureConfig(config)
+        }
+        
+        /// Disable network failure injection
+        public func disableFailureInjection() {
+            var config = NetworkInjectionManager.shared.getFailureConfig()
+            config.isEnabled = false
+            NetworkInjectionManager.shared.setFailureConfig(config)
+        }
+        
+        /// Configure custom network injection settings
+        /// - Parameters:
+        ///   - delayConfig: Optional delay configuration
+        ///   - failureConfig: Optional failure configuration
+        public func configureNetworkInjection(
+            delayConfig: RequestDelayConfig? = nil,
+            failureConfig: NetworkFailureConfig? = nil
+        ) {
+            if let delay = delayConfig {
+                NetworkInjectionManager.shared.setDelayConfig(delay)
+            }
+            if let failure = failureConfig {
+                NetworkInjectionManager.shared.setFailureConfig(failure)
+            }
+        }
+        
         // MARK: - Network History Management
         
         /// Clear all HTTP/HTTPS network request history
