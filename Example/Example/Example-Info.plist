@@ -35,5 +35,18 @@
         <string>remote-notification</string>
         <string>background-processing</string>
     </array>
+
+    <!-- URL Schemes for Deep Link Testing -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>debugswift</string>
+            </array>
+            <key>CFBundleURLName</key>
+            <string>com.debugswift.example</string>
+        </dict>
+    </array>
 </dict>
 </plist>
