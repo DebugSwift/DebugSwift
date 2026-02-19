@@ -12,8 +12,12 @@ DebugSwift
 <a href="https://trendshift.io/repositories/12656" target="_blank"><img src="https://trendshift.io/api/badge/repositories/12656" alt="DebugSwift%2FDebugSwift | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </p>
 
-| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2"> | <div align="left" >DebugSwift is a comprehensive toolkit designed to streamline and elevate the debugging experience for Swift-based applications. Whether you are troubleshooting issues or optimizing performance, DebugSwift offers a powerful set of features to make your debugging process more efficient and effective. |
+| | |
 |---|---|
+| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2" /> | <p align="left">DebugSwift is a comprehensive toolkit designed to streamline and elevate the debugging experience for Swift-based applications. Whether you are troubleshooting issues or optimizing performance, DebugSwift offers a powerful set of features to make your debugging process more efficient and effective.</p> |
+|  |  |
+
+---
 
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/a569b038-9058-4260-ae7c-47f3376cf629" />
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/334ccefa-5951-494f-8faa-5f016d39f946" />
