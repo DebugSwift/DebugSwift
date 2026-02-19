@@ -71,6 +71,8 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     
     // Store reference to original delegate for forwarding
     private weak var originalDelegate: URLSessionDelegate?
+    
+    private lazy var sessionDelegate = _SessionDelegate(target: self)
 
     private func use(_ cache: CachedURLResponse) {
         DebugSwift.Network.shared.delegate?.urlSession(
@@ -152,7 +154,7 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         // Use preserved configuration if available, otherwise fall back to default
         let config = getPreservedConfigurationForRequest() ?? URLSessionConfiguration.default
         
-        session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+        session = URLSession(configuration: config, delegate: sessionDelegate, delegateQueue: nil)
         dataTask = session?.dataTask(with: newRequest as URLRequest)
         dataTask?.resume()
     }
@@ -561,5 +563,157 @@ extension CustomHTTPProtocol: URLSessionTaskDelegate {
                 originalDelegate.urlSession?(session, taskIsWaitingForConnectivity: task)
             }
         }
+    }
+}
+
+private final class _SessionDelegate: NSObject, @unchecked Sendable {
+    
+    weak var session: URLSessionDelegate?
+    weak var data: URLSessionDataDelegate?
+    weak var task: URLSessionTaskDelegate?
+
+    init(target: URLSessionDelegate?) {
+        session = target
+        data = target as? URLSessionDataDelegate
+        task = target as? URLSessionTaskDelegate
+    }
+}
+
+extension _SessionDelegate: URLSessionDataDelegate {
+    
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse,
+        newRequest request: URLRequest,
+        completionHandler: @escaping @Sendable (URLRequest?) -> Void
+    ) {
+        data?.urlSession?(
+            session,
+            task: task,
+            willPerformHTTPRedirection: response,
+            newRequest: request,
+            completionHandler: completionHandler
+        )
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive response: URLResponse,
+        completionHandler: @Sendable @escaping (URLSession.ResponseDisposition) -> Void
+    ) {
+        if let delegate = self.data,
+           (delegate as AnyObject).responds(
+               to: #selector(URLSessionDataDelegate.urlSession(_:dataTask:didReceive:completionHandler:))
+           ) {
+            delegate.urlSession?(
+                session,
+                dataTask: dataTask,
+                didReceive: response,
+                completionHandler: completionHandler
+            )
+        } else {
+            completionHandler(.allow)
+        }
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive data: Data
+    ) {
+        self.data?.urlSession?(session, dataTask: dataTask, didReceive: data)
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
+        self.task?.urlSession?(session, task: task, didCompleteWithError: error)
+    }
+}
+
+extension _SessionDelegate: URLSessionTaskDelegate {
+    
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didSendBodyData bytesSent: Int64,
+        totalBytesSent: Int64,
+        totalBytesExpectedToSend: Int64
+    ) {
+        self.task?.urlSession?(
+            session,
+            task: task,
+            didSendBodyData: bytesSent,
+            totalBytesSent: totalBytesSent,
+            totalBytesExpectedToSend: totalBytesExpectedToSend
+        )
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @Sendable @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        if let delegate = self.session,
+           (delegate as AnyObject).responds(
+               to: #selector(URLSessionDelegate.urlSession(_:didReceive:completionHandler:))
+           ) {
+            delegate.urlSession?(session, didReceive: challenge, completionHandler: completionHandler)
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @Sendable @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        if let delegate = self.task,
+           (delegate as AnyObject).responds(
+               to: #selector(URLSessionTaskDelegate.urlSession(_:task:didReceive:completionHandler:))
+           ) {
+            delegate.urlSession?(
+                session,
+                task: task,
+                didReceive: challenge,
+                completionHandler: completionHandler
+            )
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willBeginDelayedRequest request: URLRequest,
+        completionHandler: @Sendable @escaping (URLSession.DelayedRequestDisposition, URLRequest?) -> Void
+    ) {
+        if let delegate = self.task,
+           (delegate as AnyObject).responds(
+               to: #selector(URLSessionTaskDelegate.urlSession(_:task:willBeginDelayedRequest:completionHandler:))
+           ) {
+            delegate.urlSession?(
+                session,
+                task: task,
+                willBeginDelayedRequest: request,
+                completionHandler: completionHandler
+            )
+        } else {
+            completionHandler(.continueLoading, nil)
+        }
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        taskIsWaitingForConnectivity task: URLSessionTask
+    ) {
+        self.task?.urlSession?(session, taskIsWaitingForConnectivity: task)
     }
 }
