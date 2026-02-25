@@ -4,7 +4,7 @@ assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: '{InformationalVersion}'
 tag-prefix: 'v'
-continuous-delivery-fallback-tag: 'ci'
+continuous-delivery-fallback-label: 'ci'
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
@@ -20,7 +20,7 @@ branches:
     mode: ContinuousDelivery
     label: ''
     increment: Patch
-    prevent-increment-of-merged-branch-version: true
+    prevent-increment: true
     track-merge-target: false
     tracks-release-branches: false
     is-release-branch: true
@@ -31,7 +31,7 @@ branches:
     mode: ContinuousDelivery
     label: alpha
     increment: Minor
-    prevent-increment-of-merged-branch-version: false
+    prevent-increment: false
     track-merge-target: true
     tracks-release-branches: true
     is-release-branch: false
@@ -42,7 +42,7 @@ branches:
     mode: ContinuousDelivery
     label: beta
     increment: None
-    prevent-increment-of-merged-branch-version: true
+    prevent-increment: true
     track-merge-target: false
     tracks-release-branches: false
     is-release-branch: true
@@ -53,7 +53,7 @@ branches:
     mode: ContinuousDelivery
     label: useBranchName
     increment: Inherit
-    prevent-increment-of-merged-branch-version: false
+    prevent-increment: false
     track-merge-target: false
     tracks-release-branches: false
     is-release-branch: false
@@ -64,7 +64,7 @@ branches:
     mode: ContinuousDelivery
     label: PullRequest
     increment: Inherit
-    prevent-increment-of-merged-branch-version: false
+    prevent-increment: false
     track-merge-target: false
     tracks-release-branches: false
     is-release-branch: false
@@ -75,7 +75,7 @@ branches:
     mode: ContinuousDelivery
     label: beta
     increment: Patch
-    prevent-increment-of-merged-branch-version: false
+    prevent-increment: false
     track-merge-target: false
     tracks-release-branches: false
     is-release-branch: false
