@@ -56,11 +56,21 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
         
-        TAG_NAME="test-${{ steps.gitversion.outputs.semVer }}"
+        # Make tag unique with timestamp to avoid conflicts
+        TIMESTAMP=$(date +%s)
+        TAG_NAME="test-${{ steps.gitversion.outputs.semVer }}-${TIMESTAMP}"
         CURRENT_BRANCH="${{ github.ref_name }}"
         
         echo "🏷️  Creating test tag: $TAG_NAME"
         echo "📍 On branch: $CURRENT_BRANCH"
+        echo "⏰ Timestamp: $TIMESTAMP"
+        
+        # Check if tag exists (shouldn't with timestamp, but good to verify)
+        if git tag -l "$TAG_NAME" | grep -q "$TAG_NAME"; then
+          echo "⚠️  Tag already exists, deleting it first..."
+          git tag -d "$TAG_NAME" 2>/dev/null || true
+          git push --delete origin "$TAG_NAME" 2>/dev/null || true
+        fi
         
         git tag "$TAG_NAME"
         git push origin "$TAG_NAME"
@@ -189,8 +199,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: test-xcframework-${{ needs.test_rc_version.outputs.semVer }}
-        release_name: Test XCFramework Release ${{ needs.test_rc_version.outputs.semVer }}
+        tag_name: test-xcframework-${{ needs.test_rc_version.outputs.semVer }}-${{ github.run_number }}
+        release_name: Test XCFramework Release ${{ needs.test_rc_version.outputs.semVer }}-${{ github.run_number }}
         body: |
           🧪 **Test Release for XCFramework Upload**
           
@@ -225,8 +235,8 @@ jobs:
         echo "📋 Test Results:"
         echo "✅ RC Version Generated: ${{ needs.test_rc_version.outputs.semVer }}"
         echo "✅ XCFramework Built: $(ls XCFramework/*.zip 2>/dev/null && echo 'SUCCESS' || echo 'FAILED')"
-        echo "✅ Test Release Created: test-xcframework-${{ needs.test_rc_version.outputs.semVer }}"
+        echo "✅ Test Release Created: test-xcframework-${{ needs.test_rc_version.outputs.semVer }}-${{ github.run_number }}"
         echo "✅ Asset Uploaded: DebugSwift.xcframework.zip"
         echo ""
         echo "🔗 Check the release at: https://github.com/${{ github.repository }}/releases"
-        echo "🏷️  Test tag created: test-${{ needs.test_rc_version.outputs.semVer }}"
+        echo "🏷️  Test tag created with unique timestamp"
