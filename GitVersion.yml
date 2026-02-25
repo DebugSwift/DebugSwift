@@ -1,5 +1,4 @@
 mode: ContinuousDelivery
-next-version: 1.11.3
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: '{InformationalVersion}'
