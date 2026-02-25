@@ -21,48 +21,36 @@ branches:
     label: ''
     increment: Patch
     prevent-increment: true
-    is-release-branch: true
-    is-mainline: true
   develop:
     regex: ^develop$|^dev$
     mode: ContinuousDelivery
     label: alpha
     increment: Minor
     prevent-increment: false
-    is-release-branch: false
-    is-mainline: false
   release:
     regex: ^releases?[/-]
     mode: ContinuousDelivery
     label: beta
     increment: None
     prevent-increment: true
-    is-release-branch: true
-    is-mainline: false
   feature:
     regex: ^features?[/-]
     mode: ContinuousDelivery
     label: useBranchName
     increment: Inherit
     prevent-increment: false
-    is-release-branch: false
-    is-mainline: false
   pull-request:
     regex: ^(pull|pull\-requests|pr)[/-]
     mode: ContinuousDelivery
     label: PullRequest
     increment: Inherit
     prevent-increment: false
-    is-release-branch: false
-    is-mainline: false
   hotfix:
     regex: ^hotfix(es)?[/-]
     mode: ContinuousDelivery
     label: beta
     increment: Patch
     prevent-increment: false
-    is-release-branch: false
-    is-mainline: false
 
 ignore:
   sha: []
