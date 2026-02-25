@@ -1,0 +1,169 @@
+name: Test RC Tags and XCFramework Upload Clean
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "maatheusgois-dd/add-rc-tags-on-pr-merge"
+
+permissions:
+  contents: write
+
+jobs:
+  test_rc_version:
+    name: Test RC Version Generation
+    runs-on: macos-15
+    outputs:
+      semVer: ${{ steps.gitversion.outputs.semVer }}
+      majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
+      
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        persist-credentials: true
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v4
+      with:
+        versionSpec: '6.x'
+
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v4
+
+    - name: Display GitVersion Results
+      run: |
+        echo "🔍 GitVersion Results:"
+        echo "Semantic Version: ${{ steps.gitversion.outputs.semVer }}"
+        echo "Major.Minor.Patch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+        echo "Branch Name: ${{ steps.gitversion.outputs.branchName }}"
+        echo "Configuration: Branch = ${{ github.ref_name }}"
+        echo ""
+        echo "Expected RC format should be like: rc+1.11.3"
+        echo "Actual format: ${{ steps.gitversion.outputs.semVer }}"
+
+    - name: Test Tag Creation
+      run: |
+        TIMESTAMP=$(date +%s)
+        TAG_NAME="test-${{ steps.gitversion.outputs.semVer }}-${TIMESTAMP}"
+        
+        echo "Creating test tag: $TAG_NAME"
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        
+        if git tag | grep -q "^$TAG_NAME$"; then
+          echo "Tag already exists, deleting..."
+          git tag -d "$TAG_NAME" || true
+          git push --delete origin "$TAG_NAME" 2>/dev/null || true
+        fi
+        
+        git tag "$TAG_NAME"
+        git push origin "$TAG_NAME"
+        echo "✅ Test tag created: $TAG_NAME"
+
+  build_and_upload_xcframework:
+    name: Build and Upload XCFramework  
+    needs: test_rc_version
+    runs-on: macos-15
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+
+    - name: Build XCFramework
+      run: |
+        echo "🏗️  Building XCFramework for release..."
+        mkdir -p build XCFramework
+        
+        echo "📱 Building for iOS device (arm64)..."
+        xcodebuild -scheme DebugSwift \
+          -destination "generic/platform=iOS" \
+          -archivePath "build/DebugSwift-iOS.xcarchive" \
+          archive \
+          SKIP_INSTALL=NO \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+          
+        echo "🖥️  Building for iOS Simulator..."
+        xcodebuild -scheme DebugSwift \
+          -destination "generic/platform=iOS Simulator" \
+          -archivePath "build/DebugSwift-Simulator.xcarchive" \
+          archive \
+          SKIP_INSTALL=NO \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+          
+        echo "🔨 Creating XCFramework..."
+        xcodebuild -create-xcframework \
+          -archive "build/DebugSwift-iOS.xcarchive" -framework DebugSwift.framework \
+          -archive "build/DebugSwift-Simulator.xcarchive" -framework DebugSwift.framework \
+          -output "XCFramework/DebugSwift.xcframework"
+          
+        echo "📦 Creating XCFramework ZIP..."
+        cd XCFramework
+        zip -r "DebugSwift.xcframework.zip" "DebugSwift.xcframework"
+        cd ..
+        
+        echo "✅ XCFramework created successfully!"
+        echo "📊 Build output:"
+        ls -la XCFramework/
+        echo "📏 File sizes:"
+        du -h XCFramework/*
+
+    - name: Create Test Release for XCFramework
+      id: create_test_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: test-xcframework-${{ needs.test_rc_version.outputs.semVer }}-${{ github.run_number }}
+        release_name: Test XCFramework Release ${{ needs.test_rc_version.outputs.semVer }}-${{ github.run_number }}
+        body: |
+          🧪 **Test Release for XCFramework Upload**
+          
+          **Version:** ${{ needs.test_rc_version.outputs.semVer }}
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          
+          This is a test release to verify:
+          - ✅ RC tag generation
+          - ✅ XCFramework build process  
+          - ✅ Asset upload functionality
+          
+          **Expected RC Format:** rc+1.11.3 (or similar)
+          **Actual Format:** ${{ needs.test_rc_version.outputs.semVer }}
+        draft: false
+        prerelease: true
+
+    - name: Upload XCFramework to Test Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_test_release.outputs.upload_url }}
+        asset_path: ./XCFramework/DebugSwift.xcframework.zip
+        asset_name: DebugSwift.xcframework.zip
+        asset_content_type: application/zip
+
+    - name: Test Results Summary
+      run: |
+        echo "🎉 Test Complete!"
+        echo ""
+        echo "📋 Test Results:"
+        echo "✅ RC Version Generated: ${{ needs.test_rc_version.outputs.semVer }}"
+        echo "✅ XCFramework Built: $(ls XCFramework/*.zip 2>/dev/null && echo 'SUCCESS' || echo 'FAILED')"
+        echo "✅ Test Release Created: test-xcframework-${{ needs.test_rc_version.outputs.semVer }}-${{ github.run_number }}"
+        echo "✅ Asset Uploaded: DebugSwift.xcframework.zip"
+        echo ""
+        echo "🔗 Check the release at: https://github.com/${{ github.repository }}/releases"
+        echo "🏷️  Test tag created with unique timestamp"
