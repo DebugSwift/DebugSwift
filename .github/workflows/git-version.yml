@@ -59,13 +59,16 @@ jobs:
     needs: 
       - git_version
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
+    
     steps:
 
     - name: Checkout
       uses: actions/checkout@v6
       with:
         token: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
+        persist-credentials: true
 
     - name: Update podspec version
       run: |
@@ -79,6 +82,8 @@ jobs:
         grep "s.version" DebugSwift.podspec
 
     - name: Commit podspec changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
@@ -95,6 +100,8 @@ jobs:
         fi
 
     - name: Push Git Tag
+      env:
+        GITHUB_TOKEN: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
