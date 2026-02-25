@@ -91,7 +91,7 @@ jobs:
       with:
         xcode-version: '16.4'
 
-      - name: Build XCFramework
+    - name: Build XCFramework
         run: |
           echo "🏗️  Building XCFramework for release..."
           mkdir -p build XCFramework
