@@ -18,7 +18,7 @@ branches:
   main:
     regex: ^main$|^master$
     mode: ContinuousDelivery
-    tag: ''
+    label: ''
     increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
@@ -29,7 +29,7 @@ branches:
   develop:
     regex: ^develop$|^dev$
     mode: ContinuousDelivery
-    tag: alpha
+    label: alpha
     increment: Minor
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
@@ -40,7 +40,7 @@ branches:
   release:
     regex: ^releases?[/-]
     mode: ContinuousDelivery
-    tag: beta
+    label: beta
     increment: None
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
@@ -51,7 +51,7 @@ branches:
   feature:
     regex: ^features?[/-]
     mode: ContinuousDelivery
-    tag: useBranchName
+    label: useBranchName
     increment: Inherit
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
@@ -62,7 +62,7 @@ branches:
   pull-request:
     regex: ^(pull|pull\-requests|pr)[/-]
     mode: ContinuousDelivery
-    tag: PullRequest
+    label: PullRequest
     increment: Inherit
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
@@ -73,7 +73,7 @@ branches:
   hotfix:
     regex: ^hotfix(es)?[/-]
     mode: ContinuousDelivery
-    tag: beta
+    label: beta
     increment: Patch
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
