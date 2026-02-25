@@ -126,4 +126,103 @@ jobs:
           echo "Not on main branch, skipping tag creation"
         fi
 
+  build_xcframework:
+    name: Build and Upload XCFramework  
+    needs: git_version
+    runs-on: macos-15
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+
+    - name: Build XCFramework
+      run: |
+        echo "🏗️  Building XCFramework for release..."
+        
+        # Create output directories
+        mkdir -p build XCFramework
+        
+        # Build for iOS device (arm64)
+        echo "📱 Building for iOS device (arm64)..."
+        xcodebuild -scheme DebugSwift \
+          -destination "generic/platform=iOS" \
+          -archivePath "build/DebugSwift-iOS.xcarchive" \
+          archive \
+          SKIP_INSTALL=NO \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+        
+        # Build for iOS Simulator (arm64 + x86_64)
+        echo "🖥️  Building for iOS Simulator..."
+        xcodebuild -scheme DebugSwift \
+          -destination "generic/platform=iOS Simulator" \
+          -archivePath "build/DebugSwift-Simulator.xcarchive" \
+          archive \
+          SKIP_INSTALL=NO \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+        
+        # Create XCFramework
+        echo "🔨 Creating XCFramework..."
+        xcodebuild -create-xcframework \
+          -archive "build/DebugSwift-iOS.xcarchive" -framework DebugSwift.framework \
+          -archive "build/DebugSwift-Simulator.xcarchive" -framework DebugSwift.framework \
+          -output "XCFramework/DebugSwift.xcframework"
+        
+        # Create ZIP of XCFramework
+        echo "📦 Creating XCFramework ZIP..."
+        cd XCFramework
+        zip -r "DebugSwift.xcframework.zip" "DebugSwift.xcframework"
+        cd ..
+        
+        echo "✅ XCFramework created successfully!"
+        echo "📊 Build output:"
+        ls -la XCFramework/
+        
+        # Show file sizes
+        echo "📏 File sizes:"
+        du -h XCFramework/*
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ needs.git_version.outputs.semVer }}
+        release_name: Release ${{ needs.git_version.outputs.semVer }}
+        body: |
+          🚀 **Release ${{ needs.git_version.outputs.semVer }}**
+          
+          **What's New:**
+          - Auto-generated from main branch
+          - Includes XCFramework for iOS development
+          
+          **Installation:**
+          1. Download `DebugSwift.xcframework.zip`
+          2. Extract and add to your Xcode project
+          3. Link the framework to your target
+          
+          **Version Details:**
+          - Semantic Version: ${{ needs.git_version.outputs.semVer }}
+          - Major.Minor.Patch: ${{ needs.git_version.outputs.majorMinorPatch }}
+        draft: false
+        prerelease: false
+
+    - name: Upload XCFramework to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./XCFramework/DebugSwift.xcframework.zip
+        asset_name: DebugSwift.xcframework.zip
+        asset_content_type: application/zip
+
 
