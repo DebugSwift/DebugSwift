@@ -87,26 +87,44 @@ jobs:
         echo "🏗️  Building XCFramework for release..."
         mkdir -p build XCFramework
         
-        echo "📱 Building for iOS device (arm64)..."
+        echo "📱 Building iOS framework..."
         xcodebuild -scheme DebugSwift \
           -destination "generic/platform=iOS" \
-          -archivePath "build/DebugSwift-iOS.xcarchive" \
-          archive \
+          -configuration Release \
+          -derivedDataPath build \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
           SKIP_INSTALL=NO \
-          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+          GENERATE_INFOPLIST_FILE=YES \
+          build
           
-        echo "🖥️  Building for iOS Simulator..."
+        echo "🖥️  Building iOS Simulator framework..."
         xcodebuild -scheme DebugSwift \
           -destination "generic/platform=iOS Simulator" \
-          -archivePath "build/DebugSwift-Simulator.xcarchive" \
-          archive \
+          -configuration Release \
+          -derivedDataPath build \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
           SKIP_INSTALL=NO \
-          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+          GENERATE_INFOPLIST_FILE=YES \
+          build
+          
+        # Find the built frameworks
+        IOS_FRAMEWORK=$(find build -name "DebugSwift.framework" -path "*-iphoneos*" | head -1)
+        SIM_FRAMEWORK=$(find build -name "DebugSwift.framework" -path "*-iphonesimulator*" | head -1)
+        
+        if [ -z "$IOS_FRAMEWORK" ] || [ -z "$SIM_FRAMEWORK" ]; then
+          echo "❌ Failed to locate built frameworks"
+          echo "Looking for frameworks in:"
+          find build -name "*.framework" -type d
+          exit 1
+        fi
+        
+        echo "Found iOS framework: $IOS_FRAMEWORK"
+        echo "Found Simulator framework: $SIM_FRAMEWORK"
           
         echo "🔨 Creating XCFramework..."
         xcodebuild -create-xcframework \
-          -archive "build/DebugSwift-iOS.xcarchive" -framework DebugSwift.framework \
-          -archive "build/DebugSwift-Simulator.xcarchive" -framework DebugSwift.framework \
+          -framework "$IOS_FRAMEWORK" \
+          -framework "$SIM_FRAMEWORK" \
           -output "XCFramework/DebugSwift.xcframework"
           
         echo "📦 Creating XCFramework ZIP..."
