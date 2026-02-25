@@ -2,7 +2,7 @@ mode: ContinuousDelivery
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: '{InformationalVersion}'
-tag-prefix: 'v'
+tag-prefix: 'rc+'
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
@@ -15,7 +15,7 @@ branches:
     mode: ContinuousDelivery
     label: ''
     increment: Patch
-    prevent-increment: true
+    prevent-increment: false
   develop:
     regex: ^develop$|^dev$
     mode: ContinuousDelivery
@@ -25,7 +25,7 @@ branches:
   release:
     regex: ^releases?[/-]
     mode: ContinuousDelivery
-    label: beta
+    label: ''
     increment: None
     prevent-increment: true
   feature:
