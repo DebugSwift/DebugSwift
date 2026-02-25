@@ -91,107 +91,43 @@ jobs:
       with:
         xcode-version: '16.4'
 
-    - name: Build XCFramework
-      run: |
-        echo "🏗️  Building XCFramework using Swift Package Manager..."
-        
-        # Create output directories
-        mkdir -p build XCFramework
-        
-        # Create temporary directory structure for framework creation
-        mkdir -p build/ios-device build/ios-simulator
-        
-        # Build for iOS device (arm64)
-        echo "📱 Building for iOS device..."
-        swift build -c release \
-          --target DebugSwift \
-          --arch arm64 \
-          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphoneos --show-sdk-path) \
-          -Xswiftc -target -Xswiftc arm64-apple-ios14.0 \
-          --build-path build/ios-device
-        
-        # Build for iOS simulator (arm64, x86_64)  
-        echo "🖥️  Building for iOS simulator (arm64)..."
-        swift build -c release \
-          --target DebugSwift \
-          --arch arm64 \
-          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
-          -Xswiftc -target -Xswiftc arm64-apple-ios14.0-simulator \
-          --build-path build/ios-simulator-arm64
+      - name: Build XCFramework
+        run: |
+          echo "🏗️  Building XCFramework for release..."
+          mkdir -p build XCFramework
           
-        echo "🖥️  Building for iOS simulator (x86_64)..."
-        swift build -c release \
-          --target DebugSwift \
-          --arch x86_64 \
-          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
-          -Xswiftc -target -Xswiftc x86_64-apple-ios14.0-simulator \
-          --build-path build/ios-simulator-x86_64
-        
-        # Create framework structures
-        echo "📦 Creating framework structures..."
-        
-        # iOS Device Framework
-        mkdir -p build/frameworks/ios-device/DebugSwift.framework
-        cp build/ios-device/arm64-apple-ios/release/libDebugSwift.a build/frameworks/ios-device/DebugSwift.framework/DebugSwift || \
-        cp build/ios-device/release/libDebugSwift.a build/frameworks/ios-device/DebugSwift.framework/DebugSwift
-        
-        # iOS Simulator Framework (universal)
-        mkdir -p build/frameworks/ios-simulator/DebugSwift.framework
-        lipo -create \
-          build/ios-simulator-arm64/arm64-apple-ios-simulator/release/libDebugSwift.a \
-          build/ios-simulator-x86_64/x86_64-apple-ios-simulator/release/libDebugSwift.a \
-          -output build/frameworks/ios-simulator/DebugSwift.framework/DebugSwift || \
-        lipo -create \
-          build/ios-simulator-arm64/release/libDebugSwift.a \
-          build/ios-simulator-x86_64/release/libDebugSwift.a \
-          -output build/frameworks/ios-simulator/DebugSwift.framework/DebugSwift
-        
-        # Copy Swift modules and headers if they exist
-        find build -name "*.swiftmodule" -path "*release*" | head -1 | xargs -I {} cp -R {} build/frameworks/ios-device/DebugSwift.framework/ 2>/dev/null || true
-        find build -name "*.swiftmodule" -path "*release*" | tail -1 | xargs -I {} cp -R {} build/frameworks/ios-simulator/DebugSwift.framework/ 2>/dev/null || true
-        
-        # Create XCFramework
-        echo "🔨 Creating XCFramework..."
-        xcodebuild -create-xcframework \
-          -library build/frameworks/ios-device/DebugSwift.framework/DebugSwift \
-          -library build/frameworks/ios-simulator/DebugSwift.framework/DebugSwift \
-          -output XCFramework/DebugSwift.xcframework
-        
-        # If xcframework creation fails, try alternative approach with just the libraries
-        if [ ! -d "XCFramework/DebugSwift.xcframework" ]; then
-          echo "⚠️  Trying alternative XCFramework creation..."
-          
-          # Create a simple bundled release instead
-          mkdir -p XCFramework/DebugSwift-Static-Libs
-          
-          # Copy static libraries
-          cp build/frameworks/ios-device/DebugSwift.framework/DebugSwift XCFramework/DebugSwift-Static-Libs/libDebugSwift-ios-device.a
-          cp build/frameworks/ios-simulator/DebugSwift.framework/DebugSwift XCFramework/DebugSwift-Static-Libs/libDebugSwift-ios-simulator.a
-          
-          # Copy Swift modules
-          find build -name "*.swiftmodule" -path "*release*" -exec cp -R {} XCFramework/DebugSwift-Static-Libs/ \; 2>/dev/null || true
-          
-          # Create a simple zip
-          cd XCFramework
-          zip -r "DebugSwift.xcframework.zip" "DebugSwift-Static-Libs"
-          cd ..
-          
-          echo "✅ Static library bundle created as alternative!"
-        else
-          # Create ZIP of XCFramework
+          echo "📱 Building for iOS device (arm64)..."
+          xcodebuild -scheme DebugSwift \
+            -destination "generic/platform=iOS" \
+            -archivePath "build/DebugSwift-iOS.xcarchive" \
+            archive \
+            SKIP_INSTALL=NO \
+            BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+            
+          echo "🖥️  Building for iOS Simulator..."
+          xcodebuild -scheme DebugSwift \
+            -destination "generic/platform=iOS Simulator" \
+            -archivePath "build/DebugSwift-Simulator.xcarchive" \
+            archive \
+            SKIP_INSTALL=NO \
+            BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+            
+          echo "🔨 Creating XCFramework..."
+          xcodebuild -create-xcframework \
+            -archive "build/DebugSwift-iOS.xcarchive" -framework DebugSwift.framework \
+            -archive "build/DebugSwift-Simulator.xcarchive" -framework DebugSwift.framework \
+            -output "XCFramework/DebugSwift.xcframework"
+            
           echo "📦 Creating XCFramework ZIP..."
           cd XCFramework
           zip -r "DebugSwift.xcframework.zip" "DebugSwift.xcframework"
           cd ..
+          
           echo "✅ XCFramework created successfully!"
-        fi
-        
-        echo "📊 Build output:"
-        ls -la XCFramework/
-        
-        # Show file sizes for verification
-        echo "📏 File sizes:"
-        du -h XCFramework/*
+          echo "📊 Build output:"
+          ls -la XCFramework/
+          echo "📏 File sizes:"
+          du -h XCFramework/*
 
     - name: Create Test Release for XCFramework
       id: create_test_release
