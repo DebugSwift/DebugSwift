@@ -59,13 +59,16 @@ jobs:
     needs: 
       - git_version
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
+    
     steps:
 
     - name: Checkout
       uses: actions/checkout@v6
       with:
         token: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
+        persist-credentials: true
 
     - name: Update podspec version
       run: |
@@ -79,11 +82,14 @@ jobs:
         grep "s.version" DebugSwift.podspec
 
     - name: Commit podspec changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
         
         NEW_VERSION="${{ needs.git_version.outputs.majorMinorPatch }}"
+        CURRENT_BRANCH="${{ github.ref_name }}"
         
         # Check if there are changes to commit
         if git diff --quiet DebugSwift.podspec; then
@@ -91,17 +97,33 @@ jobs:
         else
           git add DebugSwift.podspec
           git commit -m "chore: update podspec version to $NEW_VERSION [skip ci]"
-          git push origin main
+          
+          # Push to the appropriate branch
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "Pushing to main branch"
+            git push origin main
+          else
+            echo "Pushing to current branch: $CURRENT_BRANCH"
+            git push origin HEAD
+          fi
         fi
 
     - name: Push Git Tag
+      env:
+        GITHUB_TOKEN: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
         git config user.name "GitHub Actions"
         git config user.email "github-actions@users.noreply.github.com"
         
         TAG_NAME="${{ needs.git_version.outputs.semVer }}"
         
-        git tag $TAG_NAME
-        git push origin $TAG_NAME
+        # Only create and push tags when on main branch
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "Creating and pushing tag: $TAG_NAME"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+        else
+          echo "Not on main branch, skipping tag creation"
+        fi
 
 
