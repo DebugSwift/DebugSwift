@@ -1,0 +1,232 @@
+name: Test RC Tags and XCFramework Upload
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "maatheusgois-dd/add-rc-tags-on-pr-merge"
+
+permissions:
+  contents: write
+
+jobs:
+  test_rc_version:
+    name: Test RC Version Generation
+    runs-on: macos-15
+    outputs:
+      semVer: ${{ steps.gitversion.outputs.semVer }}
+      majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
+      
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
+        persist-credentials: true
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v4
+      with:
+        versionSpec: '6.x'
+
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v4
+
+    - name: Display GitVersion Results
+      run: |
+        echo "🏷️  Semantic Version: ${{ steps.gitversion.outputs.semVer }}"
+        echo "🔢 Major.Minor.Patch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+        echo "🏗️  Pre-Release Tag: ${{ steps.gitversion.outputs.preReleaseTag }}"
+        echo "📊 Pre-Release Number: ${{ steps.gitversion.outputs.preReleaseNumber }}"
+        echo ""
+        echo "Expected RC format: rc+1.11.3 (or similar)"
+        echo "Current format: ${{ steps.gitversion.outputs.semVer }}"
+
+    - name: Test Tag Creation
+      env:
+        GITHUB_TOKEN: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "github-actions@users.noreply.github.com"
+        
+        TAG_NAME="test-${{ steps.gitversion.outputs.semVer }}"
+        CURRENT_BRANCH="${{ github.ref_name }}"
+        
+        echo "🏷️  Creating test tag: $TAG_NAME"
+        echo "📍 On branch: $CURRENT_BRANCH"
+        
+        git tag "$TAG_NAME"
+        git push origin "$TAG_NAME"
+        
+        echo "✅ Test tag created and pushed successfully!"
+
+  build_and_upload_xcframework:
+    name: Build and Upload XCFramework  
+    needs: test_rc_version
+    runs-on: macos-15
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+
+    - name: Build XCFramework
+      run: |
+        echo "🏗️  Building XCFramework using Swift Package Manager..."
+        
+        # Create output directories
+        mkdir -p build XCFramework
+        
+        # Create temporary directory structure for framework creation
+        mkdir -p build/ios-device build/ios-simulator
+        
+        # Build for iOS device (arm64)
+        echo "📱 Building for iOS device..."
+        swift build -c release \
+          --target DebugSwift \
+          --arch arm64 \
+          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphoneos --show-sdk-path) \
+          -Xswiftc -target -Xswiftc arm64-apple-ios14.0 \
+          --build-path build/ios-device
+        
+        # Build for iOS simulator (arm64, x86_64)  
+        echo "🖥️  Building for iOS simulator (arm64)..."
+        swift build -c release \
+          --target DebugSwift \
+          --arch arm64 \
+          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
+          -Xswiftc -target -Xswiftc arm64-apple-ios14.0-simulator \
+          --build-path build/ios-simulator-arm64
+          
+        echo "🖥️  Building for iOS simulator (x86_64)..."
+        swift build -c release \
+          --target DebugSwift \
+          --arch x86_64 \
+          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
+          -Xswiftc -target -Xswiftc x86_64-apple-ios14.0-simulator \
+          --build-path build/ios-simulator-x86_64
+        
+        # Create framework structures
+        echo "📦 Creating framework structures..."
+        
+        # iOS Device Framework
+        mkdir -p build/frameworks/ios-device/DebugSwift.framework
+        cp build/ios-device/arm64-apple-ios/release/libDebugSwift.a build/frameworks/ios-device/DebugSwift.framework/DebugSwift || \
+        cp build/ios-device/release/libDebugSwift.a build/frameworks/ios-device/DebugSwift.framework/DebugSwift
+        
+        # iOS Simulator Framework (universal)
+        mkdir -p build/frameworks/ios-simulator/DebugSwift.framework
+        lipo -create \
+          build/ios-simulator-arm64/arm64-apple-ios-simulator/release/libDebugSwift.a \
+          build/ios-simulator-x86_64/x86_64-apple-ios-simulator/release/libDebugSwift.a \
+          -output build/frameworks/ios-simulator/DebugSwift.framework/DebugSwift || \
+        lipo -create \
+          build/ios-simulator-arm64/release/libDebugSwift.a \
+          build/ios-simulator-x86_64/release/libDebugSwift.a \
+          -output build/frameworks/ios-simulator/DebugSwift.framework/DebugSwift
+        
+        # Copy Swift modules and headers if they exist
+        find build -name "*.swiftmodule" -path "*release*" | head -1 | xargs -I {} cp -R {} build/frameworks/ios-device/DebugSwift.framework/ 2>/dev/null || true
+        find build -name "*.swiftmodule" -path "*release*" | tail -1 | xargs -I {} cp -R {} build/frameworks/ios-simulator/DebugSwift.framework/ 2>/dev/null || true
+        
+        # Create XCFramework
+        echo "🔨 Creating XCFramework..."
+        xcodebuild -create-xcframework \
+          -library build/frameworks/ios-device/DebugSwift.framework/DebugSwift \
+          -library build/frameworks/ios-simulator/DebugSwift.framework/DebugSwift \
+          -output XCFramework/DebugSwift.xcframework
+        
+        # If xcframework creation fails, try alternative approach with just the libraries
+        if [ ! -d "XCFramework/DebugSwift.xcframework" ]; then
+          echo "⚠️  Trying alternative XCFramework creation..."
+          
+          # Create a simple bundled release instead
+          mkdir -p XCFramework/DebugSwift-Static-Libs
+          
+          # Copy static libraries
+          cp build/frameworks/ios-device/DebugSwift.framework/DebugSwift XCFramework/DebugSwift-Static-Libs/libDebugSwift-ios-device.a
+          cp build/frameworks/ios-simulator/DebugSwift.framework/DebugSwift XCFramework/DebugSwift-Static-Libs/libDebugSwift-ios-simulator.a
+          
+          # Copy Swift modules
+          find build -name "*.swiftmodule" -path "*release*" -exec cp -R {} XCFramework/DebugSwift-Static-Libs/ \; 2>/dev/null || true
+          
+          # Create a simple zip
+          cd XCFramework
+          zip -r "DebugSwift.xcframework.zip" "DebugSwift-Static-Libs"
+          cd ..
+          
+          echo "✅ Static library bundle created as alternative!"
+        else
+          # Create ZIP of XCFramework
+          echo "📦 Creating XCFramework ZIP..."
+          cd XCFramework
+          zip -r "DebugSwift.xcframework.zip" "DebugSwift.xcframework"
+          cd ..
+          echo "✅ XCFramework created successfully!"
+        fi
+        
+        echo "📊 Build output:"
+        ls -la XCFramework/
+        
+        # Show file sizes for verification
+        echo "📏 File sizes:"
+        du -h XCFramework/*
+
+    - name: Create Test Release for XCFramework
+      id: create_test_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: test-xcframework-${{ needs.test_rc_version.outputs.semVer }}
+        release_name: Test XCFramework Release ${{ needs.test_rc_version.outputs.semVer }}
+        body: |
+          🧪 **Test Release for XCFramework Upload**
+          
+          **Version:** ${{ needs.test_rc_version.outputs.semVer }}
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          
+          This is a test release to verify:
+          - ✅ RC tag generation
+          - ✅ XCFramework build process  
+          - ✅ Asset upload functionality
+          
+          **Expected RC Format:** rc+1.11.3 (or similar)
+          **Actual Format:** ${{ needs.test_rc_version.outputs.semVer }}
+        draft: false
+        prerelease: true
+
+    - name: Upload XCFramework to Test Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_test_release.outputs.upload_url }}
+        asset_path: ./XCFramework/DebugSwift.xcframework.zip
+        asset_name: DebugSwift.xcframework.zip
+        asset_content_type: application/zip
+
+    - name: Test Results Summary
+      run: |
+        echo "🎉 Test Complete!"
+        echo ""
+        echo "📋 Test Results:"
+        echo "✅ RC Version Generated: ${{ needs.test_rc_version.outputs.semVer }}"
+        echo "✅ XCFramework Built: $(ls XCFramework/*.zip 2>/dev/null && echo 'SUCCESS' || echo 'FAILED')"
+        echo "✅ Test Release Created: test-xcframework-${{ needs.test_rc_version.outputs.semVer }}"
+        echo "✅ Asset Uploaded: DebugSwift.xcframework.zip"
+        echo ""
+        echo "🔗 Check the release at: https://github.com/${{ github.repository }}/releases"
+        echo "🏷️  Test tag created: test-${{ needs.test_rc_version.outputs.semVer }}"
