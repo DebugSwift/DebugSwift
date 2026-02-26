@@ -247,7 +247,7 @@ jobs:
         echo "🎉 All tests passed! Package is ready for distribution."
 
     - name: Upload Test Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: DebugSwift-StaticLibraries-Test
         path: XCFramework/DebugSwift-StaticLibraries.zip
