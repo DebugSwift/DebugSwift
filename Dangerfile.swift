@@ -216,17 +216,29 @@ fileprivate extension UnitTestValidator {
             return
         }
         
-        // Calculate overall coverage for DebugSwift target
+        // Debug: List all available targets
+        let targetNames = targets.compactMap { $0["name"] as? String }
+        print("🔍 DEBUG: Available targets: \(targetNames.joined(separator: ", "))")
+        
+        // Calculate overall coverage for DebugSwift-related targets (try multiple patterns)
         var totalLines = 0
         var coveredLines = 0
         var debugSwiftCoverage: Double = 0
+        var foundTarget = false
         
         for target in targets {
-            guard let name = target["name"] as? String,
-                  name.contains("DebugSwift"),
-                  !name.contains("Tests") else {
+            guard let name = target["name"] as? String else { continue }
+            
+            // Match "DebugSwift" or frameworks that contain it
+            let isDebugSwiftTarget = name.contains("DebugSwift") || 
+                                     name == "Example.app" // Example app includes DebugSwift framework
+            let isTestTarget = name.contains("Tests") || name.contains("Test")
+            
+            guard isDebugSwiftTarget && !isTestTarget else {
                 continue
             }
+            
+            foundTarget = true
             
             if let lineCoverage = target["lineCoverage"] as? Double {
                 debugSwiftCoverage = lineCoverage * 100
@@ -234,15 +246,15 @@ fileprivate extension UnitTestValidator {
             
             if let executableLines = target["executableLines"] as? Int,
                let coveredLinesCount = target["coveredLines"] as? Int {
-                totalLines = executableLines
-                coveredLines = coveredLinesCount
+                totalLines += executableLines
+                coveredLines += coveredLinesCount
             }
         }
         
         let minimumCoverage = 70.0
         
         // Report overall coverage
-        if debugSwiftCoverage > 0 {
+        if foundTarget && debugSwiftCoverage > 0 {
             let coverageMessage = String(format: "📊 **Overall Code Coverage**: %.1f%% (%d/%d lines)", 
                                         debugSwiftCoverage, 
                                         coveredLines, 
@@ -254,7 +266,8 @@ fileprivate extension UnitTestValidator {
                 message("✅ \(coverageMessage)")
             }
         } else {
-            warn("⚠️ No coverage data found for DebugSwift target.")
+            warn("⚠️ No coverage data found. Available targets: \(targetNames.joined(separator: ", "))")
+            return
         }
         
         // Report per-file coverage for modified Swift files
@@ -271,14 +284,18 @@ fileprivate extension UnitTestValidator {
             return
         }
         
-        // Extract file-level coverage from targets
+        // Extract file-level coverage from all targets
         var fileCoverageData: [(file: String, coverage: Double, covered: Int, total: Int)] = []
         
         for target in targets {
-            guard let name = target["name"] as? String,
-                  name.contains("DebugSwift"),
-                  !name.contains("Tests"),
-                  let files = target["files"] as? [[String: Any]] else {
+            guard let name = target["name"] as? String else { continue }
+            
+            // Skip test targets
+            guard !name.contains("Tests") && !name.contains("Test") else {
+                continue
+            }
+            
+            guard let files = target["files"] as? [[String: Any]] else {
                 continue
             }
             
@@ -297,12 +314,15 @@ fileprivate extension UnitTestValidator {
                 let coveredLines = (fileData["coveredLines"] as? Int) ?? 0
                 let executableLines = (fileData["executableLines"] as? Int) ?? 0
                 
-                fileCoverageData.append((
-                    file: fileName,
-                    coverage: lineCoverage * 100,
-                    covered: coveredLines,
-                    total: executableLines
-                ))
+                // Only add if not already in the list (avoid duplicates from multiple targets)
+                if !fileCoverageData.contains(where: { $0.file == fileName }) {
+                    fileCoverageData.append((
+                        file: fileName,
+                        coverage: lineCoverage * 100,
+                        covered: coveredLines,
+                        total: executableLines
+                    ))
+                }
             }
         }
         
