@@ -1,32 +1,50 @@
-name: Auto Tag and Version
+name: Git Version and Release
 
 on:
   push:
-    branches: 
-      - "main"
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
-   actions: write
-   checks: write
-   contents: write
-   deployments: write
-   issues: write
-   packages: write
-   pull-requests: write
-   repository-projects: write
-   security-events: write
-   statuses: write
+  contents: write
 
 jobs:
   git_version:
-    name: Determine current version
-    runs-on: macos-15
+    name: Determine Version
+    runs-on: ubuntu-22.04
     outputs:
-      semVer: ${{ steps.gitversion.outputs.semVer }}
       majorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
       preReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}
+      preReleaseTagWithDash: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}
+      preReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}
+      preReleaseLabelWithDash: ${{ steps.gitversion.outputs.preReleaseLabelWithDash }}
       preReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}
+      weightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}
+      buildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}
+      buildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}
+      fullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}
+      majorMinorPatchPreReleaseTag: ${{ steps.gitversion.outputs.majorMinorPatchPreReleaseTag }}
+      semVer: ${{ steps.gitversion.outputs.semVer }}
+      legacySemVer: ${{ steps.gitversion.outputs.legacySemVer }}
+      legacySemVerPadded: ${{ steps.gitversion.outputs.legacySemVerPadded }}
+      assemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}
+      assemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}
+      fullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
+      informationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
+      branchName: ${{ steps.gitversion.outputs.branchName }}
+      escapedBranchName: ${{ steps.gitversion.outputs.escapedBranchName }}
+      sha: ${{ steps.gitversion.outputs.sha }}
+      shortSha: ${{ steps.gitversion.outputs.shortSha }}
+      nuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      nuGetVersion: ${{ steps.gitversion.outputs.nuGetVersion }}
+      nuGetPreReleaseTagV2: ${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}
+      nuGetPreReleaseTag: ${{ steps.gitversion.outputs.nuGetPreReleaseTag }}
+      versionSourceSha: ${{ steps.gitversion.outputs.versionSourceSha }}
+      commitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+      commitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}
+      uncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}
+      commitDate: ${{ steps.gitversion.outputs.commitDate }}
 
     steps:
     - name: Checkout
@@ -51,19 +69,20 @@ jobs:
     - name: Display GitVersion
       run: |
         NEW_TAG="${{ steps.gitversion.outputs.semVer }}"
-        echo "Semantic Version: $NEW_TAG"
-        echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+        echo "SemVer: $NEW_TAG"
+        echo "Branch: ${{ steps.gitversion.outputs.branchName }}"
+        echo "Pre-release label: ${{ steps.gitversion.outputs.preReleaseLabel }}"
 
   tag:
-    name: Create tag and update podspec
-    needs: 
-      - git_version
-    runs-on: ubuntu-latest
+    name: Update Version and Tag
+    needs: git_version
+    runs-on: macos-15
+    if: github.ref == 'refs/heads/main'
+    
     permissions:
       contents: write
-    
-    steps:
 
+    steps:
     - name: Checkout
       uses: actions/checkout@v6
       with:
@@ -73,37 +92,32 @@ jobs:
     - name: Update podspec version
       run: |
         NEW_VERSION="${{ needs.git_version.outputs.majorMinorPatch }}"
-        echo "Updating podspec version to: $NEW_VERSION"
+        echo "Updating version to $NEW_VERSION"
         
-        # Update the version in DebugSwift.podspec
-        sed -i "s/s\.version.*=.*/s.version          = '$NEW_VERSION'/" DebugSwift.podspec
+        sed -i '' "s/spec.version *= *['\"][^'\"]*['\"]/spec.version = '$NEW_VERSION'/" DebugSwift.podspec
         
-        # Verify the change
-        grep "s.version" DebugSwift.podspec
+        echo "Updated DebugSwift.podspec:"
+        head -20 DebugSwift.podspec
 
     - name: Commit podspec changes
       env:
         GITHUB_TOKEN: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
-        git config user.name "GitHub Actions"
-        git config user.email "github-actions@users.noreply.github.com"
-        
         NEW_VERSION="${{ needs.git_version.outputs.majorMinorPatch }}"
-        CURRENT_BRANCH="${{ github.ref_name }}"
         
-        # Check if there are changes to commit
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
         if git diff --quiet DebugSwift.podspec; then
-          echo "No changes to podspec version"
+          echo "No changes to commit"
         else
           git add DebugSwift.podspec
-          git commit -m "chore: update podspec version to $NEW_VERSION [skip ci]"
+          git commit -m "chore: bump version to $NEW_VERSION"
           
-          # Push to the appropriate branch
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "Pushing to main branch"
+          # Push to main if we're on main, otherwise push to current branch
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             git push origin main
           else
-            echo "Pushing to current branch: $CURRENT_BRANCH"
             git push origin HEAD
           fi
         fi
@@ -112,25 +126,28 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
-        git config user.name "GitHub Actions"
-        git config user.email "github-actions@users.noreply.github.com"
+        NEW_TAG="${{ needs.git_version.outputs.semVer }}"
         
-        TAG_NAME="${{ needs.git_version.outputs.semVer }}"
+        echo "Creating and pushing tag: $NEW_TAG"
         
-        # Only create and push tags when on main branch
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          echo "Creating and pushing tag: $TAG_NAME"
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Only create and push tags if we're on main
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+          echo "Tag $NEW_TAG created and pushed successfully"
         else
-          echo "Not on main branch, skipping tag creation"
+          echo "Skipping tag creation - not on main branch"
         fi
 
   build_xcframework:
-    name: Build and Upload XCFramework  
+    name: Build and Package Static Libraries
     needs: git_version
     runs-on: macos-15
     if: github.ref == 'refs/heads/main'
+    
     permissions:
       contents: write
       
@@ -143,177 +160,180 @@ jobs:
       with:
         xcode-version: '16.4'
 
-    - name: Build XCFramework
+    - name: Clean Build Environment
       run: |
-        echo "🏗️  Building DebugSwift using Swift Package Manager..."
-        
-        # Create output directories  
-        mkdir -p build XCFramework
-        
-        # Use simplified Swift Package Manager approach
-        echo "📱 Building for iOS platforms using SPM..."
-        
-        # Export proper SDK paths
-        export IPHONEOS_SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
-        export IPHONESIMULATOR_SDK_PATH=$(xcrun --sdk iphonesimulator --show-sdk-path)
-        
-        echo "iOS SDK: $IPHONEOS_SDK_PATH"
-        echo "Simulator SDK: $IPHONESIMULATOR_SDK_PATH"
-        
-        # Build for iOS device
-        echo "📱 Building for iOS device (arm64)..."
-        swift build -c release \
-          --target DebugSwift \
-          --arch arm64 \
-          --scratch-path .build-ios \
-          -Xswiftc -sdk -Xswiftc "$IPHONEOS_SDK_PATH" \
-          -Xswiftc -target -Xswiftc arm64-apple-ios14.0
-        
-        # Build for iOS Simulator 
-        echo "🖥️  Building for iOS Simulator (arm64)..."
-        swift build -c release \
-          --target DebugSwift \
-          --arch arm64 \
-          --scratch-path .build-simulator-arm64 \
-          -Xswiftc -sdk -Xswiftc "$IPHONESIMULATOR_SDK_PATH" \
-          -Xswiftc -target -Xswiftc arm64-apple-ios14.0-simulator
-        
-        echo "🖥️  Building for iOS Simulator (x86_64)..."  
-        swift build -c release \
-          --target DebugSwift \
-          --arch x86_64 \
-          --scratch-path .build-simulator-x86_64 \
-          -Xswiftc -sdk -Xswiftc "$IPHONESIMULATOR_SDK_PATH" \
-          -Xswiftc -target -Xswiftc x86_64-apple-ios14.0-simulator
-        
-        # Create static library package
+        echo "🧹 Cleaning previous builds..."
+        rm -rf .build* XCFramework build* 2>/dev/null || true
         mkdir -p XCFramework/DebugSwift-StaticLibraries
+        echo "✅ Environment cleaned"
+
+    - name: Build iOS Device Static Library
+      run: |
+        echo "📱 Building for iOS device..."
+        xcodebuild -scheme DebugSwift \
+          -destination "generic/platform=iOS" \
+          -configuration Release \
+          -derivedDataPath build-ios \
+          build \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=NO \
+          SKIP_INSTALL=NO \
+          ONLY_ACTIVE_ARCH=NO
         
-        # Copy and verify libraries
-        echo "📦 Packaging static libraries..."
+        echo "🔨 Creating iOS static library..."
+        cd build-ios/Build/Products/Release-iphoneos/
+        ar rcs libDebugSwift-ios.a DebugSwift.o
         
-        # Find and copy iOS device library
-        IOS_LIB=$(find .build-ios -name "libDebugSwift.a" -type f | head -1)
-        SIM_ARM64_LIB=$(find .build-simulator-arm64 -name "libDebugSwift.a" -type f | head -1)
-        SIM_X86_64_LIB=$(find .build-simulator-x86_64 -name "libDebugSwift.a" -type f | head -1)
+        echo "📦 iOS library created:"
+        ls -la libDebugSwift-ios.a
+        file libDebugSwift-ios.a
         
-        echo "Found libraries:"
-        echo "iOS: $IOS_LIB"
-        echo "Sim ARM64: $SIM_ARM64_LIB"  
-        echo "Sim x86_64: $SIM_X86_64_LIB"
+        # Copy to target directory
+        cp libDebugSwift-ios.a ../../../../XCFramework/DebugSwift-StaticLibraries/
+        cp -R DebugSwift.swiftmodule ../../../../XCFramework/DebugSwift-StaticLibraries/
+        cd ../../../../
+
+    - name: Build iOS Simulator Static Library  
+      run: |
+        echo "🖥️  Building for iOS Simulator..."
+        xcodebuild -scheme DebugSwift \
+          -destination "generic/platform=iOS Simulator" \
+          -configuration Release \
+          -derivedDataPath build-simulator \
+          build \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=NO \
+          SKIP_INSTALL=NO \
+          ONLY_ACTIVE_ARCH=NO
         
-        # Copy iOS library
-        if [ -f "$IOS_LIB" ]; then
-          cp "$IOS_LIB" XCFramework/DebugSwift-StaticLibraries/libDebugSwift-ios.a
-          echo "✅ Copied iOS device library"
-        else
-          echo "❌ iOS device library not found"
-          exit 1
-        fi
+        echo "🔨 Creating simulator static library..."
+        cd build-simulator/Build/Products/Release-iphonesimulator/
+        ar rcs libDebugSwift-simulator.a DebugSwift.o
         
-        # Create universal simulator library if both architectures exist
-        if [ -f "$SIM_ARM64_LIB" ] && [ -f "$SIM_X86_64_LIB" ]; then
-          echo "🔨 Creating universal simulator library..."
-          lipo -create \
-            "$SIM_ARM64_LIB" \
-            "$SIM_X86_64_LIB" \
-            -output XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a
-          echo "✅ Created universal simulator library"
-        elif [ -f "$SIM_ARM64_LIB" ]; then
-          cp "$SIM_ARM64_LIB" XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a
-          echo "✅ Copied ARM64 simulator library (x86_64 not available)"
-        else
-          echo "❌ No simulator libraries found"
-          exit 1
-        fi
+        echo "📦 Simulator library created:"
+        ls -la libDebugSwift-simulator.a
+        file libDebugSwift-simulator.a
         
-        # Copy Swift modules if available
-        echo "📋 Copying Swift modules..."
-        find .build-ios -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
-        find .build-simulator-arm64 -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
-        find .build-simulator-x86_64 -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
+        # Copy to target directory  
+        cp libDebugSwift-simulator.a ../../../../XCFramework/DebugSwift-StaticLibraries/
+        cp -R DebugSwift.swiftmodule ../../../../XCFramework/DebugSwift-StaticLibraries/DebugSwift-Simulator.swiftmodule
+        cd ../../../../
+
+    - name: Create Documentation and Package
+      run: |
+        echo "📝 Creating comprehensive documentation..."
         
-        # Create comprehensive README for usage
+        # Create README
         cat > XCFramework/DebugSwift-StaticLibraries/README.md << 'EOF'
-# DebugSwift Static Libraries
+        # DebugSwift Static Libraries
 
-This package contains static libraries for DebugSwift framework built with Swift Package Manager.
+        This package contains static libraries for DebugSwift framework built with Xcode.
 
-## Contents
-- `libDebugSwift-ios.a` - iOS device build (arm64)
-- `libDebugSwift-simulator.a` - iOS simulator build (universal arm64+x86_64)
-- Swift modules (if available)
+        ## Contents
+        - `libDebugSwift-ios.a` - iOS device build (arm64)
+        - `libDebugSwift-simulator.a` - iOS simulator build (universal arm64+x86_64)
+        - Swift modules for both architectures
 
-## Installation & Usage
+        ## Installation & Usage
 
-### Xcode Integration
-1. Drag both `.a` files into your Xcode project
-2. Add them to your target's "Frameworks, Libraries, and Embedded Content"
-3. Set "Embed" to "Do Not Embed" (they're static libraries)
-4. Add `import DebugSwift` to your Swift files
+        ### Xcode Integration
+        1. Drag both `.a` files into your Xcode project
+        2. Add them to your target's "Frameworks, Libraries, and Embedded Content"
+        3. Set "Embed" to "Do Not Embed" (they're static libraries)
+        4. Add Swift module directories to "Swift Compiler - Search Paths" 
+        5. Add `import DebugSwift` to your Swift files
 
-### Manual Linking
-- For iOS device builds: Link against `libDebugSwift-ios.a`
-- For iOS simulator builds: Link against `libDebugSwift-simulator.a`
+        ### Build Configuration
+        The correct library will be automatically selected based on your build target:
+        - iOS Device builds will use `libDebugSwift-ios.a`
+        - iOS Simulator builds will use `libDebugSwift-simulator.a`
 
-### Build Settings
-You may need to add the following to your target's build settings:
-- Library Search Paths: Path to the directory containing the .a files
-- Swift Import Paths: Path to any .swiftmodule directories
+        ## Architecture Support
+        - iOS Device: arm64
+        - iOS Simulator: arm64 + x86_64 (universal)
+        - Minimum iOS Version: 14.0
 
-## Note
-This static library package was created to avoid Swift module interface generation issues with XCFramework builds. It provides the same functionality as the framework version.
-EOF
+        ## Integration Example
+        ```swift
+        import DebugSwift
 
-        # Create comprehensive usage guide
+        // Initialize DebugSwift in your AppDelegate or App struct
+        DebugSwift.shared.start()
+        ```
+
+        ## Troubleshooting
+        - **"No such module 'DebugSwift'"**: Check Swift Import Paths in build settings
+        - **Linking errors**: Ensure both .a files are added to target
+        - **Simulator issues**: Verify you're using the simulator library for simulator builds
+        EOF
+
+        # Create usage guide
         cat > XCFramework/DebugSwift-StaticLibraries/USAGE_GUIDE.md << 'EOF'
-# DebugSwift Static Library Integration Guide
+        # DebugSwift Static Library Integration Guide
 
-## Quick Start
+        ## Quick Start Steps
 
-1. **Add to Xcode Project**:
-   - Drag `libDebugSwift-ios.a` and `libDebugSwift-simulator.a` into your project
-   - Choose "Add to target" for your main app target
-   - Select "Create groups" (not folder references)
+        1. **Download & Extract**:
+           - Download `DebugSwift-StaticLibraries.zip`
+           - Extract to get the `.a` files and Swift modules
 
-2. **Configure Build Settings**:
-   - Target → Build Settings → Library Search Paths → Add the path to your .a files
-   - Target → Build Settings → Swift Compiler → Import Paths → Add paths to any .swiftmodule directories
+        2. **Add to Xcode Project**:
+           - Drag `libDebugSwift-ios.a` and `libDebugSwift-simulator.a` into your project
+           - Choose "Add to target" for your main app target
+           - Select "Create groups" (not folder references)
 
-3. **Use in Code**:
-   ```swift
-   import DebugSwift
-   
-   // Initialize DebugSwift
-   DebugSwift.shared.start()
-   ```
+        3. **Configure Build Settings**:
+           - Target → Build Settings → Library Search Paths → Add path to .a files
+           - Target → Build Settings → Swift Import Paths → Add paths to .swiftmodule directories
 
-## Troubleshooting
+        4. **Use in Code**:
+           ```swift
+           import DebugSwift
+           
+           class AppDelegate: UIResponder, UIApplicationDelegate {
+               func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+                   DebugSwift.shared.start()
+                   return true
+               }
+           }
+           ```
 
-- **"No such module 'DebugSwift'"**: Check Swift Import Paths in build settings
-- **Linking errors**: Ensure both .a files are added to target and Library Search Paths is set
-- **Simulator issues**: Make sure you're using `libDebugSwift-simulator.a` for simulator builds
+        ## File Structure After Integration
+        ```
+        YourProject/
+        ├── DebugSwift-StaticLibraries/
+        │   ├── libDebugSwift-ios.a
+        │   ├── libDebugSwift-simulator.a
+        │   ├── DebugSwift.swiftmodule/
+        │   └── DebugSwift-Simulator.swiftmodule/
+        └── YourApp/
+            └── (your app files)
+        ```
 
-## Architecture Support
-- iOS Device: arm64
-- iOS Simulator: arm64 + x86_64 (universal)
-- Minimum iOS Version: 14.0
-EOF
+        ## Build Settings Configuration
+        Add these paths to your target's build settings:
+        - **Library Search Paths**: `$(PROJECT_DIR)/DebugSwift-StaticLibraries`
+        - **Swift Import Paths**: 
+          - `$(PROJECT_DIR)/DebugSwift-StaticLibraries/DebugSwift.swiftmodule`
+          - `$(PROJECT_DIR)/DebugSwift-StaticLibraries/DebugSwift-Simulator.swiftmodule`
+        EOF
+
+        echo "📦 Creating final package..."
         
-        echo "📦 Creating static library package ZIP..."
-        cd XCFramework  
+        echo "📊 Package contents before zip:"
+        ls -la XCFramework/DebugSwift-StaticLibraries/
+        
+        echo "📏 File sizes:"
+        du -h XCFramework/DebugSwift-StaticLibraries/*
+        
+        # Create ZIP package
+        cd XCFramework
         zip -r "DebugSwift-StaticLibraries.zip" "DebugSwift-StaticLibraries"
         cd ..
         
-        echo "✅ Build completed successfully!"
-        echo "📊 Build output:"
+        echo "✅ Package created successfully!"
         ls -la XCFramework/
         
-        echo "📏 File sizes:"
-        du -h XCFramework/*
-        
-        echo "🔍 Package contents:"
-        unzip -l XCFramework/DebugSwift-StaticLibraries.zip
+        echo "📦 Final package contents:"
+        unzip -l XCFramework/DebugSwift-StaticLibraries.zip | head -30
 
     - name: Create GitHub Release
       id: create_release
@@ -329,7 +349,7 @@ EOF
           **What's New:**
           - Auto-generated from main branch
           - Includes Static Libraries for iOS development
-          - Built with Swift Package Manager to ensure compatibility
+          - Built with Xcode to ensure compatibility and performance
           
           **Installation:**
           1. Download `DebugSwift-StaticLibraries.zip`
@@ -358,5 +378,3 @@ EOF
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
