@@ -43,7 +43,7 @@ internal class Validator {
         checkSize()
         checkDescription()
         checkUnitTest()
-        checkTitle()
+        // checkTitle() - Removed per user request
         checkAssignee()
         checkModifiedFiles()
         checkFails()
