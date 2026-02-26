@@ -1,7 +1,6 @@
 // MARK: Imports
 
 import Danger
-import DangerSwiftCoverage
 import DangerXCodeSummary
 import Foundation
 
@@ -127,8 +126,8 @@ fileprivate extension Validator {
         ) != nil
 
         if !result {
-            let message = "The PR title should be: [<i>Feature or Flow</i>] <i>What flow was done</i>"
-            warn(message)
+            let message = "❌ The PR title must follow the format: [Feature or Flow] What was done"
+            fail(message)
         }
     }
 
@@ -206,17 +205,68 @@ fileprivate extension UnitTestValidator {
     }
 
     func checkUnitTestCoverage() {
-        // Temporarily disabled due to xcresult format incompatibility with Xcode 16.4+
-        // Error: XCResultStorage.ResultBundleFactory.Error - Failed to read metadata
-        // The DangerSwiftCoverage plugin calls fail() internally (doesn't throw), causing CI to fail
-        // Re-enable when DangerSwiftCoverage supports Xcode 16.4+ or migrate to alternative
+        let xcresultPath = "Example/fastlane/test_output/Example.xcresult"
         
-        warn("⚠️ Code coverage check is temporarily disabled due to xcresult format incompatibility. Please verify coverage manually in Xcode.")
+        guard FileManager.default.fileExists(atPath: xcresultPath) else {
+            warn("⚠️ No test results found. Skipping coverage check.")
+            return
+        }
         
-        // Coverage.xcodeBuildCoverage(
-        //     .xcresultBundle("Example/fastlane/test_output/Example.xcresult"),
-        //     minimumCoverage: 70,
-        //     excludedTargets: ["DangerSwiftCoverageTests.xctest"]
-        // )
+        // Use xcrun xccov to extract coverage data (compatible with Xcode 16.4+)
+        let coverageCommand = "xcrun xccov view --report --json '\(xcresultPath)'"
+        let coverageResult = danger.utils.exec(coverageCommand)
+        
+        guard !coverageResult.isEmpty else {
+            warn("⚠️ Failed to extract coverage data from xcresult bundle.")
+            return
+        }
+        
+        // Parse coverage JSON
+        guard let jsonData = coverageResult.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+              let targets = json["targets"] as? [[String: Any]] else {
+            warn("⚠️ Failed to parse coverage data.")
+            return
+        }
+        
+        // Calculate coverage for DebugSwift target
+        var totalLines = 0
+        var coveredLines = 0
+        var debugSwiftCoverage: Double = 0
+        
+        for target in targets {
+            guard let name = target["name"] as? String,
+                  name.contains("DebugSwift"),
+                  !name.contains("Tests") else {
+                continue
+            }
+            
+            if let lineCoverage = target["lineCoverage"] as? Double {
+                debugSwiftCoverage = lineCoverage * 100
+            }
+            
+            if let executableLines = target["executableLines"] as? Int,
+               let coveredLinesCount = target["coveredLines"] as? Int {
+                totalLines = executableLines
+                coveredLines = coveredLinesCount
+            }
+        }
+        
+        let minimumCoverage = 70.0
+        
+        if debugSwiftCoverage > 0 {
+            let coverageMessage = String(format: "Code Coverage: %.1f%% (%d/%d lines)", 
+                                        debugSwiftCoverage, 
+                                        coveredLines, 
+                                        totalLines)
+            
+            if debugSwiftCoverage < minimumCoverage {
+                warn("⚠️ \(coverageMessage) - Below minimum threshold of \(Int(minimumCoverage))%")
+            } else {
+                message("✅ \(coverageMessage)")
+            }
+        } else {
+            warn("⚠️ No coverage data found for DebugSwift target.")
+        }
     }
 }
