@@ -140,11 +140,90 @@ final class HttpDatasourceEncryptionTests: XCTestCase {
         XCTAssertNil(httpModel.decryptedResponseData)
     }
     
+    // MARK: - URL Filtering Tests
+    
+    func testAddHttpRequest_withIgnoredURLsLiteralSubstring_filtersOutRequest() {
+        // Given
+        DebugSwift.Network.shared.ignoredURLs = ["analytics.com"]
+        let httpModel = makeHttpModel(url: "https://track.analytics.com/event")
+        
+        // When
+        let result = httpDataSource.addHttpRequest(httpModel)
+        
+        // Then
+        XCTAssertFalse(result)
+    }
+    
+    func testAddHttpRequest_withOnlyURLsLiteralSubstring_keepsBackwardCompatibleMatching() {
+        // Given
+        DebugSwift.Network.shared.onlyURLs = ["api.myapp.com"]
+        let matchingModel = makeHttpModel(url: "https://staging.api.myapp.com/v1/profile")
+        let nonMatchingModel = makeHttpModel(url: "https://analytics.myapp.com/v1/profile")
+        
+        // When
+        let matchingResult = httpDataSource.addHttpRequest(matchingModel)
+        let nonMatchingResult = httpDataSource.addHttpRequest(nonMatchingModel)
+        
+        // Then
+        XCTAssertTrue(matchingResult)
+        XCTAssertFalse(nonMatchingResult)
+    }
+    
+    func testAddHttpRequest_withIgnoredURLsWildcard_filtersMatchingURL() {
+        // Given
+        DebugSwift.Network.shared.ignoredURLs = ["https://*.example.com/*"]
+        let matchingModel = makeHttpModel(url: "https://api.example.com/v1/orders")
+        let nonMatchingModel = makeHttpModel(url: "https://api.another.com/v1/orders")
+        
+        // When
+        let matchingResult = httpDataSource.addHttpRequest(matchingModel)
+        let nonMatchingResult = httpDataSource.addHttpRequest(nonMatchingModel)
+        
+        // Then
+        XCTAssertFalse(matchingResult)
+        XCTAssertTrue(nonMatchingResult)
+    }
+    
+    func testAddHttpRequest_withOnlyURLsWildcard_allowsOnlyMatchingURL() {
+        // Given
+        DebugSwift.Network.shared.onlyURLs = ["https://api.example.com/v1/orders/*"]
+        let matchingModel = makeHttpModel(url: "https://api.example.com/v1/orders/123")
+        let nonMatchingModel = makeHttpModel(url: "https://api.example.com/v1/users/123")
+        
+        // When
+        let matchingResult = httpDataSource.addHttpRequest(matchingModel)
+        let nonMatchingResult = httpDataSource.addHttpRequest(nonMatchingModel)
+        
+        // Then
+        XCTAssertTrue(matchingResult)
+        XCTAssertFalse(nonMatchingResult)
+    }
+    
+    func testAddHttpRequest_withWildcardPattern_isCaseInsensitive() {
+        // Given
+        DebugSwift.Network.shared.ignoredURLs = ["HTTPS://API.EXAMPLE.COM/V1/*"]
+        let httpModel = makeHttpModel(url: "https://api.example.com/v1/orders")
+        
+        // When
+        let result = httpDataSource.addHttpRequest(httpModel)
+        
+        // Then
+        XCTAssertFalse(result)
+    }
+    
+    private func makeHttpModel(url: String) -> HttpModel {
+        let model = HttpModel()
+        model.url = URL(string: url)!
+        return model
+    }
+    
     override func tearDown() {
         super.tearDown()
         // Reset encryption settings
         DebugSwift.Network.shared.setDecryptionEnabled(false)
         DebugSwift.Network.shared.setEncryptionService(EncryptionService.shared)
+        DebugSwift.Network.shared.ignoredURLs = []
+        DebugSwift.Network.shared.onlyURLs = []
         httpDataSource.removeAll()
     }
 }
