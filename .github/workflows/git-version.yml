@@ -126,9 +126,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.BYPASS_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
-        NEW_TAG="${{ needs.git_version.outputs.semVer }}"
+        # Get the calculated version from GitVersion
+        CALC_VERSION="${{ needs.git_version.outputs.majorMinorPatch }}"
+        # Create RC tag with custom format
+        NEW_TAG="rc+${CALC_VERSION}"
         
-        echo "Creating and pushing tag: $NEW_TAG"
+        echo "Creating and pushing RC tag: $NEW_TAG (from version $CALC_VERSION)"
         
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -137,7 +140,7 @@ jobs:
         if [ "${{ github.ref }}" = "refs/heads/main" ]; then
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
-          echo "Tag $NEW_TAG created and pushed successfully"
+          echo "RC tag $NEW_TAG created and pushed successfully"
         else
           echo "Skipping tag creation - not on main branch"
         fi
@@ -341,10 +344,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ needs.git_version.outputs.semVer }}
-        release_name: Release ${{ needs.git_version.outputs.semVer }}
+        tag_name: rc+${{ needs.git_version.outputs.majorMinorPatch }}
+        release_name: Release rc+${{ needs.git_version.outputs.majorMinorPatch }}
         body: |
-          🚀 **Release ${{ needs.git_version.outputs.semVer }}**
+          🚀 **Release rc+${{ needs.git_version.outputs.majorMinorPatch }}**
           
           **What's New:**
           - Auto-generated from main branch
@@ -357,8 +360,8 @@ jobs:
           3. Link the libraries to your target (see README.md for details)
           
           **Version Details:**
-          - Semantic Version: ${{ needs.git_version.outputs.semVer }}
-          - Major.Minor.Patch: ${{ needs.git_version.outputs.majorMinorPatch }}
+          - RC Tag: rc+${{ needs.git_version.outputs.majorMinorPatch }}
+          - Version: ${{ needs.git_version.outputs.majorMinorPatch }}
         draft: false
         prerelease: false
 
@@ -367,7 +370,7 @@ jobs:
         # Upload the static libraries package
         if [ -f "XCFramework/DebugSwift-StaticLibraries.zip" ]; then
           echo "📦 Uploading DebugSwift Static Libraries package..."
-          gh release upload ${{ needs.git_version.outputs.semVer }} \
+          gh release upload "rc+${{ needs.git_version.outputs.majorMinorPatch }}" \
             "XCFramework/DebugSwift-StaticLibraries.zip" \
             --clobber
           echo "✅ Static Libraries package uploaded successfully!"
