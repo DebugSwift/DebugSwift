@@ -14,27 +14,18 @@ final class HttpDatasource: @unchecked Sendable {
     var httpModels: [HttpModel] = []
 
     func addHttpRequest(_ model: HttpModel) -> Bool {
-        if model.url?.absoluteString.isEmpty == true {
+        guard let modelUrl =  model.url?.absoluteString.lowercased(), !modelUrl.isEmpty else {
             return false
         }
-
+        
         if !DebugSwift.Network.shared.onlyURLs.isEmpty {
-            if let modelUrl = model.url?.absoluteString.lowercased() {
-                let found = DebugSwift.Network.shared.onlyURLs.contains { modelUrl.contains($0.lowercased()) }
-                if !found {
-                    return false
-                }
+            if !matchesAnyPattern(modelUrl, patterns: DebugSwift.Network.shared.onlyURLs) {
+                return false
             }
-        } else {
-            for urlString in DebugSwift.Network.shared.ignoredURLs {
-                if model.url?.absoluteString.lowercased().contains(
-                    urlString.lowercased()
-                ) == true {
-                    return false
-                }
-            }
+        } else if matchesAnyPattern(modelUrl, patterns: DebugSwift.Network.shared.ignoredURLs) {
+            return false
         }
-
+        
         // Maximum number limit
         if httpModels.count >= 10000 {
             if !httpModels.isEmpty {
@@ -79,6 +70,18 @@ final class HttpDatasource: @unchecked Sendable {
                 httpModels.remove(at: index)
             }
         }
+    }
+    
+    private func matchesAnyPattern(_ value: String, patterns: [String]) -> Bool {
+        patterns.contains { pattern in
+            let regex = wildcardToRegex(pattern)
+            return value.range(of: regex, options: [.regularExpression, .caseInsensitive]) != nil
+        }
+    }
+
+    private func wildcardToRegex(_ pattern: String) -> String {
+        let escaped = NSRegularExpression.escapedPattern(for: pattern)
+        return escaped.replacingOccurrences(of: "\\*", with: ".*")
     }
 }
 

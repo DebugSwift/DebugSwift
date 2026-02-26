@@ -14,7 +14,15 @@ extension DebugSwift {
             // Private initializer for singleton
         }
         
+        /// You can use exact URL (literal):
+        /// ["https://api.example.com"]
+        /// or a wildcard
+        /// ["https://api.example.com/v1/orders/\*", "https://\*.example.com"]
         public var ignoredURLs = [String]()
+        /// You can use exact URL (literal):
+        /// ["https://api.example.com"]
+        /// or a wildcard
+        /// ["https://api.example.com/v1/orders/\*", "https://\*.example.com"]
         public var onlyURLs = [String]()
         public var onlySchemes = CustomHTTPProtocolURLScheme.allCases.filter { $0 != .ws && $0 != .wss }
         public var delegate: CustomHTTPProtocolDelegate?
