@@ -145,96 +145,125 @@ jobs:
 
     - name: Build XCFramework
       run: |
-        echo "🏗️  Building XCFramework for release..."
+        echo "🏗️  Building DebugSwift using Swift Package Manager..."
         
         # Create output directories  
         mkdir -p build XCFramework
         
-        # Try approach 1: Build without BUILD_LIBRARY_FOR_DISTRIBUTION to avoid interface issues
-        echo "📱 Building for iOS device (arm64)..."
-        xcodebuild -scheme DebugSwift \
-          -destination "generic/platform=iOS" \
-          -configuration Release \
-          -derivedDataPath build/ios \
-          SKIP_INSTALL=NO \
-          build
+        # Use Swift Package Manager approach to avoid Xcode interface generation issues
+        echo "📱 Building static library for iOS device (arm64)..."
+        swift build -c release \
+          --arch arm64 \
+          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphoneos --show-sdk-path) \
+          -Xswiftc -target -Xswiftc arm64-apple-ios14.0
         
-        echo "🖥️  Building for iOS Simulator (universal)..."
-        xcodebuild -scheme DebugSwift \
-          -destination "generic/platform=iOS Simulator" \
-          -configuration Release \
-          -derivedDataPath build/simulator \
-          SKIP_INSTALL=NO \
-          build
+        echo "🖥️  Building static library for iOS Simulator (arm64)..."
+        swift build -c release \
+          --arch arm64 \
+          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
+          -Xswiftc -target -Xswiftc arm64-apple-ios14.0-simulator
         
-        # Find and copy the built frameworks
-        IOS_FRAMEWORK_PATH=$(find build/ios -name "DebugSwift.framework" -path "*Release-iphoneos*" | head -1)
-        SIM_FRAMEWORK_PATH=$(find build/simulator -name "DebugSwift.framework" -path "*Release-iphonesimulator*" | head -1)
+        echo "🖥️  Building static library for iOS Simulator (x86_64)..."
+        swift build -c release \
+          --arch x86_64 \
+          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
+          -Xswiftc -target -Xswiftc x86_64-apple-ios14.0-simulator
         
-        if [ -z "$IOS_FRAMEWORK_PATH" ] || [ -z "$SIM_FRAMEWORK_PATH" ]; then
-          echo "❌ Framework build failed - trying alternative approach with static libraries..."
-          
-          # Alternative: Build static libraries and create simple package
-          echo "📱 Building static library for iOS..."
-          swift build -c release \
-            --arch arm64 \
-            -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphoneos --show-sdk-path) \
-            -Xswiftc -target -Xswiftc arm64-apple-ios14.0
-            
-          echo "🖥️  Building static library for iOS Simulator..."  
-          swift build -c release \
-            --arch arm64 \
-            -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
-            -Xswiftc -target -Xswiftc arm64-apple-ios14.0-simulator
-            
-          # Create simple package
-          mkdir -p XCFramework/DebugSwift-StaticLibraries
-          cp .build/arm64-apple-ios/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-ios.a 2>/dev/null || \
-          cp .build/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-ios.a
-          
+        # Create static library package
+        mkdir -p XCFramework/DebugSwift-StaticLibraries
+        
+        # Copy libraries with fallback paths
+        echo "📦 Packaging static libraries..."
+        cp .build/arm64-apple-ios/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-ios.a 2>/dev/null || \
+        cp .build/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-ios.a
+        
+        # Create universal simulator library
+        if [ -f ".build/arm64-apple-ios-simulator/release/libDebugSwift.a" ] && [ -f ".build/x86_64-apple-ios-simulator/release/libDebugSwift.a" ]; then
+          echo "🔨 Creating universal simulator library..."
+          lipo -create \
+            .build/arm64-apple-ios-simulator/release/libDebugSwift.a \
+            .build/x86_64-apple-ios-simulator/release/libDebugSwift.a \
+            -output XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a
+        else
           cp .build/arm64-apple-ios-simulator/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a 2>/dev/null || \
           cp .build/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a
-          
-          # Copy Swift modules if available
-          find .build -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
-          
-          # Create README for usage
-          cat > XCFramework/DebugSwift-StaticLibraries/README.md << 'EOF'
+        fi
+        
+        # Copy Swift modules if available
+        echo "📋 Copying Swift modules..."
+        find .build -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
+        
+        # Create comprehensive README for usage
+        cat > XCFramework/DebugSwift-StaticLibraries/README.md << 'EOF'
 # DebugSwift Static Libraries
 
-This package contains static libraries for DebugSwift framework.
+This package contains static libraries for DebugSwift framework built with Swift Package Manager.
 
-## Usage
-1. Add both .a files to your Xcode project
-2. Link against the appropriate architecture:
-   - `libDebugSwift-ios.a` for iOS device builds
-   - `libDebugSwift-simulator.a` for iOS simulator builds
-3. Import Swift modules if available
-4. Add to your project: `import DebugSwift`
+## Contents
+- `libDebugSwift-ios.a` - iOS device build (arm64)
+- `libDebugSwift-simulator.a` - iOS simulator build (universal arm64+x86_64)
+- Swift modules (if available)
+
+## Installation & Usage
+
+### Xcode Integration
+1. Drag both `.a` files into your Xcode project
+2. Add them to your target's "Frameworks, Libraries, and Embedded Content"
+3. Set "Embed" to "Do Not Embed" (they're static libraries)
+4. Add `import DebugSwift` to your Swift files
+
+### Manual Linking
+- For iOS device builds: Link against `libDebugSwift-ios.a`
+- For iOS simulator builds: Link against `libDebugSwift-simulator.a`
+
+### Build Settings
+You may need to add the following to your target's build settings:
+- Library Search Paths: Path to the directory containing the .a files
+- Swift Import Paths: Path to any .swiftmodule directories
+
+## Note
+This static library package was created to avoid Swift module interface generation issues with XCFramework builds. It provides the same functionality as the framework version.
 EOF
-          
-          echo "📦 Creating static library package ZIP..."
-          cd XCFramework  
-          zip -r "DebugSwift-StaticLibraries.zip" "DebugSwift-StaticLibraries"
-          cd ..
-          
-        else
-          echo "✅ Found frameworks:"
-          echo "iOS: $IOS_FRAMEWORK_PATH"
-          echo "Simulator: $SIM_FRAMEWORK_PATH"
-          
-          # Create XCFramework from the built frameworks
-          echo "🔨 Creating XCFramework..."
-          xcodebuild -create-xcframework \
-            -framework "$IOS_FRAMEWORK_PATH" \
-            -framework "$SIM_FRAMEWORK_PATH" \
-            -output "XCFramework/DebugSwift.xcframework"
-          
-          echo "📦 Creating XCFramework ZIP..."
-          cd XCFramework
-          zip -r "DebugSwift.xcframework.zip" "DebugSwift.xcframework"
-          cd ..
-        fi
+
+        # Create comprehensive usage guide
+        cat > XCFramework/DebugSwift-StaticLibraries/USAGE_GUIDE.md << 'EOF'
+# DebugSwift Static Library Integration Guide
+
+## Quick Start
+
+1. **Add to Xcode Project**:
+   - Drag `libDebugSwift-ios.a` and `libDebugSwift-simulator.a` into your project
+   - Choose "Add to target" for your main app target
+   - Select "Create groups" (not folder references)
+
+2. **Configure Build Settings**:
+   - Target → Build Settings → Library Search Paths → Add the path to your .a files
+   - Target → Build Settings → Swift Compiler → Import Paths → Add paths to any .swiftmodule directories
+
+3. **Use in Code**:
+   ```swift
+   import DebugSwift
+   
+   // Initialize DebugSwift
+   DebugSwift.shared.start()
+   ```
+
+## Troubleshooting
+
+- **"No such module 'DebugSwift'"**: Check Swift Import Paths in build settings
+- **Linking errors**: Ensure both .a files are added to target and Library Search Paths is set
+- **Simulator issues**: Make sure you're using `libDebugSwift-simulator.a` for simulator builds
+
+## Architecture Support
+- iOS Device: arm64
+- iOS Simulator: arm64 + x86_64 (universal)
+- Minimum iOS Version: 14.0
+EOF
+        
+        echo "📦 Creating static library package ZIP..."
+        cd XCFramework  
+        zip -r "DebugSwift-StaticLibraries.zip" "DebugSwift-StaticLibraries"
+        cd ..
         
         echo "✅ Build completed successfully!"
         echo "📊 Build output:"
@@ -242,6 +271,9 @@ EOF
         
         echo "📏 File sizes:"
         du -h XCFramework/*
+        
+        echo "🔍 Package contents:"
+        unzip -l XCFramework/DebugSwift-StaticLibraries.zip
 
     - name: Create GitHub Release
       id: create_release
@@ -256,12 +288,13 @@ EOF
           
           **What's New:**
           - Auto-generated from main branch
-          - Includes XCFramework for iOS development
+          - Includes Static Libraries for iOS development
+          - Built with Swift Package Manager to ensure compatibility
           
           **Installation:**
-          1. Download the framework package (XCFramework or Static Libraries)
-          2. Extract and add to your Xcode project  
-          3. Link the framework/libraries to your target
+          1. Download `DebugSwift-StaticLibraries.zip`
+          2. Extract and add both `.a` files to your Xcode project
+          3. Link the libraries to your target (see README.md for details)
           
           **Version Details:**
           - Semantic Version: ${{ needs.git_version.outputs.semVer }}
@@ -269,21 +302,18 @@ EOF
         draft: false
         prerelease: false
 
-    - name: Upload Framework Package to Release
+    - name: Upload Static Libraries Package to Release
       run: |
-        # Determine which package was created and upload it
-        if [ -f "XCFramework/DebugSwift.xcframework.zip" ]; then
-          echo "📦 Uploading XCFramework package..."
-          gh release upload ${{ needs.git_version.outputs.semVer }} \
-            "XCFramework/DebugSwift.xcframework.zip" \
-            --clobber
-        elif [ -f "XCFramework/DebugSwift-StaticLibraries.zip" ]; then
-          echo "📦 Uploading Static Libraries package..."
+        # Upload the static libraries package
+        if [ -f "XCFramework/DebugSwift-StaticLibraries.zip" ]; then
+          echo "📦 Uploading DebugSwift Static Libraries package..."
           gh release upload ${{ needs.git_version.outputs.semVer }} \
             "XCFramework/DebugSwift-StaticLibraries.zip" \
             --clobber
+          echo "✅ Static Libraries package uploaded successfully!"
         else
-          echo "❌ No framework package found to upload"
+          echo "❌ Static Libraries package not found"
+          ls -la XCFramework/
           exit 1
         fi
       env:
