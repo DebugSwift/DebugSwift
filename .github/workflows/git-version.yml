@@ -150,48 +150,88 @@ jobs:
         # Create output directories  
         mkdir -p build XCFramework
         
-        # Use Swift Package Manager approach to avoid Xcode interface generation issues
-        echo "📱 Building static library for iOS device (arm64)..."
+        # Use simplified Swift Package Manager approach
+        echo "📱 Building for iOS platforms using SPM..."
+        
+        # Export proper SDK paths
+        export IPHONEOS_SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
+        export IPHONESIMULATOR_SDK_PATH=$(xcrun --sdk iphonesimulator --show-sdk-path)
+        
+        echo "iOS SDK: $IPHONEOS_SDK_PATH"
+        echo "Simulator SDK: $IPHONESIMULATOR_SDK_PATH"
+        
+        # Build for iOS device
+        echo "📱 Building for iOS device (arm64)..."
         swift build -c release \
+          --target DebugSwift \
           --arch arm64 \
-          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphoneos --show-sdk-path) \
+          --scratch-path .build-ios \
+          -Xswiftc -sdk -Xswiftc "$IPHONEOS_SDK_PATH" \
           -Xswiftc -target -Xswiftc arm64-apple-ios14.0
         
-        echo "🖥️  Building static library for iOS Simulator (arm64)..."
+        # Build for iOS Simulator 
+        echo "🖥️  Building for iOS Simulator (arm64)..."
         swift build -c release \
+          --target DebugSwift \
           --arch arm64 \
-          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
+          --scratch-path .build-simulator-arm64 \
+          -Xswiftc -sdk -Xswiftc "$IPHONESIMULATOR_SDK_PATH" \
           -Xswiftc -target -Xswiftc arm64-apple-ios14.0-simulator
         
-        echo "🖥️  Building static library for iOS Simulator (x86_64)..."
+        echo "🖥️  Building for iOS Simulator (x86_64)..."  
         swift build -c release \
+          --target DebugSwift \
           --arch x86_64 \
-          -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) \
+          --scratch-path .build-simulator-x86_64 \
+          -Xswiftc -sdk -Xswiftc "$IPHONESIMULATOR_SDK_PATH" \
           -Xswiftc -target -Xswiftc x86_64-apple-ios14.0-simulator
         
         # Create static library package
         mkdir -p XCFramework/DebugSwift-StaticLibraries
         
-        # Copy libraries with fallback paths
+        # Copy and verify libraries
         echo "📦 Packaging static libraries..."
-        cp .build/arm64-apple-ios/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-ios.a 2>/dev/null || \
-        cp .build/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-ios.a
         
-        # Create universal simulator library
-        if [ -f ".build/arm64-apple-ios-simulator/release/libDebugSwift.a" ] && [ -f ".build/x86_64-apple-ios-simulator/release/libDebugSwift.a" ]; then
+        # Find and copy iOS device library
+        IOS_LIB=$(find .build-ios -name "libDebugSwift.a" -type f | head -1)
+        SIM_ARM64_LIB=$(find .build-simulator-arm64 -name "libDebugSwift.a" -type f | head -1)
+        SIM_X86_64_LIB=$(find .build-simulator-x86_64 -name "libDebugSwift.a" -type f | head -1)
+        
+        echo "Found libraries:"
+        echo "iOS: $IOS_LIB"
+        echo "Sim ARM64: $SIM_ARM64_LIB"  
+        echo "Sim x86_64: $SIM_X86_64_LIB"
+        
+        # Copy iOS library
+        if [ -f "$IOS_LIB" ]; then
+          cp "$IOS_LIB" XCFramework/DebugSwift-StaticLibraries/libDebugSwift-ios.a
+          echo "✅ Copied iOS device library"
+        else
+          echo "❌ iOS device library not found"
+          exit 1
+        fi
+        
+        # Create universal simulator library if both architectures exist
+        if [ -f "$SIM_ARM64_LIB" ] && [ -f "$SIM_X86_64_LIB" ]; then
           echo "🔨 Creating universal simulator library..."
           lipo -create \
-            .build/arm64-apple-ios-simulator/release/libDebugSwift.a \
-            .build/x86_64-apple-ios-simulator/release/libDebugSwift.a \
+            "$SIM_ARM64_LIB" \
+            "$SIM_X86_64_LIB" \
             -output XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a
+          echo "✅ Created universal simulator library"
+        elif [ -f "$SIM_ARM64_LIB" ]; then
+          cp "$SIM_ARM64_LIB" XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a
+          echo "✅ Copied ARM64 simulator library (x86_64 not available)"
         else
-          cp .build/arm64-apple-ios-simulator/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a 2>/dev/null || \
-          cp .build/release/libDebugSwift.a XCFramework/DebugSwift-StaticLibraries/libDebugSwift-simulator.a
+          echo "❌ No simulator libraries found"
+          exit 1
         fi
         
         # Copy Swift modules if available
         echo "📋 Copying Swift modules..."
-        find .build -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
+        find .build-ios -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
+        find .build-simulator-arm64 -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
+        find .build-simulator-x86_64 -name "*.swiftmodule" -exec cp -R {} XCFramework/DebugSwift-StaticLibraries/ \; 2>/dev/null || true
         
         # Create comprehensive README for usage
         cat > XCFramework/DebugSwift-StaticLibraries/README.md << 'EOF'
