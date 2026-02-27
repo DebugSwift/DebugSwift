@@ -1,0 +1,69 @@
+name: Bug report
+description: Report a reproducible bug or regression
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this issue.
+        Please provide enough context so we can reproduce it quickly.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: Clear and concise description of the bug
+      placeholder: Crash when opening push notifications screen
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact steps to reproduce the issue
+      placeholder: |
+        1. Go to ...
+        2. Tap on ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: Describe what should happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      placeholder: Describe what actually happens
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Affected version
+      description: App/SDK version, if applicable
+      placeholder: 1.2.3
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: Device/OS/Xcode details
+      placeholder: iOS 18.2, iPhone 15 Pro, Xcode 16.0
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or stack trace
+      description: Paste relevant logs, stack traces, or links
+      render: shell
