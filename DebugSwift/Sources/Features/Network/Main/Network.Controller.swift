@@ -587,7 +587,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
         case .http, .webview:
             // Add network injection settings button
             let injectionButton = UIBarButtonItem(
-                image: UIImage(systemName: "syringe"),
+                image: injectionSymbolImage(),
                 style: .plain,
                 target: self,
                 action: #selector(showNetworkInjectionSettings)
@@ -655,6 +655,14 @@ final class NetworkViewController: BaseController, MainFeatureType {
         }
         
         navigationItem.rightBarButtonItems = rightBarButtons
+    }
+
+    private func injectionSymbolImage() -> UIImage? {
+        if #available(iOS 16.0, *) {
+            return UIImage(systemName: "syringe")
+        }
+
+        return UIImage(systemName: "pencil")
     }
     
     @objc private func showNetworkInjectionSettings() {

@@ -34,7 +34,7 @@ final class NetworkViewControllerDetail: BaseTableController {
         title = "Request Details"
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(
-                image: UIImage(systemName: "syringe"),
+                image: injectionSymbolImage(),
                 style: .plain,
                 target: self,
                 action: #selector(configureInjectionForEndpoint)
@@ -64,6 +64,14 @@ final class NetworkViewControllerDetail: BaseTableController {
                 action: #selector(replayButtonTapped)
             )
         ]
+    }
+
+    private func injectionSymbolImage() -> UIImage? {
+        if #available(iOS 16.0, *) {
+            return UIImage(systemName: "syringe")
+        }
+
+        return UIImage(systemName: "pencil")
     }
     
     @objc private func configureInjectionForEndpoint() {
