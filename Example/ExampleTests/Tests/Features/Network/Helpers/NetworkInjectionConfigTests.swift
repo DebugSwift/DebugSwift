@@ -462,6 +462,37 @@ final class NetworkInjectionConfigTests: XCTestCase {
         XCTAssertNil(config.matchingRule(for: request))
     }
     
+    func testResponseBodyRewriteConfigContainsStatusCodeOverride() {
+        let config = ResponseBodyRewriteConfig(
+            isEnabled: true,
+            rules: [
+                ResponseBodyRewriteRule(
+                    urlPattern: "https://api.example.com/users/*",
+                    responseBody: "{\"mocked\":true}",
+                    responseStatusCode: 418
+                )
+            ]
+        )
+        
+        let request = URLRequest(url: URL(string: "https://api.example.com/users/1")!)
+        let matched = config.matchingRule(for: request)
+        
+        XCTAssertEqual(matched?.responseStatusCode, 418)
+    }
+    
+    func testResponseBodyRewriteRuleCodableRoundTrip() throws {
+        let rule = ResponseBodyRewriteRule(
+            urlPattern: "https://api.example.com/users/*",
+            responseBody: "{\"mocked\":true}",
+            responseStatusCode: 202
+        )
+        
+        let encoded = try JSONEncoder().encode(rule)
+        let decoded = try JSONDecoder().decode(ResponseBodyRewriteRule.self, from: encoded)
+        
+        XCTAssertEqual(decoded, rule)
+    }
+    
     // MARK: - URL Wildcard Matcher Real-world Scenarios
     
     func testURLWildcardSubsetMatchesCheckoutURLWithTrackingParamsAndSession() {

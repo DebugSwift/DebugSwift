@@ -245,16 +245,24 @@ public struct NetworkFailureConfig: Sendable {
 }
 
 /// A single response body rewrite rule.
-public struct ResponseBodyRewriteRule: Sendable, Equatable {
+public struct ResponseBodyRewriteRule: Sendable, Equatable, Codable {
     /// URL pattern to match (supports wildcard `*` and `?`)
     public var urlPattern: String
     
     /// Replacement response body text
     public var responseBody: String
     
-    public init(urlPattern: String, responseBody: String) {
+    /// Optional HTTP status code override for rewritten response
+    public var responseStatusCode: Int?
+    
+    public init(
+        urlPattern: String,
+        responseBody: String,
+        responseStatusCode: Int? = nil
+    ) {
         self.urlPattern = urlPattern
         self.responseBody = responseBody
+        self.responseStatusCode = responseStatusCode
     }
 }
 
