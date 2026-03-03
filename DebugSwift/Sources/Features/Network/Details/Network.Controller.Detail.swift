@@ -105,6 +105,11 @@ final class NetworkViewControllerDetail: BaseTableController {
             self?.applyHTTPErrorToEndpoint(statusCode: 500)
         })
         
+        // Rewrite shortcut
+        alertController.addAction(UIAlertAction(title: "Create Rewrite Rule", style: .default) { [weak self] _ in
+            self?.showCreateRewriteRuleEditor()
+        })
+
         // Advanced settings
         alertController.addAction(UIAlertAction(title: "Advanced Settings...", style: .default) { [weak self] _ in
             let settingsController = NetworkInjectionSettingsController()
@@ -193,6 +198,33 @@ final class NetworkViewControllerDetail: BaseTableController {
         showAlert(
             with: "Injection Cleared",
             title: "All network injection has been disabled",
+            rightButtonTitle: "OK"
+        )
+    }
+
+    private func showCreateRewriteRuleEditor() {
+        let initialURLPattern = model.url?.absoluteString ?? ""
+        let initialResponseBody = (model.decryptedResponseData ?? model.responseData)?.formattedString() ?? ""
+        let initialStatusCode = model.statusCode.flatMap { Int($0) }
+        let initialRule = ResponseBodyRewriteRule(
+            urlPattern: initialURLPattern,
+            responseBody: initialResponseBody,
+            responseStatusCode: initialStatusCode
+        )
+
+        let editor = RewriteRuleEditViewController(rule: initialRule) { [weak self] updatedRule in
+            self?.appendRewriteRule(updatedRule)
+        }
+        navigationController?.pushViewController(editor, animated: true)
+    }
+
+    private func appendRewriteRule(_ rule: ResponseBodyRewriteRule) {
+        var config = NetworkInjectionManager.shared.getRewriteConfig()
+        config.rules.append(rule)
+        NetworkInjectionManager.shared.setRewriteConfig(config)
+        showAlert(
+            with: "Rewrite rule created for this request",
+            title: "Rewrite Rule Added",
             rightButtonTitle: "OK"
         )
     }
