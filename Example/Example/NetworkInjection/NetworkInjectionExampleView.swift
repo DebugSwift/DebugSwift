@@ -13,6 +13,15 @@ struct NetworkInjectionExampleView: View {
     @State private var isLoading = false
     @State private var delayEnabled = false
     @State private var failureEnabled = false
+    @State private var rewriteEnabled = false
+    @State private var rewriteURLPattern = "https://jsonplaceholder.typicode.com/todos/1"
+    @State private var rewriteResponseBody = """
+{
+  "id": 1,
+  "title": "rewritten from UI",
+  "completed": true
+}
+"""
     
     var body: some View {
         ScrollView {
@@ -167,6 +176,71 @@ struct NetworkInjectionExampleView: View {
                 .background(Color.red.opacity(0.1))
                 .cornerRadius(10)
                 
+                // Response Rewrite Injection Controls
+                VStack(spacing: 15) {
+                    Text("Response Body Rewrite")
+                        .font(.headline)
+                    
+                    Text("Configure a custom rewrite rule")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Toggle("Enable Rewrite", isOn: $rewriteEnabled)
+                        .onChange(of: rewriteEnabled) { newValue in
+                            if newValue {
+                                applyRewriteRule()
+                            } else {
+                                DebugSwift.Network.shared.disableResponseBodyRewrite()
+                            }
+                        }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("URL Wildcard Pattern")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        TextField("https://api.example.com/path/*", text: $rewriteURLPattern)
+                            .textFieldStyle(.roundedBorder)
+                            .autocorrectionDisabled(true)
+                            .autocapitalization(.none)
+                            .onChange(of: rewriteURLPattern) { _ in
+                                if rewriteEnabled {
+                                    applyRewriteRule()
+                                }
+                            }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Response Body")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        TextEditor(text: $rewriteResponseBody)
+                            .font(.system(.body, design: .monospaced))
+                            .frame(minHeight: 120)
+                            .padding(8)
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(8)
+                            .onChange(of: rewriteResponseBody) { _ in
+                                if rewriteEnabled {
+                                    applyRewriteRule()
+                                }
+                            }
+                    }
+                    
+                    Button("Test Request With Current Rule") {
+                        Task { await makeRequest() }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(Color.purple.opacity(0.8))
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .padding()
+                .background(Color.purple.opacity(0.1))
+                .cornerRadius(10)
+                
                 // Combined Test
                 VStack(spacing: 15) {
                     Text("Combined Test")
@@ -194,6 +268,8 @@ struct NetworkInjectionExampleView: View {
                 Button("Make Normal Request") {
                     DebugSwift.Network.shared.disableRequestDelay()
                     DebugSwift.Network.shared.disableFailureInjection()
+                    DebugSwift.Network.shared.disableResponseBodyRewrite()
+                    rewriteEnabled = false
                     Task { await makeRequest() }
                 }
                 .padding(.horizontal, 20)
@@ -242,6 +318,20 @@ struct NetworkInjectionExampleView: View {
         }
         
         isLoading = false
+    }
+    
+    private func applyRewriteRule() {
+        let trimmedPattern = rewriteURLPattern.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPattern.isEmpty else { return }
+        
+        DebugSwift.Network.shared.enableResponseBodyRewrite(
+            rules: [
+                ResponseBodyRewriteRule(
+                    urlPattern: trimmedPattern,
+                    responseBody: rewriteResponseBody
+                )
+            ]
+        )
     }
 }
 

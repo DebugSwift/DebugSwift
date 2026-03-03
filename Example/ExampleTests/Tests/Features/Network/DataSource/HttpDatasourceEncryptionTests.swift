@@ -199,6 +199,21 @@ final class HttpDatasourceEncryptionTests: XCTestCase {
         XCTAssertFalse(nonMatchingResult)
     }
     
+    func testAddHttpRequest_withOnlyURLsQuestionMarkWildcard_allowsSingleCharacterMatch() {
+        // Given
+        DebugSwift.Network.shared.onlyURLs = ["https://api?.example.com/v1/orders/*"]
+        let matchingModel = makeHttpModel(url: "https://api1.example.com/v1/orders/123")
+        let nonMatchingModel = makeHttpModel(url: "https://api12.example.com/v1/orders/123")
+        
+        // When
+        let matchingResult = httpDataSource.addHttpRequest(matchingModel)
+        let nonMatchingResult = httpDataSource.addHttpRequest(nonMatchingModel)
+        
+        // Then
+        XCTAssertTrue(matchingResult)
+        XCTAssertFalse(nonMatchingResult)
+    }
+    
     func testAddHttpRequest_withWildcardPattern_isCaseInsensitive() {
         // Given
         DebugSwift.Network.shared.ignoredURLs = ["HTTPS://API.EXAMPLE.COM/V1/*"]

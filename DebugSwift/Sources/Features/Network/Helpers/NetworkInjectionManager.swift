@@ -14,6 +14,7 @@ final class NetworkInjectionManager: @unchecked Sendable {
     private let queue = DispatchQueue(label: "com.debugswift.injection", attributes: .concurrent)
     private var _delayConfig: RequestDelayConfig = RequestDelayConfig()
     private var _failureConfig: NetworkFailureConfig = NetworkFailureConfig()
+    private var _rewriteConfig: ResponseBodyRewriteConfig = ResponseBodyRewriteConfig()
     
     private init() {}
     
@@ -67,5 +68,23 @@ final class NetworkInjectionManager: @unchecked Sendable {
         Debug.print("💥 Injecting failure for \(request.url?.absoluteString ?? "unknown URL"): \(error.localizedDescription)")
         
         return (true, error, statusCode)
+    }
+    
+    // MARK: - Response Body Rewrite
+    
+    func setRewriteConfig(_ config: ResponseBodyRewriteConfig) {
+        queue.async(flags: .barrier) { [weak self] in
+            self?._rewriteConfig = config
+        }
+        Debug.print("✏️ Rewrite config updated: enabled=\(config.isEnabled), rules=\(config.rules.count)")
+    }
+    
+    func getRewriteConfig() -> ResponseBodyRewriteConfig {
+        return queue.sync { _rewriteConfig }
+    }
+    
+    func matchingRewriteRule(for request: URLRequest) -> ResponseBodyRewriteRule? {
+        let config = getRewriteConfig()
+        return config.matchingRule(for: request)
     }
 }

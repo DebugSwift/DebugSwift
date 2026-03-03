@@ -14,15 +14,23 @@ final class HttpDatasource: @unchecked Sendable {
     var httpModels: [HttpModel] = []
 
     func addHttpRequest(_ model: HttpModel) -> Bool {
-        guard let modelUrl =  model.url?.absoluteString.lowercased(), !modelUrl.isEmpty else {
+        guard let modelUrl = model.url else {
             return false
         }
         
         if !DebugSwift.Network.shared.onlyURLs.isEmpty {
-            if !matchesAnyPattern(modelUrl, patterns: DebugSwift.Network.shared.onlyURLs) {
+            if !modelUrl.matchesAny(
+                wildcardPatterns: DebugSwift.Network.shared.onlyURLs,
+                strategy: .contains,
+                queryStrategy: .subset
+            ) {
                 return false
             }
-        } else if matchesAnyPattern(modelUrl, patterns: DebugSwift.Network.shared.ignoredURLs) {
+        } else if modelUrl.matchesAny(
+            wildcardPatterns: DebugSwift.Network.shared.ignoredURLs,
+            strategy: .contains,
+            queryStrategy: .subset
+        ) {
             return false
         }
         
@@ -70,18 +78,6 @@ final class HttpDatasource: @unchecked Sendable {
                 httpModels.remove(at: index)
             }
         }
-    }
-    
-    private func matchesAnyPattern(_ value: String, patterns: [String]) -> Bool {
-        patterns.contains { pattern in
-            let regex = wildcardToRegex(pattern)
-            return value.range(of: regex, options: [.regularExpression, .caseInsensitive]) != nil
-        }
-    }
-
-    private func wildcardToRegex(_ pattern: String) -> String {
-        let escaped = NSRegularExpression.escapedPattern(for: pattern)
-        return escaped.replacingOccurrences(of: "\\*", with: ".*")
     }
 }
 

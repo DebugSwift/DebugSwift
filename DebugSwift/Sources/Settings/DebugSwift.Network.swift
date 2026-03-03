@@ -198,9 +198,11 @@ extension DebugSwift {
         /// - Parameters:
         ///   - delayConfig: Optional delay configuration
         ///   - failureConfig: Optional failure configuration
+        ///   - rewriteConfig: Optional response body rewrite configuration
         public func configureNetworkInjection(
             delayConfig: RequestDelayConfig? = nil,
-            failureConfig: NetworkFailureConfig? = nil
+            failureConfig: NetworkFailureConfig? = nil,
+            rewriteConfig: ResponseBodyRewriteConfig? = nil
         ) {
             if let delay = delayConfig {
                 NetworkInjectionManager.shared.setDelayConfig(delay)
@@ -208,6 +210,22 @@ extension DebugSwift {
             if let failure = failureConfig {
                 NetworkInjectionManager.shared.setFailureConfig(failure)
             }
+            if let rewrite = rewriteConfig {
+                NetworkInjectionManager.shared.setRewriteConfig(rewrite)
+            }
+        }
+        
+        /// Enable response body rewrite with per-URL rules (first match wins)
+        public func enableResponseBodyRewrite(rules: [ResponseBodyRewriteRule]) {
+            let config = ResponseBodyRewriteConfig(isEnabled: true, rules: rules)
+            NetworkInjectionManager.shared.setRewriteConfig(config)
+        }
+        
+        /// Disable response body rewrite
+        public func disableResponseBodyRewrite() {
+            var config = NetworkInjectionManager.shared.getRewriteConfig()
+            config.isEnabled = false
+            NetworkInjectionManager.shared.setRewriteConfig(config)
         }
         
         // MARK: - Network History Management

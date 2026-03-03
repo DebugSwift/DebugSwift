@@ -66,6 +66,7 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private var error: Error?
     private var prevUrl: URL?
     private var prevStartTime: Date?
+    private var matchedRewriteRule: ResponseBodyRewriteRule?
 
     private var threadOperator: ThreadOperator?
     
@@ -140,6 +141,9 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             }
             return
         }
+        
+        // Resolve rewrite rule once per request (first-match-wins order)
+        matchedRewriteRule = NetworkInjectionManager.shared.matchingRewriteRule(for: request)
         
         threadOperator = ThreadOperator()
         startTime = Date()
@@ -353,12 +357,17 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                 self.cachePolicy = CacheHelper.cacheStoragePolicy(for: request, and: response)
             }
 
+            var interceptedResponse = response
+            if let httpResponse = response as? HTTPURLResponse, self.matchedRewriteRule != nil {
+                interceptedResponse = self.removeContentLengthHeader(from: httpResponse) ?? response
+            }
+            
             DebugSwift.Network.shared.delegate?.urlSession(
                 self,
-                didReceive: response
+                didReceive: interceptedResponse
             )
-            self.client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: self.cachePolicy)
-            self.response = response as? HTTPURLResponse
+            self.client?.urlProtocol(self, didReceive: interceptedResponse, cacheStoragePolicy: self.cachePolicy)
+            self.response = interceptedResponse as? HTTPURLResponse
             completionHandler(.allow)
         }
     }
@@ -367,6 +376,19 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             Debug.print(#function)
+            
+            if self.matchedRewriteRule != nil {
+                if self.cachePolicy == .allowed {
+                    self.data.append(data)
+                } else if self.data.isEmpty {
+                    self.data = data
+                } else {
+                    self.data.append(data)
+                }
+                
+                self.didReceiveData = true
+                return
+            }
 
             var hasAddedData = false
             if self.cachePolicy == .allowed {
@@ -418,6 +440,26 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
             return "reloadIgnoringCacheData"
         }
     }
+    
+    private func removeContentLengthHeader(from response: HTTPURLResponse) -> HTTPURLResponse? {
+        guard let responseURL = response.url ?? request.url else { return nil }
+        
+        var headers = [String: String]()
+        response.allHeaderFields.forEach { key, value in
+            headers["\(key)"] = "\(value)"
+        }
+        
+        headers = headers.filter { headerKey, _ in
+            headerKey.caseInsensitiveCompare("Content-Length") != .orderedSame
+        }
+        
+        return HTTPURLResponse(
+            url: responseURL,
+            statusCode: response.statusCode,
+            httpVersion: "HTTP/1.1",
+            headerFields: headers
+        )
+    }
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         threadOperator?.execute { [weak self] in
@@ -436,6 +478,17 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                 )
                 self.client?.urlProtocol(self, didFailWithError: error)
                 return
+            }
+            
+            if let matchedRewriteRule = self.matchedRewriteRule {
+                let rewrittenData = matchedRewriteRule.responseBody.data(using: .utf8) ?? Data()
+                self.data = rewrittenData
+                
+                DebugSwift.Network.shared.delegate?.urlSession(
+                    self,
+                    didReceive: rewrittenData
+                )
+                self.client?.urlProtocol(self, didLoad: rewrittenData)
             }
 
             DebugSwift.Network.shared.delegate?.didFinishLoading(self)

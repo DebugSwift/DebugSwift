@@ -19,6 +19,7 @@ final class NetworkInjectionManagerTests: XCTestCase {
         // Reset to default state
         manager.setDelayConfig(RequestDelayConfig())
         manager.setFailureConfig(NetworkFailureConfig())
+        manager.setRewriteConfig(ResponseBodyRewriteConfig())
     }
     
     // MARK: - Delay Config Tests
@@ -194,5 +195,39 @@ final class NetworkInjectionManagerTests: XCTestCase {
         request.httpMethod = "GET"
         result = manager.shouldInjectFailure(for: request)
         XCTAssertFalse(result.shouldInject)
+    }
+    
+    // MARK: - Rewrite Config Tests
+    
+    func testSetRewriteConfig() {
+        let rule = ResponseBodyRewriteRule(
+            urlPattern: "https://api.example.com/*",
+            responseBody: "{\"ok\":true}"
+        )
+        let config = ResponseBodyRewriteConfig(isEnabled: true, rules: [rule])
+        
+        manager.setRewriteConfig(config)
+        
+        let retrieved = manager.getRewriteConfig()
+        XCTAssertTrue(retrieved.isEnabled)
+        XCTAssertEqual(retrieved.rules, [rule])
+    }
+    
+    func testMatchingRewriteRule() {
+        let firstRule = ResponseBodyRewriteRule(
+            urlPattern: "https://api.example.com/v1/*",
+            responseBody: "{\"version\":\"v1\"}"
+        )
+        let secondRule = ResponseBodyRewriteRule(
+            urlPattern: "https://api.example.com/v2/*",
+            responseBody: "{\"version\":\"v2\"}"
+        )
+        let config = ResponseBodyRewriteConfig(isEnabled: true, rules: [firstRule, secondRule])
+        manager.setRewriteConfig(config)
+        
+        let request = URLRequest(url: URL(string: "https://api.example.com/v2/users")!)
+        let matched = manager.matchingRewriteRule(for: request)
+        
+        XCTAssertEqual(matched, secondRule)
     }
 }

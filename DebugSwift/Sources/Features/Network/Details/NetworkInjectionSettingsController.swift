@@ -14,11 +14,13 @@ final class NetworkInjectionSettingsController: BaseTableController {
     private enum Section: Int, CaseIterable {
         case delay
         case failure
+        case rewrite
         
         var title: String {
             switch self {
             case .delay: return "REQUEST DELAY INJECTION"
             case .failure: return "NETWORK FAILURE INJECTION"
+            case .rewrite: return "RESPONSE BODY REWRITE"
             }
         }
     }
@@ -27,12 +29,14 @@ final class NetworkInjectionSettingsController: BaseTableController {
     
     private var delayConfig: RequestDelayConfig
     private var failureConfig: NetworkFailureConfig
+    private var rewriteConfig: ResponseBodyRewriteConfig
     
     // MARK: - Initialization
     
     override init() {
         self.delayConfig = NetworkInjectionManager.shared.getDelayConfig()
         self.failureConfig = NetworkInjectionManager.shared.getFailureConfig()
+        self.rewriteConfig = NetworkInjectionManager.shared.getRewriteConfig()
         super.init()
     }
     
@@ -61,6 +65,7 @@ final class NetworkInjectionSettingsController: BaseTableController {
     @objc private func saveSettings() {
         NetworkInjectionManager.shared.setDelayConfig(delayConfig)
         NetworkInjectionManager.shared.setFailureConfig(failureConfig)
+        NetworkInjectionManager.shared.setRewriteConfig(rewriteConfig)
         
         let alert = UIAlertController(
             title: "Settings Applied",
@@ -87,6 +92,8 @@ final class NetworkInjectionSettingsController: BaseTableController {
             return delayConfig.isEnabled ? 5 : 1
         case .failure:
             return failureConfig.isEnabled ? (failureConfig.failureType.isHTTPError ? 6 : 5) : 1
+        case .rewrite:
+            return rewriteConfig.isEnabled ? 3 : 1
         }
     }
     
@@ -104,6 +111,8 @@ final class NetworkInjectionSettingsController: BaseTableController {
             return delayCell(for: indexPath.row)
         case .failure:
             return failureCell(for: indexPath.row)
+        case .rewrite:
+            return rewriteCell(for: indexPath.row)
         }
     }
     
@@ -117,6 +126,8 @@ final class NetworkInjectionSettingsController: BaseTableController {
             handleDelaySelection(row: indexPath.row)
         case .failure:
             handleFailureSelection(row: indexPath.row)
+        case .rewrite:
+            handleRewriteSelection(row: indexPath.row)
         }
     }
     
@@ -216,6 +227,36 @@ final class NetworkInjectionSettingsController: BaseTableController {
         return cell
     }
     
+    // MARK: - Rewrite Cells
+    
+    private func rewriteCell(for row: Int) -> UITableViewCell {
+        let cell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
+        cell.backgroundColor = .black
+        cell.textLabel?.textColor = .white
+        cell.detailTextLabel?.textColor = .lightGray
+        
+        switch row {
+        case 0:
+            cell.textLabel?.text = "Enable Rewrite"
+            let toggle = UISwitch()
+            toggle.isOn = rewriteConfig.isEnabled
+            toggle.addTarget(self, action: #selector(rewriteToggled(_:)), for: .valueChanged)
+            cell.accessoryView = toggle
+        case 1:
+            cell.textLabel?.text = "Rewrite Rules"
+            cell.detailTextLabel?.text = rewriteConfig.rules.isEmpty ? "None" : "\(rewriteConfig.rules.count)"
+            cell.accessoryType = .disclosureIndicator
+        case 2:
+            cell.textLabel?.text = "Rule Priority"
+            cell.detailTextLabel?.text = "First Match Wins"
+            cell.selectionStyle = .none
+        default:
+            break
+        }
+        
+        return cell
+    }
+    
     // MARK: - Actions
     
     @objc private func delayToggled(_ sender: UISwitch) {
@@ -226,6 +267,17 @@ final class NetworkInjectionSettingsController: BaseTableController {
     @objc private func failureToggled(_ sender: UISwitch) {
         failureConfig.isEnabled = sender.isOn
         tableView.reloadSections(IndexSet(integer: Section.failure.rawValue), with: .automatic)
+    }
+    
+    @objc private func rewriteToggled(_ sender: UISwitch) {
+        rewriteConfig.isEnabled = sender.isOn
+        tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
+    }
+    
+    private func updateRewriteRules() {
+        var persistedConfig = NetworkInjectionManager.shared.getRewriteConfig()
+        persistedConfig.rules = rewriteConfig.rules
+        NetworkInjectionManager.shared.setRewriteConfig(persistedConfig)
     }
     
     private func handleDelaySelection(row: Int) {
@@ -256,6 +308,15 @@ final class NetworkInjectionSettingsController: BaseTableController {
             case 4: showHTTPMethodsInput(for: .failure)
             default: break
             }
+        }
+    }
+    
+    private func handleRewriteSelection(row: Int) {
+        switch row {
+        case 1:
+            showRewriteRulesMenu()
+        default:
+            break
         }
     }
     
@@ -451,6 +512,78 @@ final class NetworkInjectionSettingsController: BaseTableController {
         })
         
         present(alert, animated: true)
+    }
+    
+    private func showRewriteRulesMenu() {
+        let alert = UIAlertController(title: "Rewrite Rules", message: "Each rule has URL wildcard + replacement body", preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Add Rule", style: .default) { [weak self] _ in
+            self?.showRewriteRuleEditor()
+        })
+        
+        if !rewriteConfig.rules.isEmpty {
+            alert.addAction(UIAlertAction(title: "Edit Rule", style: .default) { [weak self] _ in
+                self?.showRewriteRulePicker(mode: .edit)
+            })
+            
+            alert.addAction(UIAlertAction(title: "Delete Rule", style: .destructive) { [weak self] _ in
+                self?.showRewriteRulePicker(mode: .delete)
+            })
+            
+            alert.addAction(UIAlertAction(title: "Clear All Rules", style: .destructive) { [weak self] _ in
+                self?.rewriteConfig.rules.removeAll()
+                self?.updateRewriteRules()
+                self?.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
+            })
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private enum RewriteRulePickerMode {
+        case edit
+        case delete
+    }
+    
+    private func showRewriteRulePicker(mode: RewriteRulePickerMode) {
+        let title = mode == .edit ? "Edit Rule" : "Delete Rule"
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .actionSheet)
+        
+        for (index, rule) in rewriteConfig.rules.enumerated() {
+            alert.addAction(UIAlertAction(title: "\(index + 1). \(rule.urlPattern)", style: .default) { [weak self] _ in
+                guard let self = self else { return }
+                switch mode {
+                case .edit:
+                    self.showRewriteRuleEditor(existingRule: rule, editIndex: index)
+                case .delete:
+                    self.rewriteConfig.rules.remove(at: index)
+                    self.updateRewriteRules()
+                    self.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
+                }
+            })
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showRewriteRuleEditor(existingRule: ResponseBodyRewriteRule? = nil, editIndex: Int? = nil) {
+        let backItem = UIBarButtonItem()
+        backItem.title = "Network Injection"
+        navigationItem.backBarButtonItem = backItem
+        navigationItem.backButtonDisplayMode = .default
+        let editor = RewriteRuleEditViewController(rule: existingRule) { [weak self] updatedRule in
+            guard let self = self else { return }
+            if let editIndex {
+                self.rewriteConfig.rules[editIndex] = updatedRule
+            } else {
+                self.rewriteConfig.rules.append(updatedRule)
+            }
+            self.updateRewriteRules()
+            self.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
+        }
+        navigationController?.pushViewController(editor, animated: true)
     }
 }
 

@@ -594,7 +594,8 @@ final class NetworkViewController: BaseController, MainFeatureType {
             )
             let injectionManager = NetworkInjectionManager.shared
             let isInjectionActive = injectionManager.getDelayConfig().isEnabled || 
-                                    injectionManager.getFailureConfig().isEnabled
+                                    injectionManager.getFailureConfig().isEnabled ||
+                                    injectionManager.getRewriteConfig().isEnabled
             injectionButton.tintColor = isInjectionActive ? .systemOrange : .systemGray
             rightBarButtons.append(injectionButton)
             
