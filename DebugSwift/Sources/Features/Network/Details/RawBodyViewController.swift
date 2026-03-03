@@ -71,7 +71,7 @@ final class RawBodyViewController: BaseController {
             image: UIImage(systemName: "doc.on.doc"),
             style: .plain,
             target: self,
-            action: #selector(copyAll)
+            action: #selector(showCopyOptions)
         )
     }
     
@@ -154,8 +154,35 @@ final class RawBodyViewController: BaseController {
         showCopyConfirmation()
     }
     
-    @objc private func copyAll() {
+    @objc private func showCopyOptions() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let rawTitle = isRequest ? "Copy Raw Request" : "Copy Raw Response"
+        
+        alert.addAction(UIAlertAction(title: rawTitle, style: .default) { [weak self] _ in
+            self?.copyRawContent()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Copy JSON Body", style: .default) { [weak self] _ in
+            self?.copyJSONBody()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        if let popover = alert.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItem
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func copyRawContent() {
         UIPasteboard.general.string = textView.text
+        showCopyConfirmation()
+    }
+    
+    private func copyJSONBody() {
+        let body = data?.formattedString() ?? "No data"
+        UIPasteboard.general.string = body
         showCopyConfirmation()
     }
     
@@ -167,4 +194,3 @@ final class RawBodyViewController: BaseController {
         }
     }
 }
-

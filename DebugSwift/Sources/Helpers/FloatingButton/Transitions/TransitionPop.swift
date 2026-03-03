@@ -10,6 +10,8 @@ import UIKit
 
 final class TransitionPop: NSObject, UIViewControllerAnimatedTransitioning {
     var transitionCtx: UIViewControllerContextTransitioning?
+    private weak var maskedFromView: UIView?
+    private weak var maskedToView: UIView?
 
     func transitionDuration(using _: UIViewControllerContextTransitioning?)
         -> TimeInterval {
@@ -27,6 +29,10 @@ final class TransitionPop: NSObject, UIViewControllerAnimatedTransitioning {
         }
 
         let containerView = transitionContext.containerView
+        fromVC.view.layer.mask = nil
+        toVC.view.layer.mask = nil
+        maskedFromView = fromVC.view
+        maskedToView = toVC.view
         containerView.addSubview(toVC.view)
         containerView.addSubview(fromVC.view)
 
@@ -56,6 +62,8 @@ extension TransitionPop: CAAnimationDelegate {
     nonisolated func animationDidStop(_: CAAnimation, finished _: Bool) {
         DispatchQueue.main.async { [weak self] in
 
+            self?.maskedFromView?.layer.mask = nil
+            self?.maskedToView?.layer.mask = nil
             self?.transitionCtx?.completeTransition(true)
             self?.transitionCtx?.view(forKey: UITransitionContextViewKey.from)?.layer.mask = nil
             self?.transitionCtx?.view(forKey: UITransitionContextViewKey.to)?.layer.mask = nil
