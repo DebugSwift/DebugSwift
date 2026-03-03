@@ -188,15 +188,7 @@ final class DeepLinkViewController: BaseController {
             testButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             testButton.heightAnchor.constraint(equalToConstant: 50),
             
-            quickTestLabel.topAnchor.constraint(equalTo: testButton.bottomAnchor, constant: 24),
-            quickTestLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            quickTestLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            quickTestStackView.topAnchor.constraint(equalTo: quickTestLabel.bottomAnchor, constant: 12),
-            quickTestStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            quickTestStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            
-            historyLabel.topAnchor.constraint(equalTo: quickTestStackView.bottomAnchor, constant: 24),
+            historyLabel.topAnchor.constraint(equalTo: testButton.bottomAnchor, constant: 24),
             historyLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             
             clearHistoryButton.centerYAnchor.constraint(equalTo: historyLabel.centerYAnchor),
@@ -212,7 +204,15 @@ final class DeepLinkViewController: BaseController {
             emptyStateLabel.leadingAnchor.constraint(equalTo: tableView.leadingAnchor, constant: 20),
             emptyStateLabel.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -20),
             
-            contentView.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 20)
+            quickTestLabel.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 24),
+            quickTestLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            quickTestLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            quickTestStackView.topAnchor.constraint(equalTo: quickTestLabel.bottomAnchor, constant: 12),
+            quickTestStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            quickTestStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            contentView.bottomAnchor.constraint(equalTo: quickTestStackView.bottomAnchor, constant: 20)
         ])
     }
     

@@ -29,6 +29,11 @@ final class RewriteRuleEditViewController: BaseController {
         textView.backgroundColor = .secondarySystemBackground
         textView.textColor = .label
         textView.font = .monospacedSystemFont(ofSize: 13, weight: .regular)
+        textView.autocorrectionType = .no
+        textView.autocapitalizationType = .none
+        textView.smartQuotesType = .no
+        textView.smartDashesType = .no
+        textView.smartInsertDeleteType = .no
         textView.layer.cornerRadius = 8
         textView.layer.borderWidth = 0.5
         textView.layer.borderColor = UIColor.separator.cgColor
@@ -123,12 +128,53 @@ final class RewriteRuleEditViewController: BaseController {
             }
         }
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        let saveButton = UIBarButtonItem(
             title: "Save",
             style: .done,
             target: self,
             action: #selector(saveTapped)
         )
+        let menuButton = UIBarButtonItem(
+            image: UIImage(systemName: "ellipsis.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(showBodyEditorOptions)
+        )
+        navigationItem.rightBarButtonItems = [saveButton, menuButton]
+    }
+    
+    @objc private func showBodyEditorOptions() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Body Editor", style: .default) { [weak self] _ in
+            self?.openKeyValueEditor()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Clear Body", style: .destructive) { [weak self] _ in
+            self?.bodyTextView.text = ""
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        if let popover = alert.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItems?.last
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func openKeyValueEditor() {
+        let body = (bodyTextView.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? "{}"
+            : (bodyTextView.text ?? "")
+        guard let editor = BodyEditorViewController(body: body, onSave: { [weak self] updatedJSON in
+            self?.bodyTextView.text = updatedJSON
+        }) else {
+            showInvalidJSONAlert()
+            return
+        }
+        
+        navigationController?.pushViewController(editor, animated: true)
     }
     
     @objc private func saveTapped() {
@@ -150,6 +196,7 @@ final class RewriteRuleEditViewController: BaseController {
         }
         
         let body = bodyTextView.text ?? ""
+        
         let rule = ResponseBodyRewriteRule(
             urlPattern: pattern,
             responseBody: body,
@@ -157,5 +204,9 @@ final class RewriteRuleEditViewController: BaseController {
         )
         onSave(rule)
         navigationController?.popViewController(animated: true)
+    }
+    
+    private func showInvalidJSONAlert() {
+        showAlert(with: "Body must be a valid JSON object or array", title: "Invalid JSON")
     }
 }

@@ -111,10 +111,7 @@ final class DeepLinkViewModel {
     
     func getQuickTestURLs() -> [String] {
         return [
-            "debugswift://test",
             "debugswift://profile/123",
-            "debugswift://settings",
-            "https://www.apple.com",
             "https://github.com/DebugSwift/DebugSwift"
         ]
     }
