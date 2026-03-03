@@ -29,14 +29,15 @@ final class NetworkInjectionSettingsController: BaseTableController {
     
     private var delayConfig: RequestDelayConfig
     private var failureConfig: NetworkFailureConfig
-    private var rewriteConfig: ResponseBodyRewriteConfig
+    private var rewriteConfig: ResponseBodyRewriteConfig {
+        NetworkInjectionManager.shared.getRewriteConfig()
+    }
     
     // MARK: - Initialization
     
     override init() {
         self.delayConfig = NetworkInjectionManager.shared.getDelayConfig()
         self.failureConfig = NetworkInjectionManager.shared.getFailureConfig()
-        self.rewriteConfig = NetworkInjectionManager.shared.getRewriteConfig()
         super.init()
     }
     
@@ -65,7 +66,6 @@ final class NetworkInjectionSettingsController: BaseTableController {
     @objc private func saveSettings() {
         NetworkInjectionManager.shared.setDelayConfig(delayConfig)
         NetworkInjectionManager.shared.setFailureConfig(failureConfig)
-        NetworkInjectionManager.shared.setRewriteConfig(rewriteConfig)
         
         let alert = UIAlertController(
             title: "Settings Applied",
@@ -270,14 +270,16 @@ final class NetworkInjectionSettingsController: BaseTableController {
     }
     
     @objc private func rewriteToggled(_ sender: UISwitch) {
-        rewriteConfig.isEnabled = sender.isOn
+        var config = rewriteConfig
+        config.isEnabled = sender.isOn
+        NetworkInjectionManager.shared.setRewriteConfig(config)
         tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
     }
     
-    private func updateRewriteRules() {
-        var persistedConfig = NetworkInjectionManager.shared.getRewriteConfig()
-        persistedConfig.rules = rewriteConfig.rules
-        NetworkInjectionManager.shared.setRewriteConfig(persistedConfig)
+    private func updateRewriteRules(_ rules: [ResponseBodyRewriteRule]) {
+        var config = rewriteConfig
+        config.rules = rules
+        NetworkInjectionManager.shared.setRewriteConfig(config)
     }
     
     private func handleDelaySelection(row: Int) {
@@ -515,7 +517,11 @@ final class NetworkInjectionSettingsController: BaseTableController {
     }
     
     private func showRewriteRulesMenu() {
-        let alert = UIAlertController(title: "Rewrite Rules", message: "Each rule has URL wildcard + replacement body", preferredStyle: .actionSheet)
+        let alert = UIAlertController(
+            title: "Rewrite Rules",
+            message: "Each rule has URL wildcard + replacement body + optional status code override",
+            preferredStyle: .actionSheet
+        )
         
         alert.addAction(UIAlertAction(title: "Add Rule", style: .default) { [weak self] _ in
             self?.showRewriteRuleEditor()
@@ -531,8 +537,7 @@ final class NetworkInjectionSettingsController: BaseTableController {
             })
             
             alert.addAction(UIAlertAction(title: "Clear All Rules", style: .destructive) { [weak self] _ in
-                self?.rewriteConfig.rules.removeAll()
-                self?.updateRewriteRules()
+                self?.updateRewriteRules([])
                 self?.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
             })
         }
@@ -557,8 +562,9 @@ final class NetworkInjectionSettingsController: BaseTableController {
                 case .edit:
                     self.showRewriteRuleEditor(existingRule: rule, editIndex: index)
                 case .delete:
-                    self.rewriteConfig.rules.remove(at: index)
-                    self.updateRewriteRules()
+                    var updatedRules = self.rewriteConfig.rules
+                    updatedRules.remove(at: index)
+                    self.updateRewriteRules(updatedRules)
                     self.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
                 }
             })
@@ -575,12 +581,13 @@ final class NetworkInjectionSettingsController: BaseTableController {
         navigationItem.backButtonDisplayMode = .default
         let editor = RewriteRuleEditViewController(rule: existingRule) { [weak self] updatedRule in
             guard let self = self else { return }
+            var updatedRules = self.rewriteConfig.rules
             if let editIndex {
-                self.rewriteConfig.rules[editIndex] = updatedRule
+                updatedRules[editIndex] = updatedRule
             } else {
-                self.rewriteConfig.rules.append(updatedRule)
+                updatedRules.append(updatedRule)
             }
-            self.updateRewriteRules()
+            self.updateRewriteRules(updatedRules)
             self.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
         }
         navigationController?.pushViewController(editor, animated: true)

@@ -358,8 +358,11 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
             }
 
             var interceptedResponse = response
-            if let httpResponse = response as? HTTPURLResponse, self.matchedRewriteRule != nil {
-                interceptedResponse = self.removeContentLengthHeader(from: httpResponse) ?? response
+            if let httpResponse = response as? HTTPURLResponse, let matchedRewriteRule = self.matchedRewriteRule {
+                interceptedResponse = self.rewriteResponse(
+                    from: httpResponse,
+                    using: matchedRewriteRule
+                ) ?? response
             }
             
             DebugSwift.Network.shared.delegate?.urlSession(
@@ -441,7 +444,10 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         }
     }
     
-    private func removeContentLengthHeader(from response: HTTPURLResponse) -> HTTPURLResponse? {
+    private func rewriteResponse(
+        from response: HTTPURLResponse,
+        using rule: ResponseBodyRewriteRule
+    ) -> HTTPURLResponse? {
         guard let responseURL = response.url ?? request.url else { return nil }
         
         var headers = [String: String]()
@@ -455,7 +461,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         
         return HTTPURLResponse(
             url: responseURL,
-            statusCode: response.statusCode,
+            statusCode: rule.responseStatusCode ?? response.statusCode,
             httpVersion: "HTTP/1.1",
             headerFields: headers
         )

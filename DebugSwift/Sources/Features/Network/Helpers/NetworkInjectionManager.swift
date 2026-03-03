@@ -11,12 +11,19 @@ import Foundation
 final class NetworkInjectionManager: @unchecked Sendable {
     static let shared = NetworkInjectionManager()
     
+    private enum PersistenceKeys {
+        static let rewriteRules = "DebugSwift.NetworkInjection.RewriteRules"
+    }
+    
     private let queue = DispatchQueue(label: "com.debugswift.injection", attributes: .concurrent)
     private var _delayConfig: RequestDelayConfig = RequestDelayConfig()
     private var _failureConfig: NetworkFailureConfig = NetworkFailureConfig()
     private var _rewriteConfig: ResponseBodyRewriteConfig = ResponseBodyRewriteConfig()
     
-    private init() {}
+    private init() {
+        _rewriteConfig.isEnabled = false
+        _rewriteConfig.rules = loadPersistedRewriteRules()
+    }
     
     // MARK: - Delay Injection
     
@@ -73,8 +80,12 @@ final class NetworkInjectionManager: @unchecked Sendable {
     // MARK: - Response Body Rewrite
     
     func setRewriteConfig(_ config: ResponseBodyRewriteConfig) {
-        queue.async(flags: .barrier) { [weak self] in
-            self?._rewriteConfig = config
+        queue.sync(flags: .barrier) {
+            let previousRules = _rewriteConfig.rules
+            _rewriteConfig = config
+            if previousRules != config.rules {
+                persistRewriteRules(config.rules)
+            }
         }
         Debug.print("✏️ Rewrite config updated: enabled=\(config.isEnabled), rules=\(config.rules.count)")
     }
@@ -86,5 +97,24 @@ final class NetworkInjectionManager: @unchecked Sendable {
     func matchingRewriteRule(for request: URLRequest) -> ResponseBodyRewriteRule? {
         let config = getRewriteConfig()
         return config.matchingRule(for: request)
+    }
+    
+    private func loadPersistedRewriteRules() -> [ResponseBodyRewriteRule] {
+        if let data = UserDefaults.standard.data(forKey: PersistenceKeys.rewriteRules),
+           let decoded = try? JSONDecoder().decode([ResponseBodyRewriteRule].self, from: data) {
+            return decoded
+        }
+        return []
+    }
+    
+    private func persistRewriteRules(_ rules: [ResponseBodyRewriteRule]) {
+        if rules.isEmpty {
+            UserDefaults.standard.removeObject(forKey: PersistenceKeys.rewriteRules)
+            return
+        }
+        
+        if let encoded = try? JSONEncoder().encode(rules) {
+            UserDefaults.standard.set(encoded, forKey: PersistenceKeys.rewriteRules)
+        }
     }
 }

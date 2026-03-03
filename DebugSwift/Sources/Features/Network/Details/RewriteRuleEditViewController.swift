@@ -35,6 +35,17 @@ final class RewriteRuleEditViewController: BaseController {
         return textView
     }()
     
+    private lazy var statusCodeField: UITextField = {
+        let textField = UITextField()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.placeholder = "Optional (e.g. 404)"
+        textField.borderStyle = .roundedRect
+        textField.backgroundColor = .secondarySystemBackground
+        textField.textColor = .label
+        textField.keyboardType = .numberPad
+        return textField
+    }()
+    
     init(rule: ResponseBodyRewriteRule?, onSave: @escaping (ResponseBodyRewriteRule) -> Void) {
         self.existingRule = rule
         self.onSave = onSave
@@ -52,7 +63,7 @@ final class RewriteRuleEditViewController: BaseController {
         
         let patternLabel = UILabel()
         patternLabel.translatesAutoresizingMaskIntoConstraints = false
-        patternLabel.text = "URL Pattern"
+        patternLabel.text = "URL or Pattern"
         patternLabel.textColor = .white
         patternLabel.font = .preferredFont(forTextStyle: .headline)
         
@@ -62,8 +73,16 @@ final class RewriteRuleEditViewController: BaseController {
         bodyLabel.textColor = .white
         bodyLabel.font = .preferredFont(forTextStyle: .headline)
         
+        let statusCodeLabel = UILabel()
+        statusCodeLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusCodeLabel.text = "Status Code"
+        statusCodeLabel.textColor = .white
+        statusCodeLabel.font = .preferredFont(forTextStyle: .headline)
+        
         view.addSubview(patternLabel)
         view.addSubview(patternField)
+        view.addSubview(statusCodeLabel)
+        view.addSubview(statusCodeField)
         view.addSubview(bodyLabel)
         view.addSubview(bodyTextView)
         
@@ -77,7 +96,16 @@ final class RewriteRuleEditViewController: BaseController {
             patternField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             patternField.heightAnchor.constraint(equalToConstant: 44),
             
-            bodyLabel.topAnchor.constraint(equalTo: patternField.bottomAnchor, constant: 16),
+            statusCodeLabel.topAnchor.constraint(equalTo: patternField.bottomAnchor, constant: 16),
+            statusCodeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            statusCodeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            statusCodeField.topAnchor.constraint(equalTo: statusCodeLabel.bottomAnchor, constant: 8),
+            statusCodeField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            statusCodeField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            statusCodeField.heightAnchor.constraint(equalToConstant: 44),
+            
+            bodyLabel.topAnchor.constraint(equalTo: statusCodeField.bottomAnchor, constant: 16),
             bodyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             bodyLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
@@ -90,6 +118,9 @@ final class RewriteRuleEditViewController: BaseController {
         if let existingRule {
             patternField.text = existingRule.urlPattern
             bodyTextView.text = existingRule.responseBody
+            if let responseStatusCode = existingRule.responseStatusCode {
+                statusCodeField.text = "\(responseStatusCode)"
+            }
         }
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -107,8 +138,23 @@ final class RewriteRuleEditViewController: BaseController {
             return
         }
         
+        let statusCodeText = (statusCodeField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let statusCode: Int?
+        if statusCodeText.isEmpty {
+            statusCode = nil
+        } else if let parsedStatusCode = Int(statusCodeText), (100...599).contains(parsedStatusCode) {
+            statusCode = parsedStatusCode
+        } else {
+            showAlert(with: "Status code must be between 100 and 599", title: "Error")
+            return
+        }
+        
         let body = bodyTextView.text ?? ""
-        let rule = ResponseBodyRewriteRule(urlPattern: pattern, responseBody: body)
+        let rule = ResponseBodyRewriteRule(
+            urlPattern: pattern,
+            responseBody: body,
+            responseStatusCode: statusCode
+        )
         onSave(rule)
         navigationController?.popViewController(animated: true)
     }
