@@ -222,6 +222,9 @@ final class NetworkViewControllerDetail: BaseTableController {
         tableView.register(DetailNavigationCell.self, forCellReuseIdentifier: "DetailNavigationCell")
         tableView.separatorStyle = .singleLine
         tableView.separatorColor = .darkGray
+        
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        tableView.addGestureRecognizer(longPress)
     }
 
     // MARK: - UITableViewDataSource
@@ -275,6 +278,21 @@ final class NetworkViewControllerDetail: BaseTableController {
         case .none:
             break
         }
+    }
+    
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else { return }
+        
+        let point = gesture.location(in: tableView)
+        guard let indexPath = tableView.indexPathForRow(at: point) else { return }
+        
+        let item = filteredSections[indexPath.section].items[indexPath.row]
+        guard item.type == .info,
+              let value = item.value,
+              !value.isEmpty else { return }
+        
+        UIPasteboard.general.string = value
+        showToast(message: "Copied to clipboard")
     }
 
     private func showHeaders(_ headers: [String: Any]?, title: String) {

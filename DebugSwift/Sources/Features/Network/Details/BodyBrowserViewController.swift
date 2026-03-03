@@ -64,7 +64,7 @@ final class BodyBrowserViewController: BaseTableController {
             image: UIImage(systemName: "doc.on.doc"),
             style: .plain,
             target: self,
-            action: #selector(copyAll)
+            action: #selector(showCopyOptions)
         )
     }
     
@@ -267,13 +267,38 @@ final class BodyBrowserViewController: BaseTableController {
         showCopyConfirmation()
     }
     
-    @objc private func copyAll() {
+    @objc private func showCopyOptions() {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Copy Body", style: .default) { [weak self] _ in
+            self?.copyBodyContent()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Copy JSON Body", style: .default) { [weak self] _ in
+            self?.copyJSONBody()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        if let popover = alert.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItem
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func copyBodyContent() {
         if isStructuredData {
             let text = items.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
             UIPasteboard.general.string = text
         } else {
             UIPasteboard.general.string = textView.text
         }
+        showCopyConfirmation()
+    }
+    
+    private func copyJSONBody() {
+        UIPasteboard.general.string = data?.formattedString() ?? "No data"
         showCopyConfirmation()
     }
     
