@@ -266,7 +266,7 @@ final class NetworkViewControllerDetail: BaseTableController {
         case .showRequestHeaders:
             showHeaders(model.requestHeaderFields, title: "Request Headers")
         case .showRequestQueryParams:
-            showHeaders(parsedRequestQueryParams(), title: "Request Params")
+            showHeaders(parsedRequestQueryParams(), title: "Request Query Params")
         case .showResponseHeaders:
             showHeaders(model.responseHeaderFields, title: "Response Headers")
         case .showRequestBody:
@@ -428,7 +428,7 @@ extension NetworkViewControllerDetail {
             let queryItems = model.url
                 .flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false)?.queryItems } ?? []
             if !queryItems.isEmpty {
-                requestItems.append(DetailItem(title: "Request Params", action: .showRequestQueryParams, badge: "\(queryItems.count)"))
+                requestItems.append(DetailItem(title: "Request Query Params", action: .showRequestQueryParams, badge: "\(queryItems.count)"))
             }
             
             if let requestData = model.requestData, !requestData.isEmpty {

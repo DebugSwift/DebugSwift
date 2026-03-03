@@ -97,7 +97,7 @@ final class HeadersViewController: BaseTableController {
         let search = UISearchController(searchResultsController: nil)
         search.searchResultsUpdater = self
         search.obscuresBackgroundDuringPresentation = false
-        search.searchBar.placeholder = "Search headers..."
+        search.searchBar.placeholder = "Search key or value..."
         search.hidesNavigationBarDuringPresentation = false
         
         navigationItem.searchController = search
@@ -257,4 +257,3 @@ final class HeaderCell: UITableViewCell {
         }
     }
 }
-
