@@ -10,6 +10,8 @@ import UIKit
 
 final class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
     var transitionCtx: UIViewControllerContextTransitioning?
+    private weak var maskedFromView: UIView?
+    private weak var maskedToView: UIView?
 
     func transitionDuration(using _: UIViewControllerContextTransitioning?)
         -> TimeInterval {
@@ -31,6 +33,10 @@ final class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
         }
 
         let containerView = transitionContext.containerView
+        fromVC.view.layer.mask = nil
+        toVC.view.layer.mask = nil
+        maskedFromView = fromVC.view
+        maskedToView = toVC.view
         containerView.addSubview(fromVC.view)
         containerView.addSubview(toVC.view)
 
@@ -71,6 +77,8 @@ final class TransitionPush: NSObject, UIViewControllerAnimatedTransitioning {
 extension TransitionPush: CAAnimationDelegate {
     nonisolated func animationDidStop(_: CAAnimation, finished _: Bool) {
         Task { @MainActor in
+            maskedFromView?.layer.mask = nil
+            maskedToView?.layer.mask = nil
             transitionCtx?.completeTransition(true)
             transitionCtx?.view(forKey: UITransitionContextViewKey.from)?.layer.mask = nil
             transitionCtx?.view(forKey: UITransitionContextViewKey.to)?.layer.mask = nil
