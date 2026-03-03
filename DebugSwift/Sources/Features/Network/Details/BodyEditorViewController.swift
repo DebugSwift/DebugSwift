@@ -12,7 +12,9 @@ final class BodyEditorViewController: BaseTableController {
 
     private var editableJSONObject: Any
     private var items: [FlattenedItem] = []
+    private var displayedItems: [FlattenedItem] = []
     private var searchText = ""
+    private var searchRequestID: Int = 0
 
     init?(body: String, onSave: @escaping (String) -> Void) {
         guard let jsonObject = Self.parseJSONObjectOrArray(from: body) else {
@@ -58,7 +60,7 @@ final class BodyEditorViewController: BaseTableController {
 
     private func reloadItems() {
         items = flatten(value: editableJSONObject)
-        tableView.reloadData()
+        updateDisplayedItems(for: searchText)
     }
 
     @objc private func saveTapped() {
@@ -125,15 +127,30 @@ final class BodyEditorViewController: BaseTableController {
         reloadItems()
     }
 
-    private var displayedItems: [FlattenedItem] {
-        guard !searchText.isEmpty else { return items }
-        let query = searchText.lowercased()
-        return items.filter { item in
-            if item.displayKey.lowercased().contains(query) || item.value.lowercased().contains(query) {
-                return true
+    private func updateDisplayedItems(for searchText: String) {
+        searchRequestID += 1
+        let requestID = searchRequestID
+
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !query.isEmpty else {
+            displayedItems = items
+            tableView.reloadData()
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { [weak self] in
+            guard let self = self, self.searchRequestID == requestID else { return }
+            let sourceItems = self.items
+            DispatchQueue.global(qos: .userInitiated).async {
+                let filteredItems = sourceItems.filter { $0.searchableText.contains(query) }
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self, self.searchRequestID == requestID else { return }
+                    let currentQuery = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                    guard currentQuery == query else { return }
+                    self.displayedItems = filteredItems
+                    self.tableView.reloadData()
+                }
             }
-            let keyComponents = item.displayKey.components(separatedBy: CharacterSet(charactersIn: ".[]"))
-            return keyComponents.contains { !$0.isEmpty && $0.lowercased().contains(query) }
         }
     }
 
@@ -161,7 +178,8 @@ final class BodyEditorViewController: BaseTableController {
                         FlattenedItem(
                             displayKey: fullKey,
                             value: "null",
-                            pathTokens: pathTokens + [.key(key)]
+                            pathTokens: pathTokens + [.key(key)],
+                            searchableText: makeSearchableText(displayKey: fullKey, value: "null")
                         )
                     )
                 }
@@ -189,7 +207,8 @@ final class BodyEditorViewController: BaseTableController {
                 FlattenedItem(
                     displayKey: prefix,
                     value: valueString,
-                    pathTokens: pathTokens
+                    pathTokens: pathTokens,
+                    searchableText: makeSearchableText(displayKey: prefix, value: valueString)
                 )
             )
         }
@@ -284,13 +303,21 @@ final class BodyEditorViewController: BaseTableController {
 
         return rawValue
     }
+
+    private func makeSearchableText(displayKey: String, value: String) -> String {
+        let keyComponents = displayKey.components(separatedBy: CharacterSet(charactersIn: ".[]"))
+            .filter { !$0.isEmpty }
+        return ([displayKey, value] + keyComponents)
+            .joined(separator: " ")
+            .lowercased()
+    }
     
 }
 
 extension BodyEditorViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         self.searchText = searchController.searchBar.text ?? ""
-        tableView.reloadData()
+        updateDisplayedItems(for: searchText)
     }
 }
 
@@ -303,4 +330,5 @@ private struct FlattenedItem {
     let displayKey: String
     let value: String
     let pathTokens: [JSONPathToken]
+    let searchableText: String
 }
