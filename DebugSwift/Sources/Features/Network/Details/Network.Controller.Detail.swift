@@ -297,6 +297,8 @@ final class NetworkViewControllerDetail: BaseTableController {
         switch item.action {
         case .showRequestHeaders:
             showHeaders(model.requestHeaderFields, title: "Request Headers")
+        case .showRequestQueryParams:
+            showHeaders(parsedRequestQueryParams(), title: "Request Query Params")
         case .showResponseHeaders:
             showHeaders(model.responseHeaderFields, title: "Response Headers")
         case .showRequestBody:
@@ -341,6 +343,25 @@ final class NetworkViewControllerDetail: BaseTableController {
         let vc = RawBodyViewController(data: data, headers: headers, title: title, isRequest: isRequest)
         navigationController?.pushViewController(vc, animated: true)
     }
+
+    private func parsedRequestQueryParams() -> [String: Any]? {
+        let queryItems = model.url
+            .flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false)?.queryItems } ?? []
+        guard !queryItems.isEmpty else { return nil }
+
+        var params: [String: Any] = [:]
+        var duplicateKeyCounter: [String: Int] = [:]
+
+        for item in queryItems {
+            let count = duplicateKeyCounter[item.name, default: 0]
+            duplicateKeyCounter[item.name] = count + 1
+
+            let key = count == 0 ? item.name : "\(item.name) [\(count + 1)]"
+            params[key] = item.value ?? ""
+        }
+
+        return params
+    }
 }
 
 // MARK: - Detail Section Models
@@ -353,6 +374,7 @@ extension NetworkViewControllerDetail {
     
     enum ItemAction {
         case showRequestHeaders
+        case showRequestQueryParams
         case showResponseHeaders
         case showRequestBody
         case showRequestBodyRaw
@@ -434,6 +456,12 @@ extension NetworkViewControllerDetail {
             var requestItems: [DetailItem] = [
                 DetailItem(title: "Request Headers", action: .showRequestHeaders, badge: "\(requestHeadersCount)"),
             ]
+
+            let queryItems = model.url
+                .flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false)?.queryItems } ?? []
+            if !queryItems.isEmpty {
+                requestItems.append(DetailItem(title: "Request Query Params", action: .showRequestQueryParams, badge: "\(queryItems.count)"))
+            }
             
             if let requestData = model.requestData, !requestData.isEmpty {
                 let bodyCount = countBodyItems(data: requestData)
