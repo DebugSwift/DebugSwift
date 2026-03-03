@@ -157,8 +157,8 @@ final class DeepLinkViewModelTests: XCTestCase {
         let urls = sut.getQuickTestURLs()
 
         // Then
-        XCTAssertTrue(urls.contains("debugswift://test"))
-        XCTAssertTrue(urls.contains("https://www.apple.com"))
+        XCTAssertTrue(urls.contains("debugswift://profile/123"))
+        XCTAssertTrue(urls.contains("https://github.com/DebugSwift/DebugSwift"))
     }
 
     // MARK: - clearHistory Tests
