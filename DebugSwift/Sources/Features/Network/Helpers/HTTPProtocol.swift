@@ -10,6 +10,8 @@ import Foundation
 
 public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private static let requestProperty = "com.custom.http.protocol"
+    
+    // Test comment to verify per-file coverage reporting
 
     public final class func clearCache() {
         URLCache.customHttp.removeAllCachedResponses()
