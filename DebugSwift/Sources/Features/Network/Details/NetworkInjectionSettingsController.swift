@@ -101,6 +101,16 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return Section(rawValue: section)?.title
     }
+
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        guard let sectionType = Section(rawValue: section) else { return nil }
+        switch sectionType {
+        case .rewrite:
+            return "Warning: Broad wildcard patterns (such as *) and many rewrite rules can reduce network matching performance."
+        case .delay, .failure:
+            return nil
+        }
+    }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let section = Section(rawValue: indexPath.section) else {
@@ -520,7 +530,7 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
     private func showRewriteRulesMenu() {
         let alert = UIAlertController(
             title: "Rewrite Rules",
-            message: "Each rule has URL wildcard + replacement body + optional status code override",
+            message: "Match URLs/patterns and modify the response. Use exact URLs when possible.",
             preferredStyle: .actionSheet
         )
         
