@@ -1,19 +1,27 @@
 name: CI and Danger
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
     branches:
       - main
 
 jobs:
   ci:
     name: CI Build, Tests & Danger
-    permissions: write-all
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      statuses: write
     runs-on: macos-15
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
