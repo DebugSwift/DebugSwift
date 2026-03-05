@@ -253,28 +253,23 @@ fileprivate extension UnitTestValidator {
         
         let minimumCoverage = 70.0
         
-        // Report overall coverage
+        // Report overall coverage (info only, no warning on overall)
         if foundTarget && debugSwiftCoverage > 0 {
-            let coverageMessage = String(format: "📊 **Overall Code Coverage**: %.1f%% (%d/%d lines)", 
+            let coverageMessage = String(format: "Overall Code Coverage: %.1f%% (%d/%d lines)", 
                                         debugSwiftCoverage, 
                                         coveredLines, 
                                         totalLines)
-            
-            if debugSwiftCoverage < minimumCoverage {
-                warn("⚠️ \(coverageMessage) - Below minimum threshold of \(Int(minimumCoverage))%")
-            } else {
-                message("✅ \(coverageMessage)")
-            }
+            message(coverageMessage)
         } else {
             warn("⚠️ No coverage data found. Available targets: \(targetNames.joined(separator: ", "))")
             return
         }
         
-        // Report per-file coverage for modified Swift files
-        checkModifiedFilesCoverage(xcresultPath: xcresultPath, targets: targets)
+        // Report per-file coverage for modified Swift files (with warnings)
+        checkModifiedFilesCoverage(xcresultPath: xcresultPath, targets: targets, minimumCoverage: minimumCoverage)
     }
     
-    func checkModifiedFilesCoverage(xcresultPath: String, targets: [[String: Any]]) {
+    func checkModifiedFilesCoverage(xcresultPath: String, targets: [[String: Any]], minimumCoverage: Double) {
         // Get modified Swift files from PR
         let modifiedSwiftFiles = danger.git.modifiedFiles.filter { $0.hasSuffix(".swift") && $0.isInSources }
         let createdSwiftFiles = danger.git.createdFiles.filter { $0.hasSuffix(".swift") && $0.isInSources }
@@ -332,17 +327,35 @@ fileprivate extension UnitTestValidator {
             coverageReport += "| File | Coverage | Lines |\n"
             coverageReport += "|------|----------|-------|\n"
             
+            var lowCoverageFiles: [String] = []
+            
             for fileData in fileCoverageData.sorted(by: { $0.coverage < $1.coverage }) {
-                let emoji = fileData.coverage >= 70 ? "✅" : "⚠️"
+                let emoji = fileData.coverage >= minimumCoverage ? "✅" : "⚠️"
                 coverageReport += String(format: "| %@ `%@` | %.1f%% | %d/%d |\n",
                                        emoji,
                                        fileData.file,
                                        fileData.coverage,
                                        fileData.covered,
                                        fileData.total)
+                
+                // Track files with low coverage
+                if fileData.coverage < minimumCoverage {
+                    lowCoverageFiles.append(String(format: "`%@` (%.1f%%)", fileData.file, fileData.coverage))
+                }
             }
             
             message(coverageReport)
+            
+            // Warn about files with low coverage
+            if !lowCoverageFiles.isEmpty {
+                let warningMessage = """
+                ⚠️ **Low Coverage Alert**: The following changed files have coverage below \(Int(minimumCoverage))%:
+                \(lowCoverageFiles.joined(separator: ", "))
+                
+                Please add tests to improve coverage for these files.
+                """
+                warn(warningMessage)
+            }
         }
     }
 }
