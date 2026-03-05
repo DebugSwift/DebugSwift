@@ -26,7 +26,8 @@ extension DebugSwift {
                         PerformanceViewController(),
                         InterfaceViewController(),
                         ResourcesViewController(),
-                        AppViewController()
+                        AppViewController(),
+                        ObjectExplorerViewController()
                     ]
                 }
                 return _defaultControllers!

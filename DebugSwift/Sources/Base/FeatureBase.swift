@@ -18,6 +18,7 @@ public enum DebugSwiftFeature: String, CaseIterable {
     case interface
     case resources
     case app
+    case objectExplorer
 }
 
 public enum DebugSwiftSwizzleFeature: String, CaseIterable {

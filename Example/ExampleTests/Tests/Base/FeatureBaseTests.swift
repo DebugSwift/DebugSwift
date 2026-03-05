@@ -12,7 +12,7 @@ class FeatureBaseTests: XCTestCase {
 
     func testDebugSwiftFeature_allCases() {
         // Given
-        let expectedCases: [DebugSwiftFeature] = [.network, .performance, .interface, .resources, .app]
+        let expectedCases: [DebugSwiftFeature] = [.network, .performance, .interface, .resources, .app, .objectExplorer]
 
         // When
         let allCases = DebugSwiftFeature.allCases
