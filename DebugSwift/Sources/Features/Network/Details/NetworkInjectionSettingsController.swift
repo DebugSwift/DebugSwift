@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import UniformTypeIdentifiers
 
-final class NetworkInjectionSettingsController: BaseTableController {
+final class NetworkInjectionSettingsController: BaseTableController, UIDocumentPickerDelegate {
     
     // MARK: - Sections
     
@@ -526,6 +527,14 @@ final class NetworkInjectionSettingsController: BaseTableController {
         alert.addAction(UIAlertAction(title: "Add Rule", style: .default) { [weak self] _ in
             self?.showRewriteRuleEditor()
         })
+
+        alert.addAction(UIAlertAction(title: "Export CSV", style: .default) { [weak self] _ in
+            self?.exportRewriteRulesCSV()
+        })
+
+        alert.addAction(UIAlertAction(title: "Import CSV", style: .default) { [weak self] _ in
+            self?.importRewriteRulesCSV()
+        })
         
         if !rewriteConfig.rules.isEmpty {
             alert.addAction(UIAlertAction(title: "Edit Rule", style: .default) { [weak self] _ in
@@ -585,13 +594,139 @@ final class NetworkInjectionSettingsController: BaseTableController {
             if let editIndex {
                 updatedRules[editIndex] = updatedRule
             } else {
-                updatedRules.append(updatedRule)
+                if let existingIndex = updatedRules.firstIndex(where: { $0.urlPattern == updatedRule.urlPattern }) {
+                    updatedRules[existingIndex] = updatedRule
+                } else {
+                    updatedRules.append(updatedRule)
+                }
             }
             self.updateRewriteRules(updatedRules)
             self.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
         }
         navigationController?.pushViewController(editor, animated: true)
     }
+
+    private func exportRewriteRulesCSV() {
+        let csv = RewriteRulesCSV.export(rules: rewriteConfig.rules)
+        guard let data = csv.data(using: .utf8) else {
+            return
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd_HHmmss"
+        let fileName = "rewrite_rules_\(formatter.string(from: Date())).csv"
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+
+        do {
+            try data.write(to: fileURL, options: [.atomic])
+        } catch {
+            let alert = UIAlertController(
+                title: "Export Error",
+                message: error.localizedDescription,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+
+        let activityViewController = UIActivityViewController(
+            activityItems: [fileURL],
+            applicationActivities: nil
+        )
+        activityViewController.completionWithItemsHandler = { _, _, _, _ in
+            try? FileManager.default.removeItem(at: fileURL)
+        }
+
+        if let popover = activityViewController.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(
+                x: view.bounds.midX,
+                y: view.bounds.maxY - 1,
+                width: 1,
+                height: 1
+            )
+        }
+
+        present(activityViewController, animated: true)
+    }
+
+    private func importRewriteRulesCSV() {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.commaSeparatedText, .plainText])
+        picker.delegate = self
+        picker.allowsMultipleSelection = false
+        present(picker, animated: true)
+    }
+
+    private func applyImportedRewriteRules(_ importedRules: [ResponseBodyRewriteRule]) -> (created: Int, updated: Int) {
+        var mergedRules = rewriteConfig.rules
+        var created = 0
+        var updated = 0
+
+        for importedRule in importedRules {
+            if let existingIndex = mergedRules.firstIndex(where: { $0.urlPattern == importedRule.urlPattern }) {
+                mergedRules[existingIndex] = importedRule
+                updated += 1
+            } else {
+                mergedRules.append(importedRule)
+                created += 1
+            }
+        }
+
+        updateRewriteRules(mergedRules)
+        tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
+        return (created, updated)
+    }
+
+    private func showCSVImportResult(created: Int, updated: Int) {
+        let alert = UIAlertController(
+            title: "Import Complete",
+            message: "Created \(created) rule(s), updated \(updated) rule(s).",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func showCSVImportError(_ error: Error) {
+        let alert = UIAlertController(
+            title: "Import Error",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let fileURL = urls.first else { return }
+
+        let hasAccess = fileURL.startAccessingSecurityScopedResource()
+        defer {
+            if hasAccess {
+                fileURL.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        do {
+            let data = try Data(contentsOf: fileURL)
+            guard let csvText = String(data: data, encoding: .utf8) else {
+                throw NSError(
+                    domain: "DebugSwift.NetworkInjection",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "CSV file must be UTF-8 encoded."]
+                )
+            }
+
+            let importedRules = try RewriteRulesCSV.parse(csvText)
+            let result = applyImportedRewriteRules(importedRules)
+            showCSVImportResult(created: result.created, updated: result.updated)
+        } catch {
+            showCSVImportError(error)
+        }
+    }
+
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {}
 }
 
 // MARK: - FailureType Extension

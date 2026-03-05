@@ -492,6 +492,139 @@ final class NetworkInjectionConfigTests: XCTestCase {
         
         XCTAssertEqual(decoded, rule)
     }
+
+    func testRewriteRulesCSVExportIncludesHeaderAndEscapesFields() {
+        let rules = [
+            ResponseBodyRewriteRule(
+                urlPattern: "https://api.example.com/users/*",
+                responseBody: "{\"name\":\"A,B\"}",
+                responseStatusCode: 201
+            ),
+            ResponseBodyRewriteRule(
+                urlPattern: "https://api.example.com/plain",
+                responseBody: "line1\nline2",
+                responseStatusCode: nil
+            )
+        ]
+
+        let csv = RewriteRulesCSV.export(rules: rules)
+
+        XCTAssertTrue(csv.hasPrefix("url_pattern,response_status_code,response_body\n"))
+        XCTAssertTrue(csv.contains("\"{\"\"name\"\":\"\"A,B\"\"}\""))
+        XCTAssertTrue(csv.contains("\"line1\nline2\""))
+    }
+
+    func testRewriteRulesCSVParseReadsQuotedRowsAndOptionalStatusCode() throws {
+        let csv = """
+url_pattern,response_status_code,response_body
+https://api.example.com/users/*,200,"{""ok"":true}"
+https://api.example.com/plain,,"line1
+line2"
+"""
+
+        let rules = try RewriteRulesCSV.parse(csv)
+
+        XCTAssertEqual(rules.count, 2)
+        XCTAssertEqual(rules[0].urlPattern, "https://api.example.com/users/*")
+        XCTAssertEqual(rules[0].responseStatusCode, 200)
+        XCTAssertEqual(rules[0].responseBody, "{\"ok\":true}")
+        XCTAssertEqual(rules[1].responseStatusCode, nil)
+        XCTAssertEqual(rules[1].responseBody, "line1\nline2")
+    }
+
+    func testRewriteRulesCSVParseRejectsInvalidHeader() {
+        let csv = """
+url,response_status_code,response_body
+https://api.example.com/*,200,ok
+"""
+
+        XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .invalidHeader)
+        }
+    }
+
+    func testRewriteRulesCSVParseRejectsEmptyFile() {
+        XCTAssertThrowsError(try RewriteRulesCSV.parse("")) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .emptyFile)
+        }
+    }
+
+    func testRewriteRulesCSVParseRejectsInvalidDelimiterFormat() {
+        let csv = """
+url_pattern;response_status_code;response_body
+https://api.example.com/*;200;ok
+"""
+
+        XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .invalidHeader)
+        }
+    }
+
+    func testRewriteRulesCSVParseRejectsInvalidStatusCode() {
+        let csv = """
+url_pattern,response_status_code,response_body
+https://api.example.com/*,abc,ok
+"""
+
+        XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .invalidStatusCode(row: 2))
+        }
+    }
+
+    func testRewriteRulesCSVParseRejectsEmptyURLPattern() {
+        let csv = """
+url_pattern,response_status_code,response_body
+,200,ok
+"""
+
+        XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .emptyURLPattern(row: 2))
+        }
+    }
+
+    func testRewriteRulesCSVParseRejectsMissingColumn() {
+        let csv = """
+url_pattern,response_status_code,response_body
+https://api.example.com/*,200
+"""
+
+        XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .invalidColumnCount(row: 2))
+        }
+    }
+
+    func testRewriteRulesCSVParseRejectsExtraColumn() {
+        let csv = """
+url_pattern,response_status_code,response_body
+https://api.example.com/*,200,ok,extra
+"""
+
+        XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .invalidColumnCount(row: 2))
+        }
+    }
+
+    func testRewriteRulesCSVParseRejectsMalformedQuotes() {
+        let csv = """
+url_pattern,response_status_code,response_body
+https://api.example.com/*,200,"{"ok":true}"
+"""
+
+        XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .invalidCSVFormat(row: 2))
+        }
+    }
+
+    func testRewriteRulesCSVParseRejectsUnclosedQuotedField() {
+        let csv = """
+url_pattern,response_status_code,response_body
+https://api.example.com/*,200,"{"ok":true}
+"""
+
+        XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
+            XCTAssertEqual(error as? RewriteRulesCSVError, .invalidCSVFormat(row: 2))
+        }
+    }
     
     // MARK: - URL Wildcard Matcher Real-world Scenarios
     
