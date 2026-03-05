@@ -21,6 +21,10 @@ struct ExampleApp: App {
                 .onAppear() {
                     DebugSwift.PushNotification.enableSimulation()
                 }
+                .onOpenURL { url in
+                    print("🔗 [SwiftUI] onOpenURL called with: \(url.absoluteString)")
+                    appDelegate.handleDeepLinkFromSwiftUI(url)
+                }
         }
     }
 }
@@ -54,6 +58,67 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         requestPushNotificationPermissions()
 
         return true
+    }
+    
+    // MARK: - Deep Link Handling
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        // Handle debugswift:// URLs
+        if url.scheme == "debugswift" {
+            handleDeepLink(url)
+            return true
+        }
+        return false
+    }
+    
+    func handleDeepLinkFromSwiftUI(_ url: URL) {
+        handleDeepLink(url)
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        // Show test view with deep link details
+        DispatchQueue.main.async {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                return
+            }
+            
+            // Find the main app window (not CustomWindow from DebugSwift)
+            let appWindow = windowScene.windows.first { window in
+                let isCustomWindow = String(describing: type(of: window)).contains("CustomWindow")
+                return !isCustomWindow && window.rootViewController != nil
+            }
+            
+            guard let window = appWindow else {
+                return
+            }
+            
+            // Get the topmost view controller
+            guard let topViewController = self.getTopViewController(from: window.rootViewController) else {
+                return
+            }
+            
+            let testView = DeepLinkTestView(url: url)
+            let hostingController = UIHostingController(rootView: testView)
+            hostingController.modalPresentationStyle = .fullScreen
+            
+            topViewController.present(hostingController, animated: true)
+        }
+    }
+    
+    private func getTopViewController(from viewController: UIViewController?) -> UIViewController? {
+        if let presented = viewController?.presentedViewController {
+            return getTopViewController(from: presented)
+        }
+        
+        if let navigation = viewController as? UINavigationController {
+            return getTopViewController(from: navigation.visibleViewController)
+        }
+        
+        if let tab = viewController as? UITabBarController {
+            return getTopViewController(from: tab.selectedViewController)
+        }
+        
+        return viewController
     }
 
     func additionalViewControllers() -> [UIViewController] {

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and discussions
+    url: https://github.com/maatheusgois/DebugSwift/discussions
+    about: Use Discussions for questions and general support

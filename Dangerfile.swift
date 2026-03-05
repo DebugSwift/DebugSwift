@@ -1,7 +1,6 @@
 // MARK: Imports
 
 import Danger
-import DangerSwiftCoverage
 import DangerXCodeSummary
 import Foundation
 
@@ -44,7 +43,6 @@ internal class Validator {
         checkSize()
         checkDescription()
         checkUnitTest()
-        checkTitle()
         checkAssignee()
         checkModifiedFiles()
         checkFails()
@@ -120,18 +118,6 @@ fileprivate extension Validator {
         UnitTestValidator.shared.validate()
     }
 
-    func checkTitle() {
-        let result = prTitle.range(
-            of: #"\[[A-zÀ-ú0-9 ]*\][A-zÀ-ú0-9- ]+"#,
-            options: .regularExpression
-        ) != nil
-
-        if !result {
-            let message = "The PR title should be: [<i>Feature or Flow</i>] <i>What flow was done</i>"
-            warn(message)
-        }
-    }
-
     func checkAssignee() {
         if danger.github.pullRequest.assignee == nil {
             warn("Please assign yourself to the PR.")
@@ -159,16 +145,6 @@ fileprivate extension Validator {
         """
         The PR added \(additions) and removed \(deletions) lines. \(changedFiles) file(s) changed.
         """
-
-        // TODO: - Add PR documentation link
-        // let seeOurDocumentation =
-        // """
-        // Documentation: \
-        // <a href=''> \
-        // Link</a>
-        // """
-
-        // message(seeOurDocumentation)
         message(overview)
     }
 }
@@ -216,17 +192,157 @@ fileprivate extension UnitTestValidator {
     }
 
     func checkUnitTestCoverage() {
-        // Temporarily disabled due to xcresult format incompatibility with Xcode 16.4+
-        // Error: XCResultStorage.ResultBundleFactory.Error - Failed to read metadata
-        // The DangerSwiftCoverage plugin calls fail() internally (doesn't throw), causing CI to fail
-        // TODO: Re-enable when DangerSwiftCoverage supports Xcode 16.4+ or migrate to alternative
+        let xcresultPath = "Example/fastlane/test_output/Example.xcresult"
         
-        warn("⚠️ Code coverage check is temporarily disabled due to xcresult format incompatibility. Please verify coverage manually in Xcode.")
+        guard FileManager.default.fileExists(atPath: xcresultPath) else {
+            warn("⚠️ No test results found. Skipping coverage check.")
+            return
+        }
         
-        // Coverage.xcodeBuildCoverage(
-        //     .xcresultBundle("Example/fastlane/test_output/Example.xcresult"),
-        //     minimumCoverage: 70,
-        //     excludedTargets: ["DangerSwiftCoverageTests.xctest"]
-        // )
+        // Use xcrun xccov to extract coverage data (compatible with Xcode 16.4+)
+        let coverageCommand = "xcrun xccov view --report --json '\(xcresultPath)'"
+        let coverageResult = danger.utils.exec(coverageCommand)
+        
+        guard !coverageResult.isEmpty else {
+            warn("⚠️ Failed to extract coverage data from xcresult bundle.")
+            return
+        }
+        
+        // Parse coverage JSON
+        guard let jsonData = coverageResult.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+              let targets = json["targets"] as? [[String: Any]] else {
+            warn("⚠️ Failed to parse coverage data.")
+            return
+        }
+        
+        // Debug: List all available targets
+        let targetNames = targets.compactMap { $0["name"] as? String }
+        print("🔍 DEBUG: Available targets: \(targetNames.joined(separator: ", "))")
+        
+        // Calculate overall coverage for DebugSwift-related targets (try multiple patterns)
+        var totalLines = 0
+        var coveredLines = 0
+        var debugSwiftCoverage: Double = 0
+        var foundTarget = false
+        
+        for target in targets {
+            guard let name = target["name"] as? String else { continue }
+            
+            // Match "DebugSwift" or frameworks that contain it
+            let isDebugSwiftTarget = name.contains("DebugSwift") || 
+                                     name == "Example.app" // Example app includes DebugSwift framework
+            let isTestTarget = name.contains("Tests") || name.contains("Test")
+            
+            guard isDebugSwiftTarget && !isTestTarget else {
+                continue
+            }
+            
+            foundTarget = true
+            
+            if let lineCoverage = target["lineCoverage"] as? Double {
+                debugSwiftCoverage = lineCoverage * 100
+            }
+            
+            if let executableLines = target["executableLines"] as? Int,
+               let coveredLinesCount = target["coveredLines"] as? Int {
+                totalLines += executableLines
+                coveredLines += coveredLinesCount
+            }
+        }
+        
+        let minimumCoverage = 70.0
+        
+        // Report overall coverage
+        if foundTarget && debugSwiftCoverage > 0 {
+            let coverageMessage = String(format: "📊 **Overall Code Coverage**: %.1f%% (%d/%d lines)", 
+                                        debugSwiftCoverage, 
+                                        coveredLines, 
+                                        totalLines)
+            
+            if debugSwiftCoverage < minimumCoverage {
+                warn("⚠️ \(coverageMessage) - Below minimum threshold of \(Int(minimumCoverage))%")
+            } else {
+                message("✅ \(coverageMessage)")
+            }
+        } else {
+            warn("⚠️ No coverage data found. Available targets: \(targetNames.joined(separator: ", "))")
+            return
+        }
+        
+        // Report per-file coverage for modified Swift files
+        checkModifiedFilesCoverage(xcresultPath: xcresultPath, targets: targets)
+    }
+    
+    func checkModifiedFilesCoverage(xcresultPath: String, targets: [[String: Any]]) {
+        // Get modified Swift files from PR
+        let modifiedSwiftFiles = danger.git.modifiedFiles.filter { $0.hasSuffix(".swift") && $0.isInSources }
+        let createdSwiftFiles = danger.git.createdFiles.filter { $0.hasSuffix(".swift") && $0.isInSources }
+        let allChangedFiles = modifiedSwiftFiles + createdSwiftFiles
+        
+        guard !allChangedFiles.isEmpty else {
+            return
+        }
+        
+        // Extract file-level coverage from all targets
+        var fileCoverageData: [(file: String, coverage: Double, covered: Int, total: Int)] = []
+        
+        for target in targets {
+            guard let name = target["name"] as? String else { continue }
+            
+            // Skip test targets
+            guard !name.contains("Tests") && !name.contains("Test") else {
+                continue
+            }
+            
+            guard let files = target["files"] as? [[String: Any]] else {
+                continue
+            }
+            
+            for fileData in files {
+                guard let path = fileData["path"] as? String else { continue }
+                
+                // Check if this file was changed in the PR
+                let fileName = (path as NSString).lastPathComponent
+                let matchingChangedFile = allChangedFiles.first { changedFile in
+                    changedFile.contains(fileName) || path.contains(changedFile)
+                }
+                
+                guard matchingChangedFile != nil else { continue }
+                
+                let lineCoverage = (fileData["lineCoverage"] as? Double) ?? 0.0
+                let coveredLines = (fileData["coveredLines"] as? Int) ?? 0
+                let executableLines = (fileData["executableLines"] as? Int) ?? 0
+                
+                // Only add if not already in the list (avoid duplicates from multiple targets)
+                if !fileCoverageData.contains(where: { $0.file == fileName }) {
+                    fileCoverageData.append((
+                        file: fileName,
+                        coverage: lineCoverage * 100,
+                        covered: coveredLines,
+                        total: executableLines
+                    ))
+                }
+            }
+        }
+        
+        // Report per-file coverage
+        if !fileCoverageData.isEmpty {
+            var coverageReport = "\n### 📝 Coverage for Changed Files\n\n"
+            coverageReport += "| File | Coverage | Lines |\n"
+            coverageReport += "|------|----------|-------|\n"
+            
+            for fileData in fileCoverageData.sorted(by: { $0.coverage < $1.coverage }) {
+                let emoji = fileData.coverage >= 70 ? "✅" : "⚠️"
+                coverageReport += String(format: "| %@ `%@` | %.1f%% | %d/%d |\n",
+                                       emoji,
+                                       fileData.file,
+                                       fileData.coverage,
+                                       fileData.covered,
+                                       fileData.total)
+            }
+            
+            message(coverageReport)
+        }
     }
 }

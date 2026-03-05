@@ -110,7 +110,9 @@ final class MeasurementWindow: UIWindow {
                 let ballViewInScreen = ballView.convert(ballView.bounds, to: nil)
                 
                 if ballViewInScreen.contains(pointInScreen) {
-                    MeasurementWindowManager.attachedWindow = nil
+                    DispatchQueue.main.async {
+                        MeasurementWindowManager.attachedWindow = nil
+                    }
                     return false
                 }
             }

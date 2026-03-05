@@ -17,7 +17,6 @@ enum ViewHelper {
     static func findSubviews(in view: UIView, intersectingPoint point: CGPoint) -> [UIView] {
         var potentialSelectionViews: [UIView] = []
         let subviews = view.subviews
-        let blackList = blacklistedViews()
 
         for subView in subviews.reversed() {
             if subView.alpha > 0, !subView.isHidden {
@@ -25,7 +24,8 @@ enum ViewHelper {
                 let pointInSubView = view.convert(point, to: subView)
                 potentialSelectionViews.append(contentsOf: findSubviews(in: subView, intersectingPoint: pointInSubView))
 
-                if Self.view(subView, surroundsPoint: point, relativeTo: view), !blackList.contains(NSStringFromClass(type(of: subView))) {
+                if Self.view(subView, surroundsPoint: point, relativeTo: view),
+                   !shouldIgnoreForSelection(subView) {
                     potentialSelectionViews.append(subView)
                 }
             }
@@ -54,6 +54,19 @@ enum ViewHelper {
      * Returns a list of views that we do not want to show up as selectable views.
      */
     static func blacklistedViews() -> Set<String> {
-        return ["_UINavigationControllerPaletteClippingView"] // TODO: - Block touch in same module
+        return ["_UINavigationControllerPaletteClippingView"]
+    }
+
+    /**
+     * Excludes internal DebugSwift/Hyperion measurement views from being selected.
+     */
+    static func shouldIgnoreForSelection(_ view: UIView) -> Bool {
+        let className = NSStringFromClass(type(of: view))
+
+        if blacklistedViews().contains(className) {
+            return true
+        }
+
+        return className.hasPrefix("DebugSwift.") || className.hasPrefix("HyperionSwift.")
     }
 }

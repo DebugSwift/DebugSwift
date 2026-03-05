@@ -94,6 +94,17 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
+                NavigationLink(destination: DeepLinkTestView(url: URL(string: "debugswift://test?id=123"))) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("🔗 Deep Link Test View")
+                            .font(.headline)
+                        Text("Test deep link handling interface")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+
                 Button("Show Map") {
                     presentingMap = true
                 }

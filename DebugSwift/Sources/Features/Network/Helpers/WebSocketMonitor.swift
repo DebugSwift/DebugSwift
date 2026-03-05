@@ -8,6 +8,20 @@
 import Foundation
 import Network
 
+enum WebSocketMonitorError: LocalizedError {
+    case connectionNotTracked
+    case taskNotRunning
+
+    var errorDescription: String? {
+        switch self {
+        case .connectionNotTracked:
+            return "Unable to find an active WebSocket task for this connection."
+        case .taskNotRunning:
+            return "The WebSocket task is not running."
+        }
+    }
+}
+
 final class WebSocketMonitor: NSObject, @unchecked Sendable {
     static let shared = WebSocketMonitor()
     
@@ -483,6 +497,33 @@ final class WebSocketMonitor: NSObject, @unchecked Sendable {
     func removeTask(_ task: URLSessionWebSocketTask) {
         trackedTasks.removeValue(forKey: task)
     }
+
+    @MainActor
+    func sendMessage(
+        _ message: URLSessionWebSocketTask.Message,
+        onConnectionId connectionId: String,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        guard let task = trackedTasks.first(where: { $0.value == connectionId })?.key else {
+            completion(.failure(WebSocketMonitorError.connectionNotTracked))
+            return
+        }
+
+        guard task.state == .running else {
+            completion(.failure(WebSocketMonitorError.taskNotRunning))
+            return
+        }
+
+        task.send(message) { error in
+            DispatchQueue.main.async {
+                if let error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+        }
+    }
     
     // MARK: - Notifications
     
@@ -516,6 +557,3 @@ private extension Data {
         return String(data: self, encoding: encoding)
     }
 }
-
- 
-

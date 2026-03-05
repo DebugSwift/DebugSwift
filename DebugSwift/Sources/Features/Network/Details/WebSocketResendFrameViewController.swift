@@ -245,57 +245,38 @@ final class WebSocketResendFrameViewController: BaseController {
         } else {
             // For binary, try to parse hex or use text as UTF-8 data
             let data: Data
-            if payloadTextView.text.contains(" ") && payloadTextView.text.allSatisfy({ $0.isHexDigit || $0.isWhitespace }) {
-                // Parse as hex
-                let hexString = payloadTextView.text.replacingOccurrences(of: " ", with: "")
-                data = Data(hexString: hexString) ?? payloadTextView.text.data(using: .utf8) ?? Data()
+            let normalizedText = payloadTextView.text.components(separatedBy: .whitespacesAndNewlines).joined()
+            if !normalizedText.isEmpty &&
+                normalizedText.count.isMultiple(of: 2) &&
+                normalizedText.allSatisfy({ $0.isHexDigit }) {
+                data = Data(hexString: normalizedText) ?? payloadTextView.text.data(using: .utf8) ?? Data()
             } else {
                 // Use as UTF-8 data
                 data = payloadTextView.text.data(using: .utf8) ?? Data()
             }
             message = .data(data)
         }
-        
-        // TODO: Actually send the message through the WebSocket
-        // This would require access to the actual WebSocket task, which would need to be tracked
-        // For now, we'll simulate the sending by creating a frame entry
-        
-        simulateSendFrame(message: message)
-        
-        showAlert(
-            with: "Frame sent successfully",
-            title: "Sent!"
-        ) { [weak self] _ in
-            self?.dismiss(animated: true)
-        }
-    }
-    
-    private func simulateSendFrame(message: URLSessionWebSocketTask.Message) {
-        // Create a new frame for the sent message
-        let frameType: WebSocketFrameType
-        let payload: Data
-        
-        switch message {
-        case .string(let text):
-            frameType = .text
-            payload = text.data(using: .utf8) ?? Data()
-        case .data(let data):
-            frameType = .binary
-            payload = data
-        @unknown default:
-            frameType = .binary
-            payload = Data()
-        }
-        
-        let newFrame = WebSocketFrame(
-            direction: .sent,
-            type: frameType,
-            payload: payload,
-            connectionId: connection.id
-        )
-        
-        Task { @MainActor in
-            WebSocketDataSource.shared.addFrame(newFrame)
+
+        navigationItem.rightBarButtonItem?.isEnabled = false
+
+        WebSocketMonitor.shared.sendMessage(message, onConnectionId: connection.id) { [weak self] result in
+            guard let self else { return }
+            self.navigationItem.rightBarButtonItem?.isEnabled = true
+
+            switch result {
+            case .success:
+                self.showAlert(
+                    with: "Frame sent successfully",
+                    title: "Sent!"
+                ) { [weak self] _ in
+                    self?.dismiss(animated: true)
+                }
+            case .failure(let error):
+                self.showAlert(
+                    with: error.localizedDescription,
+                    title: "Send Failed"
+                )
+            }
         }
     }
     
@@ -333,4 +314,4 @@ private extension Data {
         
         self = data
     }
-} 
+}

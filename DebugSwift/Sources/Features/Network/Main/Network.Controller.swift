@@ -167,7 +167,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
             let success = notification.object as? Bool ?? false
             MainActor.assumeIsolated {
                 self?.reloadHttp(
-                    needScrollToEnd: self?.viewModel.reachEnd ?? true,
+                    needScrollToEnd: (self?.viewModel.isReachEnd ?? true) && self?.view.window != nil,
                     success: success
                 )
                 self?.updateHTTPStatistics()
@@ -587,14 +587,15 @@ final class NetworkViewController: BaseController, MainFeatureType {
         case .http, .webview:
             // Add network injection settings button
             let injectionButton = UIBarButtonItem(
-                image: UIImage(systemName: "syringe"),
+                image: injectionSymbolImage(),
                 style: .plain,
                 target: self,
                 action: #selector(showNetworkInjectionSettings)
             )
             let injectionManager = NetworkInjectionManager.shared
             let isInjectionActive = injectionManager.getDelayConfig().isEnabled || 
-                                    injectionManager.getFailureConfig().isEnabled
+                                    injectionManager.getFailureConfig().isEnabled ||
+                                    injectionManager.getRewriteConfig().isEnabled
             injectionButton.tintColor = isInjectionActive ? .systemOrange : .systemGray
             rightBarButtons.append(injectionButton)
             
@@ -655,6 +656,14 @@ final class NetworkViewController: BaseController, MainFeatureType {
         }
         
         navigationItem.rightBarButtonItems = rightBarButtons
+    }
+
+    private func injectionSymbolImage() -> UIImage? {
+        if #available(iOS 16.0, *) {
+            return UIImage(systemName: "syringe")
+        }
+
+        return UIImage(systemName: "pencil")
     }
     
     @objc private func showNetworkInjectionSettings() {
@@ -935,5 +944,13 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
             
             return UISwipeActionsConfiguration(actions: actions)
         }
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard currentMode == .http || currentMode == .webview else { return }
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let visibleHeight = scrollView.frame.height
+        viewModel.isReachEnd = offsetY >= max(0, contentHeight - visibleHeight)
     }
 }

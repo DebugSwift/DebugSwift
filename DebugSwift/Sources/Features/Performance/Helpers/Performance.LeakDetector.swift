@@ -837,15 +837,15 @@ extension UIViewController {
         let interval = Date().timeIntervalSince1970 - memoryLeakDetectionDate
 
         FloatViewManager.animateLeek(alloced: false)
-        let errorTitle = "LEAKED \(objectType) DEINNITED"
+        let errorTitle = "LEAKED \(objectType) DEINITED"
         let errorMessage = String(
-            format: "\(errorMessage)\n\nDeinnited after %.3fs.",
+            format: "\(errorMessage)\n\nDeinited after %.3fs.",
             interval
         )
 
         if let index = PerformanceLeakDetector.shared.leaks.firstIndex(where: { $0.id == objectIdentifier }) {
             PerformanceLeakDetector.shared.leaks[index].hasDeallocated = true
-            PerformanceLeakDetector.shared.leaks[index].timeAllocated = String(format: "%.3fs.", interval)
+            PerformanceLeakDetector.shared.leaks[index].timeAllocated = String(format: "%.3fs", interval)
         }
 
         PerformanceLeakDetector.shared.callback?(

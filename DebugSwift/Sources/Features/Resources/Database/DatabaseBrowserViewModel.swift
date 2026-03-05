@@ -13,14 +13,24 @@ final class DatabaseBrowserViewModel {
     
     // MARK: - Properties
     
+    private let allowedTypes: Set<DatabaseType>?
     private(set) var databases: [DatabaseFile] = []
     private(set) var filteredDatabases: [DatabaseFile] = []
     private var searchText: String = ""
+
+    init(allowedTypes: Set<DatabaseType>? = nil) {
+        self.allowedTypes = allowedTypes
+    }
     
     // MARK: - Public Methods
     
     func loadDatabaseFiles() {
-        databases = DatabaseFileManager.shared.discoverDatabaseFiles()
+        let discoveredDatabases = DatabaseFileManager.shared.discoverDatabaseFiles()
+        if let allowedTypes {
+            databases = discoveredDatabases.filter { allowedTypes.contains($0.type) }
+        } else {
+            databases = discoveredDatabases
+        }
         applyFilter()
     }
     
@@ -121,7 +131,7 @@ struct DatabaseFile {
     }
 }
 
-enum DatabaseType {
+enum DatabaseType: Hashable {
     case sqlite
     case realm
     case coreData
@@ -150,6 +160,14 @@ enum DatabaseType {
     
     static func from(fileName: String) -> DatabaseType? {
         let lowercased = fileName.lowercased()
+
+        if lowercased.contains("datamodel") &&
+            (lowercased.hasSuffix(".sqlite") ||
+                lowercased.hasSuffix(".sqlite3") ||
+                lowercased.hasSuffix(".db") ||
+                lowercased.hasSuffix(".sqlitedb")) {
+            return .coreData
+        }
         
         if lowercased.hasSuffix(".sqlite") || 
            lowercased.hasSuffix(".sqlite3") ||
@@ -158,10 +176,8 @@ enum DatabaseType {
             return .sqlite
         } else if lowercased.hasSuffix(".realm") {
             return .realm
-        } else if lowercased.contains("datamodel") && lowercased.hasSuffix(".sqlite") {
-            return .coreData
         }
         
         return nil
     }
-} 
+}

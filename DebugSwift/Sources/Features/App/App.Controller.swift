@@ -198,6 +198,9 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .pushNotifications:
                 let controller = PushNotificationController()
                 navigationController?.pushViewController(controller, animated: true)
+            case .deepLink:
+                let controller = DeepLinkViewController()
+                navigationController?.pushViewController(controller, animated: true)
             }
         default:
             break
@@ -295,6 +298,7 @@ extension AppViewController {
         case location
         case loadedLibraries
         case pushNotifications
+        case deepLink
 
         var title: String {
             switch self {
@@ -308,6 +312,8 @@ extension AppViewController {
                 return "Loaded Libraries"
             case .pushNotifications:
                 return "Push Notifications"
+            case .deepLink:
+                return "Deep Links"
             }
         }
 

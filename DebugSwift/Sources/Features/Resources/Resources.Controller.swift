@@ -29,7 +29,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
             case .persistentData:
                 "Persistent Data"
             case .coreData:
-                ""
+                "Core Data"
             case .httpCookies:
                 "HTTP Cookies"
             case .database:
@@ -53,6 +53,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         .fileManager,
         .persistentData,
         .httpCookies,
+        .coreData,
         .database
     ]
 
@@ -129,8 +130,7 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
         case .persistentData:
             controller = ResourcesTabbedController()
         case .coreData:
-            // Handle "CoreData" selection
-            showAlert(with: "TODO")
+            controller = DatabaseBrowserViewController(allowedTypes: [.coreData])
 
         case .httpCookies:
             let viewModel = ResourcesHTTPCookiesViewModel()

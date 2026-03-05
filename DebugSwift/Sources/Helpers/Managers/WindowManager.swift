@@ -53,6 +53,7 @@ enum WindowManager {
     static func removeDebugger() {
         FloatViewManager.isShowingDebuggerView = false
         removeNavigationBar()
+        rootNavigation?.topViewController?.view.layer.mask = nil
         rootNavigation?.popViewController(animated: true)
     }
 
