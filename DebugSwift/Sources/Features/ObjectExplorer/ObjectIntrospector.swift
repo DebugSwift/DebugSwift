@@ -128,6 +128,7 @@ final class ObjectIntrospector {
 
     private static func buildProperties(for object: Any, mirror: Mirror) -> [ObjectProperty] {
         var result: [ObjectProperty] = []
+        var seenNames: Set<String> = []
 
         // Swift Mirror children
         for child in mirror.children {
@@ -141,23 +142,31 @@ final class ObjectIntrospector {
                 rawValue: child.value,
                 isReadOnly: true
             ))
+            seenNames.insert(name)
+            // Also track underscore-prefixed backing storage names
+            if name.hasPrefix("_") {
+                seenNames.insert(String(name.dropFirst()))
+            } else {
+                seenNames.insert("_" + name)
+            }
         }
 
         // ObjC properties (for NSObject subclasses)
         if let nsObject = object as? NSObject {
             let objcProps = getObjCProperties(for: type(of: nsObject))
             for prop in objcProps {
-                // Avoid duplicates with Swift mirror
-                if !result.contains(where: { $0.name == prop.name || $0.name == "_" + prop.name }) {
-                    let (value, rawValue) = safeValueForKey(prop.name, on: nsObject)
-                    result.append(ObjectProperty(
-                        name: prop.name,
-                        typeName: prop.typeName,
-                        value: value,
-                        rawValue: rawValue,
-                        isReadOnly: prop.isReadOnly
-                    ))
-                }
+                // Avoid duplicates with Swift mirror using O(1) lookup
+                guard !seenNames.contains(prop.name) else { continue }
+                seenNames.insert(prop.name)
+
+                let (value, rawValue) = safeValueForKey(prop.name, on: nsObject)
+                result.append(ObjectProperty(
+                    name: prop.name,
+                    typeName: prop.typeName,
+                    value: value,
+                    rawValue: rawValue,
+                    isReadOnly: prop.isReadOnly
+                ))
             }
         }
 
@@ -226,14 +235,26 @@ final class ObjectIntrospector {
 
     // MARK: - Safe Value Access
 
+    /// Known KVC-incompatible keys that may crash when accessed via value(forKey:).
+    private static let unsafeKeyPrefixes = ["_", "accessibility"]
+    private static let unsafeKeys: Set<String> = [
+        "scriptingProperties", "classForArchiver", "classForKeyedArchiver",
+        "classForPortCoder", "autoContentAccessingProxy", "observationInfo"
+    ]
+
     private static func safeValueForKey(_ key: String, on nsObject: NSObject) -> (String, Any?) {
+        // Skip keys known to be problematic with KVC
+        if unsafeKeys.contains(key) {
+            return ("<skipped>", nil)
+        }
+
         // Check if the object responds to the getter selector to avoid crashes
         let getterSelector = NSSelectorFromString(key)
         guard nsObject.responds(to: getterSelector) else {
             return ("<no getter>", nil)
         }
 
-        // Attempt KVC access
+        // Attempt KVC access - responds(to:) ensures the getter exists
         guard let val = nsObject.value(forKey: key) else {
             return ("nil", nil)
         }
