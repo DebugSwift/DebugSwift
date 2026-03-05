@@ -158,16 +158,16 @@ final class ResourcesFilesViewController: BaseTableController {
             }
         } catch {
             Debug.print("Error reading directory: \(error)")
-            
-            // If we're trying to read app groups and failing, show available app group identifiers
-            if currentContainerType == .appGroup && path == nil {
-                subdirectories = appGroupIdentifiers.compactMap { identifier in
-                    if FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: identifier) != nil {
-                        return identifier
-                    }
-                    return nil
+        }
+        
+        // Add available app group identifiers
+        if currentContainerType == .appGroup && path == nil {
+            subdirectories.append(contentsOf: appGroupIdentifiers.compactMap { identifier in
+                if FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: identifier) != nil {
+                    return identifier
                 }
-            }
+                return nil
+            })
         }
 
         self.subdirectories = subdirectories.sorted()
