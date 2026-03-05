@@ -83,6 +83,12 @@ final class DatabaseFileManager: @unchecked Sendable {
             databaseFiles.append(contentsOf: findDatabaseFiles(in: cachesPath))
         }
         
+        DebugSwift.Resources.shared.appGroupIdentifiers.forEach { identifier in
+            if let path = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: identifier)?.path {
+                databaseFiles.append(contentsOf: findDatabaseFiles(in: path))
+            }
+        }
+        
         // Search in tmp directory
         let tmpPath = NSTemporaryDirectory()
         databaseFiles.append(contentsOf: findDatabaseFiles(in: tmpPath))
