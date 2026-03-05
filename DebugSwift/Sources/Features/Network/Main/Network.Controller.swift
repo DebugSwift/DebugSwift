@@ -167,7 +167,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
             let success = notification.object as? Bool ?? false
             MainActor.assumeIsolated {
                 self?.reloadHttp(
-                    needScrollToEnd: self?.viewModel.reachEnd ?? true,
+                    needScrollToEnd: (self?.viewModel.isReachEnd ?? true) && self?.view.window != nil,
                     success: success
                 )
                 self?.updateHTTPStatistics()
@@ -944,5 +944,13 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
             
             return UISwipeActionsConfiguration(actions: actions)
         }
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard currentMode == .http || currentMode == .webview else { return }
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let visibleHeight = scrollView.frame.height
+        viewModel.isReachEnd = offsetY >= max(0, contentHeight - visibleHeight)
     }
 }
