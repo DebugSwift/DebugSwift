@@ -240,6 +240,10 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             task.cancel()
             dataTask = nil
         }
+        
+        // Invalidate session to break retain cycle
+        session?.invalidateAndCancel()
+        session = nil
 
         Task { @Sendable in
             guard await NetworkHelper.shared.isNetworkEnable else {
@@ -483,6 +487,10 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                     didFailWithError: error
                 )
                 self.client?.urlProtocol(self, didFailWithError: error)
+                
+                // Invalidate session to break retain cycle
+                self.session?.finishTasksAndInvalidate()
+                self.session = nil
                 return
             }
             
@@ -503,6 +511,10 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
             if self.cachePolicy == .allowed {
                 URLCache.customHttp.storeIfNeeded(for: task, data: self.data)
             }
+            
+            // Invalidate session to break retain cycle
+            self.session?.finishTasksAndInvalidate()
+            self.session = nil
         }
     }
 }
