@@ -130,7 +130,7 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
         case .persistentData:
             controller = ResourcesTabbedController()
         case .coreData:
-            controller = DatabaseBrowserViewController(allowedTypes: [.coreData])
+            controller = CoreDataBrowserViewController()
 
         case .httpCookies:
             let viewModel = ResourcesHTTPCookiesViewModel()
