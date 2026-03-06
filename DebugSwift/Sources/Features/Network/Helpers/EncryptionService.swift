@@ -11,6 +11,7 @@ import CryptoKit
 import Security
 
 public protocol EncryptionServiceProtocol {
+    // This is a test to run the coverage test
     func decrypt(_ data: Data, using key: Data?) -> Data?
     func isEncrypted(_ data: Data) -> Bool
     func getDecryptionKey(for url: URL?) -> Data?
