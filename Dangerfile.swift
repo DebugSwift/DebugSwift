@@ -193,9 +193,26 @@ fileprivate extension UnitTestValidator {
     }
 
     func checkUnitTestCoverage() {
+        // Configure coverage reporting with improvements from Issue #304:
+        // 1. Hide overall project coverage (not actionable for PR authors)
+        // 2. Only show coverage for modified/created files
+        // 3. Focus on files that should have meaningful test coverage
+        
         Coverage.xcodeBuildCoverage(
             .xcresultBundle("Example/fastlane/test_output/Example.xcresult"),
-            minimumCoverage: 70
+            minimumCoverage: 70,
+            excludedTargets: [],
+            hideProjectCoverage: true  // Hide overall project coverage message
         )
+        
+        // Add helpful guidance about coverage expectations
+        let coverageGuidance = """
+        📊 **Coverage Guidelines:**
+        - **Target:** 70% minimum for new/changed files
+        - **Focus:** Test business logic and data transformations
+        - **Note:** UI-only files (Views, ViewControllers, Cells) may have lower coverage
+        - Files below threshold will be highlighted in the coverage table above
+        """
+        message(coverageGuidance)
     }
 }

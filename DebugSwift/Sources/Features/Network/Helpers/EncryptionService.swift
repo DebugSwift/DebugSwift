@@ -10,6 +10,10 @@ import Foundation
 import CryptoKit
 import Security
 
+// TODO: TEST COMMENT - Remove before merge
+// This comment is here to test the improved Danger coverage reporting
+// Issue #304: Testing exclude patterns and inline comments
+
 public protocol EncryptionServiceProtocol {
     func decrypt(_ data: Data, using key: Data?) -> Data?
     func isEncrypted(_ data: Data) -> Bool
