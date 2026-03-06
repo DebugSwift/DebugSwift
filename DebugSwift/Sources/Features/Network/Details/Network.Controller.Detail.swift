@@ -611,12 +611,18 @@ extension NetworkViewControllerDetail {
     }
 
     @objc private func copyCurlButtonTapped() {
-        let curlCommand = """
-            curl -X \(model.method ?? "") \\
-                 -H "\(model.requestHeaderFields?.formattedCurlString() ?? "")" \\
-                 -d "\(model.requestData?.formattedCurlString() ?? "")" \\
-                 \(model.url?.absoluteString ?? "")
-        """
+        var curlCommand = "curl -X \(model.method ?? "GET")"
+        if let headers = model.requestHeaderFields, !headers.isEmpty {
+            for (key, value) in headers where !key.isEmpty {
+                curlCommand += " \\\n     -H '\("\(key): \(value)".escapedForCurl())'"
+            }
+        }
+        if let body = model.requestData?.formattedCurlString(), !body.isEmpty {
+            curlCommand += " \\\n     -d '\(body)'"
+        }
+        if let url = model.url?.absoluteString, !url.isEmpty {
+            curlCommand += " \\\n     '\(url.escapedForCurl())'"
+        }
         UIPasteboard.general.string = curlCommand
         showToast(message: "cURL copied to clipboard")
     }
