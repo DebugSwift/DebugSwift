@@ -14,6 +14,7 @@ Validator.shared.validate()
 SwiftLint.lint(configFile: ".swiftlint.yml")
 
 // MARK: Validation rules
+// Test: Verify DangerSwiftCoverage per-file reporting
 
 internal class Validator {
     // MARK: Lifecycle
