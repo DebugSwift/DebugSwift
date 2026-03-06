@@ -157,6 +157,19 @@ private enum ValidationRules {
     static let bigPRThreshold = 3000
 }
 
+private enum CoverageConfig {
+    static let minimumCoverage = 70.0
+    static let excludePatterns = [
+        "View.swift",
+        "Cell.swift",
+        "ViewController.swift",
+        "AppDelegate",
+        "SceneDelegate",
+        "/Generated/",
+        "/Resources/",
+    ]
+}
+
 // MARK: Extensions
 // Extension with additional file-related methods.
 
@@ -216,61 +229,21 @@ fileprivate extension UnitTestValidator {
             return
         }
         
-        // Debug: List all available targets
+        // Verify that coverage data is available for DebugSwift targets
         let targetNames = targets.compactMap { $0["name"] as? String }
-        print("🔍 DEBUG: Available targets: \(targetNames.joined(separator: ", "))")
-        
-        // Calculate overall coverage for DebugSwift-related targets (try multiple patterns)
-        var totalLines = 0
-        var coveredLines = 0
-        var debugSwiftCoverage: Double = 0
-        var foundTarget = false
-        
-        for target in targets {
-            guard let name = target["name"] as? String else { continue }
-            
-            // Match "DebugSwift" or frameworks that contain it
-            let isDebugSwiftTarget = name.contains("DebugSwift") || 
-                                     name == "Example.app" // Example app includes DebugSwift framework
+        let hasDebugSwiftTarget = targets.contains { target in
+            guard let name = target["name"] as? String else { return false }
+            let isDebugSwiftTarget = name.contains("DebugSwift") || name == "Example.app"
             let isTestTarget = name.contains("Tests") || name.contains("Test")
-            
-            guard isDebugSwiftTarget && !isTestTarget else {
-                continue
-            }
-            
-            foundTarget = true
-            
-            if let lineCoverage = target["lineCoverage"] as? Double {
-                debugSwiftCoverage = lineCoverage * 100
-            }
-            
-            if let executableLines = target["executableLines"] as? Int,
-               let coveredLinesCount = target["coveredLines"] as? Int {
-                totalLines += executableLines
-                coveredLines += coveredLinesCount
-            }
+            return isDebugSwiftTarget && !isTestTarget
         }
         
-        let minimumCoverage = 70.0
-        
-        // Report overall coverage
-        if foundTarget && debugSwiftCoverage > 0 {
-            let coverageMessage = String(format: "📊 **Overall Code Coverage**: %.1f%% (%d/%d lines)", 
-                                        debugSwiftCoverage, 
-                                        coveredLines, 
-                                        totalLines)
-            
-            if debugSwiftCoverage < minimumCoverage {
-                warn("⚠️ \(coverageMessage) - Below minimum threshold of \(Int(minimumCoverage))%")
-            } else {
-                message("✅ \(coverageMessage)")
-            }
-        } else {
+        guard hasDebugSwiftTarget else {
             warn("⚠️ No coverage data found. Available targets: \(targetNames.joined(separator: ", "))")
             return
         }
         
-        // Report per-file coverage for modified Swift files
+        // Only report per-file coverage for modified Swift files
         checkModifiedFilesCoverage(xcresultPath: xcresultPath, targets: targets)
     }
     
@@ -284,8 +257,19 @@ fileprivate extension UnitTestValidator {
             return
         }
         
+        // Filter out files matching exclude patterns (UI files, generated files, etc.)
+        let filteredChangedFiles = allChangedFiles.filter { file in
+            !CoverageConfig.excludePatterns.contains { pattern in
+                file.contains(pattern)
+            }
+        }
+        
+        guard !filteredChangedFiles.isEmpty else {
+            return
+        }
+        
         // Extract file-level coverage from all targets
-        var fileCoverageData: [(file: String, coverage: Double, covered: Int, total: Int)] = []
+        var fileCoverageData: [(file: String, path: String, coverage: Double, covered: Int, total: Int)] = []
         
         for target in targets {
             guard let name = target["name"] as? String else { continue }
@@ -304,20 +288,21 @@ fileprivate extension UnitTestValidator {
                 
                 // Check if this file was changed in the PR
                 let fileName = (path as NSString).lastPathComponent
-                let matchingChangedFile = allChangedFiles.first { changedFile in
+                let matchingChangedFile = filteredChangedFiles.first { changedFile in
                     changedFile.contains(fileName) || path.contains(changedFile)
                 }
                 
-                guard matchingChangedFile != nil else { continue }
+                guard let relativePath = matchingChangedFile else { continue }
                 
                 let lineCoverage = (fileData["lineCoverage"] as? Double) ?? 0.0
                 let coveredLines = (fileData["coveredLines"] as? Int) ?? 0
                 let executableLines = (fileData["executableLines"] as? Int) ?? 0
                 
                 // Only add if not already in the list (avoid duplicates from multiple targets)
-                if !fileCoverageData.contains(where: { $0.file == fileName }) {
+                if !fileCoverageData.contains(where: { $0.path == relativePath }) {
                     fileCoverageData.append((
                         file: fileName,
+                        path: relativePath,
                         coverage: lineCoverage * 100,
                         covered: coveredLines,
                         total: executableLines
@@ -326,6 +311,8 @@ fileprivate extension UnitTestValidator {
             }
         }
         
+        let minimumCoverage = CoverageConfig.minimumCoverage
+        
         // Report per-file coverage
         if !fileCoverageData.isEmpty {
             var coverageReport = "\n### 📝 Coverage for Changed Files\n\n"
@@ -333,16 +320,25 @@ fileprivate extension UnitTestValidator {
             coverageReport += "|------|----------|-------|\n"
             
             for fileData in fileCoverageData.sorted(by: { $0.coverage < $1.coverage }) {
-                let emoji = fileData.coverage >= 70 ? "✅" : "⚠️"
+                let emoji = fileData.coverage >= minimumCoverage ? "✅" : "⚠️"
                 coverageReport += String(format: "| %@ `%@` | %.1f%% | %d/%d |\n",
                                        emoji,
-                                       fileData.file,
+                                       fileData.path,
                                        fileData.coverage,
                                        fileData.covered,
                                        fileData.total)
             }
             
             message(coverageReport)
+            
+            // Add inline comments on low-coverage files
+            for fileData in fileCoverageData where fileData.coverage < minimumCoverage {
+                let warningMessage = String(format: "⚠️ `%@` has %.1f%% coverage (below %d%%). Please add tests.",
+                                           fileData.file,
+                                           fileData.coverage,
+                                           Int(minimumCoverage))
+                warn(message: warningMessage, file: fileData.path, line: 1)
+            }
         }
     }
 }

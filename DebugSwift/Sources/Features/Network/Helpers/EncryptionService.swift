@@ -10,6 +10,8 @@ import Foundation
 import CryptoKit
 import Security
 
+// Test comment to verify Danger coverage reporting (remove before merge)
+
 public protocol EncryptionServiceProtocol {
     func decrypt(_ data: Data, using key: Data?) -> Data?
     func isEncrypted(_ data: Data) -> Bool
