@@ -377,6 +377,38 @@ jobs:
         echo "📦 Final package contents:"
         unzip -l XCFramework/DebugSwift-StaticLibraries.zip | head -30
 
+    - name: Generate Release Notes
+      id: generate_notes
+      run: |
+        echo "📝 Generating release notes from closed PRs..."
+        
+        # Get the last release tag (excluding RCs)
+        LAST_RELEASE=$(git tag -l | grep -v "rc-" | grep -E "^[0-9]+\.[0-9]+\.[0-9]+$" | sort -V | tail -1)
+        
+        if [ -z "$LAST_RELEASE" ]; then
+          echo "No previous release found, using first commit"
+          LAST_RELEASE=$(git rev-list --max-parents=0 HEAD)
+        fi
+        
+        echo "Getting PRs merged since: $LAST_RELEASE"
+        
+        # Get merged PRs since last release
+        PR_LIST=$(gh pr list --state merged --base main --limit 100 --json number,title,mergedAt,author | \
+          jq -r --arg since "$(git log -1 --format=%aI $LAST_RELEASE 2>/dev/null || echo '2000-01-01')" \
+          '[.[] | select(.mergedAt >= $since)] | 
+          map("- " + .title + " (#" + (.number|tostring) + ") by @" + .author.login) | 
+          join("\n")')
+        
+        if [ -z "$PR_LIST" ]; then
+          PR_LIST="- No PRs merged since last release"
+        fi
+        
+        echo "PR_LIST<<EOF" >> $GITHUB_OUTPUT
+        echo "$PR_LIST" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
@@ -389,15 +421,8 @@ jobs:
           🚀 **Release ${{ needs.tag.outputs.rc_tag }}**
           
           **What's New:**
-          - Auto-generated release candidate from main branch
-          - Includes Static Libraries for iOS development
-          - Built with Xcode to ensure compatibility and performance
-          
-          **Installation:**
-          1. Download `DebugSwift-StaticLibraries.zip`
-          2. Extract and add both `.a` files to your Xcode project
-          3. Link the libraries to your target (see README.md for details)
-          
+          ${{ steps.generate_notes.outputs.PR_LIST }}
+
           **Version Details:**
           - RC Tag: ${{ needs.tag.outputs.rc_tag }}
           - This is a release candidate. A final release will be created manually when ready.
