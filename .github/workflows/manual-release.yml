@@ -83,6 +83,38 @@ jobs:
         echo "Podspec updated to version $VERSION for manual release"
         echo "Skipping commit for manual release workflow"
       
+    - name: Generate Release Notes
+      id: generate_notes
+      run: |
+        echo "📝 Generating release notes from merged PRs..."
+        
+        # Get the last release tag
+        LAST_RELEASE="${{ steps.previous_tag.outputs.PREVIOUS_TAG }}"
+        
+        if [ -z "$LAST_RELEASE" ]; then
+          echo "No previous release found, using first commit"
+          LAST_RELEASE=$(git rev-list --max-parents=0 HEAD)
+        fi
+        
+        echo "Getting PRs merged since: $LAST_RELEASE"
+        
+        # Get merged PRs since last release
+        PR_LIST=$(gh pr list --state merged --base main --limit 100 --json number,title,mergedAt,author | \
+          jq -r --arg since "$(git log -1 --format=%aI $LAST_RELEASE 2>/dev/null || echo '2000-01-01')" \
+          '[.[] | select(.mergedAt >= $since)] | 
+          map("- " + .title + " (#" + (.number|tostring) + ") by @" + .author.login) | 
+          join("\n")')
+        
+        if [ -z "$PR_LIST" ]; then
+          PR_LIST="- No PRs merged since last release"
+        fi
+        
+        echo "PR_LIST<<EOF" >> $GITHUB_OUTPUT
+        echo "$PR_LIST" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -92,7 +124,10 @@ jobs:
         tag_name: ${{ github.event.inputs.tag_name }}
         release_name: ${{ github.event.inputs.release_name }}
         body: |
-          ${{ steps.previous_tag.outputs.PREVIOUS_TAG && format('Full changelog: [{0}...{1}](https://github.com/{2}/compare/{0}...{1})', steps.previous_tag.outputs.PREVIOUS_TAG, github.event.inputs.tag_name, github.repository) || 'Initial release' }}
+          **What's New:**
+          ${{ steps.generate_notes.outputs.PR_LIST }}
+          
+          ${{ steps.previous_tag.outputs.PREVIOUS_TAG && format('**Full changelog:** [{0}...{1}](https://github.com/{2}/compare/{0}...{1})', steps.previous_tag.outputs.PREVIOUS_TAG, github.event.inputs.tag_name, github.repository) || '**Initial release**' }}
         draft: false
         prerelease: ${{ github.event.inputs.is_prerelease == 'true' }}
 
