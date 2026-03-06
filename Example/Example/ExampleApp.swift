@@ -9,6 +9,7 @@ import DebugSwift
 import SwiftUI
 import UserNotifications
 import UIKit
+import CoreData
 
 @available(iOS 14.0, *)
 @main
@@ -51,6 +52,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // To fix Alamofire `uploadProgress`
 //        DebugSwift.Network.delegate = self
         
+        // MARK: Core Data Example Setup
+        setupCoreDataExample()
+        
         // MARK: Custom Actions Demo - Including Network History Clear
         setupCustomActions()
         
@@ -58,6 +62,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         requestPushNotificationPermissions()
 
         return true
+    }
+    
+    // MARK: - Core Data Setup
+    
+    private func setupCoreDataExample() {
+        CoreDataExample.shared.setupDebugSwift()
+        
+        let context = CoreDataExample.shared.viewContext
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Person")
+        let count = try? context.count(for: fetchRequest)
+        
+        if count == 0 {
+            CoreDataExample.shared.createSampleData()
+        }
     }
     
     // MARK: - Deep Link Handling

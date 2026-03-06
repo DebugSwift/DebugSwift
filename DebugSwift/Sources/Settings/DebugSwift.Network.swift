@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 extension DebugSwift {
     public class Network: @unchecked Sendable {
@@ -393,6 +394,60 @@ extension DebugSwift {
                 }
                 return (identifier, url)
             }
+        }
+        
+        // MARK: - Core Data Configuration
+        
+        /// Core Data persistent container for debugging
+        public var coreDataContainer: NSPersistentContainer? {
+            didSet {
+                if let container = coreDataContainer {
+                    Task { @MainActor in
+                        CoreDataManager.shared.configure(container: container)
+                    }
+                }
+            }
+        }
+        
+        /// Core Data managed object context for debugging
+        public var coreDataContext: NSManagedObjectContext? {
+            didSet {
+                if let context = coreDataContext {
+                    Task { @MainActor in
+                        CoreDataManager.shared.configure(context: context)
+                    }
+                }
+            }
+        }
+        
+        /// Multiple Core Data contexts with labels
+        public var coreDataContexts: [String: NSManagedObjectContext] = [:] {
+            didSet {
+                Task { @MainActor in
+                    CoreDataManager.shared.configure(contexts: coreDataContexts)
+                }
+            }
+        }
+        
+        /// Enable read-only mode for Core Data browser (default: false)
+        public var coreDataReadOnly: Bool = false
+        
+        /// Configure Core Data with a persistent container
+        /// - Parameter container: The NSPersistentContainer to debug
+        public func configureCoreData(container: NSPersistentContainer) {
+            coreDataContainer = container
+        }
+        
+        /// Configure Core Data with a managed object context
+        /// - Parameter context: The NSManagedObjectContext to debug
+        public func configureCoreData(context: NSManagedObjectContext) {
+            coreDataContext = context
+        }
+        
+        /// Configure Core Data with multiple contexts
+        /// - Parameter contexts: Dictionary of context labels and their NSManagedObjectContext instances
+        public func configureCoreData(contexts: [String: NSManagedObjectContext]) {
+            coreDataContexts = contexts
         }
     }
 }
