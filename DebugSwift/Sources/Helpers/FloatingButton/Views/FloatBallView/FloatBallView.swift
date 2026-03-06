@@ -97,11 +97,18 @@ class FloatBallView: UIView {
 
     func animate(success: Bool) {
         guard isShowing else { return }
-
+        
+        // Debounce frequent animations
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(performAnimation(_:)), object: nil)
+        
         updateText()
-        startAnimation(text: success ? "🚀" : "❌")
+        perform(#selector(performAnimation(_:)), with: success, afterDelay: 0.1)
 
         if !success { ImpactFeedback.generate() }
+    }
+    
+    @objc private func performAnimation(_ success: NSNumber) {
+        startAnimation(text: success.boolValue ? "🚀" : "❌")
     }
     
     func animateWebSocket(connected: Bool) {
@@ -120,10 +127,18 @@ class FloatBallView: UIView {
     }
 
     func updateText() {
+        // Only update if showing to avoid unnecessary work
+        guard isShowing else { return }
+        
         let httpCount = HttpDatasource.shared.httpModels.count
         let webSocketCount = WebSocketDataSource.shared.getAllConnections().count
         let totalCount = httpCount + webSocketCount
-        label.text = .init(totalCount)
+        
+        // Only update if the count has actually changed
+        let newText = String(totalCount)
+        if label.text != newText {
+            label.text = newText
+        }
     }
 
     func reset() {
