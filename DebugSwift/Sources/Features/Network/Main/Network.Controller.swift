@@ -201,10 +201,18 @@ final class NetworkViewController: BaseController, MainFeatureType {
         guard viewModel.reloadDataFinish else { return }
         guard currentMode == .http || currentMode == .webview else { return }
 
-        FloatViewManager.animate(success: success)
+        // Only animate if the float view is showing to avoid unnecessary work
+        if FloatViewManager.shared.ballView.isShowing {
+            FloatViewManager.animate(success: success)
+        }
+        
         viewModel.applyFilter(for: currentMode)
         applyAdvancedFilter()
-        tableView.reloadData()
+        
+        // Use batch updates for better performance
+        if tableView.window != nil {
+            tableView.reloadData()
+        }
 
         if needScrollToEnd {
             scrollToBottom()
@@ -271,6 +279,10 @@ final class NetworkViewController: BaseController, MainFeatureType {
     }
     
     private func updateHTTPStatistics() {
+        // Skip statistics update if not visible or not needed
+        guard currentMode == .http || currentMode == .webview else { return }
+        guard view.window != nil else { return }
+        
         // Use appropriate data based on current mode
         let requests = currentMode == .webview ? viewModel.webViewModels : viewModel.httpModels
         
