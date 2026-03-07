@@ -597,7 +597,9 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
         let backItem = UIBarButtonItem()
         backItem.title = "Network Injection"
         navigationItem.backBarButtonItem = backItem
-        navigationItem.backButtonDisplayMode = .default
+        if #available(iOS 14.0, *) {
+            navigationItem.backButtonDisplayMode = .default
+        }
         let editor = RewriteRuleEditViewController(rule: existingRule) { [weak self] updatedRule in
             guard let self = self else { return }
             var updatedRules = self.rewriteConfig.rules
@@ -662,10 +664,17 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
     }
 
     private func importRewriteRulesCSV() {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.commaSeparatedText, .plainText])
-        picker.delegate = self
-        picker.allowsMultipleSelection = false
-        present(picker, animated: true)
+        if #available(iOS 14.0, *) {
+            let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.commaSeparatedText, .plainText])
+            picker.delegate = self
+            picker.allowsMultipleSelection = false
+            present(picker, animated: true)
+        } else {
+            let picker = UIDocumentPickerViewController(documentTypes: ["public.comma-separated-values-text", "public.plain-text"], in: .import)
+            picker.delegate = self
+            picker.allowsMultipleSelection = false
+            present(picker, animated: true)
+        }
     }
 
     private func applyImportedRewriteRules(_ importedRules: [ResponseBodyRewriteRule]) -> (created: Int, updated: Int) {

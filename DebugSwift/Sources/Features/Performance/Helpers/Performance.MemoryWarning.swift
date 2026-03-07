@@ -15,19 +15,46 @@ final class PerformanceMemoryWarning {
     
     private var isSimulating = false
     private var allocatedMemory: [UnsafeMutableRawPointer] = []
-    private let logger = Logger(subsystem: "DebugSwift", category: "MemoryWarning")
+    
+    private var logger: Any? {
+        if #available(iOS 14.0, *) {
+            return Logger(subsystem: "DebugSwift", category: "MemoryWarning")
+        }
+        return nil
+    }
+    
+    private func log(_ message: String, type: LogType = .info) {
+        if #available(iOS 14.0, *), let logger = logger as? Logger {
+            switch type {
+            case .info:
+                logger.info("\(message)")
+            case .warning:
+                logger.warning("\(message)")
+            case .error:
+                logger.error("\(message)")
+            case .debug:
+                logger.debug("\(message)")
+            }
+        } else {
+            print("[MemoryWarning] \(message)")
+        }
+    }
+    
+    private enum LogType {
+        case info, warning, error, debug
+    }
     
     // MARK: - Public Methods
     
     /// Generates a memory warning with realistic memory pressure
     func generate() {
         guard !isSimulating else {
-            logger.warning("Memory warning simulation already in progress")
+            log("Memory warning simulation already in progress", type: .warning)
             return
         }
         
         isSimulating = true
-        logger.info("🚨 Starting memory warning simulation...")
+        log("🚨 Starting memory warning simulation...")
         
         // Perform the warning immediately
         performSystemMemoryWarning()
@@ -44,7 +71,7 @@ final class PerformanceMemoryWarning {
         // Method 1: Use the private API (most effective)
         if UIApplication.shared.responds(to: Selector(("_performMemoryWarning"))) {
             UIApplication.shared.perform(Selector(("_performMemoryWarning")))
-            logger.info("✅ System memory warning triggered via private API")
+            log("✅ System memory warning triggered via private API")
         }
         
         // Method 2: Send memory warning notification manually
@@ -52,13 +79,13 @@ final class PerformanceMemoryWarning {
             name: UIApplication.didReceiveMemoryWarningNotification,
             object: UIApplication.shared
         )
-        logger.info("📢 Memory warning notification sent")
+        log("📢 Memory warning notification sent")
         
         // Method 3: Trigger on all view controllers in the hierarchy
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootViewController = windowScene.windows.first?.rootViewController {
             triggerMemoryWarningOnViewController(rootViewController)
-            logger.info("🎯 Memory warning sent to view controller hierarchy")
+            log("🎯 Memory warning sent to view controller hierarchy")
         }
     }
     
@@ -81,7 +108,9 @@ final class PerformanceMemoryWarning {
         let chunkSize = 10 * 1024 * 1024 // 10MB chunks
         let maxChunks = 50 // Max 500MB
         
-        self.logger.info("🔥 Simulating memory pressure with \(maxChunks) chunks of 10MB each")
+        await MainActor.run {
+            self.log("🔥 Simulating memory pressure with \(maxChunks) chunks of 10MB each")
+        }
         
         // Allocate memory in chunks to create realistic pressure
         for i in 0..<maxChunks {
@@ -97,19 +126,25 @@ final class PerformanceMemoryWarning {
                     buffer[j] = UInt8.random(in: 0...255)
                 }
                 
-                self.allocatedMemory.append(memory)
-                self.logger.debug("📈 Allocated chunk \(i + 1)/\(maxChunks) - Current chunks: \(self.allocatedMemory.count)")
+                await MainActor.run {
+                    self.allocatedMemory.append(memory)
+                    self.log("📈 Allocated chunk \(i + 1)/\(maxChunks) - Current chunks: \(self.allocatedMemory.count)", type: .debug)
+                }
                 
                 // Wait between allocations to create gradual pressure
                 try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
             } else {
-                self.logger.error("❌ Failed to allocate memory chunk \(i + 1)")
+                await MainActor.run {
+                    self.log("❌ Failed to allocate memory chunk \(i + 1)", type: .error)
+                }
                 break
             }
         }
         
         // Hold memory for a brief period
-        self.logger.info("⏳ Maintaining memory pressure for 2 seconds...")
+        await MainActor.run {
+            self.log("⏳ Maintaining memory pressure for 2 seconds...")
+        }
         try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
         
         // Cleanup
@@ -117,15 +152,15 @@ final class PerformanceMemoryWarning {
     }
     
     private func cleanupAllocatedMemory() async {
-        self.logger.info("🧹 Cleaning up allocated memory...")
-        
         await MainActor.run {
+            self.log("🧹 Cleaning up allocated memory...")
+            
             for memory in self.allocatedMemory {
                 free(memory)
             }
             self.allocatedMemory.removeAll()
             self.isSimulating = false
-            self.logger.info("✨ Memory cleanup completed")
+            self.log("✨ Memory cleanup completed")
         }
         
         // Force garbage collection
@@ -148,7 +183,7 @@ final class PerformanceMemoryWarning {
     func stopSimulation() {
         guard isSimulating else { return }
         
-        logger.info("🛑 Manually stopping memory warning simulation")
+        log("🛑 Manually stopping memory warning simulation")
         isSimulating = false
         
         Task.detached(priority: .background) { [weak self] in

@@ -544,16 +544,33 @@ public struct RenderTrackingModifier: ViewModifier {
     public func body(content: Content) -> some View {
         let tracker = SwiftUIRenderTracker.shared
         
-        return content
-            .onChange(of: tracker.isEnabled) { _ in
-                // Force a render when tracking state changes
-            }
-            .background(
-                // This invisible view will re-render whenever the parent does
-                RenderDetectionView(viewName: viewName)
-                    .frame(width: 0, height: 0)
-                    .hidden()
+        if #available(iOS 14.0, *) {
+            return AnyView(
+                content
+                    .onChange(of: tracker.isEnabled) { _ in
+                        // Force a render when tracking state changes
+                    }
+                    .background(
+                        // This invisible view will re-render whenever the parent does
+                        RenderDetectionView(viewName: viewName)
+                            .frame(width: 0, height: 0)
+                            .hidden()
+                    )
             )
+        } else {
+            return AnyView(
+                content
+                    .onReceive(NotificationCenter.default.publisher(for: SwiftUIRenderTracker.renderTrackingStateChangedNotification)) { _ in
+                        // Force a render when tracking state changes
+                    }
+                    .background(
+                        // This invisible view will re-render whenever the parent does
+                        RenderDetectionView(viewName: viewName)
+                            .frame(width: 0, height: 0)
+                            .hidden()
+                    )
+            )
+        }
     }
 }
 
