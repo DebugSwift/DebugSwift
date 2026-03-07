@@ -96,17 +96,29 @@ jobs:
           LAST_RELEASE=$(git rev-list --max-parents=0 HEAD)
         fi
         
-        echo "Getting PRs merged since: $LAST_RELEASE"
+        echo "Getting PRs merged between: $LAST_RELEASE and HEAD"
         
-        # Get merged PRs since last release
-        PR_LIST=$(gh pr list --state merged --base main --limit 100 --json number,title,mergedAt,author | \
-          jq -r --arg since "$(git log -1 --format=%aI $LAST_RELEASE 2>/dev/null || echo '2000-01-01')" \
-          '[.[] | select(.mergedAt >= $since)] | 
-          map("- " + .title + " (#" + (.number|tostring) + ") by @" + .author.login) | 
-          join("\n")')
+        # Get all merge commits between the last release and HEAD
+        MERGE_COMMITS=$(git log $LAST_RELEASE..HEAD --merges --pretty=format:"%s" | grep -oE '#[0-9]+' | sed 's/#//' | sort -u)
         
-        if [ -z "$PR_LIST" ]; then
+        if [ -z "$MERGE_COMMITS" ]; then
           PR_LIST="- No PRs merged since last release"
+        else
+          # Fetch PR details for each PR number
+          PR_LIST=""
+          for pr_num in $MERGE_COMMITS; do
+            pr_details=$(gh pr view $pr_num --json number,title,author --jq '"- " + .title + " (#" + (.number|tostring) + ") by @" + .author.login' 2>/dev/null || echo "")
+            if [ -n "$pr_details" ]; then
+              PR_LIST="${PR_LIST}${pr_details}"$'\n'
+            fi
+          done
+          
+          # Remove trailing newline
+          PR_LIST=$(echo "$PR_LIST" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')
+          
+          if [ -z "$PR_LIST" ]; then
+            PR_LIST="- No PRs merged since last release"
+          fi
         fi
         
         echo "PR_LIST<<EOF" >> $GITHUB_OUTPUT
