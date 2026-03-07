@@ -19,8 +19,17 @@ public final class AccessibilityAuditor: @unchecked Sendable {
     
     @MainActor
     public func auditCurrentScreen() -> AuditReport {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return AuditReport(viewController: "Unknown", issues: [], score: 0)
+        }
+        
+        // Find the main app window (not CustomWindow from DebugSwift)
+        let appWindow = windowScene.windows.first { window in
+            let isCustomWindow = String(describing: type(of: window)).contains("CustomWindow")
+            return !isCustomWindow && window.rootViewController != nil
+        }
+        
+        guard let window = appWindow,
               let rootViewController = window.rootViewController else {
             return AuditReport(viewController: "Unknown", issues: [], score: 0)
         }

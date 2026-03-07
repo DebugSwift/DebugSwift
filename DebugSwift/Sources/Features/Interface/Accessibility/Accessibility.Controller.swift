@@ -163,13 +163,6 @@ final class AccessibilityViewController: BaseController {
     
     private func performScan() {
         let auditor = AccessibilityAuditor.shared
-        
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first(where: { $0.isKeyWindow }),
-              let rootViewController = window.rootViewController else {
-            return
-        }
-        
         let report = auditor.auditCurrentScreen()
         currentReport = report
         updateUI(with: report)
