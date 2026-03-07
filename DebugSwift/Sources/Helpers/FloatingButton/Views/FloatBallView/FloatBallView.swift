@@ -28,8 +28,27 @@ class FloatBallView: UIView {
     lazy var ballView: UIView = buildBallView()
 
     // MARK: - Storage
-    @AppStorage("debug_swift_float_ball_x") private static var savedX: Double = 20
-    @AppStorage("debug_swift_float_ball_y") private static var savedY: Double = (UIScreen.main.bounds.height / 2 - 80.0)
+    private static var savedX: Double {
+        get {
+            UserDefaults.standard.double(forKey: "debug_swift_float_ball_x") != 0 
+                ? UserDefaults.standard.double(forKey: "debug_swift_float_ball_x") 
+                : 20
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "debug_swift_float_ball_x")
+        }
+    }
+    
+    private static var savedY: Double {
+        get {
+            UserDefaults.standard.double(forKey: "debug_swift_float_ball_y") != 0 
+                ? UserDefaults.standard.double(forKey: "debug_swift_float_ball_y") 
+                : (UIScreen.main.bounds.height / 2 - 80.0)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "debug_swift_float_ball_y")
+        }
+    }
 
     var show = false {
         didSet {

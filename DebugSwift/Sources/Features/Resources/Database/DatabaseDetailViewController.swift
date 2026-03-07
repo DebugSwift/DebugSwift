@@ -130,11 +130,17 @@ extension DatabaseDetailViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TableCell", for: indexPath)
         let table = tables[indexPath.row]
         
-        var content = cell.defaultContentConfiguration()
-        content.text = table.name
-        content.secondaryText = "\(table.rowCount) rows"
-        content.image = UIImage(systemName: "tablecells")
-        cell.contentConfiguration = content
+        if #available(iOS 14.0, *) {
+            var content = cell.defaultContentConfiguration()
+            content.text = table.name
+            content.secondaryText = "\(table.rowCount) rows"
+            content.image = UIImage(systemName: "tablecells")
+            cell.contentConfiguration = content
+        } else {
+            cell.textLabel?.text = table.name
+            cell.detailTextLabel?.text = "\(table.rowCount) rows"
+            cell.imageView?.image = UIImage(systemName: "tablecells")
+        }
         cell.accessoryType = .disclosureIndicator
         
         return cell

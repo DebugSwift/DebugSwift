@@ -578,10 +578,15 @@ extension CoreDataRelatedObjectsViewController: UITableViewDataSource, UITableVi
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let object = objects[indexPath.row]
         
-        var content = cell.defaultContentConfiguration()
-        content.text = "Object \(indexPath.row + 1)"
-        content.secondaryText = object.objectID.uriRepresentation().lastPathComponent
-        cell.contentConfiguration = content
+        if #available(iOS 14.0, *) {
+            var content = cell.defaultContentConfiguration()
+            content.text = "Object \(indexPath.row + 1)"
+            content.secondaryText = object.objectID.uriRepresentation().lastPathComponent
+            cell.contentConfiguration = content
+        } else {
+            cell.textLabel?.text = "Object \(indexPath.row + 1)"
+            cell.detailTextLabel?.text = object.objectID.uriRepresentation().lastPathComponent
+        }
         cell.accessoryType = .disclosureIndicator
         
         return cell
