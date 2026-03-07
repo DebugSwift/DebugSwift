@@ -77,6 +77,9 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         tableView.register(HierarchyTableViewCell.self, forCellReuseIdentifier: HierarchyTableViewController.ReuseIdentifier)
         tableView.dataSource = dataSource
         tableView.separatorStyle = .none
+        tableView.backgroundColor = .systemBackground
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 56
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -215,31 +218,35 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
             let reuseIdentifier = HierarchyTableViewController.ReuseIdentifier
             let cell = (tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as? HierarchyTableViewCell) ?? HierarchyTableViewCell(style: .default, reuseIdentifier: reuseIdentifier)
 
-            let baseFont = configuration.nameFont
-            switch value.label.classification {
-            case .normal:
-                cell.nameLabel.font = baseFont
-            case .important:
-                if let descriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitBold) {
-                    cell.nameLabel.font = UIFont(descriptor: descriptor, size: baseFont.pointSize)
-                } else {
-                    cell.nameLabel.font = baseFont
-                }
-            }
-            cell.nameLabel.text = value.label.name
-
-            let frame = value.frame
-            cell.frameLabel.font = configuration.frameFont
-            cell.frameLabel.text = String(format: "(%.1f, %.1f, %.1f, %.1f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height)
-            cell.lineView.lineCount = depth
-            cell.lineView.lineColors = configuration.lineColors
-            cell.lineView.lineWidth = configuration.lineWidth
-            cell.lineView.lineSpacing = configuration.lineSpacing
-            cell.showSubtreeButton = !shouldIgnoreMaxDepth && !value.children.isEmpty && depth >= (configuration.maxDepth?.intValue ?? Int.max)
-            cell.indexPath = indexPath
-            cell.delegate = self
+            configureCellAppearance(cell: cell, value: value, depth: depth, indexPath: indexPath, shouldIgnoreMaxDepth: shouldIgnoreMaxDepth)
             return cell
         }
+    }
+    
+    private func configureCellAppearance(cell: HierarchyTableViewCell, value: Snapshot, depth: Int, indexPath: IndexPath, shouldIgnoreMaxDepth: Bool) {
+        let baseFont = configuration.nameFont
+        switch value.label.classification {
+        case .normal:
+            cell.nameLabel.font = baseFont
+        case .important:
+            if let descriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitBold) {
+                cell.nameLabel.font = UIFont(descriptor: descriptor, size: baseFont.pointSize)
+            } else {
+                cell.nameLabel.font = baseFont
+            }
+        }
+        cell.nameLabel.text = value.label.name
+
+        let frame = value.frame
+        cell.frameLabel.font = configuration.frameFont
+        cell.frameLabel.text = String(format: "(%.1f, %.1f, %.1f, %.1f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height)
+        cell.lineView.lineCount = depth
+        cell.lineView.lineColors = configuration.lineColors
+        cell.lineView.lineWidth = configuration.lineWidth
+        cell.lineView.lineSpacing = configuration.lineSpacing
+        cell.showSubtreeButton = !shouldIgnoreMaxDepth && !value.children.isEmpty && depth >= (configuration.maxDepth?.intValue ?? Int.max)
+        cell.indexPath = indexPath
+        cell.delegate = self
     }
 }
 
