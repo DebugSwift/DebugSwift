@@ -525,11 +525,16 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
             return
         }
         
+        let webView = message.webView
+        
         processingQueue.async { [weak self] in
-            self?.processNetworkMessage(messageBody, from: message.webView)
+            Task { @MainActor [weak self] in
+                self?.processNetworkMessage(messageBody, from: webView)
+            }
         }
     }
     
+    @MainActor
     private func processNetworkMessage(_ data: [String: Any], from webView: WKWebView?) {
         guard let type = data["type"] as? String else { return }
         
@@ -547,6 +552,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         }
     }
     
+    @MainActor
     private func handleRequestStart(_ data: [String: Any], webView: WKWebView?) {
         guard NetworkHelper.shared.isNetworkEnable else { return }
         
@@ -572,6 +578,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         Debug.print("🌐 WebView Request: \(method) \(url)")
     }
     
+    @MainActor
     private func handleNavigation(_ data: [String: Any], webView: WKWebView?) {
         let url = data["url"] as? String ?? "unknown"
         let trigger = data["trigger"] as? String ?? "unknown"
@@ -692,6 +699,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         }
     }
     
+    @MainActor
     private func scheduleUIUpdate() {
         guard !pendingUIUpdate else { return }
         pendingUIUpdate = true
@@ -717,6 +725,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         return String(format: "%.3f (s)", totalLoadTime / 1000.0)
     }
     
+    @MainActor
     private func handleResponseReceived(_ data: [String: Any], webView: WKWebView?) {
         guard NetworkHelper.shared.isNetworkEnable else { return }
         
@@ -739,6 +748,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         WebViewRequestCache.shared.remove(requestId: requestId)
     }
     
+    @MainActor
     private func handleRequestError(_ data: [String: Any], webView: WKWebView?) {
         guard NetworkHelper.shared.isNetworkEnable else { return }
         
@@ -761,6 +771,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         WebViewRequestCache.shared.remove(requestId: requestId)
     }
     
+    @MainActor
     private func createHttpModel(
         from requestInfo: [String: Any],
         responseData: [String: Any],

@@ -188,6 +188,8 @@ extension NSAttributeType {
             return "ObjectID"
         case .compositeAttributeType:
             return "Composite"
+        case .undefinedAttributeType:
+            return "Undefined"
         @unknown default:
             return "Unknown"
         }
