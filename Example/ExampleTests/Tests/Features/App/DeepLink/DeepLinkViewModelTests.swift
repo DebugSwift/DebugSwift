@@ -212,7 +212,7 @@ final class DeepLinkViewModelTests: XCTestCase {
 
 // MARK: - DeepLinkType Equatable conformance for tests
 
-extension DeepLinkType: Equatable {
+extension DeepLinkType {
     static func == (lhs: DeepLinkType, rhs: DeepLinkType) -> Bool {
         switch (lhs, rhs) {
         case (.urlScheme, .urlScheme), (.universalLink, .universalLink):

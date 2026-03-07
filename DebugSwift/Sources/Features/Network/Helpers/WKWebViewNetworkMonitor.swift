@@ -123,15 +123,32 @@ extension WKWebView {
             
             const messageHandler = '__debugswift_webview_net__';
             
+            // Navigation throttling
+            let lastNavigationURL = null;
+            let lastNavigationTime = 0;
+            const NAVIGATION_THROTTLE_MS = 500;
+            
             // Comprehensive navigation data collection
             function collectNavigationInfo(trigger = 'initial_load') {
+                // Throttle duplicate navigation events
+                const now = Date.now();
+                const currentURL = window.location.href;
+                
+                if (currentURL === lastNavigationURL && (now - lastNavigationTime) < NAVIGATION_THROTTLE_MS) {
+                    console.log('🧭 DebugSwift: Navigation throttled', trigger, currentURL);
+                    return;
+                }
+                
+                lastNavigationURL = currentURL;
+                lastNavigationTime = now;
+                
                 const navData = {
                     type: 'navigation',
                     trigger: trigger,
-                    timestamp: Date.now(),
+                    timestamp: now,
                     
                     // URL Information
-                    url: window.location.href,
+                    url: currentURL,
                     protocol: window.location.protocol,
                     hostname: window.location.hostname,
                     port: window.location.port,
@@ -486,6 +503,15 @@ extension WKWebView {
 final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
     static let shared = WebViewNetworkMessageHandler()
     
+    private var lastNavigationURL: String?
+    private var lastNavigationTime: TimeInterval = 0
+    private let navigationThrottle: TimeInterval = 0.5
+    
+    private var pendingUIUpdate = false
+    private let uiUpdateDebounceInterval: TimeInterval = 0.3
+    
+    private let processingQueue = DispatchQueue(label: "com.debugswift.webview.processing", qos: .utility)
+    
     private override init() {
         super.init()
     }
@@ -499,9 +525,16 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
             return
         }
         
-        processNetworkMessage(messageBody, from: message.webView)
+        let webView = message.webView
+        
+        processingQueue.async { [weak self] in
+            Task { @MainActor [weak self] in
+                self?.processNetworkMessage(messageBody, from: webView)
+            }
+        }
     }
     
+    @MainActor
     private func processNetworkMessage(_ data: [String: Any], from webView: WKWebView?) {
         guard let type = data["type"] as? String else { return }
         
@@ -519,6 +552,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         }
     }
     
+    @MainActor
     private func handleRequestStart(_ data: [String: Any], webView: WKWebView?) {
         guard NetworkHelper.shared.isNetworkEnable else { return }
         
@@ -544,11 +578,22 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         Debug.print("🌐 WebView Request: \(method) \(url)")
     }
     
+    @MainActor
     private func handleNavigation(_ data: [String: Any], webView: WKWebView?) {
         let url = data["url"] as? String ?? "unknown"
         let trigger = data["trigger"] as? String ?? "unknown"
         let title = data["title"] as? String ?? ""
         let userAgent = data["userAgent"] as? String ?? ""
+        
+        // Throttle duplicate navigation events
+        let currentTime = Date().timeIntervalSince1970
+        if url == lastNavigationURL && (currentTime - lastNavigationTime) < navigationThrottle {
+            Debug.print("🧭 WebView Navigation (\(trigger)): \(url) [THROTTLED]")
+            return
+        }
+        
+        lastNavigationURL = url
+        lastNavigationTime = currentTime
         
         Debug.print("🧭 WebView Navigation (\(trigger)): \(url)")
         
@@ -649,11 +694,24 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
             }
             
             if HttpDatasource.shared.addHttpRequest(model) {
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("reloadHttp_DebugSwift"),
-                    object: true
-                )
+                scheduleUIUpdate()
             }
+        }
+    }
+    
+    @MainActor
+    private func scheduleUIUpdate() {
+        guard !pendingUIUpdate else { return }
+        pendingUIUpdate = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + uiUpdateDebounceInterval) { [weak self] in
+            guard let self = self else { return }
+            self.pendingUIUpdate = false
+            
+            NotificationCenter.default.post(
+                name: NSNotification.Name("reloadHttp_DebugSwift"),
+                object: true
+            )
         }
     }
     
@@ -667,6 +725,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         return String(format: "%.3f (s)", totalLoadTime / 1000.0)
     }
     
+    @MainActor
     private func handleResponseReceived(_ data: [String: Any], webView: WKWebView?) {
         guard NetworkHelper.shared.isNetworkEnable else { return }
         
@@ -689,6 +748,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         WebViewRequestCache.shared.remove(requestId: requestId)
     }
     
+    @MainActor
     private func handleRequestError(_ data: [String: Any], webView: WKWebView?) {
         guard NetworkHelper.shared.isNetworkEnable else { return }
         
@@ -711,6 +771,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         WebViewRequestCache.shared.remove(requestId: requestId)
     }
     
+    @MainActor
     private func createHttpModel(
         from requestInfo: [String: Any],
         responseData: [String: Any],
@@ -764,10 +825,7 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         
         // Add to DebugSwift's HTTP datasource
         if HttpDatasource.shared.addHttpRequest(model) {
-            NotificationCenter.default.post(
-                name: NSNotification.Name("reloadHttp_DebugSwift"),
-                object: model.isSuccess
-            )
+            scheduleUIUpdate()
         }
     }
 }
