@@ -12,7 +12,7 @@ import UIKit
 
 @MainActor
 protocol HierarchyTableViewCellDelegate: AnyObject {
-    func hierarchyTableViewCellDidTapSubtree(cell: HierarchyTableViewCell)
+    func hierarchyTableViewCellDidTap(cell: HierarchyTableViewCell)
     func hierarchyTableViewCellDidLongPress(cell: HierarchyTableViewCell, point: CGPoint)
 }
 
@@ -22,18 +22,16 @@ private enum Design {
     enum Colors {
         static let elementName = UIColor.label
         static let frameInfo = UIColor.secondaryLabel
-        static let subtreeButtonBackground = UIColor.systemBlue
-        static let subtreeButtonText = UIColor.white
         static let selectedBackground = UIColor.systemGray5
         static let separatorLine = UIColor.separator
         static let hierarchyLine = UIColor.systemGray3
+        static let chevronColor = UIColor.systemGray3
     }
     
     enum Typography {
         static let elementName = UIFont.systemFont(ofSize: 15, weight: .medium)
         static let elementNameBold = UIFont.systemFont(ofSize: 15, weight: .semibold)
         static let frameInfo = UIFont.monospacedSystemFont(ofSize: 12, weight: .regular)
-        static let subtreeButton = UIFont.systemFont(ofSize: 13, weight: .medium)
     }
     
     enum Spacing {
@@ -41,11 +39,8 @@ private enum Design {
         static let cellHorizontalPadding: CGFloat = 12
         static let labelSpacing: CGFloat = 4
         static let lineToContentSpacing: CGFloat = 12
-        static let contentToButtonSpacing: CGFloat = 12
-        static let buttonHorizontalPadding: CGFloat = 12
-        static let buttonVerticalPadding: CGFloat = 6
-        static let buttonCornerRadius: CGFloat = 6
         static let separatorHeight: CGFloat = 0.5
+        static let chevronSize: CGFloat = 20
     }
     
     enum Layout {
@@ -117,25 +112,15 @@ final class HierarchyTableViewCell: UITableViewCell {
         return label
     }()
     
-    private lazy var subtreeButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Subtree", for: .normal)
-        button.titleLabel?.font = Design.Typography.subtreeButton
-        button.backgroundColor = Design.Colors.subtreeButtonBackground
-        button.setTitleColor(Design.Colors.subtreeButtonText, for: .normal)
-        button.layer.cornerRadius = Design.Spacing.buttonCornerRadius
-        button.layer.masksToBounds = true
-        button.contentEdgeInsets = UIEdgeInsets(
-            top: Design.Spacing.buttonVerticalPadding,
-            left: Design.Spacing.buttonHorizontalPadding,
-            bottom: Design.Spacing.buttonVerticalPadding,
-            right: Design.Spacing.buttonHorizontalPadding
-        )
-        button.setContentHuggingPriority(.required, for: .horizontal)
-        button.setContentCompressionResistancePriority(.required, for: .horizontal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(didTapSubtree), for: .touchUpInside)
-        return button
+    private let chevronImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "chevron.right")
+        imageView.tintColor = Design.Colors.chevronColor
+        imageView.contentMode = .scaleAspectFit
+        imageView.setContentHuggingPriority(.required, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
     
     private let separatorLine: UIView = {
@@ -155,13 +140,9 @@ final class HierarchyTableViewCell: UITableViewCell {
     
     // MARK: - Properties
     
-    private var subtreeButtonWidthConstraint: NSLayoutConstraint?
-    private var subtreeButtonTrailingConstraint: NSLayoutConstraint?
-    
-    var showSubtreeButton = false {
+    var hasChildren = false {
         didSet {
-            subtreeButton.isHidden = !showSubtreeButton
-            subtreeButtonWidthConstraint?.isActive = !showSubtreeButton
+            chevronImageView.isHidden = !hasChildren
         }
     }
     
@@ -202,11 +183,13 @@ final class HierarchyTableViewCell: UITableViewCell {
         
         contentStackView.addArrangedSubview(lineView)
         contentStackView.addArrangedSubview(labelContainerView)
-        contentStackView.addArrangedSubview(subtreeButton)
+        contentStackView.addArrangedSubview(chevronImageView)
         
         labelContainerView.addSubview(labelsStackView)
         labelsStackView.addArrangedSubview(nameLabel)
         labelsStackView.addArrangedSubview(frameLabel)
+        
+        chevronImageView.isHidden = true
     }
     
     private func setupConstraints() {
@@ -233,6 +216,9 @@ final class HierarchyTableViewCell: UITableViewCell {
             labelsStackView.topAnchor.constraint(equalTo: labelContainerView.topAnchor),
             labelsStackView.bottomAnchor.constraint(equalTo: labelContainerView.bottomAnchor),
             
+            chevronImageView.widthAnchor.constraint(equalToConstant: Design.Spacing.chevronSize),
+            chevronImageView.heightAnchor.constraint(equalToConstant: Design.Spacing.chevronSize),
+            
             separatorLine.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             separatorLine.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             separatorLine.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
@@ -241,12 +227,15 @@ final class HierarchyTableViewCell: UITableViewCell {
         
         labelContainerView.setContentHuggingPriority(.defaultLow, for: .horizontal)
         labelContainerView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        
-        subtreeButtonWidthConstraint = subtreeButton.widthAnchor.constraint(equalToConstant: 0)
-        subtreeButton.isHidden = true
     }
     
     private func setupGestures() {
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTap)
+        )
+        contentView.addGestureRecognizer(tapGesture)
+        
         let longPressGesture = UILongPressGestureRecognizer(
             target: self,
             action: #selector(handleLongPress)
@@ -268,15 +257,15 @@ final class HierarchyTableViewCell: UITableViewCell {
         super.prepareForReuse()
         nameLabel.text = nil
         frameLabel.text = nil
-        showSubtreeButton = false
+        hasChildren = false
         indexPath = nil
         delegate = nil
     }
     
     // MARK: - Actions
     
-    @objc private func didTapSubtree() {
-        delegate?.hierarchyTableViewCellDidTapSubtree(cell: self)
+    @objc private func handleTap() {
+        delegate?.hierarchyTableViewCellDidTap(cell: self)
     }
     
     @objc private func handleLongPress(_ sender: UILongPressGestureRecognizer) {

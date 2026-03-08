@@ -147,11 +147,13 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
 
     // MARK: HierarchyTableViewCellDelegate
 
-    func hierarchyTableViewCellDidTapSubtree(cell: HierarchyTableViewCell) {
+    func hierarchyTableViewCellDidTap(cell: HierarchyTableViewCell) {
         guard let indexPath = cell.indexPath, let snapshot = dataSource?.value(atIndexPath: indexPath) else {
             return
         }
-        pushSubtreeViewController(snapshot: snapshot, callDelegate: true)
+        if !snapshot.children.isEmpty {
+            pushSubtreeViewController(snapshot: snapshot, callDelegate: true)
+        }
     }
 
     func hierarchyTableViewCellDidLongPress(cell: HierarchyTableViewCell, point: CGPoint) {
@@ -244,7 +246,7 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         cell.lineView.lineColors = configuration.lineColors
         cell.lineView.lineWidth = configuration.lineWidth
         cell.lineView.lineSpacing = configuration.lineSpacing
-        cell.showSubtreeButton = !shouldIgnoreMaxDepth && !value.children.isEmpty && depth >= (configuration.maxDepth?.intValue ?? Int.max)
+        cell.hasChildren = !value.children.isEmpty
         cell.indexPath = indexPath
         cell.delegate = self
     }
