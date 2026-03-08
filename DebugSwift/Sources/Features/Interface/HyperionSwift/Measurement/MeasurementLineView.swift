@@ -65,11 +65,17 @@ class MeasurementsView: UIView {
         }
 
         let point = tapGesture.location(in: self)
-        // Convert the tap point to the attached window's coordinate system
         let pointInAttachedWindow = convert(point, to: attachedWindow)
         let selectedViews = ViewHelper.findSubviews(in: attachedWindow, intersectingPoint: pointInAttachedWindow)
+        
+        // Select the most specific view (smallest area) instead of first
+        let mostSpecificView = selectedViews.min(by: { v1, v2 in
+            let area1 = v1.frame.width * v1.frame.height
+            let area2 = v2.frame.width * v2.frame.height
+            return area1 < area2
+        })
 
-        handleViewSelection(selectedViews.first)
+        handleViewSelection(mostSpecificView)
     }
 
     private func handleViewSelection(_ selection: UIView?) {
