@@ -151,6 +151,8 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         guard let indexPath = cell.indexPath, let snapshot = dataSource?.value(atIndexPath: indexPath) else {
             return
         }
+
+        // Then, navigate if it has children
         if !snapshot.children.isEmpty {
             pushSubtreeViewController(snapshot: snapshot, callDelegate: true)
         }

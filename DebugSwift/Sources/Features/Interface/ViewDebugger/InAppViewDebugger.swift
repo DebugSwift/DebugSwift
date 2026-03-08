@@ -101,6 +101,21 @@ final class InAppViewDebugger: NSObject {
         )
         let navigationController = UINavigationController(rootViewController: debuggerViewController)
         navigationController.modalPresentationStyle = .fullScreen
+        
+        // Configure opaque navigation bar
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .white
+        appearance.shadowColor = .separator
+        
+        navigationController.navigationBar.standardAppearance = appearance
+        navigationController.navigationBar.scrollEdgeAppearance = appearance
+        navigationController.navigationBar.compactAppearance = appearance
+        if #available(iOS 15.0, *) {
+            navigationController.navigationBar.compactScrollEdgeAppearance = appearance
+        }
+        navigationController.navigationBar.isTranslucent = false
+        
         WindowManager.rootNavigation?.present(
             navigationController,
             animated: true,

@@ -101,7 +101,7 @@ final class SnapshotView: UIView {
         NSLayoutConstraint.activate([
             sceneView.leadingAnchor.constraint(equalTo: leadingAnchor),
             sceneView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            sceneView.topAnchor.constraint(equalTo: topAnchor, constant: 100),
+            sceneView.topAnchor.constraint(equalTo: topAnchor),
             sceneView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
@@ -112,6 +112,7 @@ final class SnapshotView: UIView {
 
         let cameraNode = SCNNode()
         cameraNode.camera = camera
+        cameraNode.categoryBitMask = 0
         let nodePos = sceneView.scene?.rootNode.childNodes.last?.position.y ?? 760
         cameraNode.position = .init(
             x: -700,
