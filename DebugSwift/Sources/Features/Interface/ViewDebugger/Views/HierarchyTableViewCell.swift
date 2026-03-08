@@ -98,7 +98,8 @@ final class HierarchyTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = Design.Typography.elementName
         label.textColor = Design.Colors.elementName
-        label.numberOfLines = 1
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -107,7 +108,7 @@ final class HierarchyTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = Design.Typography.frameInfo
         label.textColor = Design.Colors.frameInfo
-        label.numberOfLines = 1
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -130,25 +131,12 @@ final class HierarchyTableViewCell: UITableViewCell {
         return view
     }()
     
-    private let horizontalScrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.showsVerticalScrollIndicator = false
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
     
     // MARK: - Properties
     
     var hasChildren = false {
         didSet {
-            updateChevronVisibility()
-        }
-    }
-    
-    var isExpanded = false {
-        didSet {
-            updateChevronRotation()
+            chevronImageView.isHidden = !hasChildren
         }
     }
     
@@ -181,9 +169,7 @@ final class HierarchyTableViewCell: UITableViewCell {
             return view
         }()
         
-        contentView.addSubview(horizontalScrollView)
-        horizontalScrollView.addSubview(containerView)
-        
+        contentView.addSubview(containerView)
         containerView.addSubview(contentStackView)
         containerView.addSubview(separatorLine)
         
@@ -200,17 +186,10 @@ final class HierarchyTableViewCell: UITableViewCell {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            horizontalScrollView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            horizontalScrollView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            horizontalScrollView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            horizontalScrollView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            horizontalScrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: Design.Layout.minimumCellHeight),
-            
-            containerView.leadingAnchor.constraint(equalTo: horizontalScrollView.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: horizontalScrollView.trailingAnchor),
-            containerView.topAnchor.constraint(equalTo: horizontalScrollView.topAnchor),
-            containerView.bottomAnchor.constraint(equalTo: horizontalScrollView.bottomAnchor),
-            containerView.heightAnchor.constraint(equalTo: horizontalScrollView.heightAnchor),
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             contentStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Design.Spacing.cellHorizontalPadding),
             contentStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Design.Spacing.cellHorizontalPadding),
@@ -264,23 +243,8 @@ final class HierarchyTableViewCell: UITableViewCell {
         nameLabel.text = nil
         frameLabel.text = nil
         hasChildren = false
-        isExpanded = false
         indexPath = nil
         delegate = nil
-    }
-    
-    // MARK: - Private Helpers
-    
-    private func updateChevronVisibility() {
-        chevronImageView.isHidden = !hasChildren
-    }
-    
-    private func updateChevronRotation() {
-        UIView.animate(withDuration: 0.2) {
-            self.chevronImageView.transform = self.isExpanded 
-                ? CGAffineTransform(rotationAngle: .pi / 2)
-                : .identity
-        }
     }
     
     // MARK: - Actions
