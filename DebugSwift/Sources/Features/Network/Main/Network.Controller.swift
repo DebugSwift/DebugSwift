@@ -501,9 +501,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
         searchController.obscuresBackgroundDuringPresentation = false
         
         // Force search bar placement if available
-        if #available(iOS 16.0, *) {
-            navigationItem.preferredSearchBarPlacement = .stacked
-        }
+        navigationItem.preferredSearchBarPlacement = .stacked
         
         // Ensure search bar is active and visible
         definesPresentationContext = true

@@ -34,7 +34,6 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
         self.delegate = delegate
 
         super.init(nibName: nil, bundle: nil)
-        view.backgroundColor = .white
         navigationItem.title = snapshot.element.label.name
     }
 
@@ -43,10 +42,23 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
     }
 
     override func loadView() {
+        super.loadView()
+        
+        view.backgroundColor = .white
+        
         let snapshotView = SnapshotView(snapshot: snapshot, configuration: configuration)
         snapshotView.delegate = self
+        snapshotView.translatesAutoresizingMaskIntoConstraints = false
         self.snapshotView = snapshotView
-        view = snapshotView
+        
+        view.addSubview(snapshotView)
+        
+        NSLayoutConstraint.activate([
+            snapshotView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            snapshotView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            snapshotView.topAnchor.constraint(equalTo: view.topAnchor),
+            snapshotView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
     }
 
     override func viewWillDisappear(_ animated: Bool) {

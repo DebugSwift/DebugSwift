@@ -50,17 +50,6 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
-                NavigationLink(destination: ThreadCheckerTestView()) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("ThreadChecker Test Suite")
-                            .font(.headline)
-                        Text("Test thread safety violations")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-
                 NavigationLink(destination: WebSocketTestView()) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("WebSocket Inspector Test")

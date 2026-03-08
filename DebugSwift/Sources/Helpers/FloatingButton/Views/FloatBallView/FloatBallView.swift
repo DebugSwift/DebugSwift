@@ -52,9 +52,9 @@ class FloatBallView: UIView {
 
     var show = false {
         didSet {
-            updateText()
             guard oldValue != show else { return }
             if show {
+                label.text = "0"
                 WindowManager.window.addSubview(self)
                 layer.position = .init(
                     x: Self.savedX,

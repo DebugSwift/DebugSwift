@@ -59,10 +59,6 @@ class CoreDataExample: @unchecked Sendable {
                     task.setValue("Description for task \(i)-\(j)", forKey: "taskDescription")
                     task.setValue(j % 2 == 0, forKey: "isCompleted")
                     task.setValue(Date(), forKey: "createdAt")
-                    
-                    if let tasks = person.mutableSetValue(forKey: "tasks") as? NSMutableSet {
-                        tasks.add(task)
-                    }
                 }
             }
         }

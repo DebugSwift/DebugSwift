@@ -30,7 +30,7 @@ final class ViewDebuggerViewController:
         let navigationController = UINavigationController(
             rootViewController: debugSnapshotViewController
         )
-        navigationController.navigationBar.isHidden = false
+        navigationController.navigationBar.isHidden = true
         navigationController.title = NSLocalizedString(
             "Snapshot",
             comment: "The title for the Snapshot tab"
@@ -51,12 +51,11 @@ final class ViewDebuggerViewController:
         let navigationController = UINavigationController(
             rootViewController: hierarchyViewController
         )
-        navigationController.navigationBar.isHidden = false
+        navigationController.navigationBar.isHidden = true
         navigationController.title = NSLocalizedString(
             "Hierarchy",
             comment: "The title for the Hierarchy tab"
         )
-
         return navigationController
     }()
 
@@ -83,7 +82,17 @@ final class ViewDebuggerViewController:
             configureSplitViewController()
         }
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(done(sender:)))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(backTapped)
+        )
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(done(sender:))
+        )
     }
 
     // MARK: DebugSnapshotViewControllerDelegate
@@ -124,7 +133,7 @@ final class ViewDebuggerViewController:
     }
 
     // MARK: Private
-
+    
     private func configurePageViewController() {
         let pageViewController = UIPageViewController(
             transitionStyle: .scroll,
@@ -192,6 +201,48 @@ final class ViewDebuggerViewController:
 
     // MARK: Actions
 
+    @objc private func backTapped() {
+        // Pop the current child navigation controller if it has view controllers to pop
+        if traitCollection.userInterfaceIdiom == .phone {
+            // Get the currently visible navigation controller
+            if let segmentedControl = navigationItem.titleView as? UISegmentedControl {
+                if segmentedControl.selectedSegmentIndex == 0 {
+                    // Snapshot tab - pop if there's a stack
+                    if snapshotNavigationController.viewControllers.count > 1 {
+                        snapshotNavigationController.popViewController(animated: true)
+                    } else {
+                        // If at root, dismiss the debugger
+                        FloatViewManager.isShowingDebuggerView = false
+                        dismiss(animated: true)
+                    }
+                } else {
+                    // Hierarchy tab - pop if there's a stack
+                    if hierarchyNavigationController.viewControllers.count > 1 {
+                        hierarchyNavigationController.popViewController(animated: true)
+                    } else {
+                        // If at root, dismiss the debugger
+                        FloatViewManager.isShowingDebuggerView = false
+                        dismiss(animated: true)
+                    }
+                }
+            }
+        } else {
+            // iPad split view - check both navigation controllers
+            let snapshotCount = snapshotNavigationController.viewControllers.count
+            let hierarchyCount = hierarchyNavigationController.viewControllers.count
+            
+            if snapshotCount > 1 {
+                snapshotNavigationController.popViewController(animated: true)
+            } else if hierarchyCount > 1 {
+                hierarchyNavigationController.popViewController(animated: true)
+            } else {
+                // If both at root, dismiss the debugger
+                FloatViewManager.isShowingDebuggerView = false
+                dismiss(animated: true)
+            }
+        }
+    }
+    
     @objc private func segmentChanged(sender: UISegmentedControl) {
         selectViewController(index: sender.selectedSegmentIndex)
     }
