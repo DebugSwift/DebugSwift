@@ -68,12 +68,22 @@ class MeasurementsView: UIView {
         let pointInAttachedWindow = convert(point, to: attachedWindow)
         let selectedViews = ViewHelper.findSubviews(in: attachedWindow, intersectingPoint: pointInAttachedWindow)
         
-        // Select the most specific view (smallest area) instead of first
-        let mostSpecificView = selectedViews.min(by: { v1, v2 in
-            let area1 = v1.frame.width * v1.frame.height
-            let area2 = v2.frame.width * v2.frame.height
-            return area1 < area2
-        })
+        // Group views by area and select the last one from the smallest area group
+        // Views are ordered from most general to most specific during traversal
+        guard !selectedViews.isEmpty else {
+            handleViewSelection(nil)
+            return
+        }
+        
+        let viewsWithAreas = selectedViews.map { view in
+            (view: view, area: view.frame.width * view.frame.height)
+        }
+        
+        let minArea = viewsWithAreas.map(\.area).min() ?? 0
+        let viewsWithMinArea = viewsWithAreas.filter { $0.area == minArea }
+        
+        // Select the last view with minimum area (most specific)
+        let mostSpecificView = viewsWithMinArea.last?.view
 
         handleViewSelection(mostSpecificView)
     }
