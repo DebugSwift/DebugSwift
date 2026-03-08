@@ -260,22 +260,24 @@ final class WebSocketResendFrameViewController: BaseController {
         navigationItem.rightBarButtonItem?.isEnabled = false
 
         WebSocketMonitor.shared.sendMessage(message, onConnectionId: connection.id) { [weak self] result in
-            guard let self else { return }
-            self.navigationItem.rightBarButtonItem?.isEnabled = true
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.navigationItem.rightBarButtonItem?.isEnabled = true
 
-            switch result {
-            case .success:
-                self.showAlert(
-                    with: "Frame sent successfully",
-                    title: "Sent!"
-                ) { [weak self] _ in
-                    self?.dismiss(animated: true)
+                switch result {
+                case .success:
+                    self.showAlert(
+                        with: "Frame sent successfully",
+                        title: "Sent!"
+                    ) { [weak self] _ in
+                        self?.dismiss(animated: true)
+                    }
+                case .failure(let error):
+                    self.showAlert(
+                        with: error.localizedDescription,
+                        title: "Send Failed"
+                    )
                 }
-            case .failure(let error):
-                self.showAlert(
-                    with: error.localizedDescription,
-                    title: "Send Failed"
-                )
             }
         }
     }

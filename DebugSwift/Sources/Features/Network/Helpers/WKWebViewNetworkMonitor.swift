@@ -527,10 +527,8 @@ final class WebViewNetworkMessageHandler: NSObject, WKScriptMessageHandler {
         
         let webView = message.webView
         
-        processingQueue.async { [weak self] in
-            Task { @MainActor [weak self] in
-                self?.processNetworkMessage(messageBody, from: webView)
-            }
+        Task { @MainActor [weak self] in
+            self?.processNetworkMessage(messageBody, from: webView)
         }
     }
     

@@ -502,7 +502,7 @@ final class WebSocketMonitor: NSObject, @unchecked Sendable {
     func sendMessage(
         _ message: URLSessionWebSocketTask.Message,
         onConnectionId connectionId: String,
-        completion: @escaping (Result<Void, Error>) -> Void
+        completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
         guard let task = trackedTasks.first(where: { $0.value == connectionId })?.key else {
             completion(.failure(WebSocketMonitorError.connectionNotTracked))
@@ -514,7 +514,7 @@ final class WebSocketMonitor: NSObject, @unchecked Sendable {
             return
         }
 
-        task.send(message) { error in
+        task.send(message) { [completion] error in
             DispatchQueue.main.async {
                 if let error {
                     completion(.failure(error))
