@@ -17,37 +17,12 @@ protocol HierarchyTableViewControllerDelegate: AnyObject {
 }
 
 final class HierarchyTableViewController: UITableViewController, HierarchyTableViewCellDelegate, HierarchyTableViewControllerDelegate {
-    private lazy var horizontalScrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
-
     private static let ReuseIdentifier = "HierarchyTableViewCell"
 
     private let snapshot: Snapshot
     private let configuration: HierarchyViewConfiguration
-
-    private var dataSource: TreeTableViewDataSource<Snapshot>? {
-        didSet {
-            if isViewLoaded {
-                tableView?.dataSource = dataSource
-                tableView?.reloadData()
-            }
-        }
-    }
-
-    private var shouldIgnoreMaxDepth = false {
-        didSet {
-            if shouldIgnoreMaxDepth != oldValue {
-                dataSource = TreeTableViewDataSource(
-                    tree: snapshot,
-                    maxDepth: shouldIgnoreMaxDepth ? nil : configuration.maxDepth?.intValue,
-                    cellFactory: cellFactory(shouldIgnoreMaxDepth: shouldIgnoreMaxDepth)
-                )
-            }
-        }
-    }
+    
+    private var expandableDataSource: ExpandableTreeDataSource<Snapshot>?
 
     weak var delegate: HierarchyTableViewControllerDelegate?
 
@@ -60,10 +35,9 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         navigationItem.title = snapshot.element.label.name
         clearsSelectionOnViewWillAppear = false
 
-        self.dataSource = TreeTableViewDataSource(
+        self.expandableDataSource = ExpandableTreeDataSource(
             tree: snapshot,
-            maxDepth: configuration.maxDepth?.intValue,
-            cellFactory: cellFactory(shouldIgnoreMaxDepth: false)
+            cellFactory: cellFactory()
         )
     }
 
@@ -75,7 +49,7 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(HierarchyTableViewCell.self, forCellReuseIdentifier: HierarchyTableViewController.ReuseIdentifier)
-        tableView.dataSource = dataSource
+        tableView.dataSource = expandableDataSource
         tableView.separatorStyle = .none
         tableView.backgroundColor = .systemBackground
         tableView.rowHeight = UITableView.automaticDimension
@@ -93,53 +67,48 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
     // MARK: API
 
     func selectRow(forSnapshot snapshot: Snapshot) {
-        let topViewController = topHierarchyViewController()
-        if topViewController == self {
-            shouldIgnoreMaxDepth = true
-            let indexPath = dataSource?.indexPath(forValue: snapshot)
-            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .middle)
-        } else {
-            topViewController.selectRow(forSnapshot: snapshot)
-        }
+        let indexPath = expandableDataSource?.indexPath(forValue: snapshot)
+        tableView.selectRow(at: indexPath, animated: true, scrollPosition: .middle)
     }
 
     func deselectRow(forSnapshot snapshot: Snapshot) {
-        let topViewController = topHierarchyViewController()
-        if topViewController == self {
-            shouldIgnoreMaxDepth = false
-            guard let indexPath = dataSource?.indexPath(forValue: snapshot) else {
-                return
-            }
-            tableView.deselectRow(at: indexPath, animated: true)
-        } else {
-            topViewController.deselectRow(forSnapshot: snapshot)
+        guard let indexPath = expandableDataSource?.indexPath(forValue: snapshot) else {
+            return
         }
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 
     func focus(snapshot: Snapshot) {
-        focus(snapshot: snapshot, callDelegate: false)
-    }
-
-    private func focus(snapshot: Snapshot, callDelegate: Bool) {
-        let topViewController = topHierarchyViewController()
-        if topViewController == self {
-            pushSubtreeViewController(snapshot: snapshot, callDelegate: callDelegate)
-        } else {
-            topViewController.focus(snapshot: snapshot)
+        // For expandable tree, just expand the node
+        guard let dataSource = expandableDataSource else { return }
+        
+        if !dataSource.isExpanded(snapshot) {
+            let changes = dataSource.toggleExpansion(snapshot)
+            tableView.beginUpdates()
+            if changes.count > 1 {
+                tableView.reloadRows(at: changes, with: .automatic)
+            } else {
+                tableView.reloadData()
+            }
+            tableView.endUpdates()
+        }
+        
+        if let indexPath = dataSource.indexPath(forValue: snapshot) {
+            tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
         }
     }
 
     // MARK: UITableViewDelegate
 
     override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let snapshot = dataSource?.value(atIndexPath: indexPath) else {
+        guard let snapshot = expandableDataSource?.value(atIndexPath: indexPath) else {
             return
         }
         delegate?.hierarchyTableViewController(self, didSelectSnapshot: snapshot)
     }
 
     override func tableView(_: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        guard let snapshot = dataSource?.value(atIndexPath: indexPath) else {
+        guard let snapshot = expandableDataSource?.value(atIndexPath: indexPath) else {
             return
         }
         delegate?.hierarchyTableViewController(self, didDeselectSnapshot: snapshot)
@@ -148,20 +117,31 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
     // MARK: HierarchyTableViewCellDelegate
 
     func hierarchyTableViewCellDidTap(cell: HierarchyTableViewCell) {
-        guard let indexPath = cell.indexPath, let snapshot = dataSource?.value(atIndexPath: indexPath) else {
+        guard let indexPath = cell.indexPath, 
+              let snapshot = expandableDataSource?.value(atIndexPath: indexPath) else {
             return
         }
+        
         if !snapshot.children.isEmpty {
-            pushSubtreeViewController(snapshot: snapshot, callDelegate: true)
+            let changes = expandableDataSource?.toggleExpansion(snapshot) ?? []
+            
+            tableView.beginUpdates()
+            if changes.count > 1 {
+                tableView.reloadRows(at: changes, with: .automatic)
+            } else {
+                tableView.reloadData()
+            }
+            tableView.endUpdates()
         }
     }
 
     func hierarchyTableViewCellDidLongPress(cell: HierarchyTableViewCell, point: CGPoint) {
-        guard let indexPath = cell.indexPath, let snapshot = dataSource?.value(atIndexPath: indexPath) else {
+        guard let indexPath = cell.indexPath, 
+              let snapshot = expandableDataSource?.value(atIndexPath: indexPath) else {
             return
         }
         let actionSheet = actionSheet(for: snapshot, from: cell, at: point) {
-            self.focus(snapshot: snapshot, callDelegate: true)
+            self.focus(snapshot: snapshot)
         }
         present(actionSheet, animated: true, completion: nil)
     }
@@ -186,19 +166,6 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
 
     // MARK: Private
 
-    private func pushSubtreeViewController(snapshot: Snapshot, callDelegate: Bool) {
-        deselectAll()
-        let subtreeViewController = HierarchyTableViewController(
-            snapshot: snapshot,
-            configuration: configuration
-        )
-        subtreeViewController.delegate = self
-        navigationController?.pushViewController(subtreeViewController, animated: true)
-        if callDelegate {
-            delegate?.hierarchyTableViewController(self, didFocusOnSnapshot: snapshot)
-        }
-    }
-
     private func deselectAll() {
         guard let indexPaths = tableView?.indexPathsForSelectedRows else {
             return
@@ -208,24 +175,17 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         }
     }
 
-    private func topHierarchyViewController() -> HierarchyTableViewController {
-        if let hierarchyViewController = navigationController?.topViewController as? HierarchyTableViewController {
-            return hierarchyViewController
-        }
-        return self
-    }
-
-    private func cellFactory(shouldIgnoreMaxDepth: Bool) -> TreeTableViewDataSource<Snapshot>.CellFactory {
-        { [unowned self] tableView, value, depth, indexPath, _ in
+    private func cellFactory() -> ExpandableTreeDataSource<Snapshot>.CellFactory {
+        { [unowned self] tableView, value, depth, indexPath, isExpanded in
             let reuseIdentifier = HierarchyTableViewController.ReuseIdentifier
             let cell = (tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as? HierarchyTableViewCell) ?? HierarchyTableViewCell(style: .default, reuseIdentifier: reuseIdentifier)
 
-            configureCellAppearance(cell: cell, value: value, depth: depth, indexPath: indexPath, shouldIgnoreMaxDepth: shouldIgnoreMaxDepth)
+            configureCellAppearance(cell: cell, value: value, depth: depth, indexPath: indexPath, isExpanded: isExpanded)
             return cell
         }
     }
     
-    private func configureCellAppearance(cell: HierarchyTableViewCell, value: Snapshot, depth: Int, indexPath: IndexPath, shouldIgnoreMaxDepth: Bool) {
+    private func configureCellAppearance(cell: HierarchyTableViewCell, value: Snapshot, depth: Int, indexPath: IndexPath, isExpanded: Bool) {
         let baseFont = configuration.nameFont
         switch value.label.classification {
         case .normal:
@@ -247,6 +207,7 @@ final class HierarchyTableViewController: UITableViewController, HierarchyTableV
         cell.lineView.lineWidth = configuration.lineWidth
         cell.lineView.lineSpacing = configuration.lineSpacing
         cell.hasChildren = !value.children.isEmpty
+        cell.isExpanded = isExpanded
         cell.indexPath = indexPath
         cell.delegate = self
     }

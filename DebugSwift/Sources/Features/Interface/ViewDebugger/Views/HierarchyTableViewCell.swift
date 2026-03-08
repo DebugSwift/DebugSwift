@@ -142,7 +142,13 @@ final class HierarchyTableViewCell: UITableViewCell {
     
     var hasChildren = false {
         didSet {
-            chevronImageView.isHidden = !hasChildren
+            updateChevronVisibility()
+        }
+    }
+    
+    var isExpanded = false {
+        didSet {
+            updateChevronRotation()
         }
     }
     
@@ -258,8 +264,23 @@ final class HierarchyTableViewCell: UITableViewCell {
         nameLabel.text = nil
         frameLabel.text = nil
         hasChildren = false
+        isExpanded = false
         indexPath = nil
         delegate = nil
+    }
+    
+    // MARK: - Private Helpers
+    
+    private func updateChevronVisibility() {
+        chevronImageView.isHidden = !hasChildren
+    }
+    
+    private func updateChevronRotation() {
+        UIView.animate(withDuration: 0.2) {
+            self.chevronImageView.transform = self.isExpanded 
+                ? CGAffineTransform(rotationAngle: .pi / 2)
+                : .identity
+        }
     }
     
     // MARK: - Actions
