@@ -193,10 +193,30 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         
         client?.urlProtocolDidFinishLoading(self)
         
+        let method = request.httpMethod
+        let capturedStartTime = startTime
+        let requestId = request.requestId
+        let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
+        let requestHeaderFields = request.allHTTPHeaderFields
+
         // Process for DebugSwift tracking
-        Task { @Sendable [weak self] in
-            guard let self = self else { return }
-            await self.processNetworkData()
+        Task { @MainActor in
+            let data = NetworkReportData(
+                url: url,
+                method: method,
+                requestData: nil,
+                responseData: errorBody,
+                statusCode: "\(statusCode)",
+                mineType: "application/json",
+                startTime: capturedStartTime,
+                endTime: Date(),
+                error: nil,
+                requestHeaderFields: requestHeaderFields,
+                responseHeaderFields: ["Content-Type": "application/json"],
+                requestId: requestId,
+                cachePolicy: cachePolicy
+            )
+            Self.report(data)
         }
     }
     
@@ -204,10 +224,32 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         self.error = error
         client?.urlProtocol(self, didFailWithError: error)
         
+        let url = request.url
+        let method = request.httpMethod
+        let capturedStartTime = startTime
+        let requestId = request.requestId
+        let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
+        let requestHeaderFields = request.allHTTPHeaderFields
+        let capturedError = error
+
         // Process for DebugSwift tracking
-        Task { @Sendable [weak self] in
-            guard let self = self else { return }
-            await self.processNetworkData()
+        Task { @MainActor in
+            let data = NetworkReportData(
+                url: url,
+                method: method,
+                requestData: nil,
+                responseData: nil,
+                statusCode: "0",
+                mineType: nil,
+                startTime: capturedStartTime,
+                endTime: Date(),
+                error: capturedError,
+                requestHeaderFields: requestHeaderFields,
+                responseHeaderFields: nil,
+                requestId: requestId,
+                cachePolicy: cachePolicy
+            )
+            Self.report(data)
         }
     }
     
@@ -245,62 +287,82 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         session?.invalidateAndCancel()
         session = nil
 
-        Task { @Sendable in
-            guard await NetworkHelper.shared.isNetworkEnable else {
+        let url = request.url
+        let method = request.httpMethod
+        let requestData = request.httpBody ?? request.httpBodyStream?.toData()
+        let responseData = data
+        let statusCode = response.map { "\($0.statusCode)" }
+        let mineType = response?.mimeType
+        let capturedStartTime = startTime
+        let capturedError = error
+        let requestHeaderFields = request.allHTTPHeaderFields
+        let responseHeaderFields = headersToString(response?.allHeaderFields)
+        let requestId = request.requestId
+        let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
+
+        Task { @MainActor in
+            guard NetworkHelper.shared.isNetworkEnable else {
                 return
             }
             
-            await processNetworkData()
+            let reportData = NetworkReportData(
+                url: url,
+                method: method,
+                requestData: requestData,
+                responseData: responseData,
+                statusCode: statusCode,
+                mineType: mineType,
+                startTime: capturedStartTime,
+                endTime: Date(),
+                error: capturedError,
+                requestHeaderFields: requestHeaderFields,
+                responseHeaderFields: responseHeaderFields,
+                requestId: requestId,
+                cachePolicy: cachePolicy
+            )
+            Self.report(reportData)
         }
     }
     
     @MainActor
-    private func processNetworkData() async {
+    private static func report(_ data: NetworkReportData) {
         var model = HttpModel()
-        model.url = request.url
-        model.method = request.httpMethod
-        model.mineType = response?.mimeType
+        model.url = data.url
+        model.method = data.method
+        model.mineType = data.mineType
 
-        if let requestBody = request.httpBody {
-            model.requestData = requestBody
+        model.requestData = data.requestData
+
+        if let statusCode = data.statusCode {
+            model.statusCode = statusCode
         }
 
-        if let requestBodyStream = request.httpBodyStream {
-            model.requestData = requestBodyStream.toData()
-        }
-
-        if let httpResponse = response {
-            model.statusCode = "\(httpResponse.statusCode)"
-        }
-
-        model.responseData = data
-        model.size = data.formattedSize()
-        model.isImage = (response?.mimeType?.contains("image")) ?? false
+        model.responseData = data.responseData
+        model.size = data.responseData?.formattedSize()
+        model.isImage = (data.mineType?.contains("image")) ?? false
 
         // Time
-        let startTimeDouble = startTime.timeIntervalSince1970
-        let endTimeDouble = Date().timeIntervalSince1970
+        let startTimeDouble = data.startTime.timeIntervalSince1970
+        let endTimeDouble = data.endTime.timeIntervalSince1970
         let durationDouble = abs(endTimeDouble - startTimeDouble)
         let formattedDuration = String(format: "%.4f", durationDouble)
 
-        model.startTime = "\(startTime.formatted())"
-        model.endTime = "\(Date().formatted())"
+        model.startTime = "\(data.startTime.formatted())"
+        model.endTime = "\(data.endTime.formatted())"
         model.totalDuration = "\(formattedDuration) (s)"
 
-        model.errorDescription = error?.localizedDescription ?? ""
-        model.errorLocalizedDescription = error?.localizedDescription ?? ""
-        model.requestHeaderFields = request.allHTTPHeaderFields
+        model.errorDescription = data.error?.localizedDescription ?? ""
+        model.errorLocalizedDescription = data.error?.localizedDescription ?? ""
+        model.requestHeaderFields = data.requestHeaderFields
 
-        if let response {
-            model.responseHeaderFields = response.allHeaderFields.convertKeysToString()
-            model.responseHeaderFields?.updateValue(getCachePolicy(value: request.cachePolicy.rawValue), forKey: "Cache-Policy")
-        }
+        model.responseHeaderFields = data.responseHeaderFields
+        model.responseHeaderFields?.updateValue(data.cachePolicy, forKey: "Cache-Policy")
 
         if let responseDate = model.endTime {
             model.responseHeaderFields?.updateValue(responseDate, forKey: "Response-Date")
         }
 
-        if response?.mimeType == nil {
+        if data.mineType == nil {
             model.isImage = false
         }
 
@@ -318,14 +380,23 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             }
         }
 
-        model.requestId = request.requestId
-        model = ErrorHelper.handle(error, model: model)
+        model.requestId = data.requestId
+        model = ErrorHelper.handle(data.error, model: model)
         if HttpDatasource.shared.addHttpRequest(model) {
             NotificationCenter.default.post(
                 name: NSNotification.Name("reloadHttp_DebugSwift"),
                 object: model.isSuccess
             )
         }
+    }
+
+    private func headersToString(_ headers: [AnyHashable: Any]?) -> [String: String]? {
+        guard let headers = headers else { return nil }
+        var result = [String: String]()
+        for (key, value) in headers {
+            result["\(key)"] = "\(value)"
+        }
+        return result
     }
 }
 
@@ -632,5 +703,53 @@ extension CustomHTTPProtocol: URLSessionTaskDelegate {
                 originalDelegate.urlSession?(session, taskIsWaitingForConnectivity: task)
             }
         }
+    }
+}
+
+// MARK: - Network Reporting Data
+
+struct NetworkReportData: Sendable {
+    let url: URL?
+    let method: String?
+    let requestData: Data?
+    let responseData: Data?
+    let statusCode: String?
+    let mineType: String?
+    let startTime: Date
+    let endTime: Date
+    let error: Error?
+    let requestHeaderFields: [String: String]?
+    let responseHeaderFields: [String: String]?
+    let requestId: String
+    let cachePolicy: String
+
+    init(
+        url: URL?,
+        method: String?,
+        requestData: Data?,
+        responseData: Data?,
+        statusCode: String?,
+        mineType: String?,
+        startTime: Date,
+        endTime: Date,
+        error: Error?,
+        requestHeaderFields: [String: String]?,
+        responseHeaderFields: [String: String]?,
+        requestId: String,
+        cachePolicy: String
+    ) {
+        self.url = url
+        self.method = method
+        self.requestData = requestData
+        self.responseData = responseData
+        self.statusCode = statusCode
+        self.mineType = mineType
+        self.startTime = startTime
+        self.endTime = endTime
+        self.error = error
+        self.requestHeaderFields = requestHeaderFields
+        self.responseHeaderFields = responseHeaderFields
+        self.requestId = requestId
+        self.cachePolicy = cachePolicy
     }
 }
