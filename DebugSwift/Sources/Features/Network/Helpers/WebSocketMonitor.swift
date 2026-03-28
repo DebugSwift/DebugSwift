@@ -515,7 +515,7 @@ final class WebSocketMonitor: NSObject, @unchecked Sendable {
         }
 
         task.send(message) { [completion] error in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 if let error {
                     completion(.failure(error))
                 } else {
