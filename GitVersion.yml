@@ -14,40 +14,52 @@ branches:
     mode: ContinuousDelivery
     label: ''
     increment: Patch
-    prevent-increment: false
+    prevent-increment:
+      of-merged-branch: true
+    is-main-branch: true
   develop:
     regex: ^develop$|^dev$
     mode: ContinuousDelivery
     label: alpha
     increment: Minor
-    prevent-increment: false
+    prevent-increment:
+      when-current-commit-tagged: false
+    tracks-release-branches: true
   release:
-    regex: ^releases?[/-]
-    mode: ContinuousDelivery
-    label: ''
-    increment: None
-    prevent-increment: true
+    regex: "^releases?[\\/-](?<BranchName>.+)"
+    mode: ManualDeployment
+    label: beta
+    increment: Patch
+    prevent-increment:
+      of-merged-branch: true
+      when-current-commit-tagged: false
+    is-release-branch: true
   feature:
-    regex: ^features?[/-]
+    regex: "^features?[\\/-](?<BranchName>.+)"
     mode: ContinuousDelivery
-    label: useBranchName
+    label: '{BranchName}'
     increment: Inherit
-    prevent-increment: false
+    prevent-increment:
+      when-current-commit-tagged: false
   pull-request:
-    regex: ^(pull|pull\-requests|pr)[/-]
+    regex: "^(pull-requests|pull|pr)[\\/-](?<Number>\\d*)"
     mode: ContinuousDelivery
-    label: PullRequest
+    label: "PullRequest{Number}"
     increment: Inherit
-    prevent-increment: false
+    prevent-increment:
+      of-merged-branch: true
+      when-current-commit-tagged: false
   hotfix:
-    regex: ^hotfix(es)?[/-]
+    regex: "^hotfix(es)?[\\/-](?<BranchName>.+)"
     mode: ContinuousDelivery
     label: beta
     increment: Patch
-    prevent-increment: false
+    prevent-increment:
+      when-current-commit-tagged: false
+    is-release-branch: true
 
 ignore:
   sha: []
 
 merge-message-formats:
-  tfs: '^Merged PR (?<PullRequestNumber>\d+)' 
+  tfs: "^Merged PR (?<PullRequestNumber>\\d+)" 
