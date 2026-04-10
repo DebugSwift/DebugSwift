@@ -25,7 +25,9 @@ enum WindowManager {
         }
         window.windowLevel = .alert + 1
 
-        let navigation = UINavigationController(rootViewController: UIViewController())
+        let navigation = OrientationForwardingNavigationController(
+            rootViewController: UIViewController()
+        )
         navigation.interactivePopGestureRecognizer?.isEnabled = false
         navigation.setBackgroundColor(color: .clear)
         window.rootViewController = navigation
@@ -136,5 +138,41 @@ final class CustomWindow: UIWindow {
         }
 
         return false
+    }
+}
+
+/// A navigation controller that forwards interface orientation preferences
+/// from the app's main window, ensuring DebugSwift's overlay windows
+/// do not interfere with the app's orientation behavior.
+final class OrientationForwardingNavigationController: UINavigationController {
+
+    /// Returns the root view controller of the app's main window for orientation forwarding.
+    private var appRootViewController: UIViewController? {
+        let appWindows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .filter { window in
+                let windowClassName = String(describing: type(of: window))
+                return windowClassName != "UITextEffectsWindow"
+                    && windowClassName != "UIRemoteKeyboardWindow"
+                    && window.windowLevel < UIWindow.Level.alert
+            }
+        return (appWindows.first(where: \.isKeyWindow) ?? appWindows.first)?
+            .rootViewController
+    }
+
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        appRootViewController?.supportedInterfaceOrientations ?? super.supportedInterfaceOrientations
+    }
+
+    override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation {
+        appRootViewController?.preferredInterfaceOrientationForPresentation
+            ?? super.preferredInterfaceOrientationForPresentation
+    }
+
+    @available(iOS 18.0, *)
+    override var prefersInterfaceOrientationLocked: Bool {
+        appRootViewController?.prefersInterfaceOrientationLocked
+            ?? super.prefersInterfaceOrientationLocked
     }
 }
