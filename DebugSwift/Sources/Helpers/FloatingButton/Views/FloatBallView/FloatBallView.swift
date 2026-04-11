@@ -27,39 +27,13 @@ class FloatBallView: UIView {
     lazy var label: UILabel = buildLabel()
     lazy var ballView: UIView = buildBallView()
 
-    // MARK: - Storage
-    private static var savedX: Double {
-        get {
-            UserDefaults.standard.double(forKey: "debug_swift_float_ball_x") != 0 
-                ? UserDefaults.standard.double(forKey: "debug_swift_float_ball_x") 
-                : 20
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "debug_swift_float_ball_x")
-        }
-    }
-    
-    private static var savedY: Double {
-        get {
-            UserDefaults.standard.double(forKey: "debug_swift_float_ball_y") != 0 
-                ? UserDefaults.standard.double(forKey: "debug_swift_float_ball_y") 
-                : (UIScreen.main.bounds.height / 2 - 80.0)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "debug_swift_float_ball_y")
-        }
-    }
-
     var show = false {
         didSet {
             guard oldValue != show else { return }
             if show {
                 label.text = "0"
                 WindowManager.window.addSubview(self)
-                layer.position = .init(
-                    x: Self.savedX,
-                    y: Self.savedY
-                )
+                restoreSavedPosition()
                 alpha = .zero
                 UIView.animate(withDuration: DSFloatChat.animationDuration) {
                     self.alpha = 1.0
@@ -162,6 +136,10 @@ class FloatBallView: UIView {
 
     func reset() {
         label.text = "0"
+    }
+
+    private func restoreSavedPosition() {
+        layer.position = FloatBallPositionHelper.restoreSavedPosition(in: WindowManager.window)
     }
 }
 
@@ -283,27 +261,14 @@ extension FloatBallView {
             delegate?.floatViewMoved(floatView: self, point: .init(x: x, y: y))
         case .ended, .cancelled:
             let velocityPoint = pan.velocity(in: self)
-            let bounds = UIScreen.main.bounds
-
-            let targetX: CGFloat
-            if layer.position.x <= bounds.width / 2 {
-                targetX = 20
-            } else {
-                targetX = bounds.width - 20
-            }
-
-            var targetY = layer.position.y
-            if targetY < 80 {
-                targetY = 80
-            } else if targetY > bounds.height - 100 {
-                targetY = bounds.height - 100
-            }
+            let window = WindowManager.window
 
             delegate?.floatViewCancelMove(floatView: self)
-            
-            // Save the final position
-            Self.savedX = Double(targetX)
-            Self.savedY = Double(targetY)
+
+            let targetPosition = FloatBallPositionHelper.finalizedDragPosition(
+                from: layer.position,
+                in: window
+            )
 
             UIView.animate(
                 withDuration: 0.5,
@@ -312,7 +277,7 @@ extension FloatBallView {
                 initialSpringVelocity: abs(velocityPoint.x / layer.position.x),
                 options: [],
                 animations: {
-                    self.layer.position = CGPoint(x: targetX, y: targetY)
+                    self.layer.position = targetPosition
                 }
             )
         default:

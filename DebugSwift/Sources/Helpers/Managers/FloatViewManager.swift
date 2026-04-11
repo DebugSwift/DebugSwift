@@ -99,12 +99,7 @@ final class FloatViewManager: NSObject {
 
 extension FloatViewManager {
     private func setup() {
-        ballRedCancelView.frame = .init(
-            x: DSFloatChat.screenWidth,
-            y: DSFloatChat.screenHeight,
-            width: DSFloatChat.bottomViewFloatWidth,
-            height: DSFloatChat.bottomViewFloatHeight
-        )
+        ballRedCancelView.frame = FloatBallPositionHelper.hiddenBottomFrame(in: WindowManager.window)
         ballRedCancelView.type = BottomFloatViewType.red
         WindowManager.window.addSubview(ballRedCancelView)
 
@@ -143,11 +138,8 @@ extension FloatViewManager: FloatViewDelegate {
         UIView.animate(
             withDuration: 0.2,
             animations: {
-                self.ballRedCancelView.frame = CGRect(
-                    x: DSFloatChat.screenWidth - DSFloatChat.bottomViewFloatWidth,
-                    y: DSFloatChat.screenHeight - DSFloatChat.bottomViewFloatHeight,
-                    width: DSFloatChat.bottomViewFloatWidth,
-                    height: DSFloatChat.bottomViewFloatHeight
+                self.ballRedCancelView.frame = FloatBallPositionHelper.visibleBottomFrame(
+                    in: WindowManager.window
                 )
             }
         ) { _ in
@@ -193,11 +185,8 @@ extension FloatViewManager: FloatViewDelegate {
         UIView.animate(
             withDuration: DSFloatChat.animationCancelMoveDuration,
             animations: {
-                self.ballRedCancelView.frame = .init(
-                    x: DSFloatChat.screenWidth,
-                    y: DSFloatChat.screenHeight,
-                    width: DSFloatChat.bottomViewFloatWidth,
-                    height: DSFloatChat.bottomViewFloatHeight
+                self.ballRedCancelView.frame = FloatBallPositionHelper.hiddenBottomFrame(
+                    in: WindowManager.window
                 )
             }
         ) { _ in
