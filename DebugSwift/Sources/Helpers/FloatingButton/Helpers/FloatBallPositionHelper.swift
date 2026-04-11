@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 enum FloatBallPositionHelper {
     private enum Layout {
         static let minLeadingCenterX: CGFloat = 20
