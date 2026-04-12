@@ -175,10 +175,11 @@ enum DatabaseType: Hashable {
             return .coreData
         }
         
-        if lowercased.hasSuffix(".sqlite") || 
+        if lowercased.hasSuffix(".sqlite") ||
            lowercased.hasSuffix(".sqlite3") ||
            lowercased.hasSuffix(".db") ||
-           lowercased.hasSuffix(".sqlitedb") {
+           lowercased.hasSuffix(".sqlitedb") ||
+           lowercased.hasSuffix(".store") {
             return .sqlite
         } else if lowercased.hasSuffix(".realm") {
             return .realm
