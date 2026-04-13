@@ -93,7 +93,21 @@ final class DatabaseFileManager: @unchecked Sendable {
         let tmpPath = NSTemporaryDirectory()
         databaseFiles.append(contentsOf: findDatabaseFiles(in: tmpPath))
         
-        return databaseFiles.sorted { $0.name < $1.name }
+        return deduplicateDatabaseFiles(databaseFiles).sorted {
+            if $0.name == $1.name {
+                return $0.path < $1.path
+            }
+            return $0.name < $1.name
+        }
+    }
+
+    private func deduplicateDatabaseFiles(_ databaseFiles: [DatabaseFile]) -> [DatabaseFile] {
+        var seenPaths = Set<String>()
+
+        return databaseFiles.filter { databaseFile in
+            let normalizedPath = URL(fileURLWithPath: databaseFile.path).resolvingSymlinksInPath().standardized.path
+            return seenPaths.insert(normalizedPath).inserted
+        }
     }
     
     private func findDatabaseFiles(in directory: String) -> [DatabaseFile] {
@@ -126,7 +140,7 @@ final class DatabaseFileManager: @unchecked Sendable {
 
 // MARK: - Models
 
-struct DatabaseFile {
+struct DatabaseFile: Equatable {
     let name: String
     let path: String
     let type: DatabaseType
