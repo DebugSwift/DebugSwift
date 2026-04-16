@@ -77,6 +77,7 @@ DebugSwift
 - **Keychain:** Inspect keychain entries
 - **Database Browser:** SQLite and Realm database inspection
 - **Push Notifications:** Simulate push notifications with templates and test scenarios
+- **SwiftData Browser (iOS 17+):** Inspect registered SwiftData containers, browse models, inspect properties/relationships, edit values, and export JSON
 
 ## Installation & Setup
 
@@ -406,6 +407,26 @@ debugSwift.setup(
 debugSwift.setup(
     enableBetaFeatures: [.swiftUIRenderTracking] // Enable experimental SwiftUI render tracking
 )
+```
+
+### SwiftData Browser (iOS 17+)
+
+```swift
+import SwiftData
+
+// Define your model registrations
+let swiftDataModels: [SwiftDataModelRegistration] = [
+    .init(Trip.self),
+    .init(Accommodation.self)
+]
+
+// Register one or more containers
+DebugSwift.Resources.shared.configureSwiftData(contexts: [
+    .init(name: "Main", container: appModelContainer, models: swiftDataModels)
+])
+
+// Optional: lock browser editing
+DebugSwift.Resources.shared.swiftDataReadOnly = true
 ```
 
 ### App Group Configuration

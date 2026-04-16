@@ -54,6 +54,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         // MARK: Core Data Example Setup
         setupCoreDataExample()
+
+        // MARK: SwiftData Example Setup
+        setupSwiftDataExample()
         
         // MARK: Custom Actions Demo - Including Network History Clear
         setupCustomActions()
@@ -76,6 +79,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         if count == 0 {
             CoreDataExample.shared.createSampleData()
         }
+    }
+
+    private func setupSwiftDataExample() {
+        guard #available(iOS 17.0, *) else { return }
+
+        SwiftDataExample.shared.setupDebugSwift()
+        SwiftDataExample.shared.createSampleDataIfNeeded()
     }
     
     // MARK: - Deep Link Handling
