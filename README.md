@@ -165,6 +165,85 @@ extension UIWindow {
 }
 ```
 
+### Open Debugger Programmatically
+
+You can get the debug menu as a standalone `UIViewController` and present it however you like — push, present modally, embed in your own navigation. No floating ball required.
+
+```swift
+// 1. Setup (without floating ball)
+#if DEBUG
+DebugSwift().setup()
+// Don't call .show() — no floating ball will appear
+#endif
+
+// 2. Get the debug view controller and present it yourself
+let debugVC = DebugSwift.debugViewController()
+
+// Push into your navigation stack
+navigationController?.pushViewController(debugVC, animated: true)
+
+// Or present modally
+let nav = UINavigationController(rootViewController: debugVC)
+present(nav, animated: true)
+```
+
+#### SwiftUI
+
+Wrap in a `UINavigationController` so the close button and dark nav bar match the FloatingView experience:
+
+```swift
+struct DebugViewControllerRepresentable: UIViewControllerRepresentable {
+    let onDismiss: () -> Void
+
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let debugVC = DebugSwift.debugViewController()
+
+        let closeButton = UIBarButtonItem(
+            image: UIImage(systemName: "xmark"),
+            style: .plain, target: context.coordinator,
+            action: #selector(Coordinator.close)
+        )
+        closeButton.tintColor = .white
+        debugVC.navigationItem.rightBarButtonItem = closeButton
+
+        let nav = UINavigationController(rootViewController: debugVC)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = .black
+        nav.navigationBar.standardAppearance = appearance
+        nav.navigationBar.scrollEdgeAppearance = appearance
+        nav.navigationBar.compactAppearance = appearance
+        nav.overrideUserInterfaceStyle = .dark
+        return nav
+    }
+
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
+    func makeCoordinator() -> Coordinator { Coordinator(onDismiss: onDismiss) }
+
+    class Coordinator: NSObject {
+        let onDismiss: () -> Void
+        init(onDismiss: @escaping () -> Void) { self.onDismiss = onDismiss }
+        @objc func close() { onDismiss() }
+    }
+}
+
+// Usage — fullScreenCover matches the FloatingView full-screen appearance
+@State private var showDebugger = false
+
+Button("Open Debugger") {
+    DebugSwift.debugViewControllerWillPresent()
+    showDebugger = true
+}
+// Use onDismiss: on fullScreenCover — not inside the representable — so the
+// floating ball is restored even when the sheet is dismissed via Escape/swipe.
+.fullScreenCover(isPresented: $showDebugger, onDismiss: {
+    DebugSwift.debugViewControllerDidDismiss()
+}) {
+    DebugViewControllerRepresentable(onDismiss: { showDebugger = false })
+        .ignoresSafeArea()
+}
+```
+
 ## 🔧 Troubleshooting
 
 ### Apple Silicon Build Issues
