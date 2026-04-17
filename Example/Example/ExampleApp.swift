@@ -31,7 +31,7 @@ struct ExampleApp: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    private let debugSwift = DebugSwift()
+    let debugSwift = DebugSwift()
 
     func application(
         _: UIApplication,

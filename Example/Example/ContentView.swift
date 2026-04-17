@@ -10,9 +10,12 @@ import MapKit
 import DebugSwift
 
 struct ContentView: View {
+    @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
 
     @State private var userTrackingMode: MKUserTrackingMode = .follow
     @State private var presentingMap = false
+    @State private var showFloatingBall = true
+    @State private var showDebugger = false
 
     var body: some View {
         NavigationView {
@@ -103,7 +106,72 @@ struct ContentView: View {
                 MapView()
             }
             .navigationBarTitle("DebugSwift Examples")
+            .toolbar {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+                        if showFloatingBall {
+                            appDelegate.debugSwift.hide()
+                        } else {
+                            appDelegate.debugSwift.show()
+                        }
+                        showFloatingBall.toggle()
+                    } label: {
+                        Image(systemName: showFloatingBall ? "circle.fill" : "circle.dotted")
+                    }
+
+                    Button {
+                        DebugSwift.debugViewControllerWillPresent()
+                        showDebugger = true
+                    } label: {
+                        Image(systemName: "ladybug")
+                    }
+                    .fullScreenCover(isPresented: $showDebugger, onDismiss: {
+                        DebugSwift.debugViewControllerDidDismiss()
+                    }) {
+                        DebugViewControllerRepresentable(onDismiss: { showDebugger = false })
+                            .ignoresSafeArea()
+                    }
+                }
+            }
         }
     }
+}
 
+struct DebugViewControllerRepresentable: UIViewControllerRepresentable {
+    let onDismiss: () -> Void
+
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let debugVC = DebugSwift.debugViewController()
+
+        let closeButton = UIBarButtonItem(
+            image: UIImage(systemName: "xmark"),
+            style: .plain,
+            target: context.coordinator,
+            action: #selector(Coordinator.close)
+        )
+        closeButton.tintColor = .white
+        debugVC.navigationItem.rightBarButtonItem = closeButton
+
+        // Outer nav controller matches WindowManager's structure used by FloatingView
+        let nav = UINavigationController(rootViewController: debugVC)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = .black
+        nav.navigationBar.standardAppearance = appearance
+        nav.navigationBar.scrollEdgeAppearance = appearance
+        nav.navigationBar.compactAppearance = appearance
+        nav.overrideUserInterfaceStyle = .dark
+        return nav
+    }
+
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(onDismiss: onDismiss) }
+
+    class Coordinator: NSObject {
+        let onDismiss: () -> Void
+        init(onDismiss: @escaping () -> Void) { self.onDismiss = onDismiss }
+
+        @objc func close() { onDismiss() }
+    }
 }
