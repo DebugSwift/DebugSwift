@@ -201,6 +201,19 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .deepLink:
                 let controller = DeepLinkViewController()
                 navigationController?.pushViewController(controller, animated: true)
+            case .swiftData:
+                if #available(iOS 17.0, *) {
+                    let controller = SwiftDataBrowserViewController()
+                    navigationController?.pushViewController(controller, animated: true)
+                } else {
+                    let alert = UIAlertController(
+                        title: "SwiftData Unavailable",
+                        message: "SwiftData Browser requires iOS 17.0 or newer.",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    present(alert, animated: true)
+                }
             }
         default:
             break
@@ -299,6 +312,7 @@ extension AppViewController {
         case loadedLibraries
         case pushNotifications
         case deepLink
+        case swiftData
 
         var title: String {
             switch self {
@@ -314,6 +328,8 @@ extension AppViewController {
                 return "Push Notifications"
             case .deepLink:
                 return "Deep Links"
+            case .swiftData:
+                return "SwiftData Browser"
             }
         }
 

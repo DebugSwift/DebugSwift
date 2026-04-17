@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2EA3B66B2B2E8054001B59FE /* DebugSwift */; };
+		125DF3962F9196C100217119 /* DebugSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 125DF3952F9196C100217119 /* DebugSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,7 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2EA3B66C2B2E8054001B59FE /* DebugSwift in Frameworks */,
+				125DF3962F9196C100217119 /* DebugSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,7 +101,7 @@
 			);
 			name = Example;
 			packageProductDependencies = (
-				2EA3B66B2B2E8054001B59FE /* DebugSwift */,
+				125DF3952F9196C100217119 /* DebugSwift */,
 			);
 			productName = Example;
 			productReference = 2EA3B6592B2E7F71001B59FE /* Example.app */;
@@ -160,7 +160,7 @@
 			);
 			mainGroup = 2EA3B6502B2E7F71001B59FE;
 			packageReferences = (
-				2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */,
+				125DF3942F9196C100217119 /* XCLocalSwiftPackageReference "../../DebugSwift" */,
 			);
 			productRefGroup = 2EA3B65A2B2E7F71001B59FE /* Products */;
 			projectDirPath = "";
@@ -375,21 +375,16 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/DebugSwift/DebugSwift";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		125DF3942F9196C100217119 /* XCLocalSwiftPackageReference "../../DebugSwift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../DebugSwift;
 		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2EA3B66B2B2E8054001B59FE /* DebugSwift */ = {
+		125DF3952F9196C100217119 /* DebugSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2EA3B66A2B2E8054001B59FE /* XCRemoteSwiftPackageReference "DebugSwift" */;
 			productName = DebugSwift;
 		};
 /* End XCSwiftPackageProductDependency section */

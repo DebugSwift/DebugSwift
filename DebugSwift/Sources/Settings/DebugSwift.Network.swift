@@ -7,6 +7,9 @@
 
 import UIKit
 import CoreData
+#if canImport(SwiftData)
+import SwiftData
+#endif
 
 extension DebugSwift {
     public class Network: @unchecked Sendable {
@@ -431,6 +434,32 @@ extension DebugSwift {
         
         /// Enable read-only mode for Core Data browser (default: false)
         public var coreDataReadOnly: Bool = false
+
+#if canImport(SwiftData)
+        /// SwiftData containers and model registrations for debugging
+        @available(iOS 17.0, *)
+        @MainActor
+        public var swiftDataContexts: [SwiftDataContextRegistration] {
+            get {
+                SwiftDataManager.shared.getAvailableContexts()
+            }
+            set {
+                SwiftDataManager.shared.configure(contexts: newValue)
+            }
+        }
+
+        /// Enable read-only mode for SwiftData browser (default: false)
+        @available(iOS 17.0, *)
+        @MainActor
+        public var swiftDataReadOnly: Bool {
+            get {
+                SwiftDataManager.shared.readOnlyMode
+            }
+            set {
+                SwiftDataManager.shared.readOnlyMode = newValue
+            }
+        }
+#endif
         
         /// Configure Core Data with a persistent container
         /// - Parameter container: The NSPersistentContainer to debug
@@ -449,5 +478,21 @@ extension DebugSwift {
         public func configureCoreData(contexts: [String: NSManagedObjectContext]) {
             coreDataContexts = contexts
         }
+
+#if canImport(SwiftData)
+        /// Configure SwiftData with one or more containers and model registrations
+        @available(iOS 17.0, *)
+        @MainActor
+        public func configureSwiftData(contexts: [SwiftDataContextRegistration]) {
+            swiftDataContexts = contexts
+        }
+
+        /// Add a single SwiftData container registration
+        @available(iOS 17.0, *)
+        @MainActor
+        public func addSwiftDataContext(_ context: SwiftDataContextRegistration) {
+            swiftDataContexts.append(context)
+        }
+#endif
     }
 }
