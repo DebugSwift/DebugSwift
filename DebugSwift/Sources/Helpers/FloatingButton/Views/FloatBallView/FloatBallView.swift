@@ -31,9 +31,9 @@ class FloatBallView: UIView {
         didSet {
             guard oldValue != show else { return }
             if show {
-                label.text = "0"
                 WindowManager.window.addSubview(self)
                 restoreSavedPosition()
+                updateText()
                 alpha = .zero
                 UIView.animate(withDuration: DSFloatChat.animationDuration) {
                     self.alpha = 1.0
@@ -49,6 +49,7 @@ class FloatBallView: UIView {
                 ) { _ in
                     self.removeFromSuperview()
                 }
+                cancelPendingAnimationRequests()
                 removeMeasurementStateObserver()
             }
         }
@@ -92,7 +93,7 @@ class FloatBallView: UIView {
         guard isShowing else { return }
         
         // Debounce frequent animations
-        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(performAnimation(_:)), object: nil)
+        cancelPendingAnimationRequests()
         
         updateText()
         perform(#selector(performAnimation(_:)), with: success, afterDelay: 0.1)
@@ -101,6 +102,7 @@ class FloatBallView: UIView {
     }
     
     @objc private func performAnimation(_ success: NSNumber) {
+        guard isShowing, superview != nil, window != nil else { return }
         startAnimation(text: success.boolValue ? "🚀" : "❌")
     }
     
@@ -140,6 +142,14 @@ class FloatBallView: UIView {
 
     private func restoreSavedPosition() {
         layer.position = FloatBallPositionHelper.restoreSavedPosition(in: WindowManager.window)
+    }
+
+    private func cancelPendingAnimationRequests() {
+        NSObject.cancelPreviousPerformRequests(
+            withTarget: self,
+            selector: #selector(performAnimation(_:)),
+            object: nil
+        )
     }
 }
 
@@ -193,12 +203,14 @@ extension FloatBallView {
     }
 
     private func startAnimation(text: String) {
+        guard let container = superview, window != nil else { return }
+
         let label = UILabel()
         label.text = text
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
-        superview?.addSubview(label)
+        container.addSubview(label)
 
         NSLayoutConstraint.activate([
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
