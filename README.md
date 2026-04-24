@@ -577,6 +577,14 @@ If you find DebugSwift helpful, please consider giving us a star on GitHub! Your
 
 [![GitHub stars](https://img.shields.io/github/stars/DebugSwift/DebugSwift.svg?style=social&label=Star)](https://github.com/DebugSwift/DebugSwift)
 
+<a href="https://starmapper.bruniaux.com/debugswift/debugswift">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://starmapper.bruniaux.com/api/map-image/debugswift/debugswift?theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://starmapper.bruniaux.com/api/map-image/debugswift/debugswift?theme=light" />
+    <img alt="StarMapper" src="https://starmapper.bruniaux.com/api/map-image/debugswift/debugswift" />
+  </picture>
+</a>
+
 ## Contributors
 
 Our contributors have made this project possible. Thank you!
