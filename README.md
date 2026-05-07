@@ -122,6 +122,27 @@ DebugSwift **fully supports Apple Silicon Macs** with native arm64 simulator bui
 
 **Migration Note:** If you were using architecture exclusions like `'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'`, you can now **remove them** as they are no longer needed.
 
+### 🚫 Excluding from Production Builds
+
+All DebugSwift source files are prefixed with `DebugSwift.` — this allows you to completely exclude them from production builds with a single build setting, eliminating any binary bloat or security concerns.
+
+**In Xcode:**
+1. Select your target → **Build Settings**
+2. Search for `EXCLUDED_SOURCE_FILE_NAMES`
+3. Under the **Release** row, add:
+
+```
+DebugSwift.*
+```
+
+This ensures all DebugSwift files are excluded during Archive/Release builds while remaining fully available in Debug builds.
+
+**Why this matters:**
+- ✅ Zero binary bloat in production
+- ✅ No security/code audit concerns
+- ✅ Faster release build times
+- ✅ No need to wrap every import in `#if DEBUG`
+
 ### Basic Setup
 
 ```swift
