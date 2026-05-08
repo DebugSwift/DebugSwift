@@ -176,8 +176,8 @@ extension FloatBallView {
         label.text = .init(0)
         ballView.addSubview(label)
         NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor)
+            label.centerXAnchor.constraint(equalTo: ballView.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: ballView.centerYAnchor)
         ])
         return label
     }
