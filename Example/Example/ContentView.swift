@@ -53,6 +53,17 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
+                NavigationLink(destination: DiskIOTestView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Disk I/O Test Suite")
+                            .font(.headline)
+                        Text("Generate write activity to exercise the Disk panel")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+
                 NavigationLink(destination: WebSocketTestView()) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("WebSocket Inspector Test")

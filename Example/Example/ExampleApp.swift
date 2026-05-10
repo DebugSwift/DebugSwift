@@ -44,7 +44,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // debugSwift.setup(disable: [.leaksDetector])
         
         print("Hey, DebugSwift is running! 🎉")
-        
+
+        DiskWriteTracker.install()
+
         debugSwift
             .setup(enableBetaFeatures: [.swiftUIRenderTracking])
             .show()
