@@ -6,17 +6,22 @@
 //
 
 import Foundation
+import MetricKit
 
-/// Tracks cumulative disk writes by swizzling `NSData.write(to:options:)`.
+/// Tracks cumulative disk writes via NSData swizzling (real-time)
+/// and MetricKit MXDiskIOMetric (24h aggregate).
 /// Call `install()` once at app launch.
-public final class DiskWriteTracker: @unchecked Sendable {
+public final class DiskWriteTracker: NSObject, @unchecked Sendable {
     public static let shared = DiskWriteTracker()
 
     private let lock = NSLock()
     private var installed = false
     private var _totalWriteBytes: UInt64 = 0
+    private var _metricKitCumulativeWrites: String?
 
-    private init() {}
+    private override init() {
+        super.init()
+    }
 
     /// Install the tracker. Safe to call multiple times.
     public static func install() {
@@ -29,6 +34,7 @@ public final class DiskWriteTracker: @unchecked Sendable {
         guard !installed else { return }
         installed = true
         Self.swizzleWrite()
+        MXMetricManager.shared.add(self)
     }
 
     func recordWrite(bytes: UInt64) {
@@ -37,11 +43,18 @@ public final class DiskWriteTracker: @unchecked Sendable {
         lock.unlock()
     }
 
-    /// Total bytes written since `install()`.
+    /// Total bytes written since `install()` (swizzle-based, real-time).
     public var totalBytesWritten: UInt64 {
         lock.lock()
         defer { lock.unlock() }
         return _totalWriteBytes
+    }
+
+    /// Last 24h cumulative logical writes reported by MetricKit, or nil if not yet received.
+    public var metricKitCumulativeWrites: String? {
+        lock.lock()
+        defer { lock.unlock() }
+        return _metricKitCumulativeWrites
     }
 
     // MARK: - Swizzling
@@ -57,6 +70,23 @@ public final class DiskWriteTracker: @unchecked Sendable {
         else { return }
 
         method_exchangeImplementations(originalMethod, swizzledMethod)
+    }
+}
+
+// MARK: - MXMetricManagerSubscriber
+
+extension DiskWriteTracker: MXMetricManagerSubscriber {
+    public func didReceive(_ payloads: [MXMetricPayload]) {
+        guard let latest = payloads.last,
+              let diskIO = latest.diskIOMetrics else { return }
+
+        let measurement = diskIO.cumulativeLogicalWrites
+        let bytes = measurement.converted(to: .bytes).value
+        let formatted = ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
+
+        lock.lock()
+        _metricKitCumulativeWrites = formatted
+        lock.unlock()
     }
 }
 
