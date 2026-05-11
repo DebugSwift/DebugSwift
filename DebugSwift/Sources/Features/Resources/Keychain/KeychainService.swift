@@ -2248,7 +2248,7 @@ enum Status: OSStatus, Error {
     case invalidAuthority = -67_824
     case verifyActionFailed = -67_825
     case invalidCertAuthority = -67_826
-    case invaldCRLAuthority = -67_827
+    case invalidCRLAuthority = -67_827
     case invalidCRLEncoding = -67_828
     case invalidCRLType = -67_829
     case invalidCRL = -67_830
@@ -2994,7 +2994,7 @@ extension Status: RawRepresentable, CustomStringConvertible {
             return "A verify action has failed."
         case .invalidCertAuthority:
             return "The certificate authority was not valid."
-        case .invaldCRLAuthority:
+        case .invalidCRLAuthority:
             return "The CRL authority was not valid."
         case .invalidCRLEncoding:
             return "The CRL encoding was not valid."
