@@ -586,7 +586,7 @@ extension ResourcesGenericController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let searchText = searchController.searchBar.text ?? ""
         viewModel.filterContentForSearchText(searchText)
-        viewModel.isSearchActived = !searchText.isEmpty
+        viewModel.isSearchActivated = !searchText.isEmpty
         tableView.reloadData()
     }
 }
@@ -594,7 +594,7 @@ extension ResourcesGenericController: UISearchResultsUpdating {
 protocol ResourcesGenericListViewModel: AnyObject {
     typealias ViewData = ResourcesGenericController.CellViewData
 
-    var isSearchActived: Bool { get set }
+    var isSearchActivated: Bool { get set }
 
     var isDeleteEnable: Bool { get }
 
