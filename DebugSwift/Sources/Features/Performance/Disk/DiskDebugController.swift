@@ -50,8 +50,10 @@ final class DiskDebugController: BaseTableController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard self?.isMonitoringEnabled == true else { return }
-            self?.tableView.reloadData()
+            Task { @MainActor in
+                guard let self, self.isMonitoringEnabled else { return }
+                self.tableView.reloadData()
+            }
         }
         RunLoop.main.add(refreshTimer!, forMode: .common)
     }
