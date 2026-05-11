@@ -84,7 +84,7 @@ final class DiskDebugController: BaseTableController {
         case .metrics:
             return isMonitoringEnabled ? 1 : 0
         case .diskUsage:
-            return analyzer.usageInfo != nil ? 6 : 0
+            return analyzer.usageInfo != nil ? 7 : 0
         case .openFiles:
             return isMonitoringEnabled ? ioMonitor.openFiles.count : 0
         }
@@ -169,6 +169,10 @@ final class DiskDebugController: BaseTableController {
         case 5:
             cell.textLabel?.text = "Documents"
             cell.detailTextLabel?.text = formatBytes(info.documentsSize)
+        case 6:
+            cell.textLabel?.text = "24h Writes (MetricKit)"
+            cell.detailTextLabel?.text = DiskWriteTracker.shared.metricKitCumulativeWrites ?? "Pending…"
+            cell.detailTextLabel?.textColor = .systemTeal
         default:
             break
         }
