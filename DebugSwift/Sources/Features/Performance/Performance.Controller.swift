@@ -11,14 +11,22 @@ import UIKit
 final class PerformanceViewController: BaseTableController, PerformanceToolkitDelegate, MainFeatureType {
     var controllerType: DebugSwiftFeature { .performance }
 
-    var selectedSection: PerformanceSection = .cpu
     lazy var performanceToolkit = PerformanceToolkit(widgetDelegate: self)
     private let memoryWarningSimulator = PerformanceMemoryWarning()
+    private let ioMonitor = DiskIOMonitor.shared
+    private let diskAnalyzer = DiskAnalyzer()
+
+    private var isDiskMonitoringEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "debugswift.disk.monitoringEnabled") }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "debugswift.disk.monitoringEnabled")
+            if newValue { ioMonitor.start() } else { ioMonitor.stop() }
+            tableView.reloadData()
+        }
+    }
 
     enum Identifier: String {
-        case segmentedControl = "SegmentedControlTableViewCell"
         case value = "ValueTableViewCell"
-        case chart = "ChartTableViewCell"
         case leak = "LeakTableViewCell"
         case memoryWarning = "MemoryWarningTableViewCell"
 
@@ -28,13 +36,16 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         }
     }
 
-    private let markedTimesInterval: TimeInterval = 20.0
-    private let chartCellRatioConstant: CGFloat = 20.0
-
-    enum PerformanceTableViewSection: Int {
-        case toggle
-        case segmentedControl
-        case statistics
+    private enum Section: Int, CaseIterable {
+        case widget
+        case cpu
+        case memory
+        case fps
+        case leaks
+        case diskToggle
+        case diskMetrics
+        case diskUsage
+        case openFiles
     }
 
     // MARK: - UIViewController Lifecycle
@@ -48,6 +59,10 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
+        diskAnalyzer.measure()
+        if isDiskMonitoringEnabled {
+            ioMonitor.start()
+        }
     }
 
     // MARK: - Setup Methods
@@ -67,12 +82,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             forCellReuseIdentifier: MenuSwitchTableViewCell.identifier
         )
         tableView.register(
-            MenuSegmentedControlTableViewCell.self,
-            forCellReuseIdentifier: Identifier.segmentedControl.rawValue
-        )
-        tableView.register(
-            MenuChartTableViewCell.self,
-            forCellReuseIdentifier: Identifier.chart.rawValue
+            SparklineMetricCell.self,
+            forCellReuseIdentifier: SparklineMetricCell.identifier
         )
 
         tableView.backgroundColor = UIColor.black
@@ -80,242 +91,84 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         view.backgroundColor = UIColor.black
     }
 
-    // MARK: - Updating section
+    // MARK: - UITableViewDataSource
 
-    func setSelectedSection(_ selectedSection: PerformanceSection) {
-        self.selectedSection = selectedSection
-        reloadStatisticsSection(animated: true)
-        refreshSegmentedControlCell()
+    override func numberOfSections(in _: UITableView) -> Int {
+        Section.allCases.count
     }
 
-    // MARK: - Reloading table view
-
-    func reloadStatisticsSection(animated: Bool) {
-        let animation: UITableView.RowAnimation = animated ? .fade : .none
-        let sectionsToReload = IndexSet(integer: PerformanceTableViewSection.statistics.rawValue)
-        tableView.reloadSections(sectionsToReload, with: animation)
-    }
-
-    func refreshSegmentedControlCell() {
-        let segmentedControlIndexPath = IndexPath(
-            row: 0, section: PerformanceTableViewSection.segmentedControl.rawValue
-        )
-        if let segmentedControlCell = tableView.cellForRow(at: segmentedControlIndexPath)
-            as? MenuSegmentedControlTableViewCell {
-            segmentedControlCell.segmentedControl.selectedSegmentIndex = selectedSection.rawValue
-        }
-    }
-
-    // MARK: - Statistics section
-
-    func numberOfRowsInStatisticsSection() -> Int {
-        switch selectedSection {
-        case .cpu, .fps:
-            return 3
+    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch Section(rawValue: section)! {
+        case .widget:
+            return 1
+        case .cpu:
+            return 1
         case .memory:
-            return 4
+            return 2 // sparkline + memory warning button
+        case .fps:
+            return 1
         case .leaks:
+            if DebugSwift.App.shared.disableMethods.contains(.leaksDetector) { return 0 }
             return 2
+        case .diskToggle:
+            return 1
+        case .diskMetrics:
+            return isDiskMonitoringEnabled ? 1 : 0
+        case .diskUsage:
+            return diskAnalyzer.usageInfo != nil ? 6 : 0
+        case .openFiles:
+            return isDiskMonitoringEnabled ? ioMonitor.openFiles.count : 0
         }
     }
 
-    func statisticsCellForRow(at index: Int) -> UITableViewCell? {
-        switch selectedSection {
-        case .cpu:
-            return cpuStatisticsCellForRow(at: index)
-        case .memory:
-            return memoryStatisticsCellForRow(at: index)
-        case .fps:
-            return fpsStatisticsCellForRow(at: index)
+    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch Section(rawValue: section)! {
+        case .widget: return nil
+        case .cpu: return nil
+        case .memory: return nil
+        case .fps: return nil
         case .leaks:
-            return leaksStatisticsCellForRow(at: index)
+            if DebugSwift.App.shared.disableMethods.contains(.leaksDetector) { return nil }
+            return "Leaks & Threads"
+        case .diskToggle: return "Disk I/O"
+        case .diskMetrics: return nil
+        case .diskUsage: return diskAnalyzer.usageInfo != nil ? "Disk Usage" : nil
+        case .openFiles: return isDiskMonitoringEnabled ? "Open Files (\(ioMonitor.openFiles.count))" : nil
         }
     }
 
-    func cpuStatisticsCellForRow(at index: Int) -> UITableViewCell? {
-        switch index {
-        case 0:
-            let cell = reuseCell()
-            cell.textLabel?.text = "CPU usage"
-            cell.detailTextLabel?.text = String(format: "%.1lf%%", performanceToolkit.currentCPU)
-            return cell
-        case 1:
-            let cell = reuseCell()
-            cell.textLabel?.text = "Max CPU usage"
-            cell.detailTextLabel?.text = String(format: "%.1lf%%", performanceToolkit.maxCPU)
-            return cell
-        case 2:
-            guard let chartCell = reuseCell(for: .chart) as? MenuChartTableViewCell
-            else { return nil }
-            configureChartCell(
-                chartCell,
-                value: performanceToolkit.maxCPU,
-                measurements: performanceToolkit.cpuMeasurements,
-                markedValueFormat: "%.1lf%%"
-            )
-            return chartCell
-        default:
-            return nil
-        }
-    }
-
-    func memoryStatisticsCellForRow(at index: Int) -> UITableViewCell? {
-        switch index {
-        case 0:
-            let cell = reuseCell()
-            cell.textLabel?.text = "Memory usage"
-            cell.detailTextLabel?.text = String(format: "%.1lf MB", performanceToolkit.currentMemory)
-            return cell
-        case 1:
-            let cell = reuseCell()
-            cell.textLabel?.text = "Max memory usage"
-            cell.detailTextLabel?.text = String(format: "%.1lf MB", performanceToolkit.maxMemory)
-            return cell
-        case 2:
-            let cell = reuseCell(for: .memoryWarning)
-            
-            // Dynamic text based on simulation state
-            if memoryWarningSimulator.isCurrentlySimulating {
-                cell.textLabel?.text = "⚠️ Simulating Memory Warning..."
-                cell.contentView.backgroundColor = .systemOrange
-                cell.selectionStyle = .none
-            } else {
-                cell.textLabel?.text = "🚨 Simulate Memory Warning"
-                cell.contentView.backgroundColor = .systemRed
-                cell.selectionStyle = .default
-            }
-            
-            // Add subtle gradient effect
-            if cell.contentView.layer.sublayers?.first(where: { $0 is CAGradientLayer }) == nil {
-                let gradient = CAGradientLayer()
-                gradient.colors = [
-                    cell.contentView.backgroundColor?.cgColor ?? UIColor.systemRed.cgColor,
-                    cell.contentView.backgroundColor?.withAlphaComponent(0.8).cgColor ?? UIColor.systemRed.withAlphaComponent(0.8).cgColor
-                ]
-                gradient.startPoint = CGPoint(x: 0, y: 0)
-                gradient.endPoint = CGPoint(x: 1, y: 1)
-                gradient.cornerRadius = 8
-                cell.contentView.layer.insertSublayer(gradient, at: 0)
-                
-                // Update gradient frame when cell is laid out
-                DispatchQueue.main.async {
-                    gradient.frame = cell.contentView.bounds
-                }
-            }
-            
-            // Style the text
-            cell.textLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-            cell.textLabel?.textColor = .white
-            cell.contentView.layer.cornerRadius = 8
-            cell.contentView.layer.masksToBounds = true
-            cell.backgroundColor = .clear
-            
-            return cell
-
-        case 3:
-            guard let chartCell = reuseCell(for: .chart) as? MenuChartTableViewCell else { return nil }
-            configureChartCell(
-                chartCell,
-                value: performanceToolkit.maxMemory,
-                measurements: performanceToolkit.memoryMeasurements,
-                markedValueFormat: "%.1lf MB"
-            )
-            return chartCell
-        default:
-            return nil
-        }
-    }
-
-    func fpsStatisticsCellForRow(at index: Int) -> UITableViewCell? {
-        let cell = reuseCell()
-
-        switch index {
-        case 0:
-            cell.textLabel?.text = "FPS"
-            cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.currentFPS)
-        case 1:
-            cell.textLabel?.text = "Min FPS"
-            cell.detailTextLabel?.text = String(format: "%.0lf", performanceToolkit.minFPS)
-        case 2:
-            guard let chartCell = reuseCell(for: .chart) as? MenuChartTableViewCell else { return nil }
-            configureChartCell(
-                chartCell,
-                value: performanceToolkit.minFPS,
-                measurements: performanceToolkit.fpsMeasurements,
-                markedValueFormat: "%.0lf"
-            )
-            return chartCell
-        default:
-            return nil
-        }
-
-        return cell
-    }
-
-    func leaksStatisticsCellForRow(at index: Int) -> UITableViewCell? {
-        switch index {
-        case 0:
-            let cell = reuseCell(for: .leak)
-            cell.setup(
-                title: "⚠️ Show Leaks",
-                image: .named("chevron.right", default: "Action")
-            )
-            return cell
-        case 1:
-            let cell = reuseCell(for: .leak)
-            cell.setup(
-                title: "🧵 Thread Checker",
-                image: .named("chevron.right", default: "Action")
-            )
-            return cell
-        default:
-            return nil
-        }
-    }
-
-    private func configureChartCell(
-        _ chartCell: MenuChartTableViewCell,
-        value: CGFloat,
-        measurements: [CGFloat],
-        markedValueFormat: String
-    ) {
-        chartCell.chartView.maxValue = value
-        chartCell.chartView.markedValue = value
-        chartCell.chartView.markedValueFormat = markedValueFormat
-        chartCell.chartView.measurements = measurements
-        chartCell.chartView.measurementsLimit = performanceToolkit.measurementsLimit
-        chartCell.chartView.measurementInterval = performanceToolkit.timeBetweenMeasurements
-        chartCell.chartView.markedTimesInterval = performanceToolkit.controllerMarked
-        
-        // Set appropriate colors for different chart types
-        switch selectedSection {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        switch Section(rawValue: indexPath.section)! {
+        case .widget:
+            return widgetToggleCell()
         case .cpu:
-            chartCell.chartView.chartColor = .systemRed
+            return cpuCell(at: indexPath.row)
         case .memory:
-            chartCell.chartView.chartColor = .systemOrange
+            return memoryCell(at: indexPath.row)
         case .fps:
-            chartCell.chartView.chartColor = .systemGreen
+            return fpsCell(at: indexPath.row)
         case .leaks:
-            chartCell.chartView.chartColor = .systemPurple
+            return leaksCell(at: indexPath.row)
+        case .diskToggle:
+            return diskToggleCell()
+        case .diskMetrics:
+            return diskMetricsCell(at: indexPath.row)
+        case .diskUsage:
+            return diskUsageCell(at: indexPath.row)
+        case .openFiles:
+            return openFileCell(at: indexPath.row)
         }
     }
 
-    private func reuseCell(for reuseIdentifier: Identifier = .value) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier.rawValue) ?? UITableViewCell(style: .value1, reuseIdentifier: reuseIdentifier.rawValue)
-        cell.selectionStyle = .none
-        cell.backgroundColor = UIColor.black
-        cell.textLabel?.textColor = UIColor.white
-        cell.detailTextLabel?.textColor = UIColor.white
-        return cell
+    override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
+        if let header = view as? UITableViewHeaderFooterView {
+            header.textLabel?.textColor = .lightGray
+        }
     }
 
     // MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if tableView.cellForRow(at: indexPath) is MenuChartTableViewCell {
-            return tableView.bounds.size.width + chartCellRatioConstant
-        }
-
         return UITableView.automaticDimension
     }
 
@@ -327,217 +180,319 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .memoryWarning:
             handleMemoryWarningTap(cell: cell)
         case .leak:
-            // Check which leak-related option was selected
-            if selectedSection == .leaks {
-                switch indexPath.row {
-                case 0:
-                    // Show Leaks
-                    let viewModel = LeaksViewModel()
-                    let controller = ResourcesGenericController(viewModel: viewModel)
-                    navigationController?.pushViewController(controller, animated: true)
-                case 1:
-                    // Thread Checker
-                    let threadCheckerController = PerformanceThreadCheckerViewController()
-                    navigationController?.pushViewController(threadCheckerController, animated: true)
-                default:
-                    break
-                }
+            if indexPath.row == 0 {
+                let viewModel = LeaksViewModel()
+                let controller = ResourcesGenericController(viewModel: viewModel)
+                navigationController?.pushViewController(controller, animated: true)
+            } else if indexPath.row == 1 {
+                let threadCheckerController = PerformanceThreadCheckerViewController()
+                navigationController?.pushViewController(threadCheckerController, animated: true)
             }
         default:
             break
         }
     }
 
-    // MARK: - Memory Warning Handling
-    
-    private func handleMemoryWarningTap(cell: UITableViewCell?) {
-        // If already simulating, offer to stop
-        if memoryWarningSimulator.isCurrentlySimulating {
-            showStopSimulationAlert()
-            return
-        }
-        
-        // Animate button tap
-        cell?.simulateButtonTap()
-        
-        // Show confirmation alert
-        showMemoryWarningConfirmation()
+    // MARK: - Cells: Widget
+
+    private func widgetToggleCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
+        cell.titleLabel.text = "Show Floating HUD"
+        cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
+        cell.valueSwitch.tag = 0
+        cell.delegate = self
+        return cell
     }
-    
-    private func showMemoryWarningConfirmation() {
-        let alert = UIAlertController(
-            title: "🚨 Simulate Memory Warning",
-            message: "This will trigger a memory warning throughout your app and simulate memory pressure. This helps test how your app handles low memory conditions.\n\n⚠️ May cause temporary app slowdown.",
-            preferredStyle: .alert
+
+    // MARK: - Cells: CPU
+
+    private func cpuCell(at row: Int) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: SparklineMetricCell.identifier) as? SparklineMetricCell ?? SparklineMetricCell()
+        let peak = performanceToolkit.maxCPU
+        let current = performanceToolkit.currentCPU
+        cell.configure(
+            title: "CPU",
+            value: String(format: "%.1f%%", current),
+            color: current < 30 ? .systemGreen : current < 70 ? .systemYellow : .systemRed,
+            measurements: performanceToolkit.cpuMeasurements,
+            peakText: String(format: "Peak %.0f%% · Min %.0f%%", peak, performanceToolkit.cpuMeasurements.min() ?? 0)
         )
-        
-        alert.addAction(UIAlertAction(title: "🚀 Simulate Now", style: .default) { [weak self] _ in
-            self?.executeMemoryWarningSimulation()
-        })
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        
-        present(alert, animated: true)
+        return cell
     }
-    
-    private func showStopSimulationAlert() {
-        let alert = UIAlertController(
-            title: "Stop Memory Simulation?",
-            message: "A memory warning simulation is currently running. Do you want to stop it?",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "🛑 Stop Simulation", style: .destructive) { [weak self] _ in
-            self?.memoryWarningSimulator.stopSimulation()
-            self?.tableView.reloadData() // Refresh UI state
-        })
-        
-        alert.addAction(UIAlertAction(title: "Continue", style: .cancel))
-        
-        present(alert, animated: true)
-    }
-    
-    private func executeMemoryWarningSimulation() {
-        // Update UI immediately
-        tableView.reloadData()
-        
-        // Generate the memory warning
-        memoryWarningSimulator.generate()
-        
-        // Show success feedback
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            self?.showSimulationStartedFeedback()
-        }
-        
-        // Auto-refresh UI after simulation completes (about 5 seconds)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) { [weak self] in
-            self?.tableView.reloadData()
-        }
-    }
-    
-    private func showSimulationStartedFeedback() {
-        // Create a subtle toast-like notification
-        let banner = UIView()
-        banner.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.9)
-        banner.layer.cornerRadius = 8
-        banner.translatesAutoresizingMaskIntoConstraints = false
-        
-        let label = UILabel()
-        label.text = "✅ Memory Warning Simulation Started"
-        label.textColor = .white
-        label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        banner.addSubview(label)
-        view.addSubview(banner)
-        
-        NSLayoutConstraint.activate([
-            banner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            banner.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            banner.heightAnchor.constraint(equalToConstant: 40),
-            
-            label.centerXAnchor.constraint(equalTo: banner.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: banner.centerYAnchor),
-            label.leadingAnchor.constraint(greaterThanOrEqualTo: banner.leadingAnchor, constant: 16),
-            label.trailingAnchor.constraint(lessThanOrEqualTo: banner.trailingAnchor, constant: -16)
-        ])
-        
-        // Animate in
-        banner.alpha = 0
-        banner.transform = CGAffineTransform(translationX: 0, y: -20)
-        
-        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
-            banner.alpha = 1
-            banner.transform = .identity
-        }) { _ in
-            // Animate out after 2 seconds
-            UIView.animate(withDuration: 0.3, delay: 2.0, options: .curveEaseIn, animations: {
-                banner.alpha = 0
-                banner.transform = CGAffineTransform(translationX: 0, y: -20)
-            }) { _ in
-                banner.removeFromSuperview()
+
+    // MARK: - Cells: Memory
+
+    private func memoryCell(at row: Int) -> UITableViewCell {
+        switch row {
+        case 0:
+            let cell = tableView.dequeueReusableCell(withIdentifier: SparklineMetricCell.identifier) as? SparklineMetricCell ?? SparklineMetricCell()
+            let current = performanceToolkit.currentMemory
+            let peak = performanceToolkit.maxMemory
+            let valueText: String
+            if current >= 1024 {
+                valueText = String(format: "%.1f GB", current / 1024)
+            } else {
+                valueText = String(format: "%.0f MB", current)
             }
-        }
-    }
-
-    // MARK: - UITableViewDataSource
-
-    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch PerformanceTableViewSection(rawValue: section)! {
-        case .toggle, .segmentedControl:
-            return 1
-        case .statistics:
-            return numberOfRowsInStatisticsSection()
-        }
-    }
-
-    override func numberOfSections(in _: UITableView) -> Int {
-        3
-    }
-
-    override func tableView(_: UITableView, cellForRowAt indexPath: IndexPath)
-        -> UITableViewCell {
-        switch indexPath.section {
-        case PerformanceTableViewSection.toggle.rawValue:
-            return toggleCell()
-        case PerformanceTableViewSection.segmentedControl.rawValue:
-            return segmentedControlCell() ?? UITableViewCell()
-        case PerformanceTableViewSection.statistics.rawValue:
-            return statisticsCellForRow(at: indexPath.row) ?? UITableViewCell()
+            cell.configure(
+                title: "Memory",
+                value: valueText,
+                color: current < 200 ? .systemGreen : current < 500 ? .systemYellow : .systemRed,
+                measurements: performanceToolkit.memoryMeasurements,
+                peakText: String(format: "Peak %.0fMB · Min %.0fMB", peak, performanceToolkit.memoryMeasurements.min() ?? 0)
+            )
+            return cell
+        case 1:
+            return memoryWarningCell()
         default:
             return UITableViewCell()
         }
     }
 
-    private func toggleCell() -> UITableViewCell {
-        let cell =
-            tableView.dequeueReusableCell(
-                withIdentifier: MenuSwitchTableViewCell.identifier
-            ) as? MenuSwitchTableViewCell ?? .init()
-        cell.titleLabel.text = "Show widget"
-        cell.valueSwitch.isOn = performanceToolkit.isWidgetShown
+    private func memoryWarningCell() -> UITableViewCell {
+        let cell = reuseCell(for: .memoryWarning)
+
+        if memoryWarningSimulator.isCurrentlySimulating {
+            cell.textLabel?.text = "⚠️ Simulating Memory Warning..."
+            cell.contentView.backgroundColor = .systemOrange
+            cell.selectionStyle = .none
+        } else {
+            cell.textLabel?.text = "🚨 Simulate Memory Warning"
+            cell.contentView.backgroundColor = .systemRed
+            cell.selectionStyle = .default
+        }
+
+        cell.textLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        cell.textLabel?.textColor = .white
+        cell.contentView.layer.cornerRadius = 8
+        cell.contentView.layer.masksToBounds = true
+        cell.backgroundColor = .clear
+
+        return cell
+    }
+
+    // MARK: - Cells: FPS
+
+    private func fpsCell(at row: Int) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: SparklineMetricCell.identifier) as? SparklineMetricCell ?? SparklineMetricCell()
+        let current = performanceToolkit.currentFPS
+        let minFPS = performanceToolkit.minFPS
+        cell.configure(
+            title: "FPS",
+            value: String(format: "%.0f fps", current),
+            color: current >= 55 ? .systemGreen : current >= 40 ? .systemYellow : .systemRed,
+            measurements: performanceToolkit.fpsMeasurements,
+            peakText: String(format: "Peak %.0ffps · Min %.0ffps", performanceToolkit.maxFPS, minFPS == 9999 ? 0 : minFPS)
+        )
+        return cell
+    }
+
+    // MARK: - Cells: Leaks
+
+    private func leaksCell(at row: Int) -> UITableViewCell {
+        switch row {
+        case 0:
+            let cell = reuseCell(for: .leak)
+            cell.setup(title: "⚠️ Show Leaks", image: .named("chevron.right", default: "Action"))
+            return cell
+        case 1:
+            let cell = reuseCell(for: .leak)
+            cell.setup(title: "🧵 Thread Checker", image: .named("chevron.right", default: "Action"))
+            return cell
+        default:
+            return UITableViewCell()
+        }
+    }
+
+    // MARK: - Cells: Disk
+
+    private func diskToggleCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
+        cell.titleLabel.text = "Disk I/O Monitoring"
+        cell.valueSwitch.isOn = isDiskMonitoringEnabled
+        cell.valueSwitch.tag = 1
         cell.delegate = self
         return cell
     }
 
-    private func segmentedControlCell() -> UITableViewCell? {
-        guard let cell = reuseCell(for: .segmentedControl) as? MenuSegmentedControlTableViewCell else { return nil }
-        var segmentTitles = [
-            "CPU",
-            "Memory",
-            "FPS"
-        ]
+    private func diskMetricsCell(at row: Int) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: SparklineMetricCell.identifier) as? SparklineMetricCell ?? SparklineMetricCell()
 
-        if !DebugSwift.App.shared.disableMethods.contains(.leaksDetector) {
-            segmentTitles.append("Leaks")
-        }
-
-        cell.configure(with: segmentTitles, selectedIndex: selectedSection.rawValue)
-        cell.delegate = self
+        let writeValues = ioMonitor.writeHistory.map { CGFloat($0.bytesPerSecond) }
+        let current = ioMonitor.writeBytesPerSecond
+        cell.configure(
+            title: "Writing",
+            value: formattedRate(current),
+            color: .systemRed,
+            measurements: writeValues,
+            peakText: diskPeakMinText(writeValues)
+        )
         return cell
+    }
+
+    private func diskPeakMinText(_ values: [CGFloat]) -> String {
+        guard !values.isEmpty, let peak = values.max(), let min = values.min() else {
+            return "Waiting for data…"
+        }
+        return "Peak \(formattedRateCompact(Double(peak))) · Min \(formattedRateCompact(Double(min)))"
+    }
+
+    private func formattedRateCompact(_ bytesPerSecond: Double) -> String {
+        let kb = bytesPerSecond / 1024
+        if kb < 0.1 { return "0KB/s" }
+        if kb < 1024 { return String(format: "%.0fKB/s", kb) }
+        let mb = kb / 1024
+        if mb < 1024 { return String(format: "%.1fMB/s", mb) }
+        let gb = mb / 1024
+        return String(format: "%.2fGB/s", gb)
+    }
+
+    private func diskUsageCell(at row: Int) -> UITableViewCell {
+        let cell = UITableViewCell(style: .value1, reuseIdentifier: "DiskUsageCell")
+        cell.backgroundColor = .black
+        cell.textLabel?.textColor = .white
+        cell.detailTextLabel?.textColor = .lightGray
+        cell.selectionStyle = .none
+
+        guard let info = diskAnalyzer.usageInfo else { return cell }
+
+        switch row {
+        case 0:
+            cell.textLabel?.text = "Total Space"
+            cell.detailTextLabel?.text = formatBytes(info.totalSpace)
+        case 1:
+            cell.textLabel?.text = "Free Space"
+            cell.detailTextLabel?.text = formatBytes(info.freeSpace)
+        case 2:
+            cell.textLabel?.text = "Bundle Size"
+            cell.detailTextLabel?.text = formatBytes(info.bundleSize)
+        case 3:
+            cell.textLabel?.text = "Caches"
+            cell.detailTextLabel?.text = formatBytes(info.cachesSize)
+        case 4:
+            cell.textLabel?.text = "Temp"
+            cell.detailTextLabel?.text = formatBytes(info.tempSize)
+        case 5:
+            cell.textLabel?.text = "Documents"
+            cell.detailTextLabel?.text = formatBytes(info.documentsSize)
+        default:
+            break
+        }
+        return cell
+    }
+
+    private func openFileCell(at row: Int) -> UITableViewCell {
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "OpenFileCell")
+        cell.backgroundColor = .black
+        cell.selectionStyle = .none
+
+        guard row < ioMonitor.openFiles.count else { return cell }
+        let file = ioMonitor.openFiles[row]
+
+        cell.textLabel?.text = "fd \(file.descriptor) [\(file.fileType.rawValue)]"
+        cell.textLabel?.font = .monospacedSystemFont(ofSize: 12, weight: .medium)
+        cell.textLabel?.textColor = fileTypeColor(file.fileType)
+
+        cell.detailTextLabel?.text = file.path
+        cell.detailTextLabel?.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
+        cell.detailTextLabel?.textColor = .gray
+        cell.detailTextLabel?.lineBreakMode = .byTruncatingMiddle
+
+        return cell
+    }
+
+    private func reuseCell(for reuseIdentifier: Identifier = .value) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier.rawValue) ?? UITableViewCell(style: .value1, reuseIdentifier: reuseIdentifier.rawValue)
+        cell.selectionStyle = .none
+        cell.backgroundColor = UIColor.black
+        cell.textLabel?.textColor = UIColor.white
+        cell.detailTextLabel?.textColor = UIColor.white
+        return cell
+    }
+
+    // MARK: - Helpers
+
+    private func formattedRate(_ bytesPerSecond: Double) -> String {
+        let kb = bytesPerSecond / 1024
+        if kb < 0.1 { return "0 KB/s" }
+        if kb < 1024 { return String(format: "%.0f KB/s", kb) }
+        let mb = kb / 1024
+        if mb < 1024 { return String(format: "%.1f MB/s", mb) }
+        let gb = mb / 1024
+        return String(format: "%.2f GB/s", gb)
+    }
+
+    private func formatBytes(_ bytes: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+
+    private func fileTypeColor(_ type: OpenFileDescriptor.FileType) -> UIColor {
+        switch type {
+        case .readOnly: return .systemGreen
+        case .writeOnly: return .systemRed
+        case .readWrite: return .systemYellow
+        }
+    }
+
+    // MARK: - Memory Warning Handling
+
+    private func handleMemoryWarningTap(cell: UITableViewCell?) {
+        if memoryWarningSimulator.isCurrentlySimulating {
+            showStopSimulationAlert()
+            return
+        }
+        cell?.simulateButtonTap()
+        showMemoryWarningConfirmation()
+    }
+
+    private func showMemoryWarningConfirmation() {
+        let alert = UIAlertController(
+            title: "🚨 Simulate Memory Warning",
+            message: "This will trigger a memory warning throughout your app and simulate memory pressure.\n\n⚠️ May cause temporary app slowdown.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "🚀 Simulate Now", style: .default) { [weak self] _ in
+            self?.executeMemoryWarningSimulation()
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func showStopSimulationAlert() {
+        let alert = UIAlertController(
+            title: "Stop Memory Simulation?",
+            message: "A memory warning simulation is currently running.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "🛑 Stop", style: .destructive) { [weak self] _ in
+            self?.memoryWarningSimulator.stopSimulation()
+            self?.tableView.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "Continue", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func executeMemoryWarningSimulation() {
+        tableView.reloadData()
+        memoryWarningSimulator.generate()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
 }
 
 // MARK: - MenuSwitchTableViewCellDelegate
 
 extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
-    func menuSwitchTableViewCell(
-        _: MenuSwitchTableViewCell, didSetOn isOn: Bool
-    ) {
-        performanceToolkit.isWidgetShown = isOn
-    }
-}
-
-// MARK: - MenuSegmentedControlTableViewCellDelegate
-
-extension PerformanceViewController: MenuSegmentedControlTableViewCellDelegate {
-    func menuSegmentedControlTableViewCell(
-        _: MenuSegmentedControlTableViewCell,
-        didSelectSegmentAtIndex index: Int
-    ) {
-        setSelectedSection(PerformanceSection(rawValue: index)!)
-        UIView.performWithoutAnimation {
-            self.tableView.reloadData()
+    func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
+        if cell.valueSwitch.tag == 0 {
+            performanceToolkit.isWidgetShown = isOn
+        } else {
+            isDiskMonitoringEnabled = isOn
         }
     }
 }
@@ -546,7 +501,7 @@ extension PerformanceViewController: MenuSegmentedControlTableViewCellDelegate {
 
 extension PerformanceViewController {
     func performanceToolkitDidUpdateStats(_: PerformanceToolkit) {
-        reloadStatisticsSection(animated: false)
+        tableView.reloadData()
     }
 }
 
