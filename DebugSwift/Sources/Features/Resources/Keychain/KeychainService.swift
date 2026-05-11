@@ -1994,7 +1994,7 @@ enum Status: OSStatus, Error {
     case returnDataUnsupported = -34_008
     case returnAttributesUnsupported = -34_009
     case returnRefUnsupported = -34_010
-    case returnPersitentRefUnsupported = -34_011
+    case returnPersistentRefUnsupported = -34_011
     case valueRefUnsupported = -34_012
     case valuePersistentRefUnsupported = -34_013
     case returnMissingPointer = -34_014
@@ -2486,7 +2486,7 @@ extension Status: RawRepresentable, CustomStringConvertible {
             return "The caller passed in a kSecReturnAttributes key to a function which does not support it."
         case .returnRefUnsupported:
             return "The caller passed in a kSecReturnRef key to a function which does not support it."
-        case .returnPersitentRefUnsupported:
+        case .returnPersistentRefUnsupported:
             return "The caller passed in a kSecReturnPersistentRef key to a function which does not support it."
         case .valueRefUnsupported:
             return "The caller passed in a kSecValueRef key to a function which does not support it."
