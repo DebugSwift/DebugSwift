@@ -169,7 +169,7 @@ fileprivate extension Danger.File {
         hasSuffix(".swift") || hasSuffix(".h") || hasSuffix(".m")
     }
 
-    var isSwiftPackageDefintion: Bool {
+    var isSwiftPackageDefinition: Bool {
         hasPrefix("Package") && hasSuffix(".swift")
     }
 
