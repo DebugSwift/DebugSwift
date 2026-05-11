@@ -36,12 +36,12 @@ final class AppCustomActionViewModelTests: XCTestCase {
     // MARK: - numberOfItems
 
     func testNumberOfItems_searchInactive_returnsAllActions() {
-        sut.isSearchActived = false
+        sut.isSearchActivated = false
         XCTAssertEqual(sut.numberOfItems(), 3)
     }
 
     func testNumberOfItems_searchActive_returnsFilteredCount() {
-        sut.isSearchActived = true
+        sut.isSearchActivated = true
         sut.filterContentForSearchText("Alpha")
         XCTAssertEqual(sut.numberOfItems(), 1)
     }
@@ -49,13 +49,13 @@ final class AppCustomActionViewModelTests: XCTestCase {
     // MARK: - dataSourceForItem
 
     func testDataSourceForItem_searchInactive_returnsCorrectTitle() {
-        sut.isSearchActived = false
+        sut.isSearchActivated = false
         let viewData = sut.dataSourceForItem(atIndex: 1)
         XCTAssertEqual(viewData.title, "Beta")
     }
 
     func testDataSourceForItem_searchActive_returnsFilteredTitle() {
-        sut.isSearchActived = true
+        sut.isSearchActivated = true
         sut.filterContentForSearchText("Gamma")
         let viewData = sut.dataSourceForItem(atIndex: 0)
         XCTAssertEqual(viewData.title, "Gamma")
@@ -71,26 +71,26 @@ final class AppCustomActionViewModelTests: XCTestCase {
     // MARK: - filterContentForSearchText
 
     func testFilterContentForSearchText_emptyQuery_returnsAllActions() {
-        sut.isSearchActived = true
+        sut.isSearchActivated = true
         sut.filterContentForSearchText("")
         XCTAssertEqual(sut.numberOfItems(), 3)
     }
 
     func testFilterContentForSearchText_matchingQuery_returnsMatchingActions() {
-        sut.isSearchActived = true
+        sut.isSearchActivated = true
         sut.filterContentForSearchText("be")
         XCTAssertEqual(sut.numberOfItems(), 1)
         XCTAssertEqual(sut.dataSourceForItem(atIndex: 0).title, "Beta")
     }
 
     func testFilterContentForSearchText_noMatch_returnsEmpty() {
-        sut.isSearchActived = true
+        sut.isSearchActivated = true
         sut.filterContentForSearchText("XYZ")
         XCTAssertEqual(sut.numberOfItems(), 0)
     }
 
     func testFilterContentForSearchText_isCaseInsensitive() {
-        sut.isSearchActived = true
+        sut.isSearchActivated = true
         sut.filterContentForSearchText("alpha")
         XCTAssertEqual(sut.numberOfItems(), 1)
         XCTAssertEqual(sut.dataSourceForItem(atIndex: 0).title, "Alpha")
@@ -104,7 +104,7 @@ final class AppCustomActionViewModelTests: XCTestCase {
             .init(title: "Tap Me", action: { tapped = true })
         ]
         sut = AppCustomActionViewModel(data: CustomAction(title: "Actions", actions: actions))
-        sut.isSearchActived = false
+        sut.isSearchActivated = false
 
         sut.didTapItem(index: 0)
 
@@ -118,7 +118,7 @@ final class AppCustomActionViewModelTests: XCTestCase {
             .init(title: "Target", action: { tapped = true })
         ]
         sut = AppCustomActionViewModel(data: CustomAction(title: "Actions", actions: actions))
-        sut.isSearchActived = true
+        sut.isSearchActivated = true
         sut.filterContentForSearchText("Target")
 
         sut.didTapItem(index: 0)

@@ -34,7 +34,7 @@ final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewMo
 
     // MARK: - ViewModel
 
-    var isSearchActived = false
+    var isSearchActivated = false
 
     var reloadData: (() -> Void)?
 
@@ -47,11 +47,11 @@ final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewMo
     }
 
     func numberOfItems() -> Int {
-        isSearchActived ? filteredKeys.count : keys.count
+        isSearchActivated ? filteredKeys.count : keys.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> ViewData {
-        let key = isSearchActived ? filteredKeys[index] : keys[index]
+        let key = isSearchActivated ? filteredKeys[index] : keys[index]
         let value = "\(UserDefaults.standard.object(forKey: key) ?? "")"
         return .init(title: key, value: value)
     }
@@ -66,11 +66,11 @@ final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewMo
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
-        let key = isSearchActived ? filteredKeys.remove(at: index) : keys.remove(at: index)
+        let key = isSearchActivated ? filteredKeys.remove(at: index) : keys.remove(at: index)
         UserDefaults.standard.removeObject(forKey: key)
         UserDefaults.standard.synchronize()
 
-        if isSearchActived {
+        if isSearchActivated {
             keys.removeAll(where: { $0 == key })
         }
     }
@@ -86,7 +86,7 @@ final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewMo
     }
 
     func getEditItemData(atIndex index: Int) -> ResourcesGenericController.EditItemData {
-        let key = isSearchActived ? filteredKeys[index] : keys[index]
+        let key = isSearchActivated ? filteredKeys[index] : keys[index]
         let value = UserDefaults.standard.object(forKey: key)
         let stringValue = String(describing: value ?? "")
         
@@ -101,7 +101,7 @@ final class ResourcesUserDefaultsViewModel: NSObject, ResourcesGenericListViewMo
 
     func updateItem(atIndex index: Int, key: String, value: String) {
         // Keys can't be changed in UserDefaults, so we just update the value
-        let currentKey = isSearchActived ? filteredKeys[index] : keys[index]
+        let currentKey = isSearchActivated ? filteredKeys[index] : keys[index]
         saveValue(value, forKey: currentKey)
         setupKeys()
     }

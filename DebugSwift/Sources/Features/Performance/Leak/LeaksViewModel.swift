@@ -16,7 +16,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
-    var isSearchActived = false
+    var isSearchActivated = false
     var reloadData: (() -> Void)?
 
     var isDeleteEnable: Bool { true }
@@ -26,11 +26,11 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     func viewTitle() -> String { "\(data.count) " + "Leaks" }
 
     func numberOfItems() -> Int {
-        isSearchActived ? filteredInfo.count : data.count
+        isSearchActivated ? filteredInfo.count : data.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> ResourcesGenericController.CellViewData {
-        let leak = isSearchActived ? filteredInfo[index] : data[index]
+        let leak = isSearchActivated ? filteredInfo[index] : data[index]
 
         return .init(
             title: "\(leak.symbol)\(leak.details)",
@@ -44,7 +44,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
-        if isSearchActived {
+        if isSearchActivated {
             let leak = filteredInfo.remove(at: index)
             PerformanceLeakDetector.shared.leaks.removeAll(where: { $0.id == leak.id })
         } else {
@@ -76,7 +76,7 @@ final class LeaksViewModel: NSObject, ResourcesGenericListViewModel {
     func didTapItem(index: Int) {
         let leak: PerformanceLeakDetector.LeakModel
 
-        if isSearchActived {
+        if isSearchActivated {
             leak = filteredInfo[index]
         } else {
             leak = data[index]
