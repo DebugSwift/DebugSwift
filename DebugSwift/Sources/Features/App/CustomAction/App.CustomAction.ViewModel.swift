@@ -20,7 +20,7 @@ final class AppCustomActionViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
-    var isSearchActived = false
+    var isSearchActivated = false
     var isDeleteEnable: Bool { false }
     var isCustomActionEnable: Bool { true }
 
@@ -29,11 +29,11 @@ final class AppCustomActionViewModel: NSObject, ResourcesGenericListViewModel {
     func viewTitle() -> String { data.title }
 
     func numberOfItems() -> Int {
-        isSearchActived ? filtered.count : data.actions.count
+        isSearchActivated ? filtered.count : data.actions.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> ViewData {
-        let info = isSearchActived ? filtered[index] : data.actions[index]
+        let info = isSearchActivated ? filtered[index] : data.actions[index]
         return .init(title: info.title)
     }
 
@@ -56,7 +56,7 @@ final class AppCustomActionViewModel: NSObject, ResourcesGenericListViewModel {
     // MARK: - Action
 
     func didTapItem(index: Int) {
-        if isSearchActived {
+        if isSearchActivated {
             filtered[index].action?()
         } else {
             data.actions[index].action?()
