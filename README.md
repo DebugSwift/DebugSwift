@@ -20,6 +20,7 @@ DebugSwift
 ---
 
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/a569b038-9058-4260-ae7c-47f3376cf629" />
+<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/35cbc0c4-4938-4b1f-bab2-69427aa66ffb" />
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/334ccefa-5951-494f-8faa-5f016d39f946" />
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/246cde3c-7a14-45de-ae01-e810c42d8e65" />
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/fadde188-dcba-46d8-9460-762f9be98bd6" />
@@ -49,7 +50,7 @@ DebugSwift
 - **Request Limiting:** Set thresholds to monitor and control API usage
 - **Smart Content:** Automatic JSON formatting with syntax highlighting
 - **Encryption Support:** Automatic decryption of encrypted API responses with AES-256/128 and custom decryptors
-- **Response Modifier:** Use it to mock or alter API responses at runtime. Modify response body/status by URL pattern with per-rule toggles, CSV import/export, and startup auto-enable option
+- **Response Modifier:** Mock or modify any API responses in real time. Adjust the response body and status based on URL or patterns, enable or disable rules individually, import/export configurations via CSV, body editor, and generate rules from live network traffic.
 
 ### ⚡ Performance
 - **Real-time Metrics:** Monitor CPU, memory, and FPS in real-time
