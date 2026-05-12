@@ -235,9 +235,9 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
         switch tokenManager.registrationState {
         case .registered:
             if tokenManager.copyTokenToClipboard() {
-                showToast(message: "📋 APNS token copied to clipboard")
+                showToast(message: "APNS token copied to clipboard")
             } else {
-                showToast(message: "❌ No token available to copy")
+                showToast(message: "No token available to copy")
             }
             
         case .failed:

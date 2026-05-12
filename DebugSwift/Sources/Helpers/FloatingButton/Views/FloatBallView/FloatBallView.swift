@@ -103,14 +103,14 @@ class FloatBallView: UIView {
     
     @objc private func performAnimation(_ success: NSNumber) {
         guard isShowing, superview != nil, window != nil else { return }
-        startAnimation(text: success.boolValue ? "🚀" : "❌")
+        startAnimation(text: success.boolValue ? "✓" : "✗")
     }
     
     func animateWebSocket(connected: Bool) {
         guard isShowing else { return }
 
         updateText()
-        startAnimation(text: connected ? "⚡" : "🔗")
+        startAnimation(text: connected ? "⚡" : "•")
     }
 
     func animateLeek(alloced: Bool) {

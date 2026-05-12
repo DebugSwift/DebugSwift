@@ -505,8 +505,8 @@ extension NetworkViewControllerDetail {
             
             if model.isEncrypted {
                 let status = model.decryptedResponseData != nil 
-                    ? "🔓 Encrypted and decrypted" 
-                    : "🔒 Encrypted (no key)"
+                    ? "Encrypted and decrypted" 
+                    : "Encrypted (no key)"
                 additionalItems.append(DetailItem(title: "ENCRYPTION", value: status))
             }
             
