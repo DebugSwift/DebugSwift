@@ -254,15 +254,20 @@ public struct ResponseBodyRewriteRule: Sendable, Equatable, Codable {
     
     /// Optional HTTP status code override for rewritten response
     public var responseStatusCode: Int?
+
+    /// Whether this rule is active
+    public var isEnabled: Bool
     
     public init(
         urlPattern: String,
         responseBody: String,
-        responseStatusCode: Int? = nil
+        responseStatusCode: Int? = nil,
+        isEnabled: Bool = true
     ) {
         self.urlPattern = urlPattern
         self.responseBody = responseBody
         self.responseStatusCode = responseStatusCode
+        self.isEnabled = isEnabled
     }
 }
 
@@ -288,7 +293,8 @@ public struct ResponseBodyRewriteConfig: Sendable {
         guard let url = request.url else { return nil }
         
         return rules.first { rule in
-            url.matches(
+            guard rule.isEnabled else { return false }
+            return url.matches(
                 wildcardPattern: rule.urlPattern,
                 strategy: .full,
                 queryStrategy: .exact
