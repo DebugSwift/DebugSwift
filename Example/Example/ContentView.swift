@@ -22,7 +22,7 @@ struct ContentView: View {
             List {
                 NavigationLink(destination: OSLogTestView()) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("🔍 OSLog Console Test")
+                        Text("OSLog Console Test")
                             .font(.headline)
                         Text("Test OSLog capture with various log levels")
                             .font(.caption)
@@ -88,7 +88,7 @@ struct ContentView: View {
 
                 NavigationLink(destination: HyperionSwiftDemoView()) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("📏 HyperionSwift Measurement Tool")
+                        Text("HyperionSwift Measurement Tool")
                             .font(.headline)
                         Text("Interactive UI element measurement and spacing tool")
                             .font(.caption)
@@ -99,7 +99,7 @@ struct ContentView: View {
 
                 NavigationLink(destination: WebViewTestView()) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("🌐 Google WebView")
+                        Text("Google WebView")
                             .font(.headline)
                         Text("Test WebKit integration with controls")
                             .font(.caption)
@@ -110,7 +110,7 @@ struct ContentView: View {
 
                 NavigationLink(destination: DeepLinkTestView(url: URL(string: "debugswift://test?id=123"))) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("🔗 Deep Link Test View")
+                        Text("Deep Link Test View")
                             .font(.headline)
                         Text("Test deep link handling interface")
                             .font(.caption)
