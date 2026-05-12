@@ -20,6 +20,17 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
+                NavigationLink(destination: OSLogTestView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("🔍 OSLog Console Test")
+                            .font(.headline)
+                        Text("Test OSLog capture with various log levels")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+                
                 NavigationLink(destination: MockRequestView()) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("REST API Demo")

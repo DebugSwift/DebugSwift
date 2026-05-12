@@ -186,6 +186,19 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
                 let viewModel = AppConsoleViewModel()
                 let controller = ResourcesGenericController(viewModel: viewModel)
                 navigationController?.pushViewController(controller, animated: true)
+            case .oslogConsole:
+                if #available(iOS 15.0, *) {
+                    let controller = OSLogConsoleViewController()
+                    navigationController?.pushViewController(controller, animated: true)
+                } else {
+                    let alert = UIAlertController(
+                        title: "OSLog Unavailable",
+                        message: "OSLog Console requires iOS 15.0 or newer.",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    present(alert, animated: true)
+                }
             case .location:
                 let controller = LocationViewController()
                 navigationController?.pushViewController(controller, animated: true)
@@ -201,19 +214,6 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .deepLink:
                 let controller = DeepLinkViewController()
                 navigationController?.pushViewController(controller, animated: true)
-            case .swiftData:
-                if #available(iOS 17.0, *) {
-                    let controller = SwiftDataBrowserViewController()
-                    navigationController?.pushViewController(controller, animated: true)
-                } else {
-                    let alert = UIAlertController(
-                        title: "SwiftData Unavailable",
-                        message: "SwiftData Browser requires iOS 17.0 or newer.",
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-                    present(alert, animated: true)
-                }
             }
         default:
             break
@@ -308,18 +308,20 @@ extension AppViewController {
     enum ActionInfo: Int, CaseIterable {
         case crash
         case console
+        case oslogConsole
         case location
         case loadedLibraries
         case pushNotifications
         case deepLink
-        case swiftData
 
         var title: String {
             switch self {
             case .location:
                 return "Simulated location"
             case .console:
-                return "Console"
+                return "Console - Prints/NSlog"
+            case .oslogConsole:
+                return "Console - OSLog"
             case .crash:
                 return "Crashes"
             case .loadedLibraries:
@@ -328,8 +330,6 @@ extension AppViewController {
                 return "Push Notifications"
             case .deepLink:
                 return "Deep Links"
-            case .swiftData:
-                return "SwiftData Browser"
             }
         }
 
