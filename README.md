@@ -49,6 +49,7 @@ DebugSwift
 - **Request Limiting:** Set thresholds to monitor and control API usage
 - **Smart Content:** Automatic JSON formatting with syntax highlighting
 - **Encryption Support:** Automatic decryption of encrypted API responses with AES-256/128 and custom decryptors
+- **Response Modifier:** Use it to mock or alter API responses at runtime. Modify response body/status by URL pattern with per-rule toggles, CSV import/export, and startup auto-enable option
 
 ### ⚡ Performance
 - **Real-time Metrics:** Monitor CPU, memory, and FPS in real-time
