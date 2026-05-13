@@ -225,6 +225,66 @@ final class HttpDatasourceEncryptionTests: XCTestCase {
         // Then
         XCTAssertFalse(result)
     }
+
+    func testAddHttpRequest_withDuplicateRequestId_filtersDuplicate() {
+        // Given
+        let firstModel = makeHttpModel(url: "https://api.example.com/v1/orders")
+        firstModel.requestId = "request-1"
+        let duplicateModel = makeHttpModel(url: "https://api.example.com/v1/orders")
+        duplicateModel.requestId = "request-1"
+
+        // When
+        let firstResult = httpDataSource.addHttpRequest(firstModel)
+        let duplicateResult = httpDataSource.addHttpRequest(duplicateModel)
+
+        // Then
+        XCTAssertTrue(firstResult)
+        XCTAssertFalse(duplicateResult)
+        XCTAssertEqual(httpDataSource.httpModels.count, 1)
+    }
+
+    func testAddHttpRequest_afterRemovingRequestId_allowsSameRequestIdAgain() {
+        // Given
+        let firstModel = makeHttpModel(url: "https://api.example.com/v1/orders")
+        firstModel.requestId = "request-1"
+        let nextModel = makeHttpModel(url: "https://api.example.com/v1/orders")
+        nextModel.requestId = "request-1"
+
+        // When
+        XCTAssertTrue(httpDataSource.addHttpRequest(firstModel))
+        httpDataSource.remove(firstModel)
+        let result = httpDataSource.addHttpRequest(nextModel)
+
+        // Then
+        XCTAssertTrue(result)
+        XCTAssertEqual(httpDataSource.httpModels.count, 1)
+        XCTAssertTrue(httpDataSource.httpModels.first === nextModel)
+    }
+
+    func testAddHttpRequest_whenStorageExceedsLimit_evictsOldestRequest() {
+        // Given
+        let firstModel = makeHttpModel(url: "https://api.example.com/v1/orders/0")
+        firstModel.requestId = "request-0"
+        XCTAssertTrue(httpDataSource.addHttpRequest(firstModel))
+
+        for index in 1..<10_000 {
+            let model = makeHttpModel(url: "https://api.example.com/v1/orders/\(index)")
+            model.requestId = "request-\(index)"
+            XCTAssertTrue(httpDataSource.addHttpRequest(model))
+        }
+
+        let nextModel = makeHttpModel(url: "https://api.example.com/v1/orders/10000")
+        nextModel.requestId = "request-10000"
+
+        // When
+        let result = httpDataSource.addHttpRequest(nextModel)
+
+        // Then
+        XCTAssertTrue(result)
+        XCTAssertEqual(httpDataSource.httpModels.count, 10_000)
+        XCTAssertFalse(httpDataSource.httpModels.contains { $0 === firstModel })
+        XCTAssertTrue(httpDataSource.httpModels.last === nextModel)
+    }
     
     private func makeHttpModel(url: String) -> HttpModel {
         let model = HttpModel()

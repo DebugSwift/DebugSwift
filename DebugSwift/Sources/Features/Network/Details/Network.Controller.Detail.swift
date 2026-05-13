@@ -106,7 +106,7 @@ final class NetworkViewControllerDetail: BaseTableController {
         })
         
         // Rewrite shortcut
-        alertController.addAction(UIAlertAction(title: "Create Rewrite Rule", style: .default) { [weak self] _ in
+        alertController.addAction(UIAlertAction(title: "Create Response Modifier", style: .default) { [weak self] _ in
             self?.showCreateRewriteRuleEditor()
         })
 
@@ -224,7 +224,7 @@ final class NetworkViewControllerDetail: BaseTableController {
         NetworkInjectionManager.shared.setRewriteConfig(config)
         showAlert(
             with: "Rewrite rule created for this request",
-            title: "Rewrite Rule Added",
+            title: "Response Modifier Added",
             rightButtonTitle: "OK"
         )
     }

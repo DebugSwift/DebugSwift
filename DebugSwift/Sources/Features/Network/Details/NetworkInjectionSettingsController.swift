@@ -6,9 +6,7 @@
 //
 
 import UIKit
-import UniformTypeIdentifiers
-
-final class NetworkInjectionSettingsController: BaseTableController, UIDocumentPickerDelegate {
+final class NetworkInjectionSettingsController: BaseTableController {
     
     // MARK: - Sections
     
@@ -21,7 +19,7 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
             switch self {
             case .delay: return "REQUEST DELAY INJECTION"
             case .failure: return "NETWORK FAILURE INJECTION"
-            case .rewrite: return "RESPONSE BODY REWRITE"
+            case .rewrite: return "RESPONSE MODIFIER"
             }
         }
     }
@@ -94,7 +92,7 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
         case .failure:
             return failureConfig.isEnabled ? (failureConfig.failureType.isHTTPError ? 6 : 5) : 1
         case .rewrite:
-            return rewriteConfig.isEnabled ? 3 : 1
+            return 1
         }
     }
     
@@ -248,19 +246,12 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
         
         switch row {
         case 0:
-            cell.textLabel?.text = "Enable Rewrite"
-            let toggle = UISwitch()
-            toggle.isOn = rewriteConfig.isEnabled
-            toggle.addTarget(self, action: #selector(rewriteToggled(_:)), for: .valueChanged)
-            cell.accessoryView = toggle
-        case 1:
-            cell.textLabel?.text = "Rewrite Rules"
-            cell.detailTextLabel?.text = rewriteConfig.rules.isEmpty ? "None" : "\(rewriteConfig.rules.count)"
+            cell.textLabel?.text = "Response Modifier"
+            let rules = rewriteConfig.rules
+            let enabledRules = rules.filter(\.isEnabled).count
+            let state = rewriteConfig.isEnabled ? "On" : "Off"
+            cell.detailTextLabel?.text = "\(state) • \(enabledRules)/\(rules.count)"
             cell.accessoryType = .disclosureIndicator
-        case 2:
-            cell.textLabel?.text = "Rule Priority"
-            cell.detailTextLabel?.text = "First Match Wins"
-            cell.selectionStyle = .none
         default:
             break
         }
@@ -278,19 +269,6 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
     @objc private func failureToggled(_ sender: UISwitch) {
         failureConfig.isEnabled = sender.isOn
         tableView.reloadSections(IndexSet(integer: Section.failure.rawValue), with: .automatic)
-    }
-    
-    @objc private func rewriteToggled(_ sender: UISwitch) {
-        var config = rewriteConfig
-        config.isEnabled = sender.isOn
-        NetworkInjectionManager.shared.setRewriteConfig(config)
-        tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
-    }
-    
-    private func updateRewriteRules(_ rules: [ResponseBodyRewriteRule]) {
-        var config = rewriteConfig
-        config.rules = rules
-        NetworkInjectionManager.shared.setRewriteConfig(config)
     }
     
     private func handleDelaySelection(row: Int) {
@@ -326,8 +304,9 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
     
     private func handleRewriteSelection(row: Int) {
         switch row {
-        case 1:
-            showRewriteRulesMenu()
+        case 0:
+            let vc = ResponseModifierSettingsController()
+            navigationController?.pushViewController(vc, animated: true)
         default:
             break
         }
@@ -527,225 +506,7 @@ final class NetworkInjectionSettingsController: BaseTableController, UIDocumentP
         present(alert, animated: true)
     }
     
-    private func showRewriteRulesMenu() {
-        let alert = UIAlertController(
-            title: "Rewrite Rules",
-            message: "Match URLs/patterns and modify the response. Use exact URLs when possible.",
-            preferredStyle: .actionSheet
-        )
-        
-        alert.addAction(UIAlertAction(title: "Add Rule", style: .default) { [weak self] _ in
-            self?.showRewriteRuleEditor()
-        })
-
-        alert.addAction(UIAlertAction(title: "Export CSV", style: .default) { [weak self] _ in
-            self?.exportRewriteRulesCSV()
-        })
-
-        alert.addAction(UIAlertAction(title: "Import CSV", style: .default) { [weak self] _ in
-            self?.importRewriteRulesCSV()
-        })
-        
-        if !rewriteConfig.rules.isEmpty {
-            alert.addAction(UIAlertAction(title: "Edit Rule", style: .default) { [weak self] _ in
-                self?.showRewriteRulePicker(mode: .edit)
-            })
-            
-            alert.addAction(UIAlertAction(title: "Delete Rule", style: .destructive) { [weak self] _ in
-                self?.showRewriteRulePicker(mode: .delete)
-            })
-            
-            alert.addAction(UIAlertAction(title: "Clear All Rules", style: .destructive) { [weak self] _ in
-                self?.updateRewriteRules([])
-                self?.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
-            })
-        }
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(alert, animated: true)
-    }
     
-    private enum RewriteRulePickerMode {
-        case edit
-        case delete
-    }
-    
-    private func showRewriteRulePicker(mode: RewriteRulePickerMode) {
-        let title = mode == .edit ? "Edit Rule" : "Delete Rule"
-        let alert = UIAlertController(title: title, message: nil, preferredStyle: .actionSheet)
-        
-        for (index, rule) in rewriteConfig.rules.enumerated() {
-            alert.addAction(UIAlertAction(title: "\(index + 1). \(rule.urlPattern)", style: .default) { [weak self] _ in
-                guard let self = self else { return }
-                switch mode {
-                case .edit:
-                    self.showRewriteRuleEditor(existingRule: rule, editIndex: index)
-                case .delete:
-                    var updatedRules = self.rewriteConfig.rules
-                    updatedRules.remove(at: index)
-                    self.updateRewriteRules(updatedRules)
-                    self.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
-                }
-            })
-        }
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(alert, animated: true)
-    }
-    
-    private func showRewriteRuleEditor(existingRule: ResponseBodyRewriteRule? = nil, editIndex: Int? = nil) {
-        let backItem = UIBarButtonItem()
-        backItem.title = "Network Injection"
-        navigationItem.backBarButtonItem = backItem
-        if #available(iOS 14.0, *) {
-            navigationItem.backButtonDisplayMode = .default
-        }
-        let editor = RewriteRuleEditViewController(rule: existingRule) { [weak self] updatedRule in
-            guard let self = self else { return }
-            var updatedRules = self.rewriteConfig.rules
-            if let editIndex {
-                updatedRules[editIndex] = updatedRule
-            } else {
-                if let existingIndex = updatedRules.firstIndex(where: { $0.urlPattern == updatedRule.urlPattern }) {
-                    updatedRules[existingIndex] = updatedRule
-                } else {
-                    updatedRules.append(updatedRule)
-                }
-            }
-            self.updateRewriteRules(updatedRules)
-            self.tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
-        }
-        navigationController?.pushViewController(editor, animated: true)
-    }
-
-    private func exportRewriteRulesCSV() {
-        let csv = RewriteRulesCSV.export(rules: rewriteConfig.rules)
-        guard let data = csv.data(using: .utf8) else {
-            return
-        }
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd_HHmmss"
-        let fileName = "rewrite_rules_\(formatter.string(from: Date())).csv"
-        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-
-        do {
-            try data.write(to: fileURL, options: [.atomic])
-        } catch {
-            let alert = UIAlertController(
-                title: "Export Error",
-                message: error.localizedDescription,
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-            return
-        }
-
-        let activityViewController = UIActivityViewController(
-            activityItems: [fileURL],
-            applicationActivities: nil
-        )
-        activityViewController.completionWithItemsHandler = { _, _, _, _ in
-            try? FileManager.default.removeItem(at: fileURL)
-        }
-
-        if let popover = activityViewController.popoverPresentationController {
-            popover.sourceView = view
-            popover.sourceRect = CGRect(
-                x: view.bounds.midX,
-                y: view.bounds.maxY - 1,
-                width: 1,
-                height: 1
-            )
-        }
-
-        present(activityViewController, animated: true)
-    }
-
-    private func importRewriteRulesCSV() {
-        if #available(iOS 14.0, *) {
-            let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.commaSeparatedText, .plainText])
-            picker.delegate = self
-            picker.allowsMultipleSelection = false
-            present(picker, animated: true)
-        } else {
-            let picker = UIDocumentPickerViewController(documentTypes: ["public.comma-separated-values-text", "public.plain-text"], in: .import)
-            picker.delegate = self
-            picker.allowsMultipleSelection = false
-            present(picker, animated: true)
-        }
-    }
-
-    private func applyImportedRewriteRules(_ importedRules: [ResponseBodyRewriteRule]) -> (created: Int, updated: Int) {
-        var mergedRules = rewriteConfig.rules
-        var created = 0
-        var updated = 0
-
-        for importedRule in importedRules {
-            if let existingIndex = mergedRules.firstIndex(where: { $0.urlPattern == importedRule.urlPattern }) {
-                mergedRules[existingIndex] = importedRule
-                updated += 1
-            } else {
-                mergedRules.append(importedRule)
-                created += 1
-            }
-        }
-
-        updateRewriteRules(mergedRules)
-        tableView.reloadSections(IndexSet(integer: Section.rewrite.rawValue), with: .automatic)
-        return (created, updated)
-    }
-
-    private func showCSVImportResult(created: Int, updated: Int) {
-        let alert = UIAlertController(
-            title: "Import Complete",
-            message: "Created \(created) rule(s), updated \(updated) rule(s).",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
-    }
-
-    private func showCSVImportError(_ error: Error) {
-        let alert = UIAlertController(
-            title: "Import Error",
-            message: error.localizedDescription,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
-    }
-
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        guard let fileURL = urls.first else { return }
-
-        let hasAccess = fileURL.startAccessingSecurityScopedResource()
-        defer {
-            if hasAccess {
-                fileURL.stopAccessingSecurityScopedResource()
-            }
-        }
-
-        do {
-            let data = try Data(contentsOf: fileURL)
-            guard let csvText = String(data: data, encoding: .utf8) else {
-                throw NSError(
-                    domain: "DebugSwift.NetworkInjection",
-                    code: 1,
-                    userInfo: [NSLocalizedDescriptionKey: "CSV file must be UTF-8 encoded."]
-                )
-            }
-
-            let importedRules = try RewriteRulesCSV.parse(csvText)
-            let result = applyImportedRewriteRules(importedRules)
-            showCSVImportResult(created: result.created, updated: result.updated)
-        } catch {
-            showCSVImportError(error)
-        }
-    }
-
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {}
 }
 
 // MARK: - FailureType Extension

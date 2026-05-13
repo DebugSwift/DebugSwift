@@ -39,7 +39,7 @@ final class RewriteRuleEditViewController: BaseController {
         textView.layer.borderColor = UIColor.separator.cgColor
         return textView
     }()
-    
+
     private lazy var statusCodeField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -63,7 +63,7 @@ final class RewriteRuleEditViewController: BaseController {
     }
     
     private func setupUI() {
-        title = existingRule == nil ? "Add Rewrite Rule" : "Edit Rewrite Rule"
+        title = "Response Editor"
         view.backgroundColor = .black
         
         let patternLabel = UILabel()
@@ -113,7 +113,7 @@ final class RewriteRuleEditViewController: BaseController {
             bodyLabel.topAnchor.constraint(equalTo: statusCodeField.bottomAnchor, constant: 16),
             bodyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             bodyLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            
+
             bodyTextView.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 8),
             bodyTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             bodyTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -140,7 +140,14 @@ final class RewriteRuleEditViewController: BaseController {
             target: self,
             action: #selector(showBodyEditorOptions)
         )
-        navigationItem.rightBarButtonItems = [saveButton, menuButton]
+        let bodyEditorButton = UIBarButtonItem(
+            image: UIImage(systemName: "square.and.pencil"),
+            style: .plain,
+            target: self,
+            action: #selector(openBodyEditorTapped)
+        )
+        bodyEditorButton.accessibilityLabel = "Body Editor"
+        navigationItem.rightBarButtonItems = [saveButton, bodyEditorButton, menuButton]
     }
     
     @objc private func showBodyEditorOptions() {
@@ -161,6 +168,10 @@ final class RewriteRuleEditViewController: BaseController {
         }
         
         present(alert, animated: true)
+    }
+
+    @objc private func openBodyEditorTapped() {
+        openKeyValueEditor()
     }
     
     private func openKeyValueEditor() {

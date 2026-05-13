@@ -164,11 +164,13 @@ final class NetworkViewController: BaseController, MainFeatureType {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            let success = notification.object as? Bool ?? false
+            let success = (notification.userInfo?["success"] as? Bool) ?? (notification.object as? Bool) ?? false
+            let matchedResponseModifier = notification.userInfo?["matchedResponseModifier"] as? Bool ?? false
             MainActor.assumeIsolated {
                 self?.reloadHttp(
                     needScrollToEnd: (self?.viewModel.isReachEnd ?? true) && self?.view.window != nil,
-                    success: success
+                    success: success,
+                    matchedResponseModifier: matchedResponseModifier
                 )
                 self?.updateHTTPStatistics()
             }
@@ -197,13 +199,17 @@ final class NetworkViewController: BaseController, MainFeatureType {
         }
     }
 
-    func reloadHttp(needScrollToEnd: Bool = false, success: Bool = true) {
+    func reloadHttp(
+        needScrollToEnd: Bool = false,
+        success: Bool = true,
+        matchedResponseModifier: Bool = false
+    ) {
         guard viewModel.reloadDataFinish else { return }
         guard currentMode == .http || currentMode == .webview else { return }
 
         // Only animate if the float view is showing to avoid unnecessary work
         if FloatViewManager.shared.ballView.isShowing {
-            FloatViewManager.animate(success: success)
+            FloatViewManager.animate(success: success, matchedResponseModifier: matchedResponseModifier)
         }
         
         viewModel.applyFilter(for: currentMode)

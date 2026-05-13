@@ -216,7 +216,7 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
                 requestId: requestId,
                 cachePolicy: cachePolicy
             )
-            Self.report(data)
+            Self.report(data, matchedResponseModifier: false)
         }
     }
     
@@ -249,7 +249,7 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
                 requestId: requestId,
                 cachePolicy: cachePolicy
             )
-            Self.report(data)
+            Self.report(data, matchedResponseModifier: false)
         }
     }
     
@@ -299,6 +299,7 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         let responseHeaderFields = headersToString(response?.allHeaderFields)
         let requestId = request.requestId
         let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
+        let matchedResponseModifier = matchedRewriteRule != nil
 
         Task { @MainActor in
             guard NetworkHelper.shared.isNetworkEnable else {
@@ -320,12 +321,12 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
                 requestId: requestId,
                 cachePolicy: cachePolicy
             )
-            Self.report(reportData)
+            Self.report(reportData, matchedResponseModifier: matchedResponseModifier)
         }
     }
     
     @MainActor
-    private static func report(_ data: NetworkReportData) {
+    private static func report(_ data: NetworkReportData, matchedResponseModifier: Bool = false) {
         var model = HttpModel()
         model.url = data.url
         model.method = data.method
@@ -385,7 +386,11 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         if HttpDatasource.shared.addHttpRequest(model) {
             NotificationCenter.default.post(
                 name: NSNotification.Name("reloadHttp_DebugSwift"),
-                object: model.isSuccess
+                object: nil,
+                userInfo: [
+                    "success": model.isSuccess,
+                    "matchedResponseModifier": matchedResponseModifier
+                ]
             )
         }
     }
