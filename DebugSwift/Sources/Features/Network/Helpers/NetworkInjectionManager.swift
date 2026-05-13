@@ -21,10 +21,16 @@ final class NetworkInjectionManager: @unchecked Sendable {
     private var _delayConfig: RequestDelayConfig = RequestDelayConfig()
     private var _failureConfig: NetworkFailureConfig = NetworkFailureConfig()
     private var _rewriteConfig: ResponseBodyRewriteConfig = ResponseBodyRewriteConfig()
+    private var _rewriteRulesSnapshot: [ResponseBodyRewriteRule] = []
     
     private init() {
         _rewriteConfig.isEnabled = shouldAutoEnableRewriteOnRun()
-        _rewriteConfig.rules = loadPersistedRewriteRules()
+        _rewriteConfig.rules = loadPersistedRewriteRules().map { rule in
+            var normalizedRule = rule
+            normalizedRule.matchType = rule.urlPattern.contains("*") || rule.urlPattern.contains("?") ? .wildcard : .exact
+            return normalizedRule
+        }
+        _rewriteRulesSnapshot = _rewriteConfig.rules
     }
     
     // MARK: - Delay Injection
@@ -84,9 +90,16 @@ final class NetworkInjectionManager: @unchecked Sendable {
     func setRewriteConfig(_ config: ResponseBodyRewriteConfig) {
         queue.sync(flags: .barrier) {
             let previousRules = _rewriteConfig.rules
-            _rewriteConfig = config
-            if previousRules != config.rules {
-                persistRewriteRules(config.rules)
+            var normalizedConfig = config
+            normalizedConfig.rules = config.rules.map { rule in
+                var normalizedRule = rule
+                normalizedRule.matchType = rule.urlPattern.contains("*") || rule.urlPattern.contains("?") ? .wildcard : .exact
+                return normalizedRule
+            }
+            _rewriteConfig = normalizedConfig
+            _rewriteRulesSnapshot = normalizedConfig.rules
+            if previousRules != normalizedConfig.rules {
+                persistRewriteRules(normalizedConfig.rules)
             }
         }
         Debug.print("✏️ Rewrite config updated: enabled=\(config.isEnabled), rules=\(config.rules.count)")
@@ -97,8 +110,31 @@ final class NetworkInjectionManager: @unchecked Sendable {
     }
     
     func matchingRewriteRule(for request: URLRequest) -> ResponseBodyRewriteRule? {
-        let config = getRewriteConfig()
-        return config.matchingRule(for: request)
+        guard let url = request.url else { return nil }
+        let (isEnabled, rules): (Bool, [ResponseBodyRewriteRule]) = queue.sync {
+            (_rewriteConfig.isEnabled, _rewriteRulesSnapshot)
+        }
+        guard isEnabled else { return nil }
+
+        let requestURLLowercased = url.absoluteString.lowercased()
+        for rule in rules where rule.isEnabled {
+            switch rule.matchType {
+            case .exact:
+                if requestURLLowercased == rule.urlPattern.lowercased() {
+                    return rule
+                }
+            case .wildcard:
+                if url.matches(
+                    wildcardPattern: rule.urlPattern,
+                    strategy: .full,
+                    queryStrategy: .exact
+                ) {
+                    return rule
+                }
+            }
+        }
+
+        return nil
     }
 
     func setRewriteAutoEnableOnRun(_ isEnabled: Bool) {
