@@ -30,8 +30,8 @@ final class FloatViewManager: NSObject {
         shared.floatViewController = viewController
     }
 
-    static func animate(success: Bool) {
-        shared.ballView.animate(success: success)
+    static func animate(success: Bool, matchedResponseModifier: Bool = false) {
+        shared.ballView.animate(success: success, matchedResponseModifier: matchedResponseModifier)
     }
     
     static func animateWebSocket(connected: Bool) {
@@ -75,10 +75,11 @@ final class FloatViewManager: NSObject {
             object: nil,
             queue: .main
         ) { notification in
-            let success = notification.object as? Bool
+            let success = notification.userInfo?["success"] as? Bool
+            let matchedResponseModifier = notification.userInfo?["matchedResponseModifier"] as? Bool ?? false
             MainActor.assumeIsolated {
                 if let success = success {
-                    Self.animate(success: success)
+                    Self.animate(success: success, matchedResponseModifier: matchedResponseModifier)
                 }
             }
         }

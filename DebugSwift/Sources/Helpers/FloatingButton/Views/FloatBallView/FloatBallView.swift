@@ -23,6 +23,7 @@ class FloatBallView: UIView {
     fileprivate var beginPoint: CGPoint?
 
     var changeStatusInNextTransaction = true
+    private var pendingAnimationWorkItem: DispatchWorkItem?
 
     lazy var label: UILabel = buildLabel()
     lazy var ballView: UIView = buildBallView()
@@ -89,21 +90,29 @@ class FloatBallView: UIView {
         }
     }
 
-    func animate(success: Bool) {
+    func animate(success: Bool, matchedResponseModifier: Bool = false) {
         guard isShowing else { return }
         
         // Debounce frequent animations
         cancelPendingAnimationRequests()
         
         updateText()
-        perform(#selector(performAnimation(_:)), with: success, afterDelay: 0.1)
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.performAnimation(success: success, matchedResponseModifier: matchedResponseModifier)
+        }
+        pendingAnimationWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
 
         if !success { ImpactFeedback.generate() }
     }
     
-    @objc private func performAnimation(_ success: NSNumber) {
+    private func performAnimation(success: Bool, matchedResponseModifier: Bool) {
         guard isShowing, superview != nil, window != nil else { return }
-        startAnimation(text: success.boolValue ? "🚀" : "❌")
+        if success {
+            startAnimation(text: matchedResponseModifier ? "💉" : "🚀")
+        } else {
+            startAnimation(text: "❌")
+        }
     }
     
     func animateWebSocket(connected: Bool) {
@@ -145,11 +154,8 @@ class FloatBallView: UIView {
     }
 
     private func cancelPendingAnimationRequests() {
-        NSObject.cancelPreviousPerformRequests(
-            withTarget: self,
-            selector: #selector(performAnimation(_:)),
-            object: nil
-        )
+        pendingAnimationWorkItem?.cancel()
+        pendingAnimationWorkItem = nil
     }
 }
 

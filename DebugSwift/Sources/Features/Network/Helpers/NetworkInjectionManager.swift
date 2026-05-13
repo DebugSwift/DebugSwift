@@ -13,6 +13,7 @@ final class NetworkInjectionManager: @unchecked Sendable {
     
     private enum PersistenceKeys {
         static let rewriteRules = "DebugSwift.NetworkInjection.RewriteRules"
+        static let rewriteAutoEnableOnRun = "DebugSwift.NetworkInjection.RewriteAutoEnableOnRun"
     }
     
     private let queue = DispatchQueue(label: "com.debugswift.injection", attributes: .concurrent)
@@ -21,7 +22,7 @@ final class NetworkInjectionManager: @unchecked Sendable {
     private var _rewriteConfig: ResponseBodyRewriteConfig = ResponseBodyRewriteConfig()
     
     private init() {
-        _rewriteConfig.isEnabled = false
+        _rewriteConfig.isEnabled = shouldAutoEnableRewriteOnRun()
         _rewriteConfig.rules = loadPersistedRewriteRules()
     }
     
@@ -97,6 +98,14 @@ final class NetworkInjectionManager: @unchecked Sendable {
     func matchingRewriteRule(for request: URLRequest) -> ResponseBodyRewriteRule? {
         let config = getRewriteConfig()
         return config.matchingRule(for: request)
+    }
+
+    func setRewriteAutoEnableOnRun(_ isEnabled: Bool) {
+        UserDefaults.standard.set(isEnabled, forKey: PersistenceKeys.rewriteAutoEnableOnRun)
+    }
+
+    func shouldAutoEnableRewriteOnRun() -> Bool {
+        UserDefaults.standard.bool(forKey: PersistenceKeys.rewriteAutoEnableOnRun)
     }
     
     private func loadPersistedRewriteRules() -> [ResponseBodyRewriteRule] {
