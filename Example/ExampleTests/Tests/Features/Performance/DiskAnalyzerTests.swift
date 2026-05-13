@@ -44,8 +44,12 @@ struct DiskAnalyzerTests {
         let analyzer = DiskAnalyzer()
         analyzer.measure()
 
-        // Wait for async computation
-        try await Task.sleep(nanoseconds: 500_000_000)
+        // Wait for async computation to complete (up to 3 seconds)
+        var attempts = 0
+        while analyzer.usageInfo == nil && attempts < 30 {
+            try await Task.sleep(nanoseconds: 100_000_000) // 100ms
+            attempts += 1
+        }
 
         #expect(analyzer.usageInfo != nil)
         if let info = analyzer.usageInfo {
