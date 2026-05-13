@@ -14,6 +14,7 @@ final class NetworkInjectionManager: @unchecked Sendable {
     private enum PersistenceKeys {
         static let rewriteRules = "DebugSwift.NetworkInjection.RewriteRules"
         static let rewriteAutoEnableOnRun = "DebugSwift.NetworkInjection.RewriteAutoEnableOnRun"
+        static let rewriteShortCircuitEnabled = "DebugSwift.NetworkInjection.RewriteShortCircuitEnabled"
     }
     
     private let queue = DispatchQueue(label: "com.debugswift.injection", attributes: .concurrent)
@@ -106,6 +107,17 @@ final class NetworkInjectionManager: @unchecked Sendable {
 
     func shouldAutoEnableRewriteOnRun() -> Bool {
         UserDefaults.standard.bool(forKey: PersistenceKeys.rewriteAutoEnableOnRun)
+    }
+    
+    func setRewriteShortCircuitEnabled(_ isEnabled: Bool) {
+        UserDefaults.standard.set(isEnabled, forKey: PersistenceKeys.rewriteShortCircuitEnabled)
+    }
+    
+    func isRewriteShortCircuitEnabled() -> Bool {
+        if UserDefaults.standard.object(forKey: PersistenceKeys.rewriteShortCircuitEnabled) == nil {
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: PersistenceKeys.rewriteShortCircuitEnabled)
     }
     
     private func loadPersistedRewriteRules() -> [ResponseBodyRewriteRule] {

@@ -49,7 +49,7 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
         guard let sectionType = Section(rawValue: section) else { return 0 }
         switch sectionType {
         case .options:
-            return 4
+            return 5
         case .rules:
             return max(rewriteConfig.rules.count, 1)
         }
@@ -120,6 +120,12 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
             toggle.addTarget(self, action: #selector(allRulesToggleChanged(_:)), for: .valueChanged)
             cell.accessoryView = toggle
         case 3:
+            cell.textLabel?.text = "Short-circuit Mode"
+            let toggle = UISwitch()
+            toggle.isOn = NetworkInjectionManager.shared.isRewriteShortCircuitEnabled()
+            toggle.addTarget(self, action: #selector(shortCircuitToggleChanged(_:)), for: .valueChanged)
+            cell.accessoryView = toggle
+        case 4:
             cell.textLabel?.text = "Import / Export CSV"
             cell.accessoryType = .disclosureIndicator
         default:
@@ -157,7 +163,27 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
 
     private func handleOptionSelection(row: Int) {
         switch row {
+        case 0:
+            showInfoAlert(
+                title: "Enable Response Modifier",
+                message: "Turns response modifier on or off globally. When off, no rewrite rules are applied."
+            )
+        case 1:
+            showInfoAlert(
+                title: "Auto-enable Every Run",
+                message: "If enabled, response modifier will automatically be active each time the app starts."
+            )
+        case 2:
+            showInfoAlert(
+                title: "Enable All Rules",
+                message: "Quickly enable or disable all existing rules at once."
+            )
         case 3:
+            showInfoAlert(
+                title: "Short-circuit Matched Rules",
+                message: "When enabled, matched rules return mocked responses immediately from local data. This works offline and skips the real network request for matched rules."
+            )
+        case 4:
             showImportExportMenu()
         default:
             break
@@ -176,6 +202,16 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
 
     @objc private func autoEnableToggleChanged(_ sender: UISwitch) {
         NetworkInjectionManager.shared.setRewriteAutoEnableOnRun(sender.isOn)
+    }
+    
+    @objc private func shortCircuitToggleChanged(_ sender: UISwitch) {
+        NetworkInjectionManager.shared.setRewriteShortCircuitEnabled(sender.isOn)
+    }
+    
+    private func showInfoAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     @objc private func ruleToggleChanged(_ sender: UISwitch) {
