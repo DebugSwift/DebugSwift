@@ -259,7 +259,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             cell.contentView.backgroundColor = .systemOrange
             cell.selectionStyle = .none
         } else {
-            cell.textLabel?.text = "🚨 Simulate Memory Warning"
+            cell.textLabel?.text = "Simulate Memory Warning"
             cell.contentView.backgroundColor = .systemRed
             cell.selectionStyle = .default
         }
@@ -299,7 +299,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return cell
         case 1:
             let cell = reuseCell(for: .leak)
-            cell.setup(title: "🧵 Thread Checker", image: .named("chevron.right", default: "Action"))
+            cell.setup(title: "Thread Checker", image: .named("chevron.right", default: "Action"))
             return cell
         default:
             return UITableViewCell()
@@ -455,11 +455,11 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
     private func showMemoryWarningConfirmation() {
         let alert = UIAlertController(
-            title: "🚨 Simulate Memory Warning",
+            title: "Simulate Memory Warning",
             message: "This will trigger a memory warning throughout your app and simulate memory pressure.\n\n⚠️ May cause temporary app slowdown.",
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "🚀 Simulate Now", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Simulate Now", style: .default) { [weak self] _ in
             self?.executeMemoryWarningSimulation()
         })
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -472,7 +472,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             message: "A memory warning simulation is currently running.",
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "🛑 Stop", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Stop", style: .destructive) { [weak self] _ in
             self?.memoryWarningSimulator.stopSimulation()
             self?.tableView.reloadData()
         })

@@ -43,7 +43,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // If you have New Relic, disable leak detector to prevent conflicts:
         // debugSwift.setup(disable: [.leaksDetector])
         
-        print("Hey, DebugSwift is running! 🎉")
+        print("Hey, DebugSwift is running!")
 
         DiskWriteTracker.install()
 
