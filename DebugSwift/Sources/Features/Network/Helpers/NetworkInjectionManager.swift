@@ -117,7 +117,12 @@ final class NetworkInjectionManager: @unchecked Sendable {
         guard isEnabled else { return nil }
 
         let requestURLLowercased = url.absoluteString.lowercased()
+        let requestMethod = HTTPMethod(rawValue: (request.httpMethod ?? HTTPMethod.get.rawValue).uppercased()) ?? .get
         for rule in rules where rule.isEnabled {
+            if let allowedMethod = rule.httpMethod, allowedMethod != requestMethod {
+                continue
+            }
+
             switch rule.matchType {
             case .exact:
                 if requestURLLowercased == rule.urlPattern.lowercased() {

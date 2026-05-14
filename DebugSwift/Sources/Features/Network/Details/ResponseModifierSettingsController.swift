@@ -34,11 +34,18 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
         view.backgroundColor = .black
         tableView.backgroundColor = .black
         tableView.separatorColor = .darkGray
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        let addButton = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
             action: #selector(addRuleTapped)
         )
+        let menuButton = UIBarButtonItem(
+            image: UIImage(systemName: "ellipsis.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(showMoreMenu)
+        )
+        navigationItem.rightBarButtonItems = [addButton, menuButton]
     }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -152,7 +159,7 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
         cell.textLabel?.text = displayPattern
         cell.textLabel?.numberOfLines = 2
         cell.textLabel?.lineBreakMode = .byTruncatingHead
-        cell.detailTextLabel?.text = nil
+        cell.detailTextLabel?.text = rule.httpMethod?.rawValue ?? "All Methods"
         let toggle = UISwitch()
         toggle.isOn = rule.isEnabled
         toggle.tag = row
@@ -192,6 +199,39 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
 
     @objc private func addRuleTapped() {
         showRewriteRuleEditor()
+    }
+
+    @objc private func showMoreMenu() {
+        let alert = UIAlertController(title: "More", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Reset All", style: .destructive) { [weak self] _ in
+            self?.confirmResetAll()
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        if let popover = alert.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItems?.last
+        }
+        present(alert, animated: true)
+    }
+
+    private func confirmResetAll() {
+        let alert = UIAlertController(
+            title: "Reset All Response Modifier Settings?",
+            message: "This will disable Response Modifier, disable Auto-enable, keep Short-circuit Mode enabled, and remove all rules.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Reset All", style: .destructive) { [weak self] _ in
+            self?.performResetAll()
+        })
+        present(alert, animated: true)
+    }
+
+    private func performResetAll() {
+        let resetConfig = ResponseBodyRewriteConfig(isEnabled: false, rules: [])
+        NetworkInjectionManager.shared.setRewriteConfig(resetConfig)
+        NetworkInjectionManager.shared.setRewriteAutoEnableOnRun(false)
+        NetworkInjectionManager.shared.setRewriteShortCircuitEnabled(true)
+        tableView.reloadData()
     }
 
     @objc private func masterToggleChanged(_ sender: UISwitch) {
@@ -279,7 +319,7 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
             var updatedRules = self.rewriteConfig.rules
             if let editIndex {
                 updatedRules[editIndex] = updatedRule
-            } else if let existingIndex = updatedRules.firstIndex(where: { $0.urlPattern == updatedRule.urlPattern }) {
+            } else if let existingIndex = updatedRules.firstIndex(where: { $0.urlPattern == updatedRule.urlPattern && $0.httpMethod == updatedRule.httpMethod }) {
                 updatedRules[existingIndex] = updatedRule
             } else {
                 updatedRules.append(updatedRule)
@@ -370,9 +410,10 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
         var created = 0
         var updated = 0
         for importedRule in importedRules {
-            if let existingIndex = mergedRules.firstIndex(where: { $0.urlPattern == importedRule.urlPattern }) {
+            if let existingIndex = mergedRules.firstIndex(where: { $0.urlPattern == importedRule.urlPattern && $0.httpMethod == importedRule.httpMethod }) {
                 mergedRules[existingIndex].responseBody = importedRule.responseBody
                 mergedRules[existingIndex].responseStatusCode = importedRule.responseStatusCode
+                mergedRules[existingIndex].httpMethod = importedRule.httpMethod
                 updated += 1
             } else {
                 mergedRules.append(importedRule)
