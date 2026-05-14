@@ -67,6 +67,8 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private var prevUrl: URL?
     private var prevStartTime: Date?
     private var matchedRewriteRule: ResponseBodyRewriteRule?
+    private let reportQueue = DispatchQueue(label: "com.debugswift.http-protocol.report")
+    private var didReport = false
 
     private var threadOperator: ThreadOperator?
     
@@ -186,6 +188,8 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         }
         """.data(using: .utf8) ?? Data()
         
+        guard markReportedIfNeeded() else { return }
+
         // Notify client of response
         if let response = httpResponse {
             self.response = response
@@ -225,6 +229,7 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     }
     
     private func injectNetworkError(_ error: Error) {
+        guard markReportedIfNeeded() else { return }
         self.error = error
         client?.urlProtocol(self, didFailWithError: error)
         
@@ -270,6 +275,8 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             headerFields: ["Content-Type": "application/json"]
         )
         
+        guard markReportedIfNeeded() else { return }
+
         if let response {
             self.response = response
             self.data = rewrittenData
@@ -353,6 +360,8 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
         let matchedResponseModifier = matchedRewriteRule != nil
 
+        guard markReportedIfNeeded() else { return }
+
         Task { @MainActor in
             guard NetworkHelper.shared.isNetworkEnable else {
                 return
@@ -374,6 +383,14 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
                 cachePolicy: cachePolicy
             )
             Self.report(reportData, matchedResponseModifier: matchedResponseModifier)
+        }
+    }
+
+    private func markReportedIfNeeded() -> Bool {
+        reportQueue.sync {
+            guard !didReport else { return false }
+            didReport = true
+            return true
         }
     }
     
