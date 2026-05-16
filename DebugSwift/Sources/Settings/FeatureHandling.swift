@@ -137,5 +137,13 @@ enum FeatureHandling {
     
     private static func setupBetaFeatures(_ betaFeatures: [DebugSwiftBetaFeature]) {
         enabledBetaFeatures = betaFeatures
+
+#if canImport(SwiftData)
+        if #available(iOS 17.0, *) {
+            NetworkSessionPersistenceManager.shared.applyFeatureEnabled(
+                betaFeatures.contains(.networkSessionPersistence)
+            )
+        }
+#endif
     }
 }

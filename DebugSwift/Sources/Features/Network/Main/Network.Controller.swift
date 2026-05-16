@@ -601,6 +601,19 @@ final class NetworkViewController: BaseController, MainFeatureType {
         
         switch currentMode {
         case .http, .webview:
+            if currentMode == .http,
+               #available(iOS 17.0, *),
+               NetworkSessionPersistenceManager.isPersistenceEnabledPreference {
+                let historyButton = UIBarButtonItem(
+                    image: UIImage(systemName: "clock.arrow.circlepath"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(showSessionHistory)
+                )
+                historyButton.tintColor = .systemBlue
+                rightBarButtons.append(historyButton)
+            }
+
             // Add network injection settings button
             let injectionButton = UIBarButtonItem(
                 image: injectionSymbolImage(),
@@ -744,6 +757,29 @@ final class NetworkViewController: BaseController, MainFeatureType {
     
     @objc private func refreshWebSocketConnections() {
         loadWebSocketConnections()
+    }
+
+    @objc private func showSessionHistory() {
+#if canImport(SwiftData)
+        if #available(iOS 17.0, *) {
+            let controller = NetworkSessionHistoryViewController()
+            navigationController?.pushViewController(controller, animated: true)
+            return
+        }
+#endif
+
+        let alert = UIAlertController(
+            title: "Session History Unavailable",
+            message: "Session history requires iOS 17.0 or newer.",
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(
+                title: "OK",
+                style: .default
+            )
+        )
+        present(alert, animated: true)
     }
 }
 
