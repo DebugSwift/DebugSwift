@@ -164,7 +164,7 @@ final class NetworkSessionRequestListViewController: BaseController {
         NetworkInjectionManager.shared.replaceRewriteRulesFromSessionHistory(rules)
         showMessageAlert(
             title: "Import Complete",
-            message: "Replaced existing Response Modifier rules with \(rules.count) rule(s) from this session."
+            message: "Replaced existing Response Modifier rules with \(rules.count) rule(s) from this session. Response Modifier is now active."
         )
     }
 

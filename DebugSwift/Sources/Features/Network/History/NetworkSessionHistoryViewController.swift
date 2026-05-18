@@ -15,6 +15,10 @@ import SwiftData
 final class NetworkSessionHistoryViewController: BaseController {
     private var sessions: [NetworkSessionPersistenceManager.SessionRecord] = []
     private var activeSessionID: UUID?
+    private var retentionInfoText: String {
+        let days = NetworkSessionPersistenceManager.retentionDaysPreference
+        return "Session history only preserves the last \(days) day\(days == 1 ? "" : "s") of data."
+    }
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -33,7 +37,7 @@ final class NetworkSessionHistoryViewController: BaseController {
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.text = "No session history available."
+        label.text = "No session history available.\n\n\(retentionInfoText)"
         return label
     }()
 
@@ -102,6 +106,10 @@ final class NetworkSessionHistoryViewController: BaseController {
 
 @available(iOS 17.0, *)
 extension NetworkSessionHistoryViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        retentionInfoText
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         sessions.count
     }
