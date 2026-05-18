@@ -150,6 +150,11 @@ final class NetworkSessionPersistenceManager {
         return await writeStore.fetchSessions()
     }
 
+    func activeSessionID() async -> UUID? {
+        guard let writeStore else { return nil }
+        return await writeStore.activeSessionID()
+    }
+
     func fetchRequests(for sessionID: UUID) async -> [RequestRecord] {
         guard let writeStore else { return [] }
         return await writeStore.fetchRequests(for: sessionID)

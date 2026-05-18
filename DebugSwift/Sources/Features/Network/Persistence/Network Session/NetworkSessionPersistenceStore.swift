@@ -163,6 +163,10 @@ actor NetworkSessionPersistenceStore {
         }
     }
 
+    func activeSessionID() -> UUID? {
+        activeSession?.id
+    }
+
     func fetchRequests(for sessionID: UUID) -> [NetworkSessionPersistenceManager.RequestRecord] {
         let descriptor = FetchDescriptor<NetworkRequestEntity>(
             predicate: #Predicate { request in

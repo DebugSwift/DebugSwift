@@ -14,6 +14,7 @@ import SwiftData
 @MainActor
 final class NetworkSessionHistoryViewController: BaseController {
     private var sessions: [NetworkSessionPersistenceManager.SessionRecord] = []
+    private var activeSessionID: UUID?
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -62,7 +63,10 @@ final class NetworkSessionHistoryViewController: BaseController {
 
     private func loadSessions() {
         Task { @MainActor in
-            sessions = await NetworkSessionPersistenceManager.shared.fetchSessions()
+            async let loadedSessions = NetworkSessionPersistenceManager.shared.fetchSessions()
+            async let loadedActiveSessionID = NetworkSessionPersistenceManager.shared.activeSessionID()
+            sessions = await loadedSessions
+            activeSessionID = await loadedActiveSessionID
             tableView.reloadData()
             updateEmptyState()
         }
@@ -80,11 +84,14 @@ final class NetworkSessionHistoryViewController: BaseController {
 
     private func sessionSubtitle(_ session: NetworkSessionPersistenceManager.SessionRecord) -> String {
         let requestsCount = session.requestCount
-        let countText = "\(requestsCount) requests"
+        let countText = requestsCount == 0 ? "No requests" : "\(requestsCount) request\(requestsCount == 1 ? "" : "s")"
+
+        if session.id == activeSessionID {
+            return "\(countText) • Active"
+        }
 
         guard let endedAt = session.endedAt else {
-            let activeText = "Active"
-            return "\(countText) • \(activeText)"
+            return countText
         }
 
         let duration = Int(max(endedAt.timeIntervalSince(session.startedAt), 0))
