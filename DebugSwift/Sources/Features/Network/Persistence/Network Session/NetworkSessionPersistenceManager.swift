@@ -88,7 +88,11 @@ final class NetworkSessionPersistenceManager {
         let saved = UserDefaults.standard.integer(forKey: Preference.retentionDaysKey)
         return saved > 0 ? saved : Preference.defaultRetentionDays
     }
-    
+
+    nonisolated static func setRetentionDaysPreference(_ days: Int) {
+        UserDefaults.standard.set(max(1, days), forKey: Preference.retentionDaysKey)
+    }
+
     func activateFromPreferences() {
         Task {
             if Self.isPersistenceEnabledPreference {
@@ -117,6 +121,15 @@ final class NetworkSessionPersistenceManager {
         }
         guard let writeStore else { return }
         await writeStore.enable(retentionDays: self.retentionDays)
+    }
+
+    func setRetentionDays(_ days: Int) async {
+        Self.setRetentionDaysPreference(days)
+        retentionDays = Self.retentionDaysPreference
+
+        if isEnabled {
+            await purgeExpiredSessions(retentionDays: retentionDays)
+        }
     }
 
     func disable() async {

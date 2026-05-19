@@ -581,11 +581,13 @@ DebugSwift.SwiftUIRender.shared.clearPersistentOverlays()
 ⚠️ **Beta Feature**: Network session history is experimental, requires iOS 17 or later, and must be enabled explicitly.
 
 ```swift
-// First enable the beta feature in setup
 debugSwift.setup(enableBetaFeatures: [.networkSessionPersistence])
+
+// Optional: change how many days sessions are kept
+DebugSwift.Network.setSessionHistoryRetentionDays(14)
 ```
 
-After enabled, the Session History menu appears in the top toolbar. DebugSwift shows all network sessions captured in the last 7 days, and you can directly import a full session into Response Modifier rules to mock the complete API state from that session.
+After enabled, the Session History menu appears in the top toolbar. DebugSwift shows all captured network sessions within the retention period(default: 7 days), and you can directly import a full session into Response Modifier rules to mock the complete API state from that session.
 
 ---
 

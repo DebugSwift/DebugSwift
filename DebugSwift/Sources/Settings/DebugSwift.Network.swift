@@ -275,6 +275,26 @@ extension DebugSwift {
             clearNetworkHistory()
             clearWebSocketHistory()
         }
+
+        /// Configure how many days network sessions are kept for Session History.
+        /// The value is clamped to at least 1 day and is used when the
+        /// `.networkSessionPersistence` beta feature is enabled.
+        ///
+        /// Example:
+        /// ```swift
+        /// DebugSwift.Network.setSessionHistoryRetentionDays(14)
+        /// ```
+        public static func setSessionHistoryRetentionDays(_ days: Int) {
+#if canImport(SwiftData)
+            if #available(iOS 17.0, *) {
+                NetworkSessionPersistenceManager.setRetentionDaysPreference(days)
+
+                Task { @MainActor in
+                    await NetworkSessionPersistenceManager.shared.setRetentionDays(days)
+                }
+            }
+#endif
+        }
         
         // MARK: - Encryption/Decryption API
         
