@@ -246,6 +246,11 @@ public struct NetworkFailureConfig: Sendable {
 
 /// A single response body rewrite rule.
 public struct ResponseBodyRewriteRule: Sendable, Equatable, Codable {
+    public enum MatchType: String, Sendable, Equatable, Codable {
+        case exact
+        case wildcard
+    }
+
     /// URL pattern to match (supports wildcard `*` and `?`)
     public var urlPattern: String
     
@@ -257,17 +262,23 @@ public struct ResponseBodyRewriteRule: Sendable, Equatable, Codable {
 
     /// Whether this rule is active
     public var isEnabled: Bool
+
+    /// Matcher mode used for fast-path lookup.
+    /// Backward-compatible: missing value from older persisted data defaults to `.exact`.
+    public var matchType: MatchType
     
     public init(
         urlPattern: String,
         responseBody: String,
         responseStatusCode: Int? = nil,
-        isEnabled: Bool = true
+        isEnabled: Bool = true,
+        matchType: MatchType = .exact
     ) {
         self.urlPattern = urlPattern
         self.responseBody = responseBody
         self.responseStatusCode = responseStatusCode
         self.isEnabled = isEnabled
+        self.matchType = matchType
     }
 }
 
