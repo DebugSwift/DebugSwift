@@ -488,7 +488,10 @@ debugSwift.setup(
 ```swift
 // Enable beta features (disabled by default)
 debugSwift.setup(
-    enableBetaFeatures: [.swiftUIRenderTracking] // Enable experimental SwiftUI render tracking
+    enableBetaFeatures: [
+        .swiftUIRenderTracking,      // Enable experimental SwiftUI render tracking
+        .networkSessionPersistence   // Enable experimental network session history
+    ]
 )
 ```
 
@@ -572,6 +575,17 @@ DebugSwift.SwiftUIRender.shared.clearStats()
 // Clear persistent overlays
 DebugSwift.SwiftUIRender.shared.clearPersistentOverlays()
 ```
+
+### Network Session History (Beta)
+
+⚠️ **Beta Feature**: Network session history is experimental, requires iOS 17 or later, and must be enabled explicitly.
+
+```swift
+// First enable the beta feature in setup
+debugSwift.setup(enableBetaFeatures: [.networkSessionPersistence])
+```
+
+After enabled, the Session History menu appears in the top toolbar. DebugSwift shows all network sessions captured in the last 7 days, and you can directly import a full session into Response Modifier rules to mock the complete API state from that session.
 
 ---
 
