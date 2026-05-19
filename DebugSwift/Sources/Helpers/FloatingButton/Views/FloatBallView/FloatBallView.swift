@@ -209,18 +209,18 @@ extension FloatBallView {
     }
 
     private func startAnimation(text: String) {
-        guard let container = superview, window != nil else { return }
+        guard window != nil, ballView.superview === self else { return }
 
         let label = UILabel()
         label.text = text
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(label)
+        ballView.addSubview(label)
 
         NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor)
+            label.centerXAnchor.constraint(equalTo: ballView.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: ballView.centerYAnchor)
         ])
         
         Task { @MainActor in
