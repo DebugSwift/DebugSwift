@@ -146,7 +146,6 @@ final class NetworkSessionPersistenceManager {
     private let configuration = ModelConfiguration("DebugSwiftNetworkSessions")
     private var modelContainer: ModelContainer?
     private var activeSessionID: UUID?
-    private var persistCountSinceLastPurge = 0
 
     private(set) var isEnabled = false
     private var retentionDays = 7
@@ -240,12 +239,6 @@ final class NetworkSessionPersistenceManager {
         session.endedAt = capturedAt
         context.insert(request)
         save(context)
-
-        persistCountSinceLastPurge += 1
-        if persistCountSinceLastPurge >= 25 {
-            persistCountSinceLastPurge = 0
-            purgeExpiredSessions(retentionDays: retentionDays)
-        }
     }
 
     func purgeExpiredSessions(retentionDays: Int = 7) {
