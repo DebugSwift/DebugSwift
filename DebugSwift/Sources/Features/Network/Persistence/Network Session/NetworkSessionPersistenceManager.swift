@@ -73,9 +73,7 @@ final class NetworkSessionPersistenceManager {
 
     static let shared = NetworkSessionPersistenceManager()
 
-    private let configuration = ModelConfiguration("DebugSwiftNetworkSessions")
     private var writeStore: NetworkSessionPersistenceStore?
-    private var modelContainer: ModelContainer?
 
     private(set) var isEnabled = false
     private var retentionDays = 7
@@ -114,9 +112,8 @@ final class NetworkSessionPersistenceManager {
         UserDefaults.standard.set(true, forKey: Preference.enabledKey)
         UserDefaults.standard.set(self.retentionDays, forKey: Preference.retentionDaysKey)
         isEnabled = true
-        guard ensureContainer(), let modelContainer else { return }
         if writeStore == nil {
-            writeStore = NetworkSessionPersistenceStore(modelContainer: modelContainer)
+            writeStore = await NetworkSessionPersistenceStore.make()
         }
         guard let writeStore else { return }
         await writeStore.enable(retentionDays: self.retentionDays)
@@ -156,22 +153,6 @@ final class NetworkSessionPersistenceManager {
     func fetchRequests(for sessionID: UUID) async -> [RequestRecord] {
         guard let writeStore else { return [] }
         return await writeStore.fetchRequests(for: sessionID)
-    }
-
-    private func ensureContainer() -> Bool {
-        guard modelContainer == nil else { return true }
-
-        do {
-            modelContainer = try ModelContainer(
-                for: NetworkSessionEntity.self,
-                NetworkRequestEntity.self,
-                configurations: configuration
-            )
-            return true
-        } catch {
-            modelContainer = nil
-            return false
-        }
     }
 
     nonisolated private static func containsFileContentType(_ value: String) -> Bool {

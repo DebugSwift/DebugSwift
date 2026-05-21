@@ -13,10 +13,76 @@ import SwiftData
 @available(iOS 17.0, *)
 @ModelActor
 actor NetworkSessionPersistenceStore {
+    private enum StoreConfiguration {
+        static let name = "DebugSwiftNetworkSessions"
+
+        static var url: URL {
+            let fileManager = FileManager.default
+            let baseURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+                ?? fileManager.temporaryDirectory
+            return baseURL
+                .appendingPathComponent("DebugSwift", isDirectory: true)
+                .appendingPathComponent("\(name).store", isDirectory: false)
+        }
+    }
+
     private var activeSession: NetworkSessionEntity?
     private var pendingWriteCount = 0
     private var isEnabled = false
     private let saveBatchSize = 20
+
+    nonisolated static func make() async -> NetworkSessionPersistenceStore? {
+        await Task.detached(priority: .utility) {
+            do {
+                return try makeStore()
+            } catch {
+                Debug.print("DebugSwift network session persistence failed to open: \(error)")
+                resetStoreFiles()
+                do {
+                    return try makeStore()
+                } catch {
+                    Debug.print("DebugSwift network session persistence failed after reset: \(error)")
+                    return nil
+                }
+            }
+        }.value
+    }
+
+    nonisolated private static func makeStore() throws -> NetworkSessionPersistenceStore {
+        let storeURL = StoreConfiguration.url
+        try FileManager.default.createDirectory(
+            at: storeURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        let configuration = ModelConfiguration(
+            StoreConfiguration.name,
+            url: storeURL
+        )
+        let modelContainer = try ModelContainer(
+            for: NetworkSessionEntity.self,
+            NetworkRequestEntity.self,
+            configurations: configuration
+        )
+        return NetworkSessionPersistenceStore(modelContainer: modelContainer)
+    }
+
+    nonisolated private static func resetStoreFiles() {
+        let storeURL = StoreConfiguration.url
+        let sidecarURLs = [
+            storeURL,
+            URL(fileURLWithPath: storeURL.path + "-shm"),
+            URL(fileURLWithPath: storeURL.path + "-wal")
+        ]
+
+        sidecarURLs.forEach {
+            do {
+                try FileManager.default.removeItem(at: $0)
+            } catch {
+                guard (error as NSError).code != NSFileNoSuchFileError else { return }
+                Debug.print("DebugSwift network session persistence failed to remove store file \($0.lastPathComponent): \(error)")
+            }
+        }
+    }
 
     func enable(retentionDays: Int) {
         let safeRetentionDays = max(1, retentionDays)
@@ -42,6 +108,7 @@ actor NetworkSessionPersistenceStore {
 
         let capturedAt = Date()
         let request = NetworkRequestEntity(
+            sessionID: session.id,
             url: snapshot.urlString,
             requestData: snapshot.requestData,
             responseData: snapshot.responseData,
@@ -64,7 +131,6 @@ actor NetworkSessionPersistenceStore {
             capturedAt: capturedAt
         )
 
-        request.session = session
         session.endedAt = capturedAt
         modelContext.insert(request)
         pendingWriteCount += 1
@@ -80,11 +146,19 @@ actor NetworkSessionPersistenceStore {
         descriptor.sortBy = [SortDescriptor(\.startedAt, order: .reverse)]
         guard let sessions = try? modelContext.fetch(descriptor) else { return [] }
         return sessions.map {
-            NetworkSessionPersistenceManager.SessionRecord(
+            let sessionID = $0.id
+            let requestDescriptor = FetchDescriptor<NetworkRequestEntity>(
+                predicate: #Predicate { request in
+                    request.sessionID == sessionID
+                }
+            )
+            let requestCount = (try? modelContext.fetchCount(requestDescriptor)) ?? 0
+
+            return NetworkSessionPersistenceManager.SessionRecord(
                 id: $0.id,
                 startedAt: $0.startedAt,
                 endedAt: $0.endedAt,
-                requestCount: $0.requests.count
+                requestCount: requestCount
             )
         }
     }
@@ -92,7 +166,7 @@ actor NetworkSessionPersistenceStore {
     func fetchRequests(for sessionID: UUID) -> [NetworkSessionPersistenceManager.RequestRecord] {
         let descriptor = FetchDescriptor<NetworkRequestEntity>(
             predicate: #Predicate { request in
-                request.session?.id == sessionID
+                request.sessionID == sessionID
             },
             sortBy: [SortDescriptor(\.capturedAt, order: .forward)]
         )
@@ -144,7 +218,18 @@ actor NetworkSessionPersistenceStore {
         )
 
         if let sessions = try? modelContext.fetch(descriptor), !sessions.isEmpty {
-            sessions.forEach { modelContext.delete($0) }
+            sessions.forEach { session in
+                let sessionID = session.id
+                let requestDescriptor = FetchDescriptor<NetworkRequestEntity>(
+                    predicate: #Predicate { request in
+                        request.sessionID == sessionID
+                    }
+                )
+                if let requests = try? modelContext.fetch(requestDescriptor) {
+                    requests.forEach { modelContext.delete($0) }
+                }
+                modelContext.delete(session)
+            }
             saveInternal(force: true)
         }
     }

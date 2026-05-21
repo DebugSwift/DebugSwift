@@ -35,10 +35,11 @@ final class NetworkRequestEntity {
     var mode: String
     var capturedAt: Date
     var createdAt: Date
-    var session: NetworkSessionEntity?
+    var sessionID: UUID
 
     init(
         id: UUID = UUID(),
+        sessionID: UUID,
         url: String?,
         requestData: Data?,
         responseData: Data?,
@@ -62,6 +63,7 @@ final class NetworkRequestEntity {
         createdAt: Date = Date()
     ) {
         self.id = id
+        self.sessionID = sessionID
         self.url = url
         self.requestData = requestData
         self.responseData = responseData
