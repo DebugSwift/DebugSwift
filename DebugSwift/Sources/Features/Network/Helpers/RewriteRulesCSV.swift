@@ -8,7 +8,7 @@
 import Foundation
 
 enum RewriteRulesCSV {
-    static let expectedHeader = ["url_pattern", "response_status_code", "response_body"]
+    static let expectedHeader = ["url_pattern", "response_status_code", "response_body", "http_method"]
 
     static func export(rules: [ResponseBodyRewriteRule]) -> String {
         var lines: [String] = []
@@ -16,10 +16,12 @@ enum RewriteRulesCSV {
 
         for rule in rules {
             let statusCode = rule.responseStatusCode.map(String.init) ?? ""
+            let methods = rule.httpMethod.map(\.rawValue) ?? ""
             let row = [
                 csvEscaped(rule.urlPattern),
                 csvEscaped(statusCode),
                 csvEscaped(rule.responseBody),
+                csvEscaped(methods),
             ].joined(separator: ",")
             lines.append(row)
         }
@@ -34,7 +36,7 @@ enum RewriteRulesCSV {
         }
 
         let normalizedHeader = header.map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
-        guard normalizedHeader == expectedHeader else {
+        if normalizedHeader != expectedHeader {
             throw RewriteRulesCSVError.invalidHeader
         }
 
@@ -44,7 +46,8 @@ enum RewriteRulesCSV {
                 continue
             }
 
-            guard row.count == expectedHeader.count else {
+            let expectedColumnCount = expectedHeader.count
+            guard row.count == expectedColumnCount else {
                 throw RewriteRulesCSVError.invalidColumnCount(row: index + 2)
             }
 
@@ -53,7 +56,19 @@ enum RewriteRulesCSV {
                 throw RewriteRulesCSVError.emptyURLPattern(row: index + 2)
             }
 
-            let rawStatusCode = row[1].trimmingCharacters(in: .whitespacesAndNewlines)
+            let statusIndex = 1
+            let bodyIndex = 2
+            let methodsIndex = 3
+
+            let httpMethod: HTTPMethod?
+            let rawMethod = row[methodsIndex].trimmingCharacters(in: .whitespacesAndNewlines)
+            if rawMethod.isEmpty {
+                httpMethod = nil
+            } else {
+                httpMethod = HTTPMethod(rawValue: rawMethod.uppercased())
+            }
+
+            let rawStatusCode = row[statusIndex].trimmingCharacters(in: .whitespacesAndNewlines)
             let statusCode: Int?
             if rawStatusCode.isEmpty {
                 statusCode = nil
@@ -64,12 +79,13 @@ enum RewriteRulesCSV {
                 statusCode = value
             }
 
-            let responseBody = row[2]
+            let responseBody = row[bodyIndex]
             rules.append(
                 ResponseBodyRewriteRule(
                     urlPattern: urlPattern,
                     responseBody: responseBody,
-                    responseStatusCode: statusCode
+                    responseStatusCode: statusCode,
+                    httpMethod: httpMethod
                 )
             )
         }
@@ -165,7 +181,7 @@ enum RewriteRulesCSVError: LocalizedError, Equatable {
         case .emptyFile:
             return "The CSV file is empty."
         case .invalidHeader:
-            return "Invalid CSV header. Expected: url_pattern,response_status_code,response_body"
+            return "Invalid CSV header. Expected: url_pattern,response_status_code,response_body,http_method"
         case .invalidCSVFormat(let row):
             return "Row \(row) has invalid CSV format."
         case .invalidColumnCount(let row):

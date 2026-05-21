@@ -206,10 +206,12 @@ final class NetworkViewControllerDetail: BaseTableController {
         let initialURLPattern = model.url?.absoluteString ?? ""
         let initialResponseBody = (model.decryptedResponseData ?? model.responseData)?.formattedString() ?? ""
         let initialStatusCode = model.statusCode.flatMap { Int($0) }
+        let initialMethods = model.method.map { [$0.uppercased()] } ?? []
         let initialRule = ResponseBodyRewriteRule(
             urlPattern: initialURLPattern,
             responseBody: initialResponseBody,
-            responseStatusCode: initialStatusCode
+            responseStatusCode: initialStatusCode,
+            httpMethod: initialMethods.compactMap { HTTPMethod(rawValue: $0) }.first
         )
 
         let editor = RewriteRuleEditViewController(rule: initialRule) { [weak self] updatedRule in

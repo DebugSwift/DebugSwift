@@ -51,6 +51,12 @@ final class RewriteRuleEditViewController: BaseController {
         return textField
     }()
     
+    private let supportedHTTPMethods = HTTPMethod.allCases
+    private var selectedHTTPMethod: HTTPMethod?
+    private weak var methodButton: UIButton!
+    private var initialDraftRule: ResponseBodyRewriteRule?
+    private var showPopup = false
+    
     init(rule: ResponseBodyRewriteRule?, onSave: @escaping (ResponseBodyRewriteRule) -> Void) {
         self.existingRule = rule
         self.onSave = onSave
@@ -60,69 +66,114 @@ final class RewriteRuleEditViewController: BaseController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupNavigationInterception()
+        captureInitialState()
     }
     
     private func setupUI() {
         title = "Response Editor"
         view.backgroundColor = .black
         
-        let patternLabel = UILabel()
-        patternLabel.translatesAutoresizingMaskIntoConstraints = false
-        patternLabel.text = "URL or Pattern"
-        patternLabel.textColor = .white
-        patternLabel.font = .preferredFont(forTextStyle: .headline)
+        func makeSectionLabel(_ title: String) -> UILabel {
+            let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.text = title
+            label.textColor = .white
+            label.font = .preferredFont(forTextStyle: .headline)
+            return label
+        }
         
-        let bodyLabel = UILabel()
-        bodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        bodyLabel.text = "Response Body"
-        bodyLabel.textColor = .white
-        bodyLabel.font = .preferredFont(forTextStyle: .headline)
+        let methodButton = UIButton(type: .system)
+        methodButton.translatesAutoresizingMaskIntoConstraints = false
+        methodButton.setTitleColor(.systemBlue, for: .normal)
+        methodButton.contentHorizontalAlignment = .left
+        methodButton.layer.cornerRadius = 8
+        methodButton.layer.borderWidth = 0.5
+        methodButton.layer.borderColor = UIColor.separator.cgColor
+        methodButton.backgroundColor = .secondarySystemBackground
+        methodButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12)
+        if #available(iOS 14.0, *) {
+            methodButton.showsMenuAsPrimaryAction = true
+        } else {
+            methodButton.addTarget(self, action: #selector(selectMethodTappedLegacy), for: .touchUpInside)
+        }
         
-        let statusCodeLabel = UILabel()
-        statusCodeLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusCodeLabel.text = "Status Code"
-        statusCodeLabel.textColor = .white
-        statusCodeLabel.font = .preferredFont(forTextStyle: .headline)
+        self.methodButton = methodButton
+        updateMethodSelection()
+
+        let patternSection = UIStackView(arrangedSubviews: [
+            makeSectionLabel("URL or Pattern"),
+            patternField,
+        ])
+        patternSection.axis = .vertical
+        patternSection.spacing = 8
+
+        let statusCodeSection = UIStackView(arrangedSubviews: [
+            makeSectionLabel("Status Code"),
+            statusCodeField,
+        ])
+        statusCodeSection.axis = .vertical
+        statusCodeSection.spacing = 8
+
+        let methodSection = UIStackView(arrangedSubviews: [
+            makeSectionLabel("HTTP Method"),
+            methodButton,
+        ])
+        methodSection.axis = .vertical
+        methodSection.spacing = 8
+
+        let bodySection = UIStackView(arrangedSubviews: [
+            makeSectionLabel("Response Body"),
+            bodyTextView,
+        ])
+        bodySection.axis = .vertical
+        bodySection.spacing = 8
         
-        view.addSubview(patternLabel)
-        view.addSubview(patternField)
-        view.addSubview(statusCodeLabel)
-        view.addSubview(statusCodeField)
-        view.addSubview(bodyLabel)
-        view.addSubview(bodyTextView)
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        let contentView = UIView()
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        let formStack = UIStackView(arrangedSubviews: [
+            patternSection,
+            statusCodeSection,
+            methodSection,
+            bodySection,
+        ])
+        formStack.translatesAutoresizingMaskIntoConstraints = false
+        formStack.axis = .vertical
+        formStack.spacing = 16
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(formStack)
         
         NSLayoutConstraint.activate([
-            patternLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            patternLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            patternLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            
-            patternField.topAnchor.constraint(equalTo: patternLabel.bottomAnchor, constant: 8),
-            patternField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            patternField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            patternField.heightAnchor.constraint(equalToConstant: 44),
-            
-            statusCodeLabel.topAnchor.constraint(equalTo: patternField.bottomAnchor, constant: 16),
-            statusCodeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            statusCodeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            
-            statusCodeField.topAnchor.constraint(equalTo: statusCodeLabel.bottomAnchor, constant: 8),
-            statusCodeField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            statusCodeField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            statusCodeField.heightAnchor.constraint(equalToConstant: 44),
-            
-            bodyLabel.topAnchor.constraint(equalTo: statusCodeField.bottomAnchor, constant: 16),
-            bodyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            bodyLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            bodyTextView.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 8),
-            bodyTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            bodyTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            bodyTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            contentView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
+
+            formStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            formStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            formStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            formStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
+
+            patternField.heightAnchor.constraint(equalToConstant: 44),
+            statusCodeField.heightAnchor.constraint(equalToConstant: 44),
+            methodButton.heightAnchor.constraint(equalToConstant: 44),
+            bodyTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 320)
         ])
         
         if let existingRule {
             patternField.text = existingRule.urlPattern
             bodyTextView.text = existingRule.responseBody
+            selectedHTTPMethod = existingRule.httpMethod
+            updateMethodSelection()
             if let responseStatusCode = existingRule.responseStatusCode {
                 statusCodeField.text = "\(responseStatusCode)"
             }
@@ -149,29 +200,122 @@ final class RewriteRuleEditViewController: BaseController {
         bodyEditorButton.accessibilityLabel = "Body Editor"
         navigationItem.rightBarButtonItems = [saveButton, bodyEditorButton, menuButton]
     }
+
+    private func setupNavigationInterception() {
+        navigationItem.hidesBackButton = true
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.backward"),
+            style: .plain,
+            target: self,
+            action: #selector(backTapped)
+        )
+    }
+
+    private func captureInitialState() {
+        initialDraftRule = currentDraftRule()
+    }
+
+    private func hasUnsavedChanges() -> Bool {
+        currentDraftRule() != initialDraftRule
+    }
+
+    private func currentDraftRule() -> ResponseBodyRewriteRule {
+        let pattern = (patternField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let statusCodeText = (statusCodeField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let statusCode: Int? = Int(statusCodeText)
+        return ResponseBodyRewriteRule(
+            urlPattern: pattern,
+            responseBody: bodyTextView.text ?? "",
+            responseStatusCode: statusCode,
+            httpMethod: selectedHTTPMethod
+        )
+    }
     
+    @objc private func openBodyEditorTapped() {
+        openKeyValueEditor()
+    }
+
     @objc private func showBodyEditorOptions() {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        
-        alert.addAction(UIAlertAction(title: "Body Editor", style: .default) { [weak self] _ in
-            self?.openKeyValueEditor()
-        })
-        
         alert.addAction(UIAlertAction(title: "Clear Body", style: .destructive) { [weak self] _ in
             self?.bodyTextView.text = ""
         })
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         if let popover = alert.popoverPresentationController {
             popover.barButtonItem = navigationItem.rightBarButtonItems?.last
         }
-        
         present(alert, animated: true)
     }
 
-    @objc private func openBodyEditorTapped() {
-        openKeyValueEditor()
+    @objc private func backTapped() {
+        guard hasUnsavedChanges() else {
+            showPopup = true
+            navigationController?.popViewController(animated: true)
+            return
+        }
+
+        let alert = UIAlertController(
+            title: "Unsaved Changes",
+            message: "You have unsaved changes. Discard them and go back?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Keep Editing", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Discard", style: .destructive) { [weak self] _ in
+            self?.showPopup = true
+            self?.navigationController?.popViewController(animated: true)
+        })
+        present(alert, animated: true)
+    }
+
+    private func updateMethodSelection() {
+        let title = selectedHTTPMethod?.rawValue ?? "All Methodes"
+        methodButton.setTitle(title, for: .normal)
+        if #available(iOS 14.0, *) {
+            methodButton.menu = buildMethodMenu()
+        }
+    }
+
+    private func buildMethodMenu() -> UIMenu {
+        var actions: [UIAction] = []
+        actions.append(
+            UIAction(
+                title: "All Methodes",
+                state: selectedHTTPMethod == nil ? .on : .off
+            ) { [weak self] _ in
+                self?.selectedHTTPMethod = nil
+                self?.updateMethodSelection()
+            }
+        )
+        actions.append(contentsOf: supportedHTTPMethods.map { method in
+            UIAction(
+                title: method.rawValue,
+                state: selectedHTTPMethod == method ? .on : .off
+            ) { [weak self] _ in
+                self?.selectedHTTPMethod = method
+                self?.updateMethodSelection()
+            }
+        })
+        return UIMenu(title: "HTTP Method", options: .displayInline, children: actions)
+    }
+
+    @objc private func selectMethodTappedLegacy() {
+        let alert = UIAlertController(title: "HTTP Method", message: "Select one method", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "All Methodes", style: .default) { [weak self] _ in
+            self?.selectedHTTPMethod = nil
+            self?.updateMethodSelection()
+        })
+        for method in supportedHTTPMethods {
+            alert.addAction(UIAlertAction(title: method.rawValue, style: .default) { [weak self] _ in
+                self?.selectedHTTPMethod = method
+                self?.updateMethodSelection()
+            })
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = methodButton
+            popover.sourceRect = methodButton.bounds
+        }
+        present(alert, animated: false)
     }
     
     private func openKeyValueEditor() {
@@ -211,9 +355,12 @@ final class RewriteRuleEditViewController: BaseController {
         let rule = ResponseBodyRewriteRule(
             urlPattern: pattern,
             responseBody: body,
-            responseStatusCode: statusCode
+            responseStatusCode: statusCode,
+            httpMethod: selectedHTTPMethod
         )
         onSave(rule)
+        captureInitialState()
+        showPopup = true
         navigationController?.popViewController(animated: true)
     }
     
