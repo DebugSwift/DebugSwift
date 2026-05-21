@@ -133,8 +133,10 @@ final class NetworkSessionPersistenceManager {
         let totalDuration: String?
         let isImage: Bool
         let isEncrypted: Bool
-        let requestHeaders: [String: String]?
-        let responseHeaders: [String: String]?
+        let requestHeadersData: Data?
+        let responseHeadersData: Data?
+        let responseHeaderLookup: [String: String]
+        let shouldPersist: Bool
         let errorDescriptionText: String?
         let errorLocalizedDescriptionText: String?
         let size: String?
@@ -209,7 +211,7 @@ final class NetworkSessionPersistenceManager {
 
     func persist(_ snapshot: RequestSnapshot) {
         guard isEnabled else { return }
-        guard shouldPersist(snapshot) else { return }
+        guard snapshot.shouldPersist else { return }
         guard let context = makeContext() else { return }
 
         beginSessionIfNeeded()
@@ -229,8 +231,8 @@ final class NetworkSessionPersistenceManager {
             totalDuration: snapshot.totalDuration,
             isImage: snapshot.isImage,
             isEncrypted: snapshot.isEncrypted,
-            requestHeadersData: Self.encodeHeaders(snapshot.requestHeaders),
-            responseHeadersData: Self.encodeHeaders(snapshot.responseHeaders),
+            requestHeadersData: snapshot.requestHeadersData,
+            responseHeadersData: snapshot.responseHeadersData,
             errorDescriptionText: snapshot.errorDescriptionText,
             errorLocalizedDescriptionText: snapshot.errorLocalizedDescriptionText,
             size: snapshot.size,
@@ -315,43 +317,7 @@ final class NetworkSessionPersistenceManager {
         save(context, force: true)
     }
 
-    private func shouldPersist(_ snapshot: RequestSnapshot) -> Bool {
-        guard !isWebViewRequest(snapshot) else {
-            return false
-        }
-        return !isFileResponse(snapshot)
-    }
-
-    private func isWebViewRequest(_ snapshot: RequestSnapshot) -> Bool {
-        guard let headers = snapshot.responseHeaders else { return false }
-        let source = headers.first { key, _ in
-            key.lowercased() == "x-debugswift-source"
-        }?.value.lowercased()
-        return source == "wkwebview"
-    }
-
-    private func isFileResponse(_ snapshot: RequestSnapshot) -> Bool {
-        if let mimeType = snapshot.mineType, Self.containsFileContentType(mimeType) {
-            return true
-        }
-
-        guard let headers = snapshot.responseHeaders else { return false }
-        let contentTypeValue = headers.first { key, _ in
-            key.lowercased() == "content-type"
-        }?.value ?? ""
-
-        if Self.containsFileContentType(contentTypeValue) {
-            return true
-        }
-
-        let contentDispositionValue = headers.first { key, _ in
-            key.lowercased() == "content-disposition"
-        }?.value.lowercased() ?? ""
-
-        return contentDispositionValue.contains("attachment")
-    }
-
-    private static func containsFileContentType(_ value: String) -> Bool {
+    nonisolated private static func containsFileContentType(_ value: String) -> Bool {
         let normalized = value.lowercased()
         let markers = [
             "image/",
@@ -370,7 +336,7 @@ final class NetworkSessionPersistenceManager {
         return markers.contains { normalized.contains($0) }
     }
 
-    private static func encodeHeaders(_ headers: [String: String]?) -> Data? {
+    nonisolated private static func encodeHeaders(_ headers: [String: String]?) -> Data? {
         guard let headers else { return nil }
         return try? JSONSerialization.data(withJSONObject: headers, options: [])
     }
@@ -386,6 +352,18 @@ final class NetworkSessionPersistenceManager {
     }
 
     nonisolated static func enqueuePersist(from model: HttpModel) {
+        let requestHeaders = normalizedHeaders(model.requestHeaderFields)
+        let responseHeaders = normalizedHeaders(model.responseHeaderFields)
+        let normalizedResponseHeaderLookup = lowercasedKeyHeaders(responseHeaders)
+        let mimeType = model.mineType ?? ""
+        let isWebViewSource = normalizedResponseHeaderLookup["x-debugswift-source"]?.lowercased() == "wkwebview"
+        let contentTypeValue = normalizedResponseHeaderLookup["content-type"] ?? ""
+        let contentDispositionValue = normalizedResponseHeaderLookup["content-disposition"]?.lowercased() ?? ""
+        let isFileLikeResponse =
+            containsFileContentType(mimeType) ||
+            containsFileContentType(contentTypeValue) ||
+            contentDispositionValue.contains("attachment")
+
         let snapshot = RequestSnapshot(
             urlString: model.url?.absoluteString,
             requestData: model.requestData,
@@ -399,8 +377,10 @@ final class NetworkSessionPersistenceManager {
             totalDuration: model.totalDuration,
             isImage: model.isImage,
             isEncrypted: model.isEncrypted,
-            requestHeaders: normalizedHeaders(model.requestHeaderFields),
-            responseHeaders: normalizedHeaders(model.responseHeaderFields),
+            requestHeadersData: encodeHeaders(requestHeaders),
+            responseHeadersData: encodeHeaders(responseHeaders),
+            responseHeaderLookup: normalizedResponseHeaderLookup,
+            shouldPersist: !isWebViewSource && !isFileLikeResponse,
             errorDescriptionText: model.errorDescription,
             errorLocalizedDescriptionText: model.errorLocalizedDescription,
             size: model.size,
@@ -416,6 +396,13 @@ final class NetworkSessionPersistenceManager {
         guard let headers else { return nil }
         return headers.reduce(into: [String: String]()) { partialResult, item in
             partialResult[item.key] = String(describing: item.value)
+        }
+    }
+
+    nonisolated private static func lowercasedKeyHeaders(_ headers: [String: String]?) -> [String: String] {
+        guard let headers else { return [:] }
+        return headers.reduce(into: [String: String]()) { partialResult, item in
+            partialResult[item.key.lowercased()] = item.value
         }
     }
 }
