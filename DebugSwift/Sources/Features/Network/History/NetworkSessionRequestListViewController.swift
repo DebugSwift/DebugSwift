@@ -14,8 +14,8 @@ import SwiftData
 @MainActor
 final class NetworkSessionRequestListViewController: BaseController {
     private let sessionID: UUID
-    private var requests: [NetworkRequestEntity] = []
-    private var filteredRequests: [NetworkRequestEntity] = []
+    private var requests: [NetworkSessionPersistenceManager.RequestRecord] = []
+    private var filteredRequests: [NetworkSessionPersistenceManager.RequestRecord] = []
 
     private lazy var searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
@@ -83,8 +83,10 @@ final class NetworkSessionRequestListViewController: BaseController {
     }
 
     private func loadRequests() {
-        requests = NetworkSessionPersistenceManager.shared.fetchRequests(for: sessionID)
-        applyFilter()
+        Task { @MainActor in
+            requests = await NetworkSessionPersistenceManager.shared.fetchRequests(for: sessionID)
+            applyFilter()
+        }
     }
 
     private func applyFilter() {

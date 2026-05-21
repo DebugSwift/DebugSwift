@@ -13,7 +13,7 @@ import SwiftData
 @available(iOS 17.0, *)
 @MainActor
 final class NetworkSessionHistoryViewController: BaseController {
-    private var sessions: [NetworkSessionEntity] = []
+    private var sessions: [NetworkSessionPersistenceManager.SessionRecord] = []
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -61,9 +61,11 @@ final class NetworkSessionHistoryViewController: BaseController {
     }
 
     private func loadSessions() {
-        sessions = NetworkSessionPersistenceManager.shared.fetchSessions()
-        tableView.reloadData()
-        updateEmptyState()
+        Task { @MainActor in
+            sessions = await NetworkSessionPersistenceManager.shared.fetchSessions()
+            tableView.reloadData()
+            updateEmptyState()
+        }
     }
 
     private func updateEmptyState() {
@@ -76,8 +78,8 @@ final class NetworkSessionHistoryViewController: BaseController {
         }
     }
 
-    private func sessionSubtitle(_ session: NetworkSessionEntity) -> String {
-        let requestsCount = session.requests.count
+    private func sessionSubtitle(_ session: NetworkSessionPersistenceManager.SessionRecord) -> String {
+        let requestsCount = session.requestCount
         let countText = "\(requestsCount) requests"
 
         guard let endedAt = session.endedAt else {

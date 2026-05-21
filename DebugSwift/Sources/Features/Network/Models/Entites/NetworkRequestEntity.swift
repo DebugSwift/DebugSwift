@@ -111,4 +111,30 @@ extension NetworkRequestEntity {
         return model
     }
 }
+
+@available(iOS 17.0, *)
+extension NetworkSessionPersistenceManager.RequestRecord {
+    func makeHttpModel() -> HttpModel {
+        let model = HttpModel()
+        model.url = url.flatMap(URL.init(string:))
+        model.requestData = requestData
+        model.responseData = responseData
+        model.requestId = requestId
+        model.method = method
+        model.statusCode = statusCode
+        model.mineType = mineType
+        model.startTime = startTime
+        model.endTime = endTime
+        model.totalDuration = totalDuration
+        model.isImage = isImage
+        model.isEncrypted = isEncrypted
+        model.requestHeaderFields = NetworkSessionPersistenceManager.decodeHeaders(requestHeadersData)
+        model.responseHeaderFields = NetworkSessionPersistenceManager.decodeHeaders(responseHeadersData)
+        model.errorDescription = errorDescriptionText
+        model.errorLocalizedDescription = errorLocalizedDescriptionText
+        model.size = size
+        model.index = modelIndex
+        return model
+    }
+}
 #endif
