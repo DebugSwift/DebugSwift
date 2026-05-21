@@ -119,7 +119,7 @@ final class NetworkSessionPersistenceManager {
         static let retentionDaysKey = "DebugSwift.Network.SessionPersistence.RetentionDays"
         static let defaultRetentionDays = 7
     }
-
+    
     struct RequestSnapshot: Sendable {
         let urlString: String?
         let requestData: Data?
@@ -145,10 +145,12 @@ final class NetworkSessionPersistenceManager {
 
     private let configuration = ModelConfiguration("DebugSwiftNetworkSessions")
     private var modelContainer: ModelContainer?
-    private var activeSessionID: UUID?
+    private var activeSession: NetworkSessionEntity?
+    private var pendingWriteCount = 0
 
     private(set) var isEnabled = false
     private var retentionDays = 7
+    private var saveBatchSize = 20
 
     private init() {}
 
@@ -188,8 +190,10 @@ final class NetworkSessionPersistenceManager {
     }
 
     func disable() {
+        flushPendingWrites()
         UserDefaults.standard.set(false, forKey: Preference.enabledKey)
         isEnabled = false
+        activeSession = nil
     }
 
     func beginSessionIfNeeded() {
@@ -199,8 +203,8 @@ final class NetworkSessionPersistenceManager {
 
         let session = NetworkSessionEntity(startedAt: Date())
         context.insert(session)
-        save(context)
-        activeSessionID = session.id
+        activeSession = session
+        save(context, force: true)
     }
 
     func persist(_ snapshot: RequestSnapshot) {
@@ -238,6 +242,7 @@ final class NetworkSessionPersistenceManager {
         request.session = session
         session.endedAt = capturedAt
         context.insert(request)
+        pendingWriteCount += 1
         save(context)
     }
 
@@ -252,9 +257,9 @@ final class NetworkSessionPersistenceManager {
             predicate: #Predicate { $0.createdAt < cutoffDate }
         )
 
-        if let sessions = try? context.fetch(descriptor) {
+        if let sessions = try? context.fetch(descriptor), !sessions.isEmpty {
             sessions.forEach { context.delete($0) }
-            save(context)
+            save(context, force: true)
         }
     }
 
@@ -266,13 +271,14 @@ final class NetworkSessionPersistenceManager {
     }
 
     func fetchRequests(for sessionID: UUID) -> [NetworkRequestEntity] {
-        guard let session = fetchSession(id: sessionID) else { return [] }
-        return session.requests.sorted { $0.capturedAt < $1.capturedAt }
-    }
-
-    private var activeSession: NetworkSessionEntity? {
-        guard let activeSessionID else { return nil }
-        return fetchSession(id: activeSessionID)
+        guard let context = makeContext() else { return [] }
+        let descriptor = FetchDescriptor<NetworkRequestEntity>(
+            predicate: #Predicate { request in
+                request.session?.id == sessionID
+            },
+            sortBy: [SortDescriptor(\.capturedAt, order: .forward)]
+        )
+        return (try? context.fetch(descriptor)) ?? []
     }
 
     private func ensureContainer() -> Bool {
@@ -296,20 +302,17 @@ final class NetworkSessionPersistenceManager {
         return modelContainer.mainContext
     }
 
-    private func save(_ context: ModelContext) {
-        if context.hasChanges {
+    private func save(_ context: ModelContext, force: Bool = false) {
+        let shouldSaveNow = force || pendingWriteCount >= saveBatchSize
+        if shouldSaveNow, context.hasChanges {
             try? context.save()
+            pendingWriteCount = 0
         }
     }
 
-    private func fetchSession(id: UUID) -> NetworkSessionEntity? {
-        guard let context = makeContext() else { return nil }
-        let descriptor = FetchDescriptor<NetworkSessionEntity>(
-            predicate: #Predicate { session in
-                session.id == id
-            }
-        )
-        return try? context.fetch(descriptor).first
+    private func flushPendingWrites() {
+        guard let context = makeContext() else { return }
+        save(context, force: true)
     }
 
     private func shouldPersist(_ snapshot: RequestSnapshot) -> Bool {
