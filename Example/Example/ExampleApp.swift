@@ -48,7 +48,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         DiskWriteTracker.install()
 
         debugSwift
-            .setup(enableBetaFeatures: [.swiftUIRenderTracking])
+            .setup(enableBetaFeatures: [.swiftUIRenderTracking, .networkSessionPersistence])
             .show()
 
         // To fix Alamofire `uploadProgress`
