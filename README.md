@@ -116,6 +116,33 @@ Add to your `Podfile`:
 pod 'DebugSwift', :http => 'https://github.com/DebugSwift/DebugSwift/releases/latest/download/DebugSwift.xcframework.zip'
 ```
 
+### 🏗️ Bazel
+
+DebugSwift ships a `BUILD.bazel` at the repo root. In your `WORKSPACE` (or `MODULE.bazel`), pull the repo and depend on `@DebugSwift//:DebugSwift`:
+
+```starlark
+# WORKSPACE
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "DebugSwift",
+    remote = "https://github.com/DebugSwift/DebugSwift.git",
+    tag = "1.0.0",  # or commit/branch
+)
+```
+
+Then in your app's `BUILD` file:
+
+```starlark
+swift_library(
+    name = "MyApp",
+    deps = ["@DebugSwift//:DebugSwift"],
+    # ...
+)
+```
+
+> **Note:** Requires [`rules_swift`](https://github.com/bazelbuild/rules_swift) to be set up in your workspace.
+
 ### 🍎 Apple Silicon Support
 
 DebugSwift **fully supports Apple Silicon Macs** with native arm64 simulator builds! No more architecture exclusions or compatibility issues.
