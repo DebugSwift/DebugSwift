@@ -140,9 +140,11 @@ enum FeatureHandling {
 
 #if canImport(SwiftData)
         if #available(iOS 17.0, *) {
-            NetworkSessionPersistenceManager.shared.applyFeatureEnabled(
-                betaFeatures.contains(.networkSessionPersistence)
-            )
+            Task { @MainActor in
+                await NetworkSessionPersistenceManager.shared.applyFeatureEnabled(
+                    betaFeatures.contains(.networkSessionPersistence)
+                )
+            }
         }
 #endif
     }

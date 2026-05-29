@@ -42,178 +42,117 @@ final class NetworkSessionPersistenceManager {
         let modelIndex: Int
     }
 
+    struct SessionRecord: Sendable {
+        let id: UUID
+        let startedAt: Date
+        let endedAt: Date?
+        let requestCount: Int
+    }
+
+    struct RequestRecord: Sendable {
+        let id: UUID
+        let url: String?
+        let requestData: Data?
+        let responseData: Data?
+        let requestId: String?
+        let method: String?
+        let statusCode: String?
+        let mineType: String?
+        let startTime: String?
+        let endTime: String?
+        let totalDuration: String?
+        let isImage: Bool
+        let isEncrypted: Bool
+        let requestHeadersData: Data?
+        let responseHeadersData: Data?
+        let errorDescriptionText: String?
+        let errorLocalizedDescriptionText: String?
+        let size: String?
+        let modelIndex: Int
+    }
+
     static let shared = NetworkSessionPersistenceManager()
 
-    private let configuration = ModelConfiguration("DebugSwiftNetworkSessions")
-    private var modelContainer: ModelContainer?
-    private var activeSession: NetworkSessionEntity?
-    private var pendingWriteCount = 0
+    private var writeStore: NetworkSessionPersistenceStore?
 
     private(set) var isEnabled = false
     private var retentionDays = 7
-    private var saveBatchSize = 20
 
     private init() {}
 
-    nonisolated static var isPersistenceEnabledPreference: Bool {
+    static var isPersistenceEnabledPreference: Bool {
         UserDefaults.standard.bool(forKey: Preference.enabledKey)
     }
 
-    nonisolated static var retentionDaysPreference: Int {
+    static var retentionDaysPreference: Int {
         let saved = UserDefaults.standard.integer(forKey: Preference.retentionDaysKey)
         return saved > 0 ? saved : Preference.defaultRetentionDays
     }
-
+    
     func activateFromPreferences() {
-        if Self.isPersistenceEnabledPreference {
-            enable(retentionDays: Self.retentionDaysPreference)
-        } else {
-            disable()
+        Task {
+            if Self.isPersistenceEnabledPreference {
+                await enable(retentionDays: Self.retentionDaysPreference)
+            } else {
+                await disable()
+            }
         }
     }
 
-    func applyFeatureEnabled(_ enabled: Bool) {
+    func applyFeatureEnabled(_ enabled: Bool) async {
         if enabled {
-            enable(retentionDays: Self.retentionDaysPreference)
+            await enable(retentionDays: Self.retentionDaysPreference)
         } else {
-            disable()
+            await disable()
         }
     }
 
-    func enable(retentionDays: Int = 7) {
+    func enable(retentionDays: Int = 7) async {
         self.retentionDays = max(1, retentionDays)
         UserDefaults.standard.set(true, forKey: Preference.enabledKey)
         UserDefaults.standard.set(self.retentionDays, forKey: Preference.retentionDaysKey)
         isEnabled = true
-        _ = ensureContainer()
-        beginSessionIfNeeded()
-        purgeExpiredSessions(retentionDays: self.retentionDays)
+        if writeStore == nil {
+            writeStore = await NetworkSessionPersistenceStore.make()
+        }
+        guard let writeStore else { return }
+        await writeStore.enable(retentionDays: self.retentionDays)
     }
 
-    func disable() {
-        flushPendingWrites()
+    func disable() async {
         UserDefaults.standard.set(false, forKey: Preference.enabledKey)
         isEnabled = false
-        activeSession = nil
+        guard let writeStore else { return }
+        await writeStore.disable()
+        self.writeStore = nil
     }
 
-    func beginSessionIfNeeded() {
+    func beginSessionIfNeeded() async {
         guard isEnabled else { return }
-        guard let context = makeContext() else { return }
-        guard activeSession == nil else { return }
-
-        let session = NetworkSessionEntity(startedAt: Date())
-        context.insert(session)
-        activeSession = session
-        save(context, force: true)
+        guard let writeStore else { return }
+        await writeStore.beginSessionIfNeeded()
     }
 
-    func persist(_ snapshot: RequestSnapshot) {
+    func persist(_ snapshot: RequestSnapshot) async {
         guard isEnabled else { return }
         guard snapshot.shouldPersist else { return }
-        guard let context = makeContext() else { return }
-
-        beginSessionIfNeeded()
-        guard let session = activeSession else { return }
-
-        let capturedAt = Date()
-        let request = NetworkRequestEntity(
-            url: snapshot.urlString,
-            requestData: snapshot.requestData,
-            responseData: snapshot.responseData,
-            requestId: snapshot.requestId,
-            method: snapshot.method,
-            statusCode: snapshot.statusCode,
-            mineType: snapshot.mineType,
-            startTime: snapshot.startTime,
-            endTime: snapshot.endTime,
-            totalDuration: snapshot.totalDuration,
-            isImage: snapshot.isImage,
-            isEncrypted: snapshot.isEncrypted,
-            requestHeadersData: snapshot.requestHeadersData,
-            responseHeadersData: snapshot.responseHeadersData,
-            errorDescriptionText: snapshot.errorDescriptionText,
-            errorLocalizedDescriptionText: snapshot.errorLocalizedDescriptionText,
-            size: snapshot.size,
-            modelIndex: snapshot.modelIndex,
-            mode: "http",
-            capturedAt: capturedAt
-        )
-
-        request.session = session
-        session.endedAt = capturedAt
-        context.insert(request)
-        pendingWriteCount += 1
-        save(context)
+        guard let writeStore else { return }
+        await writeStore.persist(snapshot)
     }
 
-    func purgeExpiredSessions(retentionDays: Int = 7) {
-        guard let context = makeContext() else { return }
-        let safeRetentionDays = max(1, retentionDays)
-        guard let cutoffDate = Calendar.current.date(byAdding: .day, value: -safeRetentionDays, to: Date()) else {
-            return
-        }
-
-        let descriptor = FetchDescriptor<NetworkSessionEntity>(
-            predicate: #Predicate { $0.createdAt < cutoffDate }
-        )
-
-        if let sessions = try? context.fetch(descriptor), !sessions.isEmpty {
-            sessions.forEach { context.delete($0) }
-            save(context, force: true)
-        }
+    func purgeExpiredSessions(retentionDays: Int = 7) async {
+        guard let writeStore else { return }
+        await writeStore.purgeExpiredSessions(retentionDays: retentionDays)
     }
 
-    func fetchSessions() -> [NetworkSessionEntity] {
-        guard let context = makeContext() else { return [] }
-        var descriptor = FetchDescriptor<NetworkSessionEntity>()
-        descriptor.sortBy = [SortDescriptor(\.startedAt, order: .reverse)]
-        return (try? context.fetch(descriptor)) ?? []
+    func fetchSessions() async -> [SessionRecord] {
+        guard let writeStore else { return [] }
+        return await writeStore.fetchSessions()
     }
 
-    func fetchRequests(for sessionID: UUID) -> [NetworkRequestEntity] {
-        guard let context = makeContext() else { return [] }
-        let descriptor = FetchDescriptor<NetworkRequestEntity>(
-            predicate: #Predicate { request in
-                request.session?.id == sessionID
-            },
-            sortBy: [SortDescriptor(\.capturedAt, order: .forward)]
-        )
-        return (try? context.fetch(descriptor)) ?? []
-    }
-
-    private func ensureContainer() -> Bool {
-        guard modelContainer == nil else { return true }
-
-        do {
-            modelContainer = try ModelContainer(
-                for: NetworkSessionEntity.self,
-                NetworkRequestEntity.self,
-                configurations: configuration
-            )
-            return true
-        } catch {
-            modelContainer = nil
-            return false
-        }
-    }
-
-    private func makeContext() -> ModelContext? {
-        guard ensureContainer(), let modelContainer else { return nil }
-        return modelContainer.mainContext
-    }
-
-    private func save(_ context: ModelContext, force: Bool = false) {
-        let shouldSaveNow = force || pendingWriteCount >= saveBatchSize
-        if shouldSaveNow, context.hasChanges {
-            try? context.save()
-            pendingWriteCount = 0
-        }
-    }
-
-    private func flushPendingWrites() {
-        guard let context = makeContext() else { return }
-        save(context, force: true)
+    func fetchRequests(for sessionID: UUID) async -> [RequestRecord] {
+        guard let writeStore else { return [] }
+        return await writeStore.fetchRequests(for: sessionID)
     }
 
     nonisolated private static func containsFileContentType(_ value: String) -> Bool {
@@ -287,7 +226,7 @@ final class NetworkSessionPersistenceManager {
         )
 
         Task { @MainActor in
-            NetworkSessionPersistenceManager.shared.persist(snapshot)
+            await NetworkSessionPersistenceManager.shared.persist(snapshot)
         }
     }
 
