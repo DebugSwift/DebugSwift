@@ -2,14 +2,19 @@ name: CI and Danger
 
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, labeled]
     branches:
       - main
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   ci:
     name: CI Build, Tests & Danger
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved') ||
+      contains(github.event.pull_request.labels.*.name, 'run-ci')
     permissions:
       contents: read
       pull-requests: write
