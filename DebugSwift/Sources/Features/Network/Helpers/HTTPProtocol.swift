@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private static let requestProperty = "com.custom.http.protocol"
@@ -144,8 +145,7 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             return
         }
         
-        // Resolve rewrite rule once per request (first-match-wins order)
-        matchedRewriteRule = NetworkInjectionManager.shared.matchingRewriteRule(for: request)
+        matchedRewriteRule = resolveRewriteRule(for: request)
         if let matchedRewriteRule, NetworkInjectionManager.shared.isRewriteShortCircuitEnabled() {
             injectRewrittenResponse(using: matchedRewriteRule, for: request)
             return
@@ -165,6 +165,69 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         dataTask = session?.dataTask(with: newRequest as URLRequest)
         dataTask?.resume()
+    }
+
+    private func resolveRewriteRule(for request: URLRequest) -> ResponseBodyRewriteRule? {
+        let manager = NetworkInjectionManager.shared
+        guard manager.isRewriteMultipleMatchEnabled() else {
+            return manager.matchingRewriteRule(for: request)
+        }
+
+        let matches = manager.matchingRewriteRules(for: request)
+        guard !matches.isEmpty else { return nil }
+        guard matches.count > 1 else { return matches.first }
+
+        return showMultipleMatchSelectionDialog(for: request, matches: matches)
+    }
+
+    private func showMultipleMatchSelectionDialog(
+        for request: URLRequest,
+        matches: [ResponseBodyRewriteRule]
+    ) -> ResponseBodyRewriteRule? {
+        if Thread.isMainThread {
+            return nil
+        }
+
+        let semaphore = DispatchSemaphore(value: 0)
+        let selectionBox = RewriteRuleSelectionBox()
+
+        DispatchQueue.main.async {
+            guard let presenter = UIApplication.topViewController() else {
+                semaphore.signal()
+                return
+            }
+
+            let requestLink = request.url?.absoluteString ?? "Unknown URL"
+            let requestMethod = (request.httpMethod ?? HTTPMethod.get.rawValue).uppercased()
+            let message = "[\(requestMethod)] \(requestLink)"
+
+            let alert = UIAlertController(
+                title: "Choose Response Modifier Rule",
+                message: message,
+                preferredStyle: .alert
+            )
+
+            for rule in matches {
+                let statusCode = rule.responseStatusCode ?? 200
+                let title = "Status Code: \(statusCode)"
+                alert.addAction(UIAlertAction(title: title, style: .default) { _ in
+                    selectionBox.set(rule)
+                    semaphore.signal()
+                })
+            }
+
+            alert.addAction(UIAlertAction(title: "No Rewrite", style: .cancel) { _ in
+                semaphore.signal()
+            })
+
+            presenter.present(alert, animated: true)
+        }
+
+        let waitResult = semaphore.wait(timeout: .now() + 30)
+        if waitResult == .timedOut {
+            return nil
+        }
+        return selectionBox.get()
     }
     
     private func injectHTTPError(statusCode: Int, for request: URLRequest) {
@@ -817,5 +880,20 @@ struct NetworkReportData: Sendable {
         self.responseHeaderFields = responseHeaderFields
         self.requestId = requestId
         self.cachePolicy = cachePolicy
+    }
+}
+
+private final class RewriteRuleSelectionBox: @unchecked Sendable {
+    private let queue = DispatchQueue(label: "com.debugswift.http-protocol.selection-box")
+    private var value: ResponseBodyRewriteRule?
+    
+    func set(_ newValue: ResponseBodyRewriteRule?) {
+        queue.sync {
+            value = newValue
+        }
+    }
+    
+    func get() -> ResponseBodyRewriteRule? {
+        queue.sync { value }
     }
 }
