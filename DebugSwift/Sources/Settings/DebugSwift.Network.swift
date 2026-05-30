@@ -287,8 +287,6 @@ extension DebugSwift {
         public static func setSessionHistoryRetentionDays(_ days: Int) {
 #if canImport(SwiftData)
             if #available(iOS 17.0, *) {
-                NetworkSessionPersistenceManager.setRetentionDaysPreference(days)
-
                 Task { @MainActor in
                     await NetworkSessionPersistenceManager.shared.setRetentionDays(days)
                 }

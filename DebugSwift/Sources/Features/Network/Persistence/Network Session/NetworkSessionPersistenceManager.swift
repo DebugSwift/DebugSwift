@@ -89,10 +89,6 @@ final class NetworkSessionPersistenceManager {
         return saved > 0 ? saved : Preference.defaultRetentionDays
     }
 
-    nonisolated static func setRetentionDaysPreference(_ days: Int) {
-        UserDefaults.standard.set(max(1, days), forKey: Preference.retentionDaysKey)
-    }
-
     func activateFromPreferences() {
         Task {
             if Self.isPersistenceEnabledPreference {
@@ -124,7 +120,7 @@ final class NetworkSessionPersistenceManager {
     }
 
     func setRetentionDays(_ days: Int) async {
-        Self.setRetentionDaysPreference(days)
+        UserDefaults.standard.set(max(1, days), forKey: Preference.retentionDaysKey)
         retentionDays = Self.retentionDaysPreference
 
         if isEnabled {
