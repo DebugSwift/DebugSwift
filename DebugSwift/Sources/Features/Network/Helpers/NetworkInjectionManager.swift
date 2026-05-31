@@ -104,6 +104,19 @@ final class NetworkInjectionManager: @unchecked Sendable {
         }
         Debug.print("✏️ Rewrite config updated: enabled=\(config.isEnabled), rules=\(config.rules.count)")
     }
+
+    func replaceRewriteRulesFromSessionHistory(_ rules: [ResponseBodyRewriteRule]) {
+        queue.sync(flags: .barrier) {
+            var config = _rewriteConfig
+            config.isEnabled = true
+            config.rules = rules
+            _rewriteConfig = config
+            _rewriteRulesSnapshot = rules
+            persistRewriteRules(rules)
+        }
+        setRewriteShortCircuitEnabled(true)
+        Debug.print("✏️ Session history imported as rewrite rules: rules=\(rules.count)")
+    }
     
     func getRewriteConfig() -> ResponseBodyRewriteConfig {
         return queue.sync { _rewriteConfig }

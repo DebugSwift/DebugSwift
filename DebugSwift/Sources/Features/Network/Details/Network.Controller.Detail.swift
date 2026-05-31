@@ -222,10 +222,11 @@ final class NetworkViewControllerDetail: BaseTableController {
 
     private func appendRewriteRule(_ rule: ResponseBodyRewriteRule) {
         var config = NetworkInjectionManager.shared.getRewriteConfig()
+        config.isEnabled = true
         config.rules.append(rule)
         NetworkInjectionManager.shared.setRewriteConfig(config)
         showAlert(
-            with: "Rewrite rule created for this request",
+            with: "Rewrite rule created for this request. Response Modifier is now active.",
             title: "Response Modifier Added",
             rightButtonTitle: "OK"
         )

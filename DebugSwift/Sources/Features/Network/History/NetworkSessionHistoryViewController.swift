@@ -14,6 +14,11 @@ import SwiftData
 @MainActor
 final class NetworkSessionHistoryViewController: BaseController {
     private var sessions: [NetworkSessionPersistenceManager.SessionRecord] = []
+    private var activeSessionID: UUID?
+    private var retentionInfoText: String {
+        let days = NetworkSessionPersistenceManager.retentionDaysPreference
+        return "Session history only preserves the last \(days) day\(days == 1 ? "" : "s") of data."
+    }
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -32,7 +37,7 @@ final class NetworkSessionHistoryViewController: BaseController {
         label.numberOfLines = 0
         label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.text = "No session history available."
+        label.text = "No session history available.\n\n\(retentionInfoText)"
         return label
     }()
 
@@ -62,7 +67,10 @@ final class NetworkSessionHistoryViewController: BaseController {
 
     private func loadSessions() {
         Task { @MainActor in
-            sessions = await NetworkSessionPersistenceManager.shared.fetchSessions()
+            async let loadedSessions = NetworkSessionPersistenceManager.shared.fetchSessions()
+            async let loadedActiveSessionID = NetworkSessionPersistenceManager.shared.activeSessionID()
+            sessions = await loadedSessions
+            activeSessionID = await loadedActiveSessionID
             tableView.reloadData()
             updateEmptyState()
         }
@@ -80,21 +88,35 @@ final class NetworkSessionHistoryViewController: BaseController {
 
     private func sessionSubtitle(_ session: NetworkSessionPersistenceManager.SessionRecord) -> String {
         let requestsCount = session.requestCount
-        let countText = "\(requestsCount) requests"
+        let countText = requestsCount == 0 ? "No requests" : "\(requestsCount) request\(requestsCount == 1 ? "" : "s")"
+
+        if session.id == activeSessionID {
+            return "\(countText) • Active"
+        }
 
         guard let endedAt = session.endedAt else {
-            let activeText = "Active"
-            return "\(countText) • \(activeText)"
+            return countText
         }
 
         let duration = Int(max(endedAt.timeIntervalSince(session.startedAt), 0))
-        let durationText = "\(duration)s"
+        let durationText = formattedDuration(seconds: duration)
         return "\(countText) • \(durationText)"
+    }
+
+    private func formattedDuration(seconds: Int) -> String {
+        let hours = seconds / 3_600
+        let minutes = (seconds % 3_600) / 60
+        let remainingSeconds = seconds % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, remainingSeconds)
     }
 }
 
 @available(iOS 17.0, *)
 extension NetworkSessionHistoryViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        retentionInfoText
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         sessions.count
     }

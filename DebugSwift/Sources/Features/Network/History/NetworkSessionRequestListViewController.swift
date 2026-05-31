@@ -59,6 +59,7 @@ final class NetworkSessionRequestListViewController: BaseController {
         super.viewDidLoad()
         navigationItem.largeTitleDisplayMode = .never
         setup()
+        setupNavigation()
         loadRequests()
     }
 
@@ -80,6 +81,19 @@ final class NetworkSessionRequestListViewController: BaseController {
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+
+    private func setupNavigation() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: injectionSymbolImage(),
+            style: .plain,
+            target: self,
+            action: #selector(importSessionTapped)
+        )
+    }
+
+    private func injectionSymbolImage() -> UIImage? {
+        UIImage(systemName: "syringe")
     }
 
     private func loadRequests() {
@@ -120,6 +134,44 @@ final class NetworkSessionRequestListViewController: BaseController {
             tableView.backgroundView = nil
             tableView.separatorStyle = .singleLine
         }
+    }
+
+    @objc private func importSessionTapped() {
+        guard !requests.isEmpty else {
+            showMessageAlert(
+                title: "No Requests",
+                message: "This session does not contain any requests to import."
+            )
+            return
+        }
+
+        let alert = UIAlertController(
+            title: "Import Session to Response Modifier?",
+            message: "This will delete all existing Response Modifier rules and replace them with \(requests.count) rule(s) from this session.\n\nLong sessions can create many rules and may reduce network matching performance.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Import", style: .destructive) { [weak self] _ in
+            self?.importSessionRules()
+        })
+        present(alert, animated: true)
+    }
+
+    private func importSessionRules() {
+        let rules = NetworkSessionRewriteRuleBuilder.makeRules(
+            from: requests.map { $0.makeHttpModel() }
+        )
+        NetworkInjectionManager.shared.replaceRewriteRulesFromSessionHistory(rules)
+        showMessageAlert(
+            title: "Import Complete",
+            message: "Replaced existing Response Modifier rules with \(rules.count) rule(s) from this session. Response Modifier is now active."
+        )
+    }
+
+    private func showMessageAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 
