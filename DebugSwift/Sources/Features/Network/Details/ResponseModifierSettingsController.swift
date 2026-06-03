@@ -56,7 +56,7 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
         guard let sectionType = Section(rawValue: section) else { return 0 }
         switch sectionType {
         case .options:
-            return 5
+            return 6
         case .rules:
             return max(rewriteConfig.rules.count, 1)
         }
@@ -133,6 +133,12 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
             toggle.addTarget(self, action: #selector(shortCircuitToggleChanged(_:)), for: .valueChanged)
             cell.accessoryView = toggle
         case 4:
+            cell.textLabel?.text = "Enable Multiple Match"
+            let toggle = UISwitch()
+            toggle.isOn = NetworkInjectionManager.shared.isRewriteMultipleMatchEnabled()
+            toggle.addTarget(self, action: #selector(multipleMatchToggleChanged(_:)), for: .valueChanged)
+            cell.accessoryView = toggle
+        case 5:
             cell.textLabel?.text = "Import / Export CSV"
             cell.accessoryType = .disclosureIndicator
         default:
@@ -191,6 +197,11 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
                 message: "When enabled, matched rules return mocked responses immediately from local data. This works offline and skips the real network request for matched rules."
             )
         case 4:
+            showInfoAlert(
+                title: "Multiple Match Selection",
+                message: "When enabled, if a request matches more than one rule, you can choose which rule to apply. Default is first-match behavior when disabled."
+            )
+        case 5:
             showImportExportMenu()
         default:
             break
@@ -216,7 +227,7 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
     private func confirmResetAll() {
         let alert = UIAlertController(
             title: "Reset All Response Modifier Settings?",
-            message: "This will disable Response Modifier, disable Auto-enable, keep Short-circuit Mode enabled, and remove all rules.",
+            message: "This will disable Response Modifier, disable Auto-enable, disable Multiple Match, keep Short-circuit Mode enabled, and remove all rules.",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -230,6 +241,7 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
         let resetConfig = ResponseBodyRewriteConfig(isEnabled: false, rules: [])
         NetworkInjectionManager.shared.setRewriteConfig(resetConfig)
         NetworkInjectionManager.shared.setRewriteAutoEnableOnRun(false)
+        NetworkInjectionManager.shared.setRewriteMultipleMatchEnabled(false)
         NetworkInjectionManager.shared.setRewriteShortCircuitEnabled(true)
         tableView.reloadData()
     }
@@ -246,6 +258,10 @@ final class ResponseModifierSettingsController: BaseTableController, UIDocumentP
     
     @objc private func shortCircuitToggleChanged(_ sender: UISwitch) {
         NetworkInjectionManager.shared.setRewriteShortCircuitEnabled(sender.isOn)
+    }
+
+    @objc private func multipleMatchToggleChanged(_ sender: UISwitch) {
+        NetworkInjectionManager.shared.setRewriteMultipleMatchEnabled(sender.isOn)
     }
     
     private func showInfoAlert(title: String, message: String) {

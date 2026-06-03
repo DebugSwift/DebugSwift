@@ -9,9 +9,20 @@ import Foundation
 
 enum NetworkSessionRewriteRuleBuilder {
     static func makeRules(from models: [HttpModel]) -> [ResponseBodyRewriteRule] {
-        models.compactMap { model -> ResponseBodyRewriteRule? in
+        struct RuleKey: Hashable {
+            let urlPattern: String
+            let method: HTTPMethod?
+            let statusCode: Int?
+            let responseBody: String
+        }
+
+        var processedKeys = Set<RuleKey>()
+        var rules: [ResponseBodyRewriteRule] = []
+        rules.reserveCapacity(models.count)
+
+        for model in models {
             let urlPattern = model.url?.absoluteString.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            guard !urlPattern.isEmpty else { return nil }
+            guard !urlPattern.isEmpty else { continue }
 
             let methodText = model.method?
                 .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -22,14 +33,28 @@ enum NetworkSessionRewriteRuleBuilder {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             let statusCode = statusCodeText.flatMap { Int($0) }
 
-            return ResponseBodyRewriteRule(
+            let responseBody = model.decryptedResponseData?.formattedString() ?? model.responseData?.formattedString() ?? ""
+            let ruleKey = RuleKey(
                 urlPattern: urlPattern,
-                responseBody: model.decryptedResponseData?.formattedString() ?? model.responseData?.formattedString() ?? "",
-                responseStatusCode: statusCode,
-                httpMethod: method,
-                isEnabled: true,
-                matchType: .exact
+                method: method,
+                statusCode: statusCode,
+                responseBody: responseBody
             )
+
+            if processedKeys.insert(ruleKey).inserted {
+                rules.append(
+                    ResponseBodyRewriteRule(
+                        urlPattern: urlPattern,
+                        responseBody: responseBody,
+                        responseStatusCode: statusCode,
+                        httpMethod: method,
+                        isEnabled: true,
+                        matchType: .exact
+                    )
+                )
+            }
         }
+
+        return rules
     }
 }
