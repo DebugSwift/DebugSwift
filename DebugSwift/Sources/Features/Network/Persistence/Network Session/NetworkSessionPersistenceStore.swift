@@ -201,6 +201,41 @@ actor NetworkSessionPersistenceStore {
         }
     }
 
+    func deleteSession(id: UUID) {
+        if activeSession?.id == id {
+            activeSession = nil
+        }
+
+        deleteRequests(for: id)
+
+        let descriptor = FetchDescriptor<NetworkSessionEntity>(
+            predicate: #Predicate { session in
+                session.id == id
+            }
+        )
+
+        if let session = try? modelContext.fetch(descriptor).first {
+            modelContext.delete(session)
+            saveInternal(force: true)
+        }
+    }
+
+    func deleteAllSessions() {
+        activeSession = nil
+
+        let requestDescriptor = FetchDescriptor<NetworkRequestEntity>()
+        if let requests = try? modelContext.fetch(requestDescriptor) {
+            requests.forEach { modelContext.delete($0) }
+        }
+
+        let sessionDescriptor = FetchDescriptor<NetworkSessionEntity>()
+        if let sessions = try? modelContext.fetch(sessionDescriptor) {
+            sessions.forEach { modelContext.delete($0) }
+        }
+
+        saveInternal(force: true)
+    }
+
     private func beginSessionIfNeededInternal() {
         guard isEnabled else { return }
         guard activeSession == nil else { return }
@@ -223,18 +258,21 @@ actor NetworkSessionPersistenceStore {
 
         if let sessions = try? modelContext.fetch(descriptor), !sessions.isEmpty {
             sessions.forEach { session in
-                let sessionID = session.id
-                let requestDescriptor = FetchDescriptor<NetworkRequestEntity>(
-                    predicate: #Predicate { request in
-                        request.sessionID == sessionID
-                    }
-                )
-                if let requests = try? modelContext.fetch(requestDescriptor) {
-                    requests.forEach { modelContext.delete($0) }
-                }
+                deleteRequests(for: session.id)
                 modelContext.delete(session)
             }
             saveInternal(force: true)
+        }
+    }
+
+    private func deleteRequests(for sessionID: UUID) {
+        let requestDescriptor = FetchDescriptor<NetworkRequestEntity>(
+            predicate: #Predicate { request in
+                request.sessionID == sessionID
+            }
+        )
+        if let requests = try? modelContext.fetch(requestDescriptor) {
+            requests.forEach { modelContext.delete($0) }
         }
     }
 

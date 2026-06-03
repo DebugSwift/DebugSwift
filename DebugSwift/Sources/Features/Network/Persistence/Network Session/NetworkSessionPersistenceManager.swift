@@ -169,6 +169,16 @@ final class NetworkSessionPersistenceManager {
         return await writeStore.fetchRequests(for: sessionID)
     }
 
+    func deleteSession(id: UUID) async {
+        guard let writeStore else { return }
+        await writeStore.deleteSession(id: id)
+    }
+
+    func deleteAllSessions() async {
+        guard let writeStore else { return }
+        await writeStore.deleteAllSessions()
+    }
+
     nonisolated private static func containsFileContentType(_ value: String) -> Bool {
         let normalized = value.lowercased()
         let markers = [

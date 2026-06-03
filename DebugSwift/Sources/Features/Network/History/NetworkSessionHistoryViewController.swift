@@ -15,6 +15,7 @@ import SwiftData
 final class NetworkSessionHistoryViewController: BaseController {
     private var sessions: [NetworkSessionPersistenceManager.SessionRecord] = []
     private var activeSessionID: UUID?
+    private var isLoading = false
     private var retentionInfoText: String {
         let days = NetworkSessionPersistenceManager.retentionDaysPreference
         return "Session history only preserves the last \(days) day\(days == 1 ? "" : "s") of data."
@@ -46,6 +47,7 @@ final class NetworkSessionHistoryViewController: BaseController {
         navigationItem.largeTitleDisplayMode = .never
         title = "Session History"
         setupViews()
+        setupNavigationItems()
         loadSessions()
     }
 
@@ -65,14 +67,28 @@ final class NetworkSessionHistoryViewController: BaseController {
         ])
     }
 
+    private func setupNavigationItems() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Clear All",
+            style: .plain,
+            target: self,
+            action: #selector(clearAllTapped)
+        )
+        updateNavigationItems()
+    }
+
     private func loadSessions() {
+        isLoading = true
+        updateNavigationItems()
         Task { @MainActor in
             async let loadedSessions = NetworkSessionPersistenceManager.shared.fetchSessions()
             async let loadedActiveSessionID = NetworkSessionPersistenceManager.shared.activeSessionID()
             sessions = await loadedSessions
             activeSessionID = await loadedActiveSessionID
+            isLoading = false
             tableView.reloadData()
             updateEmptyState()
+            updateNavigationItems()
         }
     }
 
@@ -84,6 +100,10 @@ final class NetworkSessionHistoryViewController: BaseController {
             tableView.backgroundView = nil
             tableView.separatorStyle = .singleLine
         }
+    }
+
+    private func updateNavigationItems() {
+        navigationItem.rightBarButtonItem?.isEnabled = !sessions.isEmpty && !isLoading
     }
 
     private func sessionSubtitle(_ session: NetworkSessionPersistenceManager.SessionRecord) -> String {
@@ -109,12 +129,56 @@ final class NetworkSessionHistoryViewController: BaseController {
         let remainingSeconds = seconds % 60
         return String(format: "%02d:%02d:%02d", hours, minutes, remainingSeconds)
     }
+
+    @objc private func clearAllTapped() {
+        let alert = UIAlertController(
+            title: "Clear All Sessions",
+            message: "Are you sure you want to remove all saved sessions? This action cannot be undone.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Clear", style: .destructive) { [weak self] _ in
+            self?.clearAllSessions()
+        })
+        present(alert, animated: true)
+    }
+
+    private func clearAllSessions() {
+        isLoading = true
+        updateNavigationItems()
+        Task { @MainActor in
+            await NetworkSessionPersistenceManager.shared.deleteAllSessions()
+            loadSessions()
+        }
+    }
+
+    private func deleteSession(at indexPath: IndexPath) {
+        let session = sessions[indexPath.row]
+        isLoading = true
+        updateNavigationItems()
+
+        Task { @MainActor in
+            await NetworkSessionPersistenceManager.shared.deleteSession(id: session.id)
+            if activeSessionID == session.id {
+                activeSessionID = nil
+            }
+            sessions.remove(at: indexPath.row)
+            isLoading = false
+            if sessions.count == 1 {
+                tableView.reloadData()
+            } else {
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+            }
+            updateEmptyState()
+            updateNavigationItems()
+        }
+    }
 }
 
 @available(iOS 17.0, *)
 extension NetworkSessionHistoryViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        retentionInfoText
+        sessions.isEmpty ? nil : retentionInfoText
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -145,6 +209,22 @@ extension NetworkSessionHistoryViewController: UITableViewDataSource, UITableVie
         let title = DateFormatter.networkSessionNavigationTitleFormatter.string(from: session.startedAt)
         let controller = NetworkSessionRequestListViewController(sessionID: session.id, titleText: title)
         navigationController?.pushViewController(controller, animated: true)
+    }
+
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        true
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
+            self?.deleteSession(at: indexPath)
+            completion(true)
+        }
+        deleteAction.backgroundColor = .systemRed
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }
 
