@@ -231,7 +231,7 @@ actor NetworkSessionPersistenceStore {
         saveInternal(force: true)
     }
 
-    private func beginSessionIfNeededInternal() {
+    private func beginSessionIfNeeded() {
         guard isEnabled else { return }
         guard activeSession == nil else { return }
 
