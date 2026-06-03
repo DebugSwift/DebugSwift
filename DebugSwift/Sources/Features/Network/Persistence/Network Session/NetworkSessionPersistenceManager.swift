@@ -136,12 +136,6 @@ final class NetworkSessionPersistenceManager {
         self.writeStore = nil
     }
 
-    func beginSessionIfNeeded() async {
-        guard isEnabled else { return }
-        guard let writeStore else { return }
-        await writeStore.beginSessionIfNeeded()
-    }
-
     func persist(_ snapshot: RequestSnapshot) async {
         guard isEnabled else { return }
         guard snapshot.shouldPersist else { return }
