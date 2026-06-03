@@ -28,11 +28,14 @@ class StderrCapture: @unchecked Sendable {
         qos: .utility
     )
     
+    // Changed to serial queue to prevent concurrent writes to FileHandle and file descriptors
     private let processingQueue = DispatchQueue(
         label: "com.debugswift.stderr.processing",
-        qos: .default,
-        attributes: .concurrent
+        qos: .default
     )
+    
+    // Lock for FileHandle write operations to ensure thread-safety
+    private let writeLock = NSLock()
     
     private let inputPipe = Pipe()
     private let outputPipe = Pipe()
@@ -48,8 +51,16 @@ class StderrCapture: @unchecked Sendable {
     }
     
     private func startCapturingInternal() {
+        // Double-checked locking to prevent concurrent initialization
         guard !isCapturing else { return }
-        isCapturing = true
+        
+        stateLock.lock()
+        guard !_isCapturing else {
+            stateLock.unlock()
+            return
+        }
+        _isCapturing = true
+        stateLock.unlock()
 
         inputPipe.fileHandleForReading.readabilityHandler = { [weak self] fileHandle in
             guard let self = self, self.isCapturing else { return }
@@ -62,7 +73,9 @@ class StderrCapture: @unchecked Sendable {
                     }
                 }
 
-                // Write back to stderr to maintain output
+                // Write back to stderr to maintain output - thread-safe
+                self.writeLock.lock()
+                defer { self.writeLock.unlock() }
                 self.outputPipe.fileHandleForWriting.write(data)
             }
         }
@@ -72,14 +85,18 @@ class StderrCapture: @unchecked Sendable {
         // Copy STDERR file descriptor to outputPipe for writing strings back to STDERR
         if dup2(FileHandle.standardError.fileDescriptor, outputPipe.fileHandleForWriting.fileDescriptor) == -1 {
             print("[DebugSwift] Failed to duplicate stderr for output pipe")
-            isCapturing = false
+            stateLock.lock()
+            _isCapturing = false
+            stateLock.unlock()
             return
         }
 
         // Intercept STDERR with inputPipe
         if dup2(inputPipe.fileHandleForWriting.fileDescriptor, FileHandle.standardError.fileDescriptor) == -1 {
             print("[DebugSwift] Failed to redirect stderr to input pipe")
-            isCapturing = false
+            stateLock.lock()
+            _isCapturing = false
+            stateLock.unlock()
             return
         }
     }
@@ -109,8 +126,16 @@ class StderrCapture: @unchecked Sendable {
     }
     
     private func stopCapturingInternal() {
+        // Double-checked locking
         guard isCapturing else { return }
-        isCapturing = false
+        
+        stateLock.lock()
+        guard _isCapturing else {
+            stateLock.unlock()
+            return
+        }
+        _isCapturing = false
+        stateLock.unlock()
         
         inputPipe.fileHandleForReading.readabilityHandler = nil
         freopen("/dev/stderr", "a", stderr)
@@ -136,6 +161,9 @@ class StderrCapture: @unchecked Sendable {
     }
     
     private func writeDirectlyToOriginalStderr(_ message: String) {
+        writeLock.lock()
+        defer { writeLock.unlock() }
+        
         let messageWithNewline = message + "\n"
         if let data = messageWithNewline.data(using: .utf8) {
             // Write directly to original stderr file descriptor to avoid recursion
