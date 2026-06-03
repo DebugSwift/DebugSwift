@@ -164,7 +164,11 @@ final class NetworkSessionHistoryViewController: BaseController {
             }
             sessions.remove(at: indexPath.row)
             isLoading = false
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+            if sessions.count == 1 {
+                tableView.reloadData()
+            } else {
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+            }
             updateEmptyState()
             updateNavigationItems()
         }
