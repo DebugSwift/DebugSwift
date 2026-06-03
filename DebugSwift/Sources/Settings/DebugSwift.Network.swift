@@ -276,19 +276,24 @@ extension DebugSwift {
             clearWebSocketHistory()
         }
 
-        /// Configure how many days network sessions are kept for Session History.
-        /// The value is clamped to at least 1 day and is used when the
-        /// `.networkSessionPersistence` beta feature is enabled.
+        /// Configure how long Session History is kept and how often new requests are written to disk.
+        /// By default, Session History keeps 7 days of sessions and writes every 2 captured requests.
+        /// Use a longer `retentionDays` value if you want more historical sessions available in the Session History UI.
+        /// Use a smaller `batchSize` if you want captured requests to appear in persisted history sooner, at the cost of more frequent writes.
+        /// Use a larger `batchSize` if you want to reduce write frequency, with the tradeoff that the latest requests may not be saved until the batch fills or the feature is disabled.
         ///
         /// Example:
         /// ```swift
-        /// DebugSwift.Network.setSessionHistoryRetentionDays(14)
+        /// DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 10)
         /// ```
-        public static func setSessionHistoryRetentionDays(_ days: Int) {
+        public static func configureSessionHistory(retentionDays: Int, batchSize: Int) {
 #if canImport(SwiftData)
             if #available(iOS 17.0, *) {
                 Task { @MainActor in
-                    await NetworkSessionPersistenceManager.shared.setRetentionDays(days)
+                    await NetworkSessionPersistenceManager.shared.configure(
+                        retentionDays: retentionDays,
+                        batchSize: batchSize
+                    )
                 }
             }
 #endif
