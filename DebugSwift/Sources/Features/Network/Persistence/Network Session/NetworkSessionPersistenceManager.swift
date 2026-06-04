@@ -16,7 +16,9 @@ final class NetworkSessionPersistenceManager {
     private enum Preference {
         static let enabledKey = "DebugSwift.Network.SessionPersistence.Enabled"
         static let retentionDaysKey = "DebugSwift.Network.SessionPersistence.RetentionDays"
+        static let batchSizeKey = "DebugSwift.Network.SessionPersistence.BatchSize"
         static let defaultRetentionDays = 7
+        static let defaultBatchSize = 2
     }
     
     struct RequestSnapshot: Sendable {
@@ -77,6 +79,7 @@ final class NetworkSessionPersistenceManager {
 
     private(set) var isEnabled = false
     private var retentionDays = 7
+    private var batchSize = 2
 
     private init() {}
 
@@ -89,10 +92,20 @@ final class NetworkSessionPersistenceManager {
         return saved > 0 ? saved : Preference.defaultRetentionDays
     }
 
+    static var batchSizePreference: Int {
+        guard let saved = UserDefaults.standard.object(forKey: Preference.batchSizeKey) as? Int else {
+            return Preference.defaultBatchSize
+        }
+        return saved
+    }
+
     func activateFromPreferences() {
         Task {
             if Self.isPersistenceEnabledPreference {
-                await enable(retentionDays: Self.retentionDaysPreference)
+                await enable(
+                    retentionDays: Self.retentionDaysPreference,
+                    batchSize: Self.batchSizePreference
+                )
             } else {
                 await disable()
             }
@@ -101,31 +114,42 @@ final class NetworkSessionPersistenceManager {
 
     func applyFeatureEnabled(_ enabled: Bool) async {
         if enabled {
-            await enable(retentionDays: Self.retentionDaysPreference)
+            await enable(
+                retentionDays: Self.retentionDaysPreference,
+                batchSize: Self.batchSizePreference
+            )
         } else {
             await disable()
         }
     }
 
-    func enable(retentionDays: Int = 7) async {
+    func enable(retentionDays: Int, batchSize: Int) async {
         self.retentionDays = max(1, retentionDays)
+        self.batchSize = max(1, batchSize)
         UserDefaults.standard.set(true, forKey: Preference.enabledKey)
         UserDefaults.standard.set(self.retentionDays, forKey: Preference.retentionDaysKey)
+        UserDefaults.standard.set(self.batchSize, forKey: Preference.batchSizeKey)
         isEnabled = true
         if writeStore == nil {
             writeStore = await NetworkSessionPersistenceStore.make()
         }
         guard let writeStore else { return }
-        await writeStore.enable(retentionDays: self.retentionDays)
+        await writeStore.enable(
+            retentionDays: self.retentionDays,
+            batchSize: self.batchSize
+        )
     }
 
-    func setRetentionDays(_ days: Int) async {
-        UserDefaults.standard.set(max(1, days), forKey: Preference.retentionDaysKey)
-        retentionDays = Self.retentionDaysPreference
-
+    func configure(retentionDays: Int, batchSize: Int) async {
         if isEnabled {
-            await purgeExpiredSessions(retentionDays: retentionDays)
+            await enable(retentionDays: retentionDays, batchSize: batchSize)
+            return
         }
+
+        UserDefaults.standard.set(max(1, retentionDays), forKey: Preference.retentionDaysKey)
+        UserDefaults.standard.set(max(1, batchSize), forKey: Preference.batchSizeKey)
+        self.retentionDays = Self.retentionDaysPreference
+        self.batchSize = Self.batchSizePreference
     }
 
     func disable() async {
@@ -134,12 +158,6 @@ final class NetworkSessionPersistenceManager {
         guard let writeStore else { return }
         await writeStore.disable()
         self.writeStore = nil
-    }
-
-    func beginSessionIfNeeded() async {
-        guard isEnabled else { return }
-        guard let writeStore else { return }
-        await writeStore.beginSessionIfNeeded()
     }
 
     func persist(_ snapshot: RequestSnapshot) async {

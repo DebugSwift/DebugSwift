@@ -51,7 +51,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             .setup(enableBetaFeatures: [.swiftUIRenderTracking, .networkSessionPersistence])
             .show()
         
-        DebugSwift.Network.setSessionHistoryRetentionDays(14)
+        DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 1)
 
         // To fix Alamofire `uploadProgress`
 //        DebugSwift.Network.delegate = self

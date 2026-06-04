@@ -583,8 +583,8 @@ DebugSwift.SwiftUIRender.shared.clearPersistentOverlays()
 ```swift
 debugSwift.setup(enableBetaFeatures: [.networkSessionPersistence])
 
-// Optional: change how many days sessions are kept
-DebugSwift.Network.setSessionHistoryRetentionDays(14)
+// Optional: change how many days sessions are kept and how often new requests are written to disk.
+DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 1)
 ```
 
 After enabled, the Session History menu appears in the top toolbar. DebugSwift shows all captured network sessions within the retention period(default: 7 days), and you can directly import a full session into Response Modifier rules to mock the complete API state from that session.

@@ -29,7 +29,7 @@ actor NetworkSessionPersistenceStore {
     private var activeSession: NetworkSessionEntity?
     private var pendingWriteCount = 0
     private var isEnabled = false
-    private let saveBatchSize = 20
+    private var saveBatchSize = 2
 
     nonisolated static func make() async -> NetworkSessionPersistenceStore? {
         await Task.detached(priority: .utility) {
@@ -84,11 +84,10 @@ actor NetworkSessionPersistenceStore {
         }
     }
 
-    func enable(retentionDays: Int) {
-        let safeRetentionDays = max(1, retentionDays)
+    func enable(retentionDays: Int, batchSize: Int) {
         isEnabled = true
-        beginSessionIfNeededInternal()
-        purgeExpiredSessionsInternal(retentionDays: safeRetentionDays)
+        saveBatchSize = batchSize
+        purgeExpiredSessionsInternal(retentionDays: retentionDays)
     }
 
     func disable() {
@@ -97,13 +96,9 @@ actor NetworkSessionPersistenceStore {
         activeSession = nil
     }
 
-    func beginSessionIfNeeded() {
-        beginSessionIfNeededInternal()
-    }
-
     func persist(_ snapshot: NetworkSessionPersistenceManager.RequestSnapshot) {
         guard isEnabled, snapshot.shouldPersist else { return }
-        beginSessionIfNeededInternal()
+        beginSessionIfNeeded()
         guard let session = activeSession else { return }
 
         let capturedAt = Date()
@@ -236,7 +231,7 @@ actor NetworkSessionPersistenceStore {
         saveInternal(force: true)
     }
 
-    private func beginSessionIfNeededInternal() {
+    private func beginSessionIfNeeded() {
         guard isEnabled else { return }
         guard activeSession == nil else { return }
 
