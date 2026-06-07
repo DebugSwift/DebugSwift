@@ -15,12 +15,22 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
     private let memoryWarningSimulator = PerformanceMemoryWarning()
     private let ioMonitor = DiskIOMonitor.shared
     private let diskAnalyzer = DiskAnalyzer()
+    private let batteryMonitor = BatteryMonitor.shared
 
     private var isDiskMonitoringEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: "debugswift.disk.monitoringEnabled") }
         set {
             UserDefaults.standard.set(newValue, forKey: "debugswift.disk.monitoringEnabled")
             if newValue { ioMonitor.start() } else { ioMonitor.stop() }
+            tableView.reloadData()
+        }
+    }
+
+    private var isBatteryMonitoringEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "debugswift.battery.monitoringEnabled") }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "debugswift.battery.monitoringEnabled")
+            if newValue { batteryMonitor.start() } else { batteryMonitor.stop() }
             tableView.reloadData()
         }
     }
@@ -46,6 +56,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case diskMetrics
         case diskUsage
         case openFiles
+        case batteryToggle
+        case batteryStatus
+        case batteryHistory
     }
 
     // MARK: - UIViewController Lifecycle
@@ -60,9 +73,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         super.viewDidLoad()
         setupTableView()
         diskAnalyzer.measure()
-        if isDiskMonitoringEnabled {
-            ioMonitor.start()
-        }
+        if isDiskMonitoringEnabled { ioMonitor.start() }
+        if isBatteryMonitoringEnabled { batteryMonitor.start() }
     }
 
     // MARK: - Setup Methods
@@ -85,7 +97,6 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             SparklineMetricCell.self,
             forCellReuseIdentifier: SparklineMetricCell.identifier
         )
-
         tableView.backgroundColor = UIColor.black
         tableView.showsVerticalScrollIndicator = false
         view.backgroundColor = UIColor.black
@@ -104,7 +115,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .cpu:
             return 1
         case .memory:
-            return 2 // sparkline + memory warning button
+            return 2
         case .fps:
             return 1
         case .leaks:
@@ -118,6 +129,12 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return diskAnalyzer.usageInfo != nil ? 7 : 0
         case .openFiles:
             return isDiskMonitoringEnabled ? ioMonitor.openFiles.count : 0
+        case .batteryToggle:
+            return 1
+        case .batteryStatus:
+            return isBatteryMonitoringEnabled && batteryMonitor.isAvailable ? 3 : 0
+        case .batteryHistory:
+            return isBatteryMonitoringEnabled ? 1 : 0
         }
     }
 
@@ -134,6 +151,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .diskMetrics: return nil
         case .diskUsage: return diskAnalyzer.usageInfo != nil ? "Disk Usage" : nil
         case .openFiles: return isDiskMonitoringEnabled ? "Open Files (\(ioMonitor.openFiles.count))" : nil
+        case .batteryToggle: return "Battery"
+        case .batteryStatus: return nil
+        case .batteryHistory: return isBatteryMonitoringEnabled ? "History" : nil
         }
     }
 
@@ -157,6 +177,12 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return diskUsageCell(at: indexPath.row)
         case .openFiles:
             return openFileCell(at: indexPath.row)
+        case .batteryToggle:
+            return batteryToggleCell()
+        case .batteryStatus:
+            return batteryStatusCell(at: indexPath.row)
+        case .batteryHistory:
+            return batteryHistoryCell()
         }
     }
 
@@ -409,6 +435,94 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         return cell
     }
 
+    // MARK: - Cells: Battery
+
+    private func batteryToggleCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
+        cell.titleLabel.text = "Battery Monitoring"
+        cell.valueSwitch.isOn = isBatteryMonitoringEnabled
+        cell.valueSwitch.tag = 2
+        cell.delegate = self
+        return cell
+    }
+
+    private func batteryStatusCell(at row: Int) -> UITableViewCell {
+        let cell = UITableViewCell(style: .value1, reuseIdentifier: "BatteryStatusCell")
+        cell.backgroundColor = .black
+        cell.textLabel?.textColor = .white
+        cell.selectionStyle = .none
+
+        // Use latest snapshot if available, fall back to live values
+        let latestSnapshot = batteryMonitor.snapshots.last
+
+        switch row {
+        case 0:
+            let level = latestSnapshot?.level ?? batteryMonitor.currentLevel
+            cell.textLabel?.text = "Battery Level"
+            cell.detailTextLabel?.text = level >= 0 ? "\(Int(level * 100))%" : "N/A"
+            cell.detailTextLabel?.textColor = batteryLevelColor(level)
+        case 1:
+            let state = latestSnapshot?.state ?? batteryMonitor.currentState
+            cell.textLabel?.text = "State"
+            cell.detailTextLabel?.text = state.displayName
+            cell.detailTextLabel?.textColor = .lightGray
+        case 2:
+            let impact = batteryMonitor.currentImpact
+            cell.textLabel?.text = "Energy Impact"
+            cell.detailTextLabel?.text = impact?.level.label ?? "Unknown"
+            cell.detailTextLabel?.textColor = impact?.level.color ?? .lightGray
+        default:
+            break
+        }
+
+        return cell
+    }
+
+    private func batteryHistoryCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: SparklineMetricCell.identifier
+        ) as? SparklineMetricCell ?? SparklineMetricCell()
+
+        let measurements = batteryMonitor.snapshots.map { CGFloat($0.level * 100) }
+
+        guard measurements.count >= 2 else {
+            cell.configure(
+                title: "Battery Level",
+                value: "—",
+                color: .systemGray,
+                measurements: [],
+                peakText: "Waiting for data…"
+            )
+            return cell
+        }
+
+        let current = measurements.last ?? 0
+        let peak = measurements.max() ?? 0
+        let min = measurements.min() ?? 0
+
+        cell.configure(
+            title: "Battery Level",
+            value: "\(Int(current))%",
+            color: batteryLevelColor(Float(current / 100)),
+            measurements: measurements,
+            peakText: "Peak \(Int(peak))% · Min \(Int(min))%"
+        )
+
+        return cell
+    }
+
+    // MARK: - Helpers
+
+    private func batteryLevelColor(_ level: Float) -> UIColor {
+        switch level {
+        case 0.5...: return .systemGreen
+        case 0.2..<0.5: return .systemYellow
+        default: return .systemRed
+        }
+    }
+
     private func reuseCell(for reuseIdentifier: Identifier = .value) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier.rawValue) ?? UITableViewCell(style: .value1, reuseIdentifier: reuseIdentifier.rawValue)
         cell.selectionStyle = .none
@@ -493,10 +607,11 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
 
 extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
     func menuSwitchTableViewCell(_ cell: MenuSwitchTableViewCell, didSetOn isOn: Bool) {
-        if cell.valueSwitch.tag == 0 {
-            performanceToolkit.isWidgetShown = isOn
-        } else {
-            isDiskMonitoringEnabled = isOn
+        switch cell.valueSwitch.tag {
+        case 0: performanceToolkit.isWidgetShown = isOn
+        case 1: isDiskMonitoringEnabled = isOn
+        case 2: isBatteryMonitoringEnabled = isOn
+        default: break
         }
     }
 }
