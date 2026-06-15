@@ -203,3 +203,8 @@ NOTES.md
 playground.xcworkspace
 MyPlayground.playground
 *.playground
+.local-agent
+
+# local-agent
+.local-agent/
+.cursor/skills/
