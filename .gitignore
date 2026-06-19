@@ -94,7 +94,11 @@ Thumbs.db
 # ============================================
 # Documentation & Generated Files
 # ============================================
-docs/
+# AI automation design docs (tracked); other generated docs still ignored
+docs/*
+!docs/AI_AUTOMATION.md
+!docs/plans/
+!docs/plans/**
 Documentation/
 *.docset
 *.hmap

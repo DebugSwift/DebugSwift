@@ -32,6 +32,7 @@ DebugSwift
 ## 📋 Table of Contents
 
 - [🚀 Features](#features)
+- [🤖 AI Automation (v3)](#ai-automation-v3)
 - [🛠 Installation & Setup](#installation--setup)
 - [🔧 Troubleshooting](#troubleshooting)
 - [📝 Examples](#examples)
@@ -42,6 +43,13 @@ DebugSwift
 - **iOS 14.0+**
 - **Swift 6.0+**
 - **Xcode 16.0+**
+
+## AI Automation (v3)
+
+Design docs for making DebugSwift controllable and observable by AI agents (Cursor, MCP, terminal scripts):
+
+- **[AI Automation overview](docs/AI_AUTOMATION.md)** — architecture, feature inventory, log formats, MCP integration
+- **[Implementation plans (01–22)](docs/plans/README.md)** — step-by-step plans on branch `epic/v3`
 
 ## Features
 
