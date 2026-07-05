@@ -34,6 +34,11 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             }
         }
 
+        // URLSessionWebSocketTask performs its handshake as an HTTP upgrade request.
+        if isWebSocketUpgradeRequest(request) {
+            return false
+        }
+
         for onlyScheme in DebugSwift.Network.shared.onlySchemes {
             if let scheme = request.url?.scheme?.lowercased(), scheme == onlyScheme.rawValue {
                 return true
@@ -41,6 +46,17 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         }
 
         return false
+    }
+
+    private final class func isWebSocketUpgradeRequest(_ request: URLRequest) -> Bool {
+        guard let headers = request.allHTTPHeaderFields else { return false }
+
+        let upgrade = headers.first { $0.key.caseInsensitiveCompare("Upgrade") == .orderedSame }?.value
+        if upgrade?.caseInsensitiveCompare("websocket") == .orderedSame {
+            return true
+        }
+
+        return headers.keys.contains { $0.caseInsensitiveCompare("Sec-WebSocket-Key") == .orderedSame }
     }
 
     public override final class func canInit(with request: URLRequest) -> Bool {
