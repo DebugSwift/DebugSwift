@@ -186,10 +186,6 @@ DebugSwift.App.shared.customAction = {
 }
 ```
 
-<p align="center">
-  <img src="https://debugswift.github.io/web/app-screenshots/docs/custom-actions-menu.png" alt="Custom actions menu" width="280" />
-</p>
-
 ### Network filtering
 
 ```swift
