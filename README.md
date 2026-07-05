@@ -27,7 +27,6 @@ DebugSwift
 <img width="1970" height="1184" alt="Image" src="https://github.com/user-attachments/assets/8085e55c-a7e6-4e3b-8ceb-8fc7034480fe" />
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/a435a660-a4b2-4a3f-852e-a7bf0709e75e" />
 <img width="1970" alt="Image" src="https://github.com/user-attachments/assets/15f34de1-214f-4bc3-95bc-b25efc2d383e" />
-<img width="1970" alt="Documentation Recorder" src="https://github.com/user-attachments/assets/3e008095-7b92-4df4-bcf0-de140795b6d0" />
 
 ## 📋 Table of Contents
 
