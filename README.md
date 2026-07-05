@@ -26,16 +26,6 @@
 |---|---|
 | <img width="280" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2" alt="DebugSwift logo" /> | DebugSwift is an open-source debugging toolkit for iOS apps. Inspect URLSession traffic, monitor CPU and memory, browse UserDefaults and databases, and debug UI — from a floating overlay in your DEBUG build. No proxy, no certificate install, no second machine. |
 
-<p align="center">
-  <img src="https://debugswift.github.io/web/app-screenshots/docs/floating-debug-ball-on-app-screen.png" alt="Floating debug ball on app screen" width="280" />
-</p>
-
-## Screenshots
-
-<p align="center">
-  <img src="https://debugswift.github.io/web/app-screenshots/docs/main-window.png" alt="DebugSwift main window" width="280" />
-</p>
-
 ### Network
 
 | HTTP monitoring | JSON body detail | WebSocket inspector |
