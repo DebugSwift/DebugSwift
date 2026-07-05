@@ -1,93 +1,113 @@
-<h1 align="center">
-DebugSwift
-</h1>
+<h1 align="center">DebugSwift</h1>
 
 <p align="center">
-<img src="https://img.shields.io/badge/Platforms-iOS%2014.0+-blue.svg"/>
-<img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=Swift%20Package%20Index&color=red"/>    
-<img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FDebugSwift%2FDebugSwift%2Fbadge%3Ftype%3Dswift-versions"/>
-<img src="https://img.shields.io/github/license/DebugSwift/DebugSwift?style=flat"/>
+  <strong>All-in-one in-app debugging for Swift &amp; iOS</strong><br>
+  Network, performance, UI inspection, crashes, and sandbox resources — inside your running app.
 </p>
+
 <p align="center">
-<a href="https://trendshift.io/repositories/12656" target="_blank"><img src="https://trendshift.io/api/badge/repositories/12656" alt="DebugSwift%2FDebugSwift | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+  <img src="https://img.shields.io/badge/Platforms-iOS%2014.0+-blue.svg"/>
+  <img src="https://img.shields.io/github/v/release/DebugSwift/DebugSwift?style=flat&label=Swift%20Package%20Index&color=red"/>
+  <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FDebugSwift%2FDebugSwift%2Fbadge%3Ftype%3Dswift-versions"/>
+  <img src="https://img.shields.io/github/license/DebugSwift/DebugSwift?style=flat"/>
+</p>
+
+<p align="center">
+  <a href="https://debugswift.dev/docs">Documentation</a> ·
+  <a href="https://debugswift.dev/install">Install guide</a> ·
+  <a href="https://github.com/DebugSwift/web">Website repo</a>
+</p>
+
+<p align="center">
+  <a href="https://trendshift.io/repositories/12656" target="_blank"><img src="https://trendshift.io/api/badge/repositories/12656" alt="DebugSwift on Trendshift" width="250" height="55"/></a>
 </p>
 
 | | |
 |---|---|
-| <img width="300" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2" /> | <p align="left">DebugSwift is a comprehensive toolkit designed to streamline and elevate the debugging experience for Swift-based applications. Whether you are troubleshooting issues or optimizing performance, DebugSwift offers a powerful set of features to make your debugging process more efficient and effective.</p> |
-|  |  |
+| <img width="280" src="https://github.com/DebugSwift/DebugSwift/assets/31082311/3d219290-ba08-441a-a4c7-060f946683c2" alt="DebugSwift logo" /> | DebugSwift is an open-source debugging toolkit for iOS apps. Inspect URLSession traffic, monitor CPU and memory, browse UserDefaults and databases, and debug UI — from a floating overlay in your DEBUG build. No proxy, no certificate install, no second machine. |
 
----
+<p align="center">
+  <img src="https://debugswift.github.io/web/app-screenshots/docs/floating-debug-ball-on-app-screen.png" alt="Floating debug ball on app screen" width="280" />
+</p>
 
-<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/a569b038-9058-4260-ae7c-47f3376cf629" />
-<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/35cbc0c4-4938-4b1f-bab2-69427aa66ffb" />
-<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/334ccefa-5951-494f-8faa-5f016d39f946" />
-<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/246cde3c-7a14-45de-ae01-e810c42d8e65" />
-<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/fadde188-dcba-46d8-9460-762f9be98bd6" />
-<img width="1970" height="1184" alt="Image" src="https://github.com/user-attachments/assets/8085e55c-a7e6-4e3b-8ceb-8fc7034480fe" />
-<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/a435a660-a4b2-4a3f-852e-a7bf0709e75e" />
-<img width="1970" alt="Image" src="https://github.com/user-attachments/assets/15f34de1-214f-4bc3-95bc-b25efc2d383e" />
-<img width="1970" alt="Documentation Recorder" src="https://github.com/user-attachments/assets/3e008095-7b92-4df4-bcf0-de140795b6d0" />
+## Screenshots
 
-## 📋 Table of Contents
+<p align="center">
+  <img src="https://debugswift.github.io/web/app-screenshots/docs/main-window.png" alt="DebugSwift main window" width="280" />
+</p>
 
-- [🚀 Features](#features)
-- [🛠 Installation & Setup](#installation--setup)
-- [🔧 Troubleshooting](#troubleshooting)
-- [📝 Examples](#examples)
-- [🔧 Configuration](#configuration)
+### Network
+
+| HTTP monitoring | JSON body detail | WebSocket inspector |
+|:---:|:---:|:---:|
+| <img src="https://debugswift.github.io/web/app-screenshots/docs/network-inspector.png" width="240" alt="Network inspector" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/http-monitoring-json-body-detail.png" width="240" alt="HTTP JSON body detail" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/websocket-inspector-connection-list.png" width="240" alt="WebSocket connection list" /> |
+
+| Encrypted response decrypt | Response modifier |
+|:---:|:---:|
+| <img src="https://debugswift.github.io/web/app-screenshots/docs/encrypted-response-decrypted-json-view.png" width="240" alt="Decrypted API response" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/response-modifier-rules-list.png" width="240" alt="Response modifier rules" /> |
+
+### Performance & App Tools
+
+| Real-time metrics | Memory leaks | Crash reports |
+|:---:|:---:|:---:|
+| <img src="https://debugswift.github.io/web/app-screenshots/docs/performance.png" width="240" alt="Performance metrics" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/memory-leak-detection-leaked-objects-list.png" width="240" alt="Memory leak detection" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/crash-reports-list.png" width="240" alt="Crash reports" /> |
+
+### Interface & Resources
+
+| Interface tools | 3D view hierarchy | Grid overlay |
+|:---:|:---:|:---:|
+| <img src="https://debugswift.github.io/web/app-screenshots/docs/interface-tools.png" width="240" alt="Interface tools" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/3d-view-hierarchy-inspector.png" width="240" alt="3D view hierarchy" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/grid-overlay.png" width="240" alt="Grid overlay" /> |
+
+| Resources browser | SwiftData browser | Documentation recorder |
+|:---:|:---:|:---:|
+| <img src="https://debugswift.github.io/web/app-screenshots/docs/resources.png" width="240" alt="Resources browser" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/swiftdata-model-browser.png" width="240" alt="SwiftData browser" /> | <img src="https://debugswift.github.io/web/app-screenshots/docs/documentation-recorder.png" width="240" alt="Documentation recorder" /> |
 
 ## Requirements
 
 - **iOS 14.0+**
 - **Swift 6.0+**
 - **Xcode 16.0+**
+- **DEBUG builds only**
 
 ## Features
 
-### 🌐 Network Inspector
-- **HTTP Monitoring:** Capture all requests/responses with detailed logs and filtering
-- **WebSocket Inspector:** Zero-config automatic monitoring of WebSocket connections and frames
-- **Request Limiting:** Set thresholds to monitor and control API usage
-- **Smart Content:** Automatic JSON formatting with syntax highlighting
-- **Encryption Support:** Automatic decryption of encrypted API responses with AES-256/128 and custom decryptors
-- **Response Modifier:** Mock or modify any API responses in real time. Adjust the response body and status based on URL or patterns, enable or disable rules individually, import/export configurations via CSV, body editor, and generate rules from live network traffic.
+### Network Inspector
+- HTTP monitoring with filtering, JSON highlighting, and session history
+- WebSocket inspector with zero-config frame capture
+- AES-256/128 encrypted response decryption
+- Response modifier with CSV import/export
+- Request thresholds and session history
 
-### ⚡ Performance
-- **Real-time Metrics:** Monitor CPU, memory, and FPS in real-time
-- **Memory Leak Detection:** Automatic detection of leaked ViewControllers and Views
-- **Thread Checker:** Detect main thread violations with detailed stack traces
-- **Performance Widget:** Overlay displaying live performance stats
+### Performance
+- Real-time CPU, memory, and FPS metrics
+- Memory leak detection for view controllers and views
+- Main-thread violation checker
+- Performance overlay widget
 
-### 📱 App Tools
-- **Crash Reports:** Detailed crash analysis with screenshots and stack traces
-- **Console Logs:** Real-time console output monitoring and filtering
-- **Device Info:** App version, build, device details, and more
-- **APNS Tokens:** Easy access and copying of push notification tokens
-- **Custom Actions:** Add your own debugging actions and info
+### App Tools
+- Crash reports with screenshots and stack traces
+- Console log monitoring
+- Device and build info
+- APNS token access
+- Custom debug actions
 
-### 🎨 Interface Tools
-- **Grid Overlay:** Visual alignment grid with customizable colors and opacity
-- **View Hierarchy:** 3D interactive view hierarchy inspector
-- **Touch Indicators:** Visual feedback for touch interactions
-- **Animation Control:** Slow down animations for easier debugging
-- **View Borders:** Highlight view boundaries with colorization
-- **SwiftUI Render Tracking (Beta):** Automatically detect and visualize SwiftUI view re-renders with dedicated settings screen
-- **Documentation Recorder:** Record app interactions with annotated screenshots — taps shown as numbered circles, scrolls as arrows. Save, copy as grid, or share recordings
+### Interface Tools
+- Grid overlay and view borders
+- 3D view hierarchy inspector
+- Touch indicators and animation slow-mo
+- SwiftUI render tracking (beta)
+- Documentation recorder with annotated screenshots
 
-### 📁 Resources
-- **File Browser:** Navigate app sandbox and shared app group containers
-- **UserDefaults:** View and modify app preferences at runtime
-- **Keychain:** Inspect keychain entries
-- **Database Browser:** SQLite and Realm database inspection
-- **Push Notifications:** Simulate push notifications with templates and test scenarios
-- **SwiftData Browser (iOS 17+):** Inspect registered SwiftData containers, browse models, inspect properties/relationships, edit values, and export JSON
+### Resources
+- Sandbox and app group file browser
+- UserDefaults and Keychain inspectors
+- SQLite and Realm database browser
+- Push notification simulator
+- SwiftData browser (iOS 17+)
 
 ## Installation & Setup
 
-### 🍃 Swift Package Manager (Recommended)
-
-Add to your `Package.swift`:
+### Swift Package Manager (recommended)
 
 ```swift
 dependencies: [
@@ -95,38 +115,23 @@ dependencies: [
 ]
 ```
 
-Or add through Xcode: `File` > `Add Package Dependencies` > Enter URL:
-```
-https://github.com/DebugSwift/DebugSwift
-```
+Or in Xcode: **File → Add Package Dependencies** → `https://github.com/DebugSwift/DebugSwift`
 
-### 🎯 CocoaPods
-
-#### Option 1: Source Distribution (Standard)
-Add to your `Podfile`:
+### CocoaPods
 
 ```ruby
+# Source distribution
 pod 'DebugSwift'
-```
 
-#### Option 2: XCFramework Distribution (Faster Builds) ⚡
-Add to your `Podfile`:
-
-```ruby
+# XCFramework (faster CI builds)
 pod 'DebugSwift', :http => 'https://github.com/DebugSwift/DebugSwift/releases/latest/download/DebugSwift.xcframework.zip'
 ```
 
-### 🍎 Apple Silicon Support
+### Apple Silicon
 
-DebugSwift **fully supports Apple Silicon Macs** with native arm64 simulator builds! No more architecture exclusions or compatibility issues.
+DebugSwift ships native **arm64 simulator** slices. Remove any `EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64` workarounds from your Podfile — they are no longer needed.
 
-**Supported Architectures:**
-- 📱 **iOS Device**: arm64
-- 🖥️ **iOS Simulator**: arm64 (Apple Silicon) + x86_64 (Intel)
-
-**Migration Note:** If you were using architecture exclusions like `'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'`, you can now **remove them** as they are no longer needed.
-
-### Basic Setup
+### Basic setup
 
 ```swift
 import DebugSwift
@@ -134,466 +139,97 @@ import DebugSwift
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private let debugSwift = DebugSwift()
-    
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        
         #if DEBUG
         debugSwift.setup()
-        // debugSwift.setup(disable: [.leaksDetector])
         debugSwift.show()
         #endif
-        
         return true
     }
 }
 ```
 
-### Shake to Toggle (Optional)
+### Shake to toggle (optional)
 
 ```swift
 extension UIWindow {
     open override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         super.motionEnded(motion, with: event)
-        
         #if DEBUG
         if motion == .motionShake {
-            if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-                appDelegate.debugSwift.toggle()
-            }
+            (UIApplication.shared.delegate as? AppDelegate)?.debugSwift.toggle()
         }
         #endif
     }
 }
 ```
 
-### Open Debugger Programmatically
-
-You can get the debug menu as a standalone `UIViewController` and present it however you like — push, present modally, embed in your own navigation. No floating ball required.
+### Present programmatically
 
 ```swift
-// 1. Setup (without floating ball)
 #if DEBUG
 DebugSwift().setup()
-// Don't call .show() — no floating ball will appear
-#endif
-
-// 2. Get the debug view controller and present it yourself
 let debugVC = DebugSwift.debugViewController()
-
-// Push into your navigation stack
 navigationController?.pushViewController(debugVC, animated: true)
-
-// Or present modally
-let nav = UINavigationController(rootViewController: debugVC)
-present(nav, animated: true)
+#endif
 ```
 
-#### SwiftUI
-
-Wrap in a `UINavigationController` so the close button and dark nav bar match the FloatingView experience:
-
-```swift
-struct DebugViewControllerRepresentable: UIViewControllerRepresentable {
-    let onDismiss: () -> Void
-
-    func makeUIViewController(context: Context) -> UINavigationController {
-        let debugVC = DebugSwift.debugViewController()
-
-        let closeButton = UIBarButtonItem(
-            image: UIImage(systemName: "xmark"),
-            style: .plain, target: context.coordinator,
-            action: #selector(Coordinator.close)
-        )
-        closeButton.tintColor = .white
-        debugVC.navigationItem.rightBarButtonItem = closeButton
-
-        let nav = UINavigationController(rootViewController: debugVC)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        appearance.backgroundColor = .black
-        nav.navigationBar.standardAppearance = appearance
-        nav.navigationBar.scrollEdgeAppearance = appearance
-        nav.navigationBar.compactAppearance = appearance
-        nav.overrideUserInterfaceStyle = .dark
-        return nav
-    }
-
-    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
-    func makeCoordinator() -> Coordinator { Coordinator(onDismiss: onDismiss) }
-
-    class Coordinator: NSObject {
-        let onDismiss: () -> Void
-        init(onDismiss: @escaping () -> Void) { self.onDismiss = onDismiss }
-        @objc func close() { onDismiss() }
-    }
-}
-
-// Usage — fullScreenCover matches the FloatingView full-screen appearance
-@State private var showDebugger = false
-
-Button("Open Debugger") {
-    DebugSwift.debugViewControllerWillPresent()
-    showDebugger = true
-}
-// Use onDismiss: on fullScreenCover — not inside the representable — so the
-// floating ball is restored even when the sheet is dismissed via Escape/swipe.
-.fullScreenCover(isPresented: $showDebugger, onDismiss: {
-    DebugSwift.debugViewControllerDidDismiss()
-}) {
-    DebugViewControllerRepresentable(onDismiss: { showDebugger = false })
-        .ignoresSafeArea()
-}
-```
-
-## 🔧 Troubleshooting
-
-### Apple Silicon Build Issues
-
-If you encounter build errors like `error unsupported Swift architecture` or `DebugSwift.framework only contains x86_64 slice for simulator` on Apple Silicon Macs:
-
-#### Solution 1: Update to Latest Version
-Ensure you're using the latest version of DebugSwift which includes full Apple Silicon support:
-
-```ruby
-# CocoaPods
-pod 'DebugSwift', '~> 1.8.1'
-
-# Swift Package Manager - update to latest
-```
-
-#### Solution 2: Use XCFramework Distribution (Recommended)
-For faster builds and guaranteed architecture compatibility:
-
-```ruby
-pod 'DebugSwift', :http => 'https://github.com/DebugSwift/DebugSwift/releases/latest/download/DebugSwift.xcframework.zip'
-```
-
-#### Solution 3: Remove Architecture Exclusions
-If you have custom architecture exclusions in your project, remove them:
-
-```ruby
-# Remove this from your Podfile or target configuration:
-# config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
-```
-
-#### Solution 4: Clean Build
-Clean your build folder and derived data:
-
-```bash
-# Xcode
-Product → Clean Build Folder (⌘⇧K)
-
-# Command line
-rm -rf ~/Library/Developer/Xcode/DerivedData
-```
-
-### Build Performance
-
-- **XCFramework Distribution**: Up to 50% faster build times
-- **Source Distribution**: Full source access and debugging capabilities
-
-Choose XCFramework for production builds, source for active development.
+Full SwiftUI integration, network encryption, SwiftData browser, and beta features are documented at **[debugswift.dev/docs](https://debugswift.dev/docs)**.
 
 ## Examples
 
-### Enhanced Hierarchy Tree for Deeper Application Insights (Beta)
-Harness the Power of Visual Information within the iOS Hierarchy Tree to Uncover Intricate Layouts and Element Relationships in Your Application.
-
-#### How to Use
-Simply press and hold the circle button to reveal the Snapshot and Hierarchy for a comprehensive overview.
-
-#### Results:
-![image8](https://github.com/DebugSwift/DebugSwift/assets/31082311/fdc117a2-e9f9-4246-9e9e-fcae818b7ea1)
-
-#### Explore Additional Details
-
-Enhance your understanding by pressing and holding on a specific view to reveal information such as:
-- Class
-- Subviews
-- Background Color
-- Specific attributes based on the type (e.g., UILabel: Text, Font, and TextColor).
-
-#### Results:
-![image10](https://github.com/DebugSwift/DebugSwift/assets/31082311/7e9c3a8b-3d26-4b7c-b671-1894cb32e562)
-
-### App Custom ViewControllers in Tab Bar
+### Custom debug actions
 
 ```swift
-DebugSwift.App.shared.customControllers = {
-    let controller1 = UITableViewController()
-    controller1.title = "Custom TableVC 1"
-
-    let controller2 = UITableViewController()
-    controller2.title = "Custom TableVC 2"
-    return [controller1, controller2]
-}
-```
-
-### Custom Debug Actions
-
-```swift
-// Add custom debugging actions
 DebugSwift.App.shared.customAction = {
     [
         .init(title: "Development Tools", actions: [
             .init(title: "Clear User Data") {
                 UserDefaults.standard.removeObject(forKey: "userData")
-            },
-            .init(title: "Reset App State") {
-                // Your reset logic here
             }
         ])
     ]
 }
 ```
 
-#### Results:
-![image6](https://github.com/DebugSwift/DebugSwift/assets/31082311/f9c23835-e17e-49a8-b971-4b9880403b15)
+<p align="center">
+  <img src="https://debugswift.github.io/web/app-screenshots/docs/custom-actions-menu.png" alt="Custom actions menu" width="280" />
+</p>
 
-### App Custom Data
-
-```swift
-DebugSwift.App.shared.customInfo = {
-    [
-        .init(
-            title: "Info 1",
-            infos: [
-                .init(title: "title 1", subtitle: "title 2")
-            ]
-        )
-    ]
-}
-```
-
-#### Results:
-![image5](https://github.com/DebugSwift/DebugSwift/assets/31082311/2a38e758-1418-4f14-805f-432d124ad071)
-
-### APNS Token Integration
+### Network filtering
 
 ```swift
-// In your AppDelegate
-func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    DebugSwift.APNSToken.didRegister(deviceToken: deviceToken)
-    // Your existing token handling code
-}
-
-func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    DebugSwift.APNSToken.didFailToRegister(error: error)
-    // Your existing error handling code
-}
-```
-
-## Configuration
-
-### Network Filtering
-
-```swift
-// Ignore specific URLs
 DebugSwift.Network.shared.ignoredURLs = ["https://analytics.com"]
-
-// Monitor only specific URLs
 DebugSwift.Network.shared.onlyURLs = ["https://api.myapp.com"]
 ```
 
-### Network History Management
+### Selective features
 
 ```swift
-// Clear HTTP/HTTPS request history (useful when switching environments)
-DebugSwift.Network.shared.clearNetworkHistory()
-
-// Clear WebSocket connection history
-await DebugSwift.Network.shared.clearWebSocketHistory()
-
-// Clear all network data (HTTP + WebSocket)
-await DebugSwift.Network.shared.clearAllNetworkData()
-
-// Example: Clear network data when switching environments
-DebugSwift.App.shared.customAction = {
-    [
-        .init(title: "Environment", actions: [
-            .init(title: "Switch to Production") {
-                // Your environment switch logic
-                DebugSwift.Network.shared.clearNetworkHistory()
-            },
-            .init(title: "Switch to Development") {
-                // Your environment switch logic
-                DebugSwift.Network.shared.clearNetworkHistory()
-            }
-        ])
-    ]
-}
+debugSwift.setup(
+    hideFeatures: [.performance, .interface],
+    disable: [.leaksDetector, .console]
+)
 ```
 
-### Manual URLSessionConfiguration Injection
+## Troubleshooting
 
-If you create `URLSessionConfiguration` instances **before** calling `DebugSwift.setup()`, you can manually inject the network monitoring protocol:
+**Apple Silicon build errors** — update to the latest release or use the XCFramework pod. Remove simulator `arm64` exclusions, then clean derived data (`⌘⇧K`).
+
+**Network capture missing** — call `DebugSwift.setup()` before creating `URLSession` instances, or inject manually:
 
 ```swift
-// Option 1: Inject into existing configuration
-let config = URLSessionConfiguration.default
-DebugSwift.Network.shared.injectIntoConfiguration(config)
-let session = URLSession(configuration: config)
-
-// Option 2: Get pre-configured default configuration
 let config = DebugSwift.Network.shared.defaultConfiguration()
 let session = URLSession(configuration: config)
-
-// Option 3: Get pre-configured ephemeral configuration
-let config = DebugSwift.Network.shared.ephemeralConfiguration()
-let session = URLSession(configuration: config)
-
-// Option 4: Direct protocol class injection (advanced)
-var config = URLSessionConfiguration.default
-var protocolClasses = config.protocolClasses ?? []
-protocolClasses.insert(CustomHTTPProtocol.self, at: 0)
-config.protocolClasses = protocolClasses
 ```
 
-**Note:** This is particularly useful when migrating from other network debugging tools like Netfox or when working with pre-existing URLSession configurations.
+More troubleshooting: **[debugswift.dev/docs/troubleshooting/common-issues](https://debugswift.dev/docs/troubleshooting/common-issues)**
 
-### Network Encryption/Decryption
-
-DebugSwift supports automatic decryption of encrypted API responses, making it easier to debug apps with end-to-end encryption.
-
-```swift
-// Enable decryption feature
-DebugSwift.Network.shared.setDecryptionEnabled(true)
-
-// Register decryption key for specific API endpoints
-if let key = "your-32-byte-aes-key-here-123456".data(using: .utf8) {
-    DebugSwift.Network.shared.registerDecryptionKey(for: "api.example.com", key: key)
-}
-
-// Register custom decryptor for complex encryption schemes
-DebugSwift.Network.shared.registerCustomDecryptor(for: "api.myapp.com") { encryptedData in
-    // Your custom decryption logic here
-    return customDecrypt(encryptedData)
-}
-```
-
-### Selective Features
-
-```swift
-debugSwift.setup(
-    hideFeatures: [.performance, .interface], // Hide specific tabs
-    disable: [.leaksDetector, .console]       // Disable specific monitoring
-)
-```
-
-### Beta Features
-
-```swift
-// Enable beta features (disabled by default)
-debugSwift.setup(
-    enableBetaFeatures: [
-        .swiftUIRenderTracking,      // Enable experimental SwiftUI render tracking
-        .networkSessionPersistence   // Enable experimental network session history
-    ]
-)
-```
-
-### SwiftData Browser (iOS 17+)
-
-```swift
-import SwiftData
-
-// Define your model registrations
-let swiftDataModels: [SwiftDataModelRegistration] = [
-    .init(Trip.self),
-    .init(Accommodation.self)
-]
-
-// Register one or more containers
-DebugSwift.Resources.shared.configureSwiftData(contexts: [
-    .init(name: "Main", container: appModelContainer, models: swiftDataModels)
-])
-
-// Optional: lock browser editing
-DebugSwift.Resources.shared.swiftDataReadOnly = true
-```
-
-### App Group Configuration
-
-```swift
-// Configure app groups for file browser access
-DebugSwift.Resources.shared.configureAppGroups([
-    "group.com.yourcompany.yourapp"
-])
-```
-
-### Performance Monitoring
-
-```swift
-// Configure memory leak detection
-DebugSwift.Performance.shared.onLeakDetected { leakData in
-    print("🔴 Memory leak detected: \(leakData.message)")
-}
-```
-
-### Push Notification Simulation
-
-```swift
-// Enable push notification simulation
-DebugSwift.PushNotification.enableSimulation()
-
-// Simulate a notification
-DebugSwift.PushNotification.simulate(
-    title: "Test Notification",
-    body: "This is a test notification"
-)
-```
-
-### SwiftUI Render Tracking (Beta)
-
-⚠️ **Beta Feature**: SwiftUI render tracking is experimental and must be enabled explicitly.
-
-```swift
-// First enable the beta feature in setup
-debugSwift.setup(enableBetaFeatures: [.swiftUIRenderTracking])
-
-// Then enable SwiftUI render tracking
-DebugSwift.SwiftUIRender.shared.isEnabled = true
-
-// Configure persistent overlays (stay visible until manually cleared)
-DebugSwift.SwiftUIRender.shared.persistentOverlays = true
-
-// Set overlay style (border, borderWithCount, none)
-DebugSwift.SwiftUIRender.shared.overlayStyle = .borderWithCount
-
-// Configure overlay duration
-DebugSwift.SwiftUIRender.shared.overlayDuration = 1.0
-
-// Enable console logging
-DebugSwift.SwiftUIRender.shared.loggingEnabled = true
-
-// Clear render statistics
-DebugSwift.SwiftUIRender.shared.clearStats()
-
-// Clear persistent overlays
-DebugSwift.SwiftUIRender.shared.clearPersistentOverlays()
-```
-
-### Network Session History (Beta)
-
-⚠️ **Beta Feature**: Network session history is experimental, requires iOS 17 or later, and must be enabled explicitly.
-
-```swift
-debugSwift.setup(enableBetaFeatures: [.networkSessionPersistence])
-
-// Optional: change how many days sessions are kept and how often new requests are written to disk.
-DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 1)
-```
-
-After enabled, the Session History menu appears in the top toolbar. DebugSwift shows all captured network sessions within the retention period(default: 7 days), and you can directly import a full session into Response Modifier rules to mock the complete API state from that session.
-
----
-
-## ⭐ Support the Project
-
-If you find DebugSwift helpful, please consider giving us a star on GitHub! Your support helps us continue improving and adding new features.
+## Support the project
 
 [![GitHub stars](https://img.shields.io/github/stars/DebugSwift/DebugSwift.svg?style=social&label=Star)](https://github.com/DebugSwift/DebugSwift)
 
@@ -607,31 +243,27 @@ If you find DebugSwift helpful, please consider giving us a star on GitHub! Your
 
 ## Contributors
 
-Our contributors have made this project possible. Thank you!
-
 <a href="https://github.com/DebugSwift/DebugSwift/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=DebugSwift/DebugSwift" />
+  <img src="https://contrib.rocks/image?repo=DebugSwift/DebugSwift" alt="Contributors" />
 </a>
 
-## Contributing
+Contributions are welcome. Open a PR or issue on GitHub.
 
-Contributions are welcome! If you have suggestions, improvements, or bug fixes, please submit a pull request. Let's make DebugSwift even more powerful together!
+## Repo activity
 
-## Repo Activity
+![Repobeats](https://repobeats.axiom.co/api/embed/53a4d8a27ad851f52451b14b9a1671e7124f88e8.svg)
 
-![Alt](https://repobeats.axiom.co/api/embed/53a4d8a27ad851f52451b14b9a1671e7124f88e8.svg "Repobeats analytics image")
-
-## Star History
+## Star history
 
 [![Star History Chart](https://api.star-history.com/svg?repos=DebugSwift/DebugSwift&type=Date)](https://star-history.com/#DebugSwift/DebugSwift&Date)
 
 ## License
 
-DebugSwift is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT — see [LICENSE](LICENSE).
 
 ## References
 
-- [InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger) 
-- [CocoaDebug](https://github.com/CocoaDebug/CocoaDebug) 
+- [InAppViewDebugger](https://github.com/indragiek/InAppViewDebugger)
+- [CocoaDebug](https://github.com/CocoaDebug/CocoaDebug)
 - [DBDebugToolkit](https://github.com/dbukowski/DBDebugToolkit)
 - [LeakedViewControllerDetector](https://github.com/Janneman84/LeakedViewControllerDetector)
