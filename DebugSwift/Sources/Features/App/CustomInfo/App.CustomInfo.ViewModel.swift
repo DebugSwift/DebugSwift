@@ -20,7 +20,7 @@ final class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
-    var isSearchActived = false
+    var isSearchActivated = false
 
     var reloadData: (() -> Void)?
 
@@ -31,11 +31,11 @@ final class AppCustomInfoViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func numberOfItems() -> Int {
-        isSearchActived ? filteredInfo.count : data.infos.count
+        isSearchActivated ? filteredInfo.count : data.infos.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> ViewData {
-        let info = isSearchActived ? filteredInfo[index] : data.infos[index]
+        let info = isSearchActivated ? filteredInfo[index] : data.infos[index]
         return .init(title: info.title, value: info.subtitle)
     }
 

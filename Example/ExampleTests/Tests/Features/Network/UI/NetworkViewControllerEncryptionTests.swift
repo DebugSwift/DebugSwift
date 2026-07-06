@@ -125,6 +125,6 @@ final class NetworkViewControllerDetailEncryptionTests: XCTestCase {
         let additionalSection = sections.first { $0.title == "ADDITIONAL INFO" }
         let encryptionItem = additionalSection?.items.first { $0.title == "ENCRYPTION" }
         XCTAssertNotNil(encryptionItem)
-        XCTAssertEqual(encryptionItem?.value, "🔓 Encrypted and decrypted")
+        XCTAssertEqual(encryptionItem?.value, "Encrypted and decrypted")
     }
 }

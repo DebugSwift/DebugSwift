@@ -98,7 +98,7 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
         let title = feature.title ?? ""
 
         switch Features.allCasesWithPermissions[indexPath.row] {
-        case .grid, .swiftUIRenderSettings:
+        case .grid, .swiftUIRenderSettings, .docRecorder:
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             cell.setup(title: title)
             return cell
@@ -122,6 +122,8 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
             controller = InterfaceGridController()
         case .swiftUIRenderSettings:
             controller = InterfaceSwiftUIRenderController()
+        case .docRecorder:
+            controller = DocRecorderPanelController()
         default:
             break
         }
@@ -183,6 +185,7 @@ extension InterfaceViewController {
         case darkMode
         case measurement
         case swiftUIRenderSettings
+        case docRecorder
 
         var title: String? {
             switch self {
@@ -200,6 +203,8 @@ extension InterfaceViewController {
                 return "UI measurements"
             case .swiftUIRenderSettings:
                 return "SwiftUI render tracking"
+            case .docRecorder:
+                return "Documentation Recorder"
             }
         }
 

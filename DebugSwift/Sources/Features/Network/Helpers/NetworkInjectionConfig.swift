@@ -7,6 +7,16 @@
 
 import Foundation
 
+public enum HTTPMethod: String, CaseIterable, Sendable, Codable {
+    case get = "GET"
+    case post = "POST"
+    case put = "PUT"
+    case patch = "PATCH"
+    case delete = "DELETE"
+    case head = "HEAD"
+    case options = "OPTIONS"
+}
+
 /// Configuration for network request delay injection
 public struct RequestDelayConfig: Sendable {
     /// Whether delay injection is enabled
@@ -246,6 +256,11 @@ public struct NetworkFailureConfig: Sendable {
 
 /// A single response body rewrite rule.
 public struct ResponseBodyRewriteRule: Sendable, Equatable, Codable {
+    public enum MatchType: String, Sendable, Equatable, Codable {
+        case exact
+        case wildcard
+    }
+
     /// URL pattern to match (supports wildcard `*` and `?`)
     public var urlPattern: String
     
@@ -255,15 +270,32 @@ public struct ResponseBodyRewriteRule: Sendable, Equatable, Codable {
     /// Optional HTTP status code override for rewritten response
     public var responseStatusCode: Int?
     
+    /// HTTP method to match (`nil` means all methods).
+    public var httpMethod: HTTPMethod?
+
+    /// Whether this rule is active
+    public var isEnabled: Bool
+
+    /// Matcher mode used for fast-path lookup.
+    /// Backward-compatible: missing value from older persisted data defaults to `.exact`.
+    public var matchType: MatchType
+    
     public init(
         urlPattern: String,
         responseBody: String,
-        responseStatusCode: Int? = nil
+        responseStatusCode: Int? = nil,
+        httpMethod: HTTPMethod? = nil,
+        isEnabled: Bool = true,
+        matchType: MatchType = .exact
     ) {
         self.urlPattern = urlPattern
         self.responseBody = responseBody
         self.responseStatusCode = responseStatusCode
+        self.httpMethod = httpMethod
+        self.isEnabled = isEnabled
+        self.matchType = matchType
     }
+
 }
 
 /// Configuration for response body rewrite injection
@@ -288,7 +320,8 @@ public struct ResponseBodyRewriteConfig: Sendable {
         guard let url = request.url else { return nil }
         
         return rules.first { rule in
-            url.matches(
+            guard rule.isEnabled else { return false }
+            return url.matches(
                 wildcardPattern: rule.urlPattern,
                 strategy: .full,
                 queryStrategy: .exact

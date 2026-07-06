@@ -186,6 +186,19 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
                 let viewModel = AppConsoleViewModel()
                 let controller = ResourcesGenericController(viewModel: viewModel)
                 navigationController?.pushViewController(controller, animated: true)
+            case .oslogConsole:
+                if #available(iOS 15.0, *) {
+                    let controller = OSLogConsoleViewController()
+                    navigationController?.pushViewController(controller, animated: true)
+                } else {
+                    let alert = UIAlertController(
+                        title: "OSLog Unavailable",
+                        message: "OSLog Console requires iOS 15.0 or newer.",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    present(alert, animated: true)
+                }
             case .location:
                 let controller = LocationViewController()
                 navigationController?.pushViewController(controller, animated: true)
@@ -222,9 +235,9 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
         switch tokenManager.registrationState {
         case .registered:
             if tokenManager.copyTokenToClipboard() {
-                showToast(message: "📋 APNS token copied to clipboard")
+                showToast(message: "APNS token copied to clipboard")
             } else {
-                showToast(message: "❌ No token available to copy")
+                showToast(message: "No token available to copy")
             }
             
         case .failed:
@@ -295,6 +308,7 @@ extension AppViewController {
     enum ActionInfo: Int, CaseIterable {
         case crash
         case console
+        case oslogConsole
         case location
         case loadedLibraries
         case pushNotifications
@@ -305,7 +319,9 @@ extension AppViewController {
             case .location:
                 return "Simulated location"
             case .console:
-                return "Console"
+                return "Console - Prints/NSlog"
+            case .oslogConsole:
+                return "Console - OSLog"
             case .crash:
                 return "Crashes"
             case .loadedLibraries:

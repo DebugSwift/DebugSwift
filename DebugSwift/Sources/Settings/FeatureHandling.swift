@@ -11,9 +11,13 @@ import UIKit
 @MainActor
 enum FeatureHandling {
     static var enabledBetaFeatures: [DebugSwiftBetaFeature] = []
+    static var hiddenFeatures: [DebugSwiftFeature] = []
+
     static func setup(
         only featuresToShow: [DebugSwiftFeature] = DebugSwiftFeature.allCases
     ) {
+        hiddenFeatures = DebugSwiftFeature.allCases.filter { !featuresToShow.contains($0) }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             MainActor.assumeIsolated {
                 DebugSwift.App.shared.defaultControllers.removeAll(where: { !featuresToShow.contains($0.controllerType) })
@@ -29,7 +33,8 @@ enum FeatureHandling {
     ) {
         setupBetaFeatures(betaFeatures)
         setupMethods(methods)
-        
+        hiddenFeatures = features
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             MainActor.assumeIsolated {
                 DebugSwift.App.shared.defaultControllers.removeAll(where: { features.contains($0.controllerType) })
@@ -132,5 +137,15 @@ enum FeatureHandling {
     
     private static func setupBetaFeatures(_ betaFeatures: [DebugSwiftBetaFeature]) {
         enabledBetaFeatures = betaFeatures
+
+#if canImport(SwiftData)
+        if #available(iOS 17.0, *) {
+            Task { @MainActor in
+                await NetworkSessionPersistenceManager.shared.applyFeatureEnabled(
+                    betaFeatures.contains(.networkSessionPersistence)
+                )
+            }
+        }
+#endif
     }
 }

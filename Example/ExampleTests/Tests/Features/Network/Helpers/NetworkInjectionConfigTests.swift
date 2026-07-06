@@ -509,17 +509,17 @@ final class NetworkInjectionConfigTests: XCTestCase {
 
         let csv = RewriteRulesCSV.export(rules: rules)
 
-        XCTAssertTrue(csv.hasPrefix("url_pattern,response_status_code,response_body\n"))
+        XCTAssertTrue(csv.hasPrefix("url_pattern,response_status_code,response_body,http_method\n"))
         XCTAssertTrue(csv.contains("\"{\"\"name\"\":\"\"A,B\"\"}\""))
         XCTAssertTrue(csv.contains("\"line1\nline2\""))
     }
 
     func testRewriteRulesCSVParseReadsQuotedRowsAndOptionalStatusCode() throws {
         let csv = """
-url_pattern,response_status_code,response_body
-https://api.example.com/users/*,200,"{""ok"":true}"
+url_pattern,response_status_code,response_body,http_method
+https://api.example.com/users/*,200,"{""ok"":true}",
 https://api.example.com/plain,,"line1
-line2"
+line2",
 """
 
         let rules = try RewriteRulesCSV.parse(csv)
@@ -562,8 +562,8 @@ https://api.example.com/*;200;ok
 
     func testRewriteRulesCSVParseRejectsInvalidStatusCode() {
         let csv = """
-url_pattern,response_status_code,response_body
-https://api.example.com/*,abc,ok
+url_pattern,response_status_code,response_body,http_method
+https://api.example.com/*,abc,ok,
 """
 
         XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
@@ -573,8 +573,8 @@ https://api.example.com/*,abc,ok
 
     func testRewriteRulesCSVParseRejectsEmptyURLPattern() {
         let csv = """
-url_pattern,response_status_code,response_body
-,200,ok
+url_pattern,response_status_code,response_body,http_method
+,200,ok,
 """
 
         XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
@@ -584,7 +584,7 @@ url_pattern,response_status_code,response_body
 
     func testRewriteRulesCSVParseRejectsMissingColumn() {
         let csv = """
-url_pattern,response_status_code,response_body
+url_pattern,response_status_code,response_body,http_method
 https://api.example.com/*,200
 """
 
@@ -595,8 +595,8 @@ https://api.example.com/*,200
 
     func testRewriteRulesCSVParseRejectsExtraColumn() {
         let csv = """
-url_pattern,response_status_code,response_body
-https://api.example.com/*,200,ok,extra
+url_pattern,response_status_code,response_body,http_method
+https://api.example.com/*,200,ok,,extra
 """
 
         XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
@@ -606,8 +606,8 @@ https://api.example.com/*,200,ok,extra
 
     func testRewriteRulesCSVParseRejectsMalformedQuotes() {
         let csv = """
-url_pattern,response_status_code,response_body
-https://api.example.com/*,200,"{"ok":true}"
+url_pattern,response_status_code,response_body,http_method
+https://api.example.com/*,200,"{"ok":true}",
 """
 
         XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in
@@ -617,8 +617,8 @@ https://api.example.com/*,200,"{"ok":true}"
 
     func testRewriteRulesCSVParseRejectsUnclosedQuotedField() {
         let csv = """
-url_pattern,response_status_code,response_body
-https://api.example.com/*,200,"{"ok":true}
+url_pattern,response_status_code,response_body,http_method
+https://api.example.com/*,200,"{"ok":true},
 """
 
         XCTAssertThrowsError(try RewriteRulesCSV.parse(csv)) { error in

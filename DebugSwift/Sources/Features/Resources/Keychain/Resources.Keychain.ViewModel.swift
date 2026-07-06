@@ -33,7 +33,7 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
 
     // MARK: - ViewModel
 
-    var isSearchActived = false
+    var isSearchActivated = false
 
     var reloadData: (() -> Void)?
 
@@ -46,11 +46,11 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func numberOfItems() -> Int {
-        isSearchActived ? filteredItems.count : keychainItems.count
+        isSearchActivated ? filteredItems.count : keychainItems.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> ViewData {
-        let item = isSearchActived ? filteredItems[index] : keychainItems[index]
+        let item = isSearchActivated ? filteredItems[index] : keychainItems[index]
         let value = getKeychainValue(for: item) ?? ""
         return .init(title: item.key, value: value)
     }
@@ -73,11 +73,11 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
-        let item = isSearchActived ? filteredItems.remove(at: index) : keychainItems.remove(at: index)
+        let item = isSearchActivated ? filteredItems.remove(at: index) : keychainItems.remove(at: index)
         let serviceKeychain = Keychain(service: item.service)
         try? serviceKeychain.remove(item.key)
 
-        if isSearchActived {
+        if isSearchActivated {
             keychainItems.removeAll(where: { $0.service == item.service && $0.key == item.key })
         }
     }
@@ -93,7 +93,7 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func getEditItemData(atIndex index: Int) -> ResourcesGenericController.EditItemData {
-        let item = isSearchActived ? filteredItems[index] : keychainItems[index]
+        let item = isSearchActivated ? filteredItems[index] : keychainItems[index]
         let value = getKeychainValue(for: item) ?? ""
         
         return .init(
@@ -106,7 +106,7 @@ final class ResourcesKeychainViewModel: NSObject, ResourcesGenericListViewModel 
     }
 
     func updateItem(atIndex index: Int, key: String, value: String) {
-        let currentItem = isSearchActived ? filteredItems[index] : keychainItems[index]
+        let currentItem = isSearchActivated ? filteredItems[index] : keychainItems[index]
         let serviceKeychain = Keychain(service: currentItem.service)
         
         do {

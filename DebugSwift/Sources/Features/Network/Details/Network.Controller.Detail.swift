@@ -106,7 +106,7 @@ final class NetworkViewControllerDetail: BaseTableController {
         })
         
         // Rewrite shortcut
-        alertController.addAction(UIAlertAction(title: "Create Rewrite Rule", style: .default) { [weak self] _ in
+        alertController.addAction(UIAlertAction(title: "Create Response Modifier", style: .default) { [weak self] _ in
             self?.showCreateRewriteRuleEditor()
         })
 
@@ -206,10 +206,12 @@ final class NetworkViewControllerDetail: BaseTableController {
         let initialURLPattern = model.url?.absoluteString ?? ""
         let initialResponseBody = (model.decryptedResponseData ?? model.responseData)?.formattedString() ?? ""
         let initialStatusCode = model.statusCode.flatMap { Int($0) }
+        let initialMethods = model.method.map { [$0.uppercased()] } ?? []
         let initialRule = ResponseBodyRewriteRule(
             urlPattern: initialURLPattern,
             responseBody: initialResponseBody,
-            responseStatusCode: initialStatusCode
+            responseStatusCode: initialStatusCode,
+            httpMethod: initialMethods.compactMap { HTTPMethod(rawValue: $0) }.first
         )
 
         let editor = RewriteRuleEditViewController(rule: initialRule) { [weak self] updatedRule in
@@ -220,11 +222,12 @@ final class NetworkViewControllerDetail: BaseTableController {
 
     private func appendRewriteRule(_ rule: ResponseBodyRewriteRule) {
         var config = NetworkInjectionManager.shared.getRewriteConfig()
+        config.isEnabled = true
         config.rules.append(rule)
         NetworkInjectionManager.shared.setRewriteConfig(config)
         showAlert(
-            with: "Rewrite rule created for this request",
-            title: "Rewrite Rule Added",
+            with: "Rewrite rule created for this request. Response Modifier is now active.",
+            title: "Response Modifier Added",
             rightButtonTitle: "OK"
         )
     }
@@ -505,8 +508,8 @@ extension NetworkViewControllerDetail {
             
             if model.isEncrypted {
                 let status = model.decryptedResponseData != nil 
-                    ? "🔓 Encrypted and decrypted" 
-                    : "🔒 Encrypted (no key)"
+                    ? "Encrypted and decrypted" 
+                    : "Encrypted (no key)"
                 additionalItems.append(DetailItem(title: "ENCRYPTION", value: status))
             }
             

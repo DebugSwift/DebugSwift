@@ -180,10 +180,7 @@ final class WebSocketResendFrameViewController: BaseController {
             object: nil
         )
         
-        // Add tap gesture to dismiss keyboard
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapToDismissKeyboard))
-        tapGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(tapGesture)
+        setupKeyboardDismissGesture()
     }
     
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -199,14 +196,6 @@ final class WebSocketResendFrameViewController: BaseController {
     @objc private func keyboardWillHide(_ notification: Notification) {
         scrollView.contentInset.bottom = 0
         scrollView.verticalScrollIndicatorInsets.bottom = 0
-    }
-    
-    @objc private func handleTapToDismissKeyboard() {
-        dismissKeyboard()
-    }
-    
-    private func dismissKeyboard() {
-        view.endEditing(true)
     }
     
     private func updateCharacterCount() {

@@ -15,6 +15,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         case keychain
         case persistentData
         case coreData
+        case swiftData
         case httpCookies
         case database
 
@@ -30,6 +31,8 @@ final class ResourcesViewController: BaseController, MainFeatureType {
                 "Persistent Data"
             case .coreData:
                 "Core Data"
+            case .swiftData:
+                "SwiftData Browser"
             case .httpCookies:
                 "HTTP Cookies"
             case .database:
@@ -54,6 +57,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         .persistentData,
         .httpCookies,
         .coreData,
+        .swiftData,
         .database
     ]
 
@@ -131,6 +135,18 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             controller = ResourcesTabbedController()
         case .coreData:
             controller = CoreDataBrowserViewController()
+        case .swiftData:
+            if #available(iOS 17.0, *) {
+                controller = SwiftDataBrowserViewController()
+            } else {
+                let alert = UIAlertController(
+                    title: "SwiftData Unavailable",
+                    message: "SwiftData Browser requires iOS 17.0 or newer.",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: true)
+            }
 
         case .httpCookies:
             let viewModel = ResourcesHTTPCookiesViewModel()

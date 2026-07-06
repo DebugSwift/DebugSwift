@@ -46,30 +46,18 @@ extension DebugSwift {
             }
 
             public var ignoredWindowClassNames: [String] {
-                get {
-                    PerformanceLeakDetector.shared.ignoredWindowClassNames
-                }
-                set {
-                    PerformanceLeakDetector.shared.ignoredWindowClassNames = newValue
-                }
+                get { PerformanceLeakDetector.shared.ignoredWindowClassNames }
+                set { PerformanceLeakDetector.shared.ignoredWindowClassNames = newValue }
             }
 
             public var ignoredViewControllerClassNames: [String] {
-                get {
-                    PerformanceLeakDetector.shared.ignoredViewControllerClassNames
-                }
-                set {
-                    PerformanceLeakDetector.shared.ignoredViewControllerClassNames = newValue
-                }
+                get { PerformanceLeakDetector.shared.ignoredViewControllerClassNames }
+                set { PerformanceLeakDetector.shared.ignoredViewControllerClassNames = newValue }
             }
 
             public var ignoredViewClassNames: [String] {
-                get {
-                    PerformanceLeakDetector.shared.ignoredViewClassNames
-                }
-                set {
-                    PerformanceLeakDetector.shared.ignoredViewClassNames = newValue
-                }
+                get { PerformanceLeakDetector.shared.ignoredViewClassNames }
+                set { PerformanceLeakDetector.shared.ignoredViewClassNames = newValue }
             }
         }
         
@@ -128,7 +116,28 @@ public class PerformanceManager: @unchecked Sendable {
     public let leakDetector = DebugSwift.Performance.LeakDetector()
     
     internal init() {}
-    
+
+    // MARK: - Battery Monitoring
+
+    /// Enables or disables battery monitoring programmatically.
+    /// When enabled, tracks battery level, state, and energy impact in real time.
+    ///
+    /// Usage:
+    /// ```swift
+    /// DebugSwift.Performance.shared.isBatteryMonitoringEnabled = true
+    /// ```
+    @MainActor
+    public var isBatteryMonitoringEnabled: Bool {
+        get { BatteryMonitor.shared.isRunning }
+        set {
+            if newValue {
+                BatteryMonitor.shared.start()
+            } else {
+                BatteryMonitor.shared.stop()
+            }
+        }
+    }
+
     // MARK: - Leak Detection (Legacy Support)
     
     private var leakCallbacks: [(LeakData) -> Void] = []

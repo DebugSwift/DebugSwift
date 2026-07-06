@@ -43,6 +43,11 @@ final class PerformanceToolkit {
         }
         set {
             widget.toggle(with: newValue)
+            if newValue {
+                DiskIOMonitor.shared.start()
+            } else {
+                DiskIOMonitor.shared.stop()
+            }
         }
     }
 

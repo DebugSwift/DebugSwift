@@ -65,6 +65,12 @@ final class HttpDatasource: @unchecked Sendable {
         }
         
         httpModels.append(model)
+
+#if canImport(SwiftData)
+        if #available(iOS 17.0, *) {
+            NetworkSessionPersistenceManager.enqueuePersist(from: model)
+        }
+#endif
         return true
     }
 

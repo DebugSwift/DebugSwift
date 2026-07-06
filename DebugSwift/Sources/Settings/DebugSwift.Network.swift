@@ -7,6 +7,9 @@
 
 import UIKit
 import CoreData
+#if canImport(SwiftData)
+import SwiftData
+#endif
 
 extension DebugSwift {
     public class Network: @unchecked Sendable {
@@ -272,6 +275,29 @@ extension DebugSwift {
             clearNetworkHistory()
             clearWebSocketHistory()
         }
+
+        /// Configure how long Session History is kept and how often new requests are written to disk.
+        /// By default, Session History keeps 7 days of sessions and writes every 2 captured requests.
+        /// Use a longer `retentionDays` value if you want more historical sessions available in the Session History UI.
+        /// Use a smaller `batchSize` if you want captured requests to appear in persisted history sooner, at the cost of more frequent writes.
+        /// Use a larger `batchSize` if you want to reduce write frequency, with the tradeoff that the latest requests may not be saved until the batch fills or the feature is disabled.
+        ///
+        /// Example:
+        /// ```swift
+        /// DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 10)
+        /// ```
+        public static func configureSessionHistory(retentionDays: Int, batchSize: Int) {
+#if canImport(SwiftData)
+            if #available(iOS 17.0, *) {
+                Task { @MainActor in
+                    await NetworkSessionPersistenceManager.shared.configure(
+                        retentionDays: retentionDays,
+                        batchSize: batchSize
+                    )
+                }
+            }
+#endif
+        }
         
         // MARK: - Encryption/Decryption API
         
@@ -431,6 +457,32 @@ extension DebugSwift {
         
         /// Enable read-only mode for Core Data browser (default: false)
         public var coreDataReadOnly: Bool = false
+
+#if canImport(SwiftData)
+        /// SwiftData containers and model registrations for debugging
+        @available(iOS 17.0, *)
+        @MainActor
+        public var swiftDataContexts: [SwiftDataContextRegistration] {
+            get {
+                SwiftDataManager.shared.getAvailableContexts()
+            }
+            set {
+                SwiftDataManager.shared.configure(contexts: newValue)
+            }
+        }
+
+        /// Enable read-only mode for SwiftData browser (default: false)
+        @available(iOS 17.0, *)
+        @MainActor
+        public var swiftDataReadOnly: Bool {
+            get {
+                SwiftDataManager.shared.readOnlyMode
+            }
+            set {
+                SwiftDataManager.shared.readOnlyMode = newValue
+            }
+        }
+#endif
         
         /// Configure Core Data with a persistent container
         /// - Parameter container: The NSPersistentContainer to debug
@@ -449,5 +501,21 @@ extension DebugSwift {
         public func configureCoreData(contexts: [String: NSManagedObjectContext]) {
             coreDataContexts = contexts
         }
+
+#if canImport(SwiftData)
+        /// Configure SwiftData with one or more containers and model registrations
+        @available(iOS 17.0, *)
+        @MainActor
+        public func configureSwiftData(contexts: [SwiftDataContextRegistration]) {
+            swiftDataContexts = contexts
+        }
+
+        /// Add a single SwiftData container registration
+        @available(iOS 17.0, *)
+        @MainActor
+        public func addSwiftDataContext(_ context: SwiftDataContextRegistration) {
+            swiftDataContexts.append(context)
+        }
+#endif
     }
 }

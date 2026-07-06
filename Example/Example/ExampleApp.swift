@@ -31,7 +31,7 @@ struct ExampleApp: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    private let debugSwift = DebugSwift()
+    let debugSwift = DebugSwift()
 
     func application(
         _: UIApplication,
@@ -43,17 +43,24 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // If you have New Relic, disable leak detector to prevent conflicts:
         // debugSwift.setup(disable: [.leaksDetector])
         
-        print("Hey, DebugSwift is running! 🎉")
-        
+        print("Hey, DebugSwift is running!")
+
+        DiskWriteTracker.install()
+
         debugSwift
-            .setup(enableBetaFeatures: [.swiftUIRenderTracking])
+            .setup(enableBetaFeatures: [.swiftUIRenderTracking, .networkSessionPersistence])
             .show()
+        
+        DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 1)
 
         // To fix Alamofire `uploadProgress`
 //        DebugSwift.Network.delegate = self
         
         // MARK: Core Data Example Setup
         setupCoreDataExample()
+
+        // MARK: SwiftData Example Setup
+        setupSwiftDataExample()
         
         // MARK: Custom Actions Demo - Including Network History Clear
         setupCustomActions()
@@ -76,6 +83,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         if count == 0 {
             CoreDataExample.shared.createSampleData()
         }
+    }
+
+    private func setupSwiftDataExample() {
+        guard #available(iOS 17.0, *) else { return }
+
+        SwiftDataExample.shared.setupDebugSwift()
+        SwiftDataExample.shared.createSampleDataIfNeeded()
     }
     
     // MARK: - Deep Link Handling

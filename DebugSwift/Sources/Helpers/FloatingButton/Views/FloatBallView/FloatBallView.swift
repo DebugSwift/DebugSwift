@@ -23,43 +23,18 @@ class FloatBallView: UIView {
     fileprivate var beginPoint: CGPoint?
 
     var changeStatusInNextTransaction = true
+    private var pendingAnimationWorkItem: DispatchWorkItem?
 
     lazy var label: UILabel = buildLabel()
     lazy var ballView: UIView = buildBallView()
-
-    // MARK: - Storage
-    private static var savedX: Double {
-        get {
-            UserDefaults.standard.double(forKey: "debug_swift_float_ball_x") != 0 
-                ? UserDefaults.standard.double(forKey: "debug_swift_float_ball_x") 
-                : 20
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "debug_swift_float_ball_x")
-        }
-    }
-    
-    private static var savedY: Double {
-        get {
-            UserDefaults.standard.double(forKey: "debug_swift_float_ball_y") != 0 
-                ? UserDefaults.standard.double(forKey: "debug_swift_float_ball_y") 
-                : (UIScreen.main.bounds.height / 2 - 80.0)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "debug_swift_float_ball_y")
-        }
-    }
 
     var show = false {
         didSet {
             guard oldValue != show else { return }
             if show {
-                label.text = "0"
                 WindowManager.window.addSubview(self)
-                layer.position = .init(
-                    x: Self.savedX,
-                    y: Self.savedY
-                )
+                restoreSavedPosition()
+                updateText()
                 alpha = .zero
                 UIView.animate(withDuration: DSFloatChat.animationDuration) {
                     self.alpha = 1.0
@@ -75,6 +50,7 @@ class FloatBallView: UIView {
                 ) { _ in
                     self.removeFromSuperview()
                 }
+                cancelPendingAnimationRequests()
                 removeMeasurementStateObserver()
             }
         }
@@ -114,20 +90,29 @@ class FloatBallView: UIView {
         }
     }
 
-    func animate(success: Bool) {
+    func animate(success: Bool, matchedResponseModifier: Bool = false) {
         guard isShowing else { return }
         
         // Debounce frequent animations
-        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(performAnimation(_:)), object: nil)
+        cancelPendingAnimationRequests()
         
         updateText()
-        perform(#selector(performAnimation(_:)), with: success, afterDelay: 0.1)
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.performAnimation(success: success, matchedResponseModifier: matchedResponseModifier)
+        }
+        pendingAnimationWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
 
         if !success { ImpactFeedback.generate() }
     }
     
-    @objc private func performAnimation(_ success: NSNumber) {
-        startAnimation(text: success.boolValue ? "🚀" : "❌")
+    private func performAnimation(success: Bool, matchedResponseModifier: Bool) {
+        guard isShowing, superview != nil, window != nil else { return }
+        if success {
+            startAnimation(text: matchedResponseModifier ? "💉" : "🚀")
+        } else {
+            startAnimation(text: "❌")
+        }
     }
     
     func animateWebSocket(connected: Bool) {
@@ -163,6 +148,15 @@ class FloatBallView: UIView {
     func reset() {
         label.text = "0"
     }
+
+    private func restoreSavedPosition() {
+        layer.position = FloatBallPositionHelper.restoreSavedPosition(in: WindowManager.window)
+    }
+
+    private func cancelPendingAnimationRequests() {
+        pendingAnimationWorkItem?.cancel()
+        pendingAnimationWorkItem = nil
+    }
 }
 
 extension FloatBallView {
@@ -188,8 +182,8 @@ extension FloatBallView {
         label.text = .init(0)
         ballView.addSubview(label)
         NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor)
+            label.centerXAnchor.constraint(equalTo: ballView.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: ballView.centerYAnchor)
         ])
         return label
     }
@@ -215,16 +209,18 @@ extension FloatBallView {
     }
 
     private func startAnimation(text: String) {
+        guard window != nil, ballView.superview === self else { return }
+
         let label = UILabel()
         label.text = text
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
-        superview?.addSubview(label)
+        ballView.addSubview(label)
 
         NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor)
+            label.centerXAnchor.constraint(equalTo: ballView.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: ballView.centerYAnchor)
         ])
         
         Task { @MainActor in
@@ -283,27 +279,14 @@ extension FloatBallView {
             delegate?.floatViewMoved(floatView: self, point: .init(x: x, y: y))
         case .ended, .cancelled:
             let velocityPoint = pan.velocity(in: self)
-            let bounds = UIScreen.main.bounds
-
-            let targetX: CGFloat
-            if layer.position.x <= bounds.width / 2 {
-                targetX = 20
-            } else {
-                targetX = bounds.width - 20
-            }
-
-            var targetY = layer.position.y
-            if targetY < 80 {
-                targetY = 80
-            } else if targetY > bounds.height - 100 {
-                targetY = bounds.height - 100
-            }
+            let window = WindowManager.window
 
             delegate?.floatViewCancelMove(floatView: self)
-            
-            // Save the final position
-            Self.savedX = Double(targetX)
-            Self.savedY = Double(targetY)
+
+            let targetPosition = FloatBallPositionHelper.finalizedDragPosition(
+                from: layer.position,
+                in: window
+            )
 
             UIView.animate(
                 withDuration: 0.5,
@@ -312,7 +295,7 @@ extension FloatBallView {
                 initialSpringVelocity: abs(velocityPoint.x / layer.position.x),
                 options: [],
                 animations: {
-                    self.layer.position = CGPoint(x: targetX, y: targetY)
+                    self.layer.position = targetPosition
                 }
             )
         default:

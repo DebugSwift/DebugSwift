@@ -209,9 +209,15 @@ final class NetworkInjectionManagerTests: XCTestCase {
         
         manager.setRewriteConfig(config)
         
+        let expectedRule = ResponseBodyRewriteRule(
+            urlPattern: "https://api.example.com/*",
+            responseBody: "{\"ok\":true}",
+            responseStatusCode: 201,
+            matchType: .wildcard
+        )
         let retrieved = manager.getRewriteConfig()
         XCTAssertTrue(retrieved.isEnabled)
-        XCTAssertEqual(retrieved.rules, [rule])
+        XCTAssertEqual(retrieved.rules, [expectedRule])
         XCTAssertEqual(retrieved.rules.first?.responseStatusCode, 201)
     }
     
@@ -230,7 +236,12 @@ final class NetworkInjectionManagerTests: XCTestCase {
         let request = URLRequest(url: URL(string: "https://api.example.com/v2/users")!)
         let matched = manager.matchingRewriteRule(for: request)
         
-        XCTAssertEqual(matched, secondRule)
+        let expectedRule = ResponseBodyRewriteRule(
+            urlPattern: "https://api.example.com/v2/*",
+            responseBody: "{\"version\":\"v2\"}",
+            matchType: .wildcard
+        )
+        XCTAssertEqual(matched, expectedRule)
     }
     
     func testRewriteRulesRemainWhenRewriteIsDisabled() {
@@ -243,8 +254,14 @@ final class NetworkInjectionManagerTests: XCTestCase {
         manager.setRewriteConfig(ResponseBodyRewriteConfig(isEnabled: true, rules: [rule]))
         manager.setRewriteConfig(ResponseBodyRewriteConfig(isEnabled: false, rules: [rule]))
         
+        let expectedRule = ResponseBodyRewriteRule(
+            urlPattern: "https://api.example.com/*",
+            responseBody: "{\"ok\":true}",
+            responseStatusCode: 200,
+            matchType: .wildcard
+        )
         let retrieved = manager.getRewriteConfig()
         XCTAssertFalse(retrieved.isEnabled)
-        XCTAssertEqual(retrieved.rules, [rule])
+        XCTAssertEqual(retrieved.rules, [expectedRule])
     }
 }
