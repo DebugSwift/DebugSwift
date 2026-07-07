@@ -75,7 +75,9 @@ public enum MeasurementWindowManager {
             window = MeasurementWindow(frame: UIScreen.main.bounds)
         }
 
-        let navigation = UINavigationController(rootViewController: CustomViewController())
+        let navigation = OrientationForwardingNavigationController(
+            rootViewController: CustomViewController()
+        )
         window.rootViewController = navigation
         window.isHidden = false
 

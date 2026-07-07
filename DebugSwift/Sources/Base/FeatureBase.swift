@@ -31,6 +31,7 @@ public enum DebugSwiftSwizzleFeature: String, CaseIterable {
     case console
     case pushNotifications
     case swiftUIRender
+    case orientationForwarding
 }
 
 @MainActor
