@@ -134,6 +134,7 @@ enum FeatureHandling {
         if #available(iOS 16.0, *) {
             UIWindowScene.db_swizzleRequestGeometryUpdate()
         }
+        UIViewController.db_swizzleViewDidAppear()
     }
 
     private static func enableSwiftUIRender() {

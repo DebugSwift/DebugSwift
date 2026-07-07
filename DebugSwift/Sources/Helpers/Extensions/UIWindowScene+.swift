@@ -27,7 +27,26 @@ extension UIWindowScene {
         windows
             .filter { $0 is CustomWindow || $0 is MeasurementWindow }
             .forEach { $0.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations() }
-      
+
         db_requestGeometryUpdate(preferences, errorHandler: errorHandler)
+    }
+}
+
+extension UIViewController {
+    static func db_swizzleViewDidAppear() {
+        DispatchQueue.once(token: "debugswift.uiviewcontroller.db_swizzleViewDidAppear") {
+            let original = #selector(UIViewController.viewDidAppear(_:))
+            let swizzled = #selector(UIViewController.db_viewDidAppear(_:))
+            guard
+                let originalMethod = class_getInstanceMethod(UIViewController.self, original),
+                let swizzledMethod = class_getInstanceMethod(UIViewController.self, swizzled)
+            else { return }
+            method_exchangeImplementations(originalMethod, swizzledMethod)
+        }
+    }
+
+    @objc private func db_viewDidAppear(_ animated: Bool) {
+        db_viewDidAppear(animated)
+        WindowManager.window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
     }
 }
