@@ -47,6 +47,10 @@ extension UIViewController {
 
     @objc private func db_viewDidAppear(_ animated: Bool) {
         db_viewDidAppear(animated)
-        WindowManager.window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+        if #available(iOS 16.0, *) {
+            WindowManager.window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+        } else {
+            UIViewController.attemptRotationToDeviceOrientation()
+        }
     }
 }

@@ -26,9 +26,4 @@ final class OrientationForwardingNavigationController: UINavigationController {
             ?? super.preferredInterfaceOrientationForPresentation
     }
 
-    @available(iOS 26.0, *)
-    override var prefersInterfaceOrientationLocked: Bool {
-        appTopViewController?.prefersInterfaceOrientationLocked
-            ?? super.prefersInterfaceOrientationLocked
-    }
 }
