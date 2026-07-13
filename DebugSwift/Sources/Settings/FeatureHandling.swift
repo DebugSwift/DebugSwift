@@ -81,6 +81,10 @@ enum FeatureHandling {
         if !methodsToDisable.contains(.swiftUIRender) {
             enableSwiftUIRender()
         }
+
+        if !methodsToDisable.contains(.orientationForwarding) {
+            enableOrientationForwarding()
+        }
     }
 
     private static func enableNetwork() {
@@ -126,6 +130,13 @@ enum FeatureHandling {
         StdoutCapture.shared.startCapturing()
     }
     
+    private static func enableOrientationForwarding() {
+        if #available(iOS 16.0, *) {
+            UIWindowScene.db_swizzleRequestGeometryUpdate()
+        }
+        UIViewController.db_swizzleViewDidAppear()
+    }
+
     private static func enableSwiftUIRender() {
         // Only enable if beta features include SwiftUI render tracking
         guard enabledBetaFeatures.contains(.swiftUIRenderTracking) else { return }

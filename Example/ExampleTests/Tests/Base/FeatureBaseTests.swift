@@ -23,7 +23,7 @@ class FeatureBaseTests: XCTestCase {
 
     func testDebugSwiftSwizzleFeature_allCases() {
         // Given
-        let expectedCases: [DebugSwiftSwizzleFeature] = [.network, .webSocket, .wkWebView, .location, .views, .crashManager, .leaksDetector, .console, .pushNotifications, .swiftUIRender]
+        let expectedCases: [DebugSwiftSwizzleFeature] = [.network, .webSocket, .wkWebView, .location, .views, .crashManager, .leaksDetector, .console, .pushNotifications, .swiftUIRender, .orientationForwarding]
 
         // When
         let allCases = DebugSwiftSwizzleFeature.allCases
