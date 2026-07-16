@@ -9,11 +9,18 @@
 import UIKit
 
 /// Root view controller for the view debugger.
+///
+/// The 3D snapshot view and the hierarchy table can use *different* element
+/// trees: the snapshot tree walks `UIView.subviews` (real frames + pixel
+/// snapshots), while the hierarchy tree reflects the declarative SwiftUI tree
+/// (VStack, Text, Button, …). Selections are synchronised between the two
+/// trees by matching their `underlyingView` pointers.
 final class ViewDebuggerViewController:
     UIViewController,
     DebugSnapshotViewControllerDelegate,
     HierarchyTableViewControllerDelegate {
     private let snapshot: Snapshot
+    private let hierarchySnapshot: Snapshot
     private let configuration: Configuration
 
     private var pageViewController: UIPageViewController?
@@ -38,9 +45,9 @@ final class ViewDebuggerViewController:
         return navigationController
     }()
 
-    private lazy var hierarchyViewController: HierarchyTableViewController = {
+    private lazy var hierarchyViewController: HierarchyTableViewController = { [unowned self] in
         let viewController = HierarchyTableViewController(
-            snapshot: snapshot,
+            snapshot: hierarchySnapshot,
             configuration: configuration.hierarchyViewConfiguration
         )
         viewController.delegate = self
@@ -59,8 +66,13 @@ final class ViewDebuggerViewController:
         return navigationController
     }()
 
-    init(snapshot: Snapshot, configuration: Configuration = Configuration()) {
+    init(
+        snapshot: Snapshot,
+        hierarchySnapshot: Snapshot? = nil,
+        configuration: Configuration = Configuration()
+    ) {
         self.snapshot = snapshot
+        self.hierarchySnapshot = hierarchySnapshot ?? snapshot
         self.configuration = configuration
 
         super.init(nibName: nil, bundle: nil)
@@ -95,19 +107,26 @@ final class ViewDebuggerViewController:
         )
     }
 
+
     // MARK: DebugSnapshotViewControllerDelegate
 
     func debugSnapshotViewController(_: DebugSnapshotViewController, didSelectSnapshot snapshot: Snapshot) {
-        hierarchyViewController.selectRow(forSnapshot: snapshot)
+        if let hierarchyNode = findSnapshot(in: hierarchySnapshot, matching: snapshot.underlyingView) {
+            hierarchyViewController.selectRow(forSnapshot: hierarchyNode)
+        }
     }
 
     func debugSnapshotViewController(_: DebugSnapshotViewController, didDeselectSnapshot snapshot: Snapshot) {
-        hierarchyViewController.deselectRow(forSnapshot: snapshot)
+        if let hierarchyNode = findSnapshot(in: hierarchySnapshot, matching: snapshot.underlyingView) {
+            hierarchyViewController.deselectRow(forSnapshot: hierarchyNode)
+        }
     }
 
     func debugSnapshotViewController(_: DebugSnapshotViewController, didFocusOnSnapshot snapshot: Snapshot) {
         hierarchyNavigationController.popToRootViewController(animated: false)
-        hierarchyViewController.focus(snapshot: snapshot)
+        if let hierarchyNode = findSnapshot(in: hierarchySnapshot, matching: snapshot.underlyingView) {
+            hierarchyViewController.focus(snapshot: hierarchyNode)
+        }
     }
 
     func debugSnapshotViewControllerWillNavigateBackToPreviousSnapshot(_: DebugSnapshotViewController) {
@@ -117,23 +136,52 @@ final class ViewDebuggerViewController:
     // MARK: HierarchyTableViewControllerDelegate
 
     func hierarchyTableViewController(_: HierarchyTableViewController, didSelectSnapshot snapshot: Snapshot) {
-        debugSnapshotViewController.select(snapshot: snapshot)
+        if let snapshotNode = findSnapshot(in: self.snapshot, matching: underlyingView(for: snapshot)) {
+            debugSnapshotViewController.select(snapshot: snapshotNode)
+        }
     }
 
     func hierarchyTableViewController(_: HierarchyTableViewController, didDeselectSnapshot snapshot: Snapshot) {
-        debugSnapshotViewController.deselect(snapshot: snapshot)
+        if let snapshotNode = findSnapshot(in: self.snapshot, matching: underlyingView(for: snapshot)) {
+            debugSnapshotViewController.deselect(snapshot: snapshotNode)
+        }
     }
 
     func hierarchyTableViewController(_: HierarchyTableViewController, didFocusOnSnapshot snapshot: Snapshot) {
-        debugSnapshotViewController.focus(snapshot: snapshot)
+        if let snapshotNode = findSnapshot(in: self.snapshot, matching: underlyingView(for: snapshot)) {
+            debugSnapshotViewController.focus(snapshot: snapshotNode)
+        }
     }
-
     func hierarchyTableViewControllerWillNavigateBackToPreviousSnapshot(_: HierarchyTableViewController) {
         snapshotNavigationController.popViewController(animated: true)
     }
 
-    // MARK: Private
-    
+    // MARK: Tree mapping
+
+    /// Depth-first search for the first snapshot whose `underlyingView`
+    /// matches the given view (by pointer identity). Returns `nil` if the
+    /// view is `nil` or no match is found.
+    private func findSnapshot(in root: Snapshot, matching view: UIView?) -> Snapshot? {
+        guard let view else { return nil }
+        if root.underlyingView === view {
+            return root
+        }
+        for child in root.children {
+            if let match = findSnapshot(in: child, matching: view) {
+                return match
+            }
+        }
+        return nil
+    }
+
+    /// Returns the `underlyingView` for a hierarchy snapshot, falling back to
+    /// the root's underlying view for SwiftUI semantic nodes (which return `nil`).
+    private func underlyingView(for snapshot: Snapshot) -> UIView? {
+        if let view = snapshot.underlyingView { return view }
+        return hierarchySnapshot.underlyingView
+    }
+
+
     private func configurePageViewController() {
         let pageViewController = UIPageViewController(
             transitionStyle: .scroll,

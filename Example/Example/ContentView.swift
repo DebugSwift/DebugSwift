@@ -153,7 +153,6 @@ struct ContentView: View {
                     }
                     .padding(.vertical, 4)
                 }
-
                 Button("Show Map") {
                     presentingMap = true
                 }

@@ -8,6 +8,7 @@
 
 import CoreGraphics
 import Foundation
+import UIKit
 
 /// Provides identifying information for an element that is displayed in the
 /// view debugger.
@@ -61,10 +62,15 @@ protocol Element {
 
     /// Whether the element is hidden from view or not.
     var isHidden: Bool { get }
-
     /// A snapshot image of the element in its current state.
     var snapshotImage: CGImage? { get }
 
     /// The child elements of the element.
     var children: [Element] { get }
+
+    /// The underlying `UIView` backing this element, if any.
+    /// Used to map selections between the UIKit snapshot tree and the
+    /// SwiftUI hierarchy tree — two nodes with the same `underlyingView`
+    /// represent the same on-screen view. SwiftUI semantic nodes return `nil`.
+    var underlyingView: UIView? { get }
 }

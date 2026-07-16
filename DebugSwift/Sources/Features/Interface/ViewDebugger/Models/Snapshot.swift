@@ -9,6 +9,7 @@
 import CoreGraphics
 import Foundation
 import SwiftUI
+import UIKit
 
 /// A snapshot of the UI element tree in its current state.
 final class Snapshot: NSObject {
@@ -23,9 +24,13 @@ final class Snapshot: NSObject {
 
     /// Whether the element is hidden from view or not.
     let isHidden: Bool
-
     /// A snapshot image of the element in its current state.
     let snapshotImage: CGImage?
+
+    /// The underlying `UIView` backing this snapshot's element, if any.
+    /// Used to map selections between the UIKit snapshot tree and the
+    /// SwiftUI hierarchy tree.
+    let underlyingView: UIView?
 
     /// The child snapshots of the snapshot (one per child element).
     let children: [Snapshot]
@@ -44,6 +49,7 @@ final class Snapshot: NSObject {
         self.frame = element.frame
         self.isHidden = element.isHidden
         self.snapshotImage = element.snapshotImage
+        self.underlyingView = element.underlyingView
         self.children = element.children.map { Snapshot(element: $0) }
         self.element = element
     }

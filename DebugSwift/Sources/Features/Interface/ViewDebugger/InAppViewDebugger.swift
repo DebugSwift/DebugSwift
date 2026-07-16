@@ -34,9 +34,14 @@ final class InAppViewDebugger: NSObject {
             return
         }
 
-        let snapshot = Snapshot(element: ViewElement(view: window))
+        // Two parallel snapshots: the 3D snapshot uses the UIKit subview tree
+        // (real frames + pixel snapshots), the hierarchy uses the SwiftUI
+        // semantic tree (VStack, Text, Button, …) so it shows developer views.
+        let snapshotSnapshot = Snapshot(element: ViewElement(view: window, useSwiftUIHierarchy: false))
+        let hierarchySnapshot = Snapshot(element: ViewElement(view: window, useSwiftUIHierarchy: true))
         presentWithSnapshot(
-            snapshot,
+            snapshotSnapshot,
+            hierarchySnapshot: hierarchySnapshot,
             rootViewController: window.rootViewController,
             configuration: configuration,
             completion: completion
@@ -59,8 +64,15 @@ final class InAppViewDebugger: NSObject {
         guard let view else {
             return
         }
-        let snapshot = Snapshot(element: ViewElement(view: view))
-        presentWithSnapshot(snapshot, rootViewController: getNearestAncestorViewController(responder: view), configuration: configuration, completion: completion)
+        let snapshotSnapshot = Snapshot(element: ViewElement(view: view, useSwiftUIHierarchy: false))
+        let hierarchySnapshot = Snapshot(element: ViewElement(view: view, useSwiftUIHierarchy: true))
+        presentWithSnapshot(
+            snapshotSnapshot,
+            hierarchySnapshot: hierarchySnapshot,
+            rootViewController: getNearestAncestorViewController(responder: view),
+            configuration: configuration,
+            completion: completion
+        )
     }
 
     /// Takes a snapshot of the view of the specified view controller and presents
@@ -75,10 +87,16 @@ final class InAppViewDebugger: NSObject {
         guard let view = viewController?.view else {
             return
         }
-        let snapshot = Snapshot(element: ViewElement(view: view))
-        presentWithSnapshot(snapshot, rootViewController: viewController, configuration: configuration, completion: completion)
+        let snapshotSnapshot = Snapshot(element: ViewElement(view: view, useSwiftUIHierarchy: false))
+        let hierarchySnapshot = Snapshot(element: ViewElement(view: view, useSwiftUIHierarchy: true))
+        presentWithSnapshot(
+            snapshotSnapshot,
+            hierarchySnapshot: hierarchySnapshot,
+            rootViewController: viewController,
+            configuration: configuration,
+            completion: completion
+        )
     }
-
     /// Presents a view debugger for the a snapshot as a modal view controller on
     /// top of the specified root view controller.
     ///
@@ -91,12 +109,14 @@ final class InAppViewDebugger: NSObject {
     ///   been presented.
     final class func presentWithSnapshot(
         _ snapshot: Snapshot,
+        hierarchySnapshot: Snapshot? = nil,
         rootViewController _: UIViewController?,
         configuration: Configuration? = nil,
         completion: (() -> Void)? = nil
     ) {
         let debuggerViewController = ViewDebuggerViewController(
             snapshot: snapshot,
+            hierarchySnapshot: hierarchySnapshot ?? snapshot,
             configuration: configuration ?? Configuration()
         )
         let navigationController = UINavigationController(rootViewController: debuggerViewController)

@@ -35,7 +35,7 @@ final class SnapshotViewConfiguration: NSObject {
     var scaleInterpolationQuality: CGInterpolationQuality = .high
 
     /// The spacing between layers along the z-axis.
-    var zSpacing: Float = 20.0
+    var zSpacing: Float = 3.0
 
     /// The minimum spacing between layers along the z-axis.
     var minimumZSpacing: Float = .zero

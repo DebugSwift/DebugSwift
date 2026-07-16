@@ -113,10 +113,9 @@ final class SnapshotView: UIView {
         let cameraNode = SCNNode()
         cameraNode.camera = camera
         cameraNode.categoryBitMask = 0
-        let nodePos = sceneView.scene?.rootNode.childNodes.last?.position.y ?? 760
         cameraNode.position = .init(
             x: -700,
-            y: nodePos / 2,
+            y: 350,
             z: 1000
         )
         cameraNode.eulerAngles.y = -.pi / 4

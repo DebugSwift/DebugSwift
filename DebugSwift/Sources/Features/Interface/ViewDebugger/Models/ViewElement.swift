@@ -6,6 +6,7 @@
 //  Copyright © 2019 Indragie Karunaratne. All rights reserved.
 //
 
+import SwiftUI
 import UIKit
 
 /// An element that represents a UIView.
@@ -38,11 +39,28 @@ final class ViewElement: NSObject, Element {
         return snapshotView(view)
     }
 
+    var underlyingView: UIView? { view }
+
     var children: [Element] {
         guard let view else {
             return []
         }
-        return view.subviews.map { ViewElement(view: $0) }
+
+        // Check if this is a SwiftUI hosting view. If so, and the hierarchy
+        // mode is enabled, reflect the declarative SwiftUI tree via Mirror
+        // instead of walking UIView subviews (which only expose internal
+        // infrastructure views). The 3D snapshot view passes `false` so it
+        // can render real frames and pixel snapshots.
+        if useSwiftUIHierarchy {
+            let className = NSStringFromClass(type(of: view))
+            if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(className),
+               let tree = swiftUITree(for: view)
+            {
+                return tree.children.map { SwiftUIElement(node: $0, parentFrame: view.frame) }
+            }
+        }
+
+        return view.subviews.map { ViewElement(view: $0, useSwiftUIHierarchy: useSwiftUIHierarchy) }
     }
 
     var title: String {
@@ -345,17 +363,20 @@ final class ViewElement: NSObject, Element {
                 additionalInfo += "\nStyle: \(activityIndicator.style.rawValue)"
             }
             
-            // SwiftUI Hosting Controller detection
-            if let hostingVC = getViewController(view: view),
-               String(describing: type(of: hostingVC)).contains("HostingController") ||
-               String(describing: type(of: hostingVC)).contains("HostingView") {
+            // SwiftUI Hosting Controller detection — use the new hierarchy builder
+            let hostingClassName = NSStringFromClass(type(of: view))
+            if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(hostingClassName),
+               let tree = swiftUITree(for: view)
+            {
                 additionalInfo += "\n\n- SwiftUI Info:"
-                additionalInfo += "\nHosting Controller: \(String(describing: type(of: hostingVC)))"
-                
-                // Try to extract SwiftUI view information using reflection
-                let swiftUIInfo = extractSwiftUIInfo(from: view, viewController: hostingVC)
-                if !swiftUIInfo.isEmpty {
-                    additionalInfo += "\n\(swiftUIInfo)"
+                additionalInfo += "\nRoot View: \(tree.displayName)"
+                additionalInfo += "\nType: \(tree.typeName)"
+                if !tree.children.isEmpty {
+                    additionalInfo += "\nChildren: \(tree.children.map(\.displayName).joined(separator: ", "))"
+                }
+                if !tree.properties.isEmpty {
+                    let props = tree.properties.prefix(5).map { "\($0.label): \($0.valueDescription)" }
+                    additionalInfo += "\nProperties: \(props.joined(separator: ", "))"
                 }
             }
             
@@ -407,12 +428,18 @@ final class ViewElement: NSObject, Element {
     }
 
     private weak var view: UIView?
+    private let useSwiftUIHierarchy: Bool
 
     /// Constructs a new `ViewElement`
     ///
-    /// - Parameter view: The `UIView` to create the element for.
-    @objc init(view: UIView) {
+    /// - Parameters:
+    ///   - view: The `UIView` to create the element for.
+    ///   - useSwiftUIHierarchy: When `true`, SwiftUI hosting views expose their
+    ///   declarative view tree (VStack, Text, …) as children instead of the
+    ///   internal UIKit infrastructure subviews.
+    @objc init(view: UIView, useSwiftUIHierarchy: Bool = true) {
         self.view = view
+        self.useSwiftUIHierarchy = useSwiftUIHierarchy
     }
 }
 
@@ -424,64 +451,44 @@ private func getViewController(view: UIView) -> UIViewController? {
     return nil
 }
 
+/// Extracts the SwiftUI view tree from a `_UIHostingView` by reflecting
+/// the hosting controller's `rootView` via `SwiftUIHierarchyBuilder`.
+/// Returns `nil` if the view is not backed by a `UIHostingController`.
+/// Uses Mirror to avoid needing the generic type parameter of `UIHostingController`.
 @MainActor
-private func extractSwiftUIInfo(from view: UIView, viewController: UIViewController) -> String {
-    var info = ""
-    
-    // Try to get the root view from hosting controller
-    let mirror = Mirror(reflecting: viewController)
-    
-    for child in mirror.children {
-        if let label = child.label {
-            // Look for rootView or similar properties
-            if label.contains("rootView") || label.contains("content") {
-                info += "\nRoot View Type: \(type(of: child.value))"
-                
-                // Inspect the SwiftUI view structure
-                let viewMirror = Mirror(reflecting: child.value)
-                var viewProperties: [String] = []
-                
-                for viewChild in viewMirror.children {
-                    if let viewLabel = viewChild.label,
-                       !viewLabel.hasPrefix("_"),
-                       !viewLabel.contains("$__") {
-                        let valueString = String(describing: viewChild.value)
-                        if valueString.count < 50 {
-                            viewProperties.append("\(viewLabel): \(valueString)")
-                        }
-                    }
-                }
-                
-                if !viewProperties.isEmpty {
-                    info += "\nView Properties:"
-                    for prop in viewProperties.prefix(10) {
-                        info += "\n  • \(prop)"
-                    }
-                    if viewProperties.count > 10 {
-                        info += "\n  ... and \(viewProperties.count - 10) more"
-                    }
-                }
-            }
+private func swiftUITree(for view: UIView) -> SwiftUIElementNode? {
+    // Walk up the responder chain to find a hosting controller
+    let candidates: [UIViewController?] = [
+        getViewController(view: view),
+        getNearestAncestorViewController(responder: view),
+    ]
+
+    for viewController in candidates {
+        guard let viewController else { continue }
+        let typeName = String(describing: type(of: viewController))
+        guard typeName.contains("UIHostingController") || typeName.contains("HostingController") else {
+            continue
+        }
+
+        // Try 1: Mirror on the _UIHostingView itself — rootView is stored as `_rootView`
+        let viewMirror = Mirror(reflecting: view)
+        if let rootViewChild = viewMirror.children.first(where: { $0.label == "_rootView" || $0.label == "rootView" }) {
+            return SwiftUIHierarchyBuilder.buildTree(from: rootViewChild.value)
+        }
+
+        // Try 2: Mirror on the controller
+        let vcMirror = Mirror(reflecting: viewController)
+        if let rootViewChild = vcMirror.children.first(where: { $0.label == "_rootView" || $0.label == "rootView" }) {
+            return SwiftUIHierarchyBuilder.buildTree(from: rootViewChild.value)
+        }
+
+        // Try 3: KVC on the controller (rootView is a public property)
+        if let rootView = viewController.value(forKey: "rootView") {
+            return SwiftUIHierarchyBuilder.buildTree(from: rootView)
         }
     }
-    
-    // Extract environment and modifier information
-    let viewMirror = Mirror(reflecting: view)
-    var modifiers: [String] = []
-    
-    for child in viewMirror.children {
-        if let label = child.label {
-            if label.contains("Modifier") || label.contains("Environment") {
-                modifiers.append(label)
-            }
-        }
-    }
-    
-    if !modifiers.isEmpty {
-        info += "\nModifiers: \(modifiers.joined(separator: ", "))"
-    }
-    
-    return info
+
+    return nil
 }
 
 @MainActor
