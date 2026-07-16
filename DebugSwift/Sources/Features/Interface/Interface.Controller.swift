@@ -186,7 +186,7 @@ extension InterfaceViewController {
         case grid
         case darkMode
         case measurement
-        case swiftUIRenderSettings
+        case docRecorder
         case contrastChecker
 
         var title: String? {
