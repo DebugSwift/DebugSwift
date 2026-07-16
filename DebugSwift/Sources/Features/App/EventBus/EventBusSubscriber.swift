@@ -13,7 +13,7 @@ import Foundation
 /// notification API that the existing managers (`NetworkMonitor`,
 /// `StdoutCapture`, `HangDetector`, etc.) can publish into and that
 /// `EventTimelineViewController` can observe.
-final class EventBusSubscriber {
+final class EventBusSubscriber: @unchecked Sendable {
 
     static let shared = EventBusSubscriber()
 
