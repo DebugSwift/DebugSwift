@@ -2,12 +2,12 @@
 //  EventBus.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Event Timeline) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #13 Event Timeline (EventBus) — pure core
+// MARK: - Event Timeline
 
 /// The debug domain an event belongs to.
 public enum DebugDomain: String, Equatable, CaseIterable {

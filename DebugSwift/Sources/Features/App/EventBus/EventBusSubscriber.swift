@@ -2,12 +2,12 @@
 //  EventBusSubscriber.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Event Timeline) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #13 Event Timeline — Combine-friendly subscriber
+// MARK: - Event Timeline
 
 /// A thin subscriber on top of the pure `EventBus`, exposing a closure-based
 /// notification API that the existing managers (`NetworkMonitor`,
