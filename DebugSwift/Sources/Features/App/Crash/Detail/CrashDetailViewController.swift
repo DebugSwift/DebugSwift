@@ -64,11 +64,45 @@ final class CrashDetailViewController: BaseController {
         addRightBarButton(
             image: .named("square.and.arrow.up", default: "Share")
         ) { [weak self] in
-            self?.share()
+            self?.presentShareOptions()
         }
     }
 
-    private func share() {
+    private func presentShareOptions() {
+        let actionSheet = UIAlertController(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        actionSheet.addAction(
+            UIAlertAction(
+                title: "share-as-pdf".localized(),
+                style: .default
+            ) { [weak self] _ in
+                self?.shareAsPDF()
+            }
+        )
+
+        actionSheet.addAction(
+            UIAlertAction(
+                title: "copy-text".localized(),
+                style: .default
+            ) { [weak self] _ in
+                self?.copyCrashText()
+            }
+        )
+
+        actionSheet.addAction(UIAlertAction(title: "close".localized(), style: .cancel))
+
+        if let popover = actionSheet.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItem
+        }
+
+        present(actionSheet, animated: true)
+    }
+
+    private func shareAsPDF() {
         let image = viewModel.data.context.uiImage
 
         guard let pdf = PDFManager.generatePDF(
@@ -99,6 +133,14 @@ final class CrashDetailViewController: BaseController {
             popover.permittedArrowDirections = .up
         }
         present(activity, animated: true, completion: nil)
+    }
+
+    private func copyCrashText() {
+        UIPasteboard.general.string = viewModel.getAllValues()
+        showAlert(
+            with: "crash.copied.description".localized(),
+            title: "crash.copied.title".localized()
+        )
     }
 }
 

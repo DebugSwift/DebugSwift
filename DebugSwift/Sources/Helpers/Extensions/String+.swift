@@ -35,4 +35,9 @@ extension String {
         let padding = String(repeating: withPad, count: toLength - count)
         return padding + self
     }
+
+    /// Returns a localized string from the DebugSwift resource bundle.
+    func localized(comment: String = "") -> String {
+        NSLocalizedString(self, bundle: .module, comment: comment)
+    }
 }

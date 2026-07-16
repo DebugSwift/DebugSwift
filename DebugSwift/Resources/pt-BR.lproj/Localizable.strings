@@ -87,6 +87,10 @@
 "copy" = "Copiar";
 "close" = "Fechar";
 "share" = "Compartilhar";
+"share-as-pdf" = "Compartilhar como PDF";
+"copy-text" = "Copiar Texto";
+"crash.copied.title" = "Copiado!";
+"crash.copied.description" = "Relatório de falha copiado para a área de transferência.";
 
 // MARK: - Reachability
 
