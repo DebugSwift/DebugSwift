@@ -2,20 +2,22 @@
 //  HARExportAdapter.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (HAR Export) on 16/07/26.
 //
 
 import Foundation
 import UIKit
 
-// MARK: - #3 HAR / cURL Export — UIKit integration
+// MARK: - HAR 1.2 / cURL Export — UIKit integration
 
 /// Bridges the UIKit-bound `HttpModel` into the pure `HARCapture` shape and
 /// drives sharing/export through `FileSharingManager`.
 enum HARExportAdapter {
 
-    /// Convert one `HttpModel` into a `HARCapture`. Sensitive headers are
-    /// redacted when `redact` is true.
+    /// Convert one `HttpModel` into a `HARCapture`. The UIKit-bound `HttpModel` can't
+    /// cross into the pure encoder, so this mapping is the seam that keeps the
+    /// encoder UIKit-free and macOS-testable. Redaction is on by default to avoid
+    /// leaking credentials into exports.
     static func capture(from model: HttpModel, redact: Bool = true) -> HARCapture {
         let request = HARRequest(
             method: model.method ?? "GET",
@@ -40,14 +42,15 @@ enum HARExportAdapter {
         )
     }
 
-    /// Export the selected models as a HAR 1.2 JSON file and present the share sheet.
+    /// Export the models as a HAR 1.2 JSON file and present the share sheet,
+    /// letting a developer move a capture off-device for inspection in DevTools.
     static func exportHAR(_ models: [HttpModel]) {
         let captures = models.map { capture(from: $0) }
         guard let json = HAREncoder.encodeJSON(captures) else { return }
         FileSharingManager.generateFileAndShare(text: json, fileName: "debugswift-export.har")
     }
-
-    /// Copy a cURL command for a single model to the pasteboard.
+    /// Copy a cURL command for a single model to the pasteboard so the request
+    /// can be replayed in a terminal without retyping headers and body.
     static func copyCURL(_ model: HttpModel) {
         let capture = capture(from: model)
         UIPasteboard.general.string = HAREncoder.curlCommand(for: capture)

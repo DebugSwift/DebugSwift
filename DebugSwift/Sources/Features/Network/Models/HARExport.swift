@@ -2,15 +2,15 @@
 //  HARExport.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (HAR Export) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #3 HAR / cURL Export (Foundation-only core)
+// MARK: - HAR 1.2 / cURL Export
 
-/// A captured HTTP request/response pair, in a UIKit-agnostic shape so the
-/// encoder logic is fully testable without a simulator.
+/// A captured HTTP request/response pair, kept in a UIKit-agnostic shape so the
+/// encoder stays fully testable on macOS without booting a simulator or host app.
 public struct HARRequest: Equatable {
     public let method: String
     public let url: String
@@ -52,14 +52,18 @@ public struct HARCapture: Equatable {
 }
 
 /// Pure encoder: `[HARCapture]` → HAR 1.2 dictionary, cURL command string,
-/// and header redaction. No UIKit, no URLSession — fully testable on macOS.
+/// and header redaction. Kept free of UIKit and URLSession so the export logic
+/// can be unit-tested on macOS without a host app or simulator.
 public enum HAREncoder {
-    /// Header keys whose values are redacted by default.
+    /// Credentials leaked into a shared HAR or cURL export are an active threat,
+    /// so these header keys are masked by default to avoid shipping tokens.
     public static let defaultRedactedKeys: Set<String> = [
         "Authorization", "Cookie", "Set-Cookie"
     ]
 
-    /// Encode one or more captures into a HAR 1.2 JSON dictionary.
+    /// Encode captures into a HAR 1.2 dictionary — the 1.2 schema is the lingua
+    /// franca of network tooling, so the output imports into Chrome DevTools,
+    /// Charles and Proxyman without conversion.
     public static func encode(_ captures: [HARCapture]) -> [String: Any] {
         let entries = captures.map { capture -> [String: Any] in
             [
@@ -102,7 +106,8 @@ public enum HAREncoder {
         ]
     }
 
-    /// Produce a pretty-printed HAR JSON string for a set of captures.
+    /// Serialize the HAR dictionary to a JSON string; pretty-printing by default
+    /// keeps exported files human-readable and diff-friendly for debugging.
     public static func encodeJSON(_ captures: [HARCapture], pretty: Bool = true) -> String? {
         let dict = encode(captures)
         guard let data = try? JSONSerialization.data(withJSONObject: dict, options: pretty ? [.prettyPrinted, .sortedKeys] : []) else {
@@ -110,8 +115,8 @@ public enum HAREncoder {
         }
         return String(data: data, encoding: .utf8)
     }
-
-    /// Build a cURL command string reproducing a capture's request.
+    /// Build a cURL command that reproduces the capture's request, so a developer
+    /// can paste it into a terminal and replay the exact call outside the app.
     public static func curlCommand(for capture: HARCapture) -> String {
         var parts = ["curl", "-X", capture.request.method, "'\(capture.request.url)'"]
         for (key, value) in capture.request.headers {
@@ -123,7 +128,8 @@ public enum HAREncoder {
         return parts.joined(separator: " ")
     }
 
-    /// Return a copy of `headers` with sensitive values replaced by `<redacted>`.
+    /// Replace sensitive header values with `<redacted>` so that exported HAR/cURL
+    /// artifacts can be shared without leaking credentials by accident.
     public static func redactHeaders(
         _ headers: [String: String],
         keys: Set<String> = HAREncoder.defaultRedactedKeys
