@@ -12,7 +12,7 @@ import UIKit
 
 /// UIKit/Dispatch adapter that drives the pure `HangDetector` with a
 /// background `DispatchSource.timer` watchdog and a main-thread heartbeat.
-final class HangDetectorRunner {
+final class HangDetectorRunner: @unchecked Sendable {
 
     static let shared = HangDetectorRunner()
 
