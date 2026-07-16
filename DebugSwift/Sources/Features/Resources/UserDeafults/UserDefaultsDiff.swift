@@ -2,12 +2,12 @@
 //  UserDefaultsDiff.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Defaults Diff) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #16 UserDefaults Diff & Undo (pure core)
+// MARK: - UserDefaults Diff & Undo
 
 /// An abstraction over `UserDefaults` so the diff logic can be tested with an
 /// in-memory dictionary stand-in. `UserDefaults.standard` conforms via an

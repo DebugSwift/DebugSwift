@@ -2,12 +2,12 @@
 //  UserDefaultsDiffAdapter.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Defaults Diff) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #16 UserDefaults Diff & Undo — UserDefaults adapter
+// MARK: - UserDefaults Diff & Undo
 
 /// `UserDefaults.standard` conformance to `DefaultsStore`, enabling the pure
 /// `UserDefaultsDiff` to operate against the real store.
