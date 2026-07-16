@@ -11,7 +11,7 @@ import Foundation
 
 /// A hang event reported by `HangDetector` when the main thread stops
 /// heartbeating within the configured threshold (after the grace period).
-public struct HangEvent: Equatable {
+public struct HangEvent: Equatable, Sendable {
     public let timestamp: Date
     public let duration: Double
     public let backtrace: [String]
