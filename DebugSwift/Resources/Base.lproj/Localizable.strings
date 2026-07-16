@@ -88,6 +88,10 @@
 "copy" = "Copy";
 "close" = "Close";
 "share" = "Share";
+"share-as-pdf" = "Share as PDF";
+"copy-text" = "Copy Text";
+"crash.copied.title" = "Copied!";
+"crash.copied.description" = "Crash report copied to clipboard.";
 
 // MARK: - Reachability
 
