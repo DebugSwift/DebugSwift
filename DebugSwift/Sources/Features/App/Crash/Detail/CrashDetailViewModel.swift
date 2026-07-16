@@ -11,9 +11,20 @@ import UIKit
 final class CrashDetailViewModel: NSObject {
     private(set) var data: CrashModel
 
+    /// Symbolicated descriptions for each trace, populated only when a symbol
+    /// table is loaded. `nil` means raw traces should be shown as-is.
+    private(set) var symbolicatedTraces: [String]?
+
     init(data: CrashModel) {
         self.data = data
         Debug.print(data.details.name)
+    }
+
+    /// Attempt to resolve raw frame strings into human-readable symbols via
+    /// the shared `SymbolicatorAdapter`. No-op when no symbol table is loaded.
+    func symbolicateTraces() {
+        guard SymbolicatorAdapter.shared.isSymbolTableLoaded else { return }
+        symbolicatedTraces = SymbolicatorAdapter.shared.symbolicate(traces: data.traces)
     }
 
     // MARK: - ViewModel
@@ -96,6 +107,9 @@ final class CrashDetailViewModel: NSObject {
         case .context:
             return contexts[indexPath.row]
         case .stackTrace:
+            if let symbolicated = symbolicatedTraces {
+                return .init(title: symbolicated[indexPath.row], detail: data.traces[indexPath.row].detail)
+            }
             return data.traces[indexPath.row].info
         default:
             return nil
@@ -109,8 +123,14 @@ final class CrashDetailViewModel: NSObject {
         }
 
         result += "\nStack Trace:\n"
-        for trace in data.traces {
-            result += "\(trace.info)\n"
+        if let symbolicated = symbolicatedTraces {
+            for line in symbolicated {
+                result += "\(line)\n"
+            }
+        } else {
+            for trace in data.traces {
+                result += "\(trace.info)\n"
+            }
         }
 
         return result

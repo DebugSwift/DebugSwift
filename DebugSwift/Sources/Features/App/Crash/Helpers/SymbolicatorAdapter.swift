@@ -2,12 +2,12 @@
 //  SymbolicatorAdapter.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Crash Symbolication) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #20 Crash Symbolication — runtime adapter
+// MARK: - Crash Symbolication — runtime adapter
 
 /// Loads a symbol map JSON (produced by `Scripts/generate_symbol_map.sh` at
 /// build time) and resolves `CrashModel.Trace` titles to `(symbol, file, line)`
@@ -18,8 +18,10 @@ final class SymbolicatorAdapter: @unchecked Sendable {
 
     private var symbolTable: SymbolTable?
 
+    /// Whether a symbol table has been loaded and is available for resolution.
+    var isSymbolTableLoaded: Bool { symbolTable != nil }
+
     private init() {
-        // Shared singleton.
     }
 
     /// Load a symbol map from a JSON file path. No-op if the file is absent.

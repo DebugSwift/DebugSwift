@@ -1,13 +1,13 @@
 //
-//  Symbolicator.swift
+//  SymbolTable.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Crash Symbolication) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #20 Crash Symbolication (pure core)
+// MARK: - Crash Symbolication
 
 /// A resolved symbol for a code address.
 public struct Symbol: Equatable {
