@@ -100,7 +100,7 @@ final class GraphQLInspectorTests: XCTestCase {
         let result = GraphQLInspector.splitResponse(response)
         XCTAssertNotNil(result?.data)
         XCTAssertNotNil(result?.errors)
-        XCTAssertEqual((result?.data as? [String: Any])?["user"] as? [String: Any], ["id": "1"])
+        XCTAssertEqual((result?.data as? [String: Any])?["user"] as? [String: Any], ["id": "1"] as [String: Any])
         XCTAssertFalse((result?.errors as? [[String: Any]])?.isEmpty ?? true)
     }
 
