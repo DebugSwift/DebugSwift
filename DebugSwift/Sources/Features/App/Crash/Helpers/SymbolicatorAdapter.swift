@@ -12,32 +12,37 @@ import Foundation
 /// Loads a symbol map JSON (produced by `Scripts/generate_symbol_map.sh` at
 /// build time) and resolves `CrashModel.Trace` titles to `(symbol, file, line)`
 /// using the pure `SymbolTable`.
-enum SymbolicatorAdapter {
+final class SymbolicatorAdapter: @unchecked Sendable {
 
-    /// The loaded symbol table, or `nil` if no map is present.
-    static var shared: SymbolTable?
+    static let shared = SymbolicatorAdapter()
+
+    private var symbolTable: SymbolTable?
+
+    private init() {
+        // Shared singleton.
+    }
 
     /// Load a symbol map from a JSON file path. No-op if the file is absent.
     @discardableResult
-    static func load(from path: String) -> Bool {
+    func load(from path: String) -> Bool {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
               let json = String(data: data, encoding: .utf8),
               let table = SymbolTable.parse(json: json)
         else { return false }
-        shared = table
+        symbolTable = table
         return true
     }
 
     /// Resolve a single raw frame address to a symbol.
-    static func symbolicate(address: UInt64) -> Symbol? {
-        shared.flatMap { $0.symbolicate(frames: [address]).first?.symbol }
+    func symbolicate(address: UInt64) -> Symbol? {
+        symbolTable.flatMap { $0.symbolicate(frames: [address]).first?.symbol }
     }
 
     /// Resolve a list of `CrashModel.Trace` titles (raw frame strings) to
     /// pretty-printable symbol descriptions.
-    static func symbolicate(traces: [CrashModel.Trace]) -> [String] {
-        let addresses = traces.compactMap { parse(address: $0.title) }
-        guard let table = shared else {
+    func symbolicate(traces: [CrashModel.Trace]) -> [String] {
+        let addresses = traces.compactMap { Self.parse(address: $0.title) }
+        guard let table = symbolTable else {
             return traces.map(\.title)
         }
         let resolved = table.symbolicate(frames: addresses)
