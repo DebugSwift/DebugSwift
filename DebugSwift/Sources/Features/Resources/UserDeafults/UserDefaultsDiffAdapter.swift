@@ -32,7 +32,7 @@ extension UserDefaults: DefaultsStore {
 
 /// Convenience wrapper that snapshots `UserDefaults.standard` at launch and
 /// exposes diff/undo for the Resources tab.
-enum UserDefaultsDiffAdapter {
+final class UserDefaultsDiffAdapter: @unchecked Sendable {
 
     static let shared = UserDefaultsDiffAdapter()
 
