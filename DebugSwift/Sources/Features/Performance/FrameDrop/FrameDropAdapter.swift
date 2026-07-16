@@ -12,7 +12,7 @@ import QuartzCore
 
 /// UIKit/QuartzCore adapter that feeds `FrameDropTimeline` from a
 /// `CADisplayLink`-based FPS sampler.
-final class FrameDropAdapter {
+final class FrameDropAdapter: @unchecked Sendable {
 
     static let shared = FrameDropAdapter()
 
