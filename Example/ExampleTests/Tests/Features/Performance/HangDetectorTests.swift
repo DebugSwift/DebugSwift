@@ -60,7 +60,7 @@ final class HangDetectorTests: XCTestCase {
         detector.watchdogTick(now: date(15))
 
         XCTAssertNotNil(receivedEvent)
-        XCTAssertEqual(receivedEvent?.duration, 15.0, accuracy: 0.001)
+        XCTAssertEqual(receivedEvent?.duration ?? 0, 15.0, accuracy: 0.001)
     }
 
     func testNoHang_whenHeartbeatRecent() {
