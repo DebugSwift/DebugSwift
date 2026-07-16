@@ -35,6 +35,15 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         }
     }
 
+    private var isFrameDropMonitoringEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "debugswift.framedrop.monitoringEnabled") }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "debugswift.framedrop.monitoringEnabled")
+            if newValue { FrameDropAdapter.shared.start() } else { FrameDropAdapter.shared.stop() }
+            tableView.reloadData()
+        }
+    }
+
     enum Identifier: String {
         case value = "ValueTableViewCell"
         case leak = "LeakTableViewCell"
@@ -59,6 +68,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case batteryToggle
         case batteryStatus
         case batteryHistory
+        case frameDrops
     }
 
     // MARK: - UIViewController Lifecycle
@@ -75,6 +85,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         diskAnalyzer.measure()
         if isDiskMonitoringEnabled { ioMonitor.start() }
         if isBatteryMonitoringEnabled { batteryMonitor.start() }
+        if isFrameDropMonitoringEnabled { FrameDropAdapter.shared.start() }
     }
 
     // MARK: - Setup Methods
@@ -135,6 +146,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return isBatteryMonitoringEnabled && batteryMonitor.isAvailable ? 3 : 0
         case .batteryHistory:
             return isBatteryMonitoringEnabled ? 1 : 0
+        case .frameDrops:
+            return 1
         }
     }
 
@@ -154,6 +167,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .batteryToggle: return "Battery"
         case .batteryStatus: return nil
         case .batteryHistory: return isBatteryMonitoringEnabled ? "History" : nil
+        case .frameDrops: return "Frame Drops"
         }
     }
 
@@ -183,6 +197,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return batteryStatusCell(at: indexPath.row)
         case .batteryHistory:
             return batteryHistoryCell()
+        case .frameDrops:
+            return frameDropToggleCell()
         }
     }
 
@@ -513,6 +529,19 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         return cell
     }
 
+    // MARK: - Cells: Frame Drops
+
+    private func frameDropToggleCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
+        cell.titleLabel.text = "Frame Drop Recording"
+        cell.valueSwitch.isOn = isFrameDropMonitoringEnabled
+        cell.valueSwitch.tag = 3
+        cell.delegate = self
+        return cell
+    }
+
     // MARK: - Helpers
 
     private func batteryLevelColor(_ level: Float) -> UIColor {
@@ -611,6 +640,7 @@ extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
         case 0: performanceToolkit.isWidgetShown = isOn
         case 1: isDiskMonitoringEnabled = isOn
         case 2: isBatteryMonitoringEnabled = isOn
+        case 3: isFrameDropMonitoringEnabled = isOn
         default: break
         }
     }

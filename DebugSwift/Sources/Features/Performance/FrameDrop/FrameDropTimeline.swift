@@ -2,12 +2,12 @@
 //  FrameDropTimeline.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Frame Drop Timeline) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #8 Frame Drop Timeline (pure core)
+// MARK: - Frame Drop Timeline
 
 /// A single recorded frame-drop event (FPS below the threshold).
 public struct FrameDropEvent: Equatable {

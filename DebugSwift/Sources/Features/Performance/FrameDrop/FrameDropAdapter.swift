@@ -2,13 +2,13 @@
 //  FrameDropAdapter.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Frame Drop Timeline) on 16/07/26.
 //
 
 import Foundation
 import QuartzCore
 
-// MARK: - #8 Frame Drop Timeline — CADisplayLink adapter
+// MARK: - Frame Drop Timeline — CADisplayLink adapter
 
 /// UIKit/QuartzCore adapter that feeds `FrameDropTimeline` from a
 /// `CADisplayLink`-based FPS sampler.
