@@ -2,27 +2,29 @@
 //  GraphQLInspector.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (GraphQL Inspector) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #4 GraphQL Operation Inspector (Foundation-only core)
+// MARK: - GraphQL Operation Inspector
 
-/// The kind of GraphQL operation parsed from a request body.
+/// The operation a captured GraphQL request represents. A single endpoint
+/// serves many operations, so the name is the only way to distinguish
+/// `GetUser` from `UpdateUser` once traffic is multiplexed over one URL.
 public enum GraphQLOperation: Equatable {
     case query(name: String?)
     case mutation(name: String?)
     case subscription(name: String?)
 }
 
-/// Pure GraphQL inspector: parses operation name/type, extracts variables,
-/// and splits a response into `data`/`errors`. Uses only `JSONSerialization`
-/// and `NSRegularExpression` — no UIKit, no network.
+/// Pure, Foundation-only GraphQL parser. Staying off UIKit keeps it testable
+/// and embeddable inside URL-session interceptors and unit tests without
+/// dragging a UI layer into the parse path.
 public enum GraphQLInspector {
 
-    /// Parse the GraphQL operation (type + name) from a request body string.
-    /// Returns `nil` for anonymous or non-GraphQL bodies.
+    /// Surface the operation type and name so the debug UI can label a captured
+    /// request without forcing the developer to read raw JSON.
     public static func extractOperation(from body: String) -> GraphQLOperation? {
         guard let data = body.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -31,8 +33,8 @@ public enum GraphQLInspector {
         return parseOperationName(query)
     }
 
-    /// Extract the `variables` dictionary from a request body. `nil` if absent
-    /// or the body is not valid JSON.
+    /// Pull `variables` out of the body so the actual arguments can be inspected
+    /// separately from the query text they parameterize.
     public static func extractVariables(from body: String) -> [String: Any]? {
         guard let data = body.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -40,8 +42,8 @@ public enum GraphQLInspector {
         return json["variables"] as? [String: Any]
     }
 
-    /// Split a GraphQL response body into its `data` and `errors` components.
-    /// Returns `nil` if the body is not valid JSON.
+    /// Separate `data` from `errors` so success versus failure is obvious at a
+    /// glance instead of buried inside an opaque response blob.
     public static func splitResponse(_ body: String) -> (data: Any?, errors: Any?)? {
         guard let data = body.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -51,6 +53,9 @@ public enum GraphQLInspector {
 
     // MARK: - Private
 
+    /// Reads the operation with a regex instead of a full GraphQL parser: the
+    /// query is a plain string inside JSON, so a lightweight match avoids pulling
+    /// in an AST dependency just to read the leading keyword and name.
     static func parseOperationName(_ query: String) -> GraphQLOperation? {
         let pattern = "(query|mutation|subscription)\\s+(\\w+)"
         guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }

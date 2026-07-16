@@ -2,34 +2,39 @@
 //  GraphQLInspectorAdapter.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (GraphQL Inspector) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #4 GraphQL Operation Inspector — integration helper
+// MARK: - GraphQL Inspector Adapter
 
-/// Bridges `HttpModel` to the pure `GraphQLInspector`, detecting GraphQL
-/// requests and producing a structured view-model for `GraphQLDetailViewController`.
+/// Bridges the captured `HttpModel` to the pure `GraphQLInspector` so the
+/// UI layer never touches JSON parsing directly.
 struct GraphQLDetail {
 
-    /// Detected operation (query/mutation/subscription + name), or `nil`.
+    /// Detected operation, shown as the headline row so a developer can identify
+    /// the call at a glance.
     let operation: GraphQLOperation?
 
-    /// Parsed `variables` dictionary, or `nil`.
+    /// Variables sent alongside the query, exposed so the actual arguments can
+    /// be inspected without re-parsing the body.
     let variables: [String: Any]?
 
-    /// Split response `(data, errors)`, or `nil`.
+    /// Response split into `data`/`errors` so success versus failure is visible
+    /// without scanning the raw payload.
     let response: (data: Any?, errors: Any?)?
 
-    /// Pretty-printed query string, or `nil` if the request is not GraphQL.
+    /// Pretty-printed query text, offered for copy/share so the exact operation
+    /// can be reused outside the debugger.
     let query: String?
 }
 
 enum GraphQLInspectorAdapter {
 
-    /// Detect whether an `HttpModel` is a GraphQL request: POST with
-    /// `content-type: application/json` and a body containing a `query` field.
+    /// Detects GraphQL traffic so the detail UI can show an operation summary only
+    /// for GraphQL POSTs — JSON body with a `query` field — and leave REST captures
+    /// on their existing layout.
     static func isGraphQL(_ model: HttpModel) -> Bool {
         guard model.method?.uppercased() == "POST" else { return false }
         guard let headers = model.requestHeaderFields else { return false }
@@ -41,7 +46,8 @@ enum GraphQLInspectorAdapter {
             && requestBodyQuery(model) != nil
     }
 
-    /// Build a `GraphQLDetail` from a captured request/response pair.
+    /// Builds the full view-model in one call so the detail controller doesn't
+    /// repeat parsing across multiple rows.
     static func detail(for model: HttpModel) -> GraphQLDetail {
         let body = requestBodyString(model)
         let operation = body.flatMap { GraphQLInspector.extractOperation(from: $0) }
