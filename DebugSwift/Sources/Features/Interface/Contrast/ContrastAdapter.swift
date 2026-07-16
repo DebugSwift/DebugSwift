@@ -2,12 +2,12 @@
 //  ContrastAdapter.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Contrast Checker) on 16/07/26.
 //
 
 import UIKit
 
-// MARK: - #10 Color Contrast Checker — UIKit adapter
+// MARK: - Color Contrast Checker
 
 /// UIKit adapter bridging `UIColor` ↔ normalized RGB tuples for
 /// `ContrastChecker`, and rendering a human-readable result.

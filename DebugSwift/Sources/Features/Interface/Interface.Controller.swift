@@ -98,7 +98,7 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
         let title = feature.title ?? ""
 
         switch Features.allCasesWithPermissions[indexPath.row] {
-        case .grid, .swiftUIRenderSettings, .docRecorder:
+        case .grid, .swiftUIRenderSettings, .docRecorder, .contrastChecker:
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
             cell.setup(title: title)
             return cell
@@ -124,6 +124,8 @@ extension InterfaceViewController: UITableViewDataSource, UITableViewDelegate {
             controller = InterfaceSwiftUIRenderController()
         case .docRecorder:
             controller = DocRecorderPanelController()
+        case .contrastChecker:
+            controller = ContrastCheckerViewController()
         default:
             break
         }
@@ -185,7 +187,7 @@ extension InterfaceViewController {
         case darkMode
         case measurement
         case swiftUIRenderSettings
-        case docRecorder
+        case contrastChecker
 
         var title: String? {
             switch self {
@@ -205,6 +207,8 @@ extension InterfaceViewController {
                 return "SwiftUI render tracking"
             case .docRecorder:
                 return "Documentation Recorder"
+            case .contrastChecker:
+                return "Color Contrast"
             }
         }
 

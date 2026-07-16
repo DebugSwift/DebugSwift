@@ -2,12 +2,12 @@
 //  ContrastChecker.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Contrast Checker) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #10 Color Contrast Checker (pure WCAG math)
+// MARK: - Color Contrast Checker
 
 /// WCAG 2.x contrast grade for a foreground/background pair.
 public enum ContrastGrade: String {
