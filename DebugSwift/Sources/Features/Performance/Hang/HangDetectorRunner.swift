@@ -2,16 +2,20 @@
 //  HangDetectorRunner.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (ANR Detection) on 16/07/26.
 //
 
 import Foundation
 import UIKit
 
-// MARK: - #5 Hangs / ANR Detection — DispatchSource adapter
+// MARK: - Hangs / ANR Detection — DispatchSource adapter
 
-/// UIKit/Dispatch adapter that drives the pure `HangDetector` with a
-/// background `DispatchSource.timer` watchdog and a main-thread heartbeat.
+/// UIKit/Dispatch adapter that drives the pure `HangDetector`.
+///
+/// A background `DispatchSource.timer` acts as the watchdog that checks for
+/// main-thread stalls, while a fast main-queue timer supplies the heartbeat
+/// the detector compares against. Keeping the I/O here leaves the detection
+/// logic in `HangDetector` fully testable.
 final class HangDetectorRunner: @unchecked Sendable {
 
     static let shared = HangDetectorRunner()
@@ -22,21 +26,23 @@ final class HangDetectorRunner: @unchecked Sendable {
     private let queue = DispatchQueue(label: "debugswift.hang-detector")
 
     private init() {
-        // Shared singleton.
+        // Singleton — no external instances; `shared` is the only entry point.
     }
 
-    /// Recorded hang events, capped to avoid unbounded growth.
+    /// Recorded hang events, capped to avoid unbounded growth in long-running
+    /// debug sessions.
     private(set) var events: [HangEvent] = []
     private let maxEvents = 500
 
-    /// Begin monitoring. Hangs are reported to `onHang`.
+    /// Begin monitoring. Hangs are reported through the `onHang` callback.
     func start() {
         detector.onHang { [weak self] event in
             self?.record(event)
         }
         detector.start()
 
-        // Watchdog: tick on a background queue every `threshold` seconds.
+        // Watchdog: tick on a background queue every `threshold` seconds so
+        // the main thread gets a chance to stall before we sample it.
         let timer = DispatchSource.makeTimerSource(queue: queue)
         timer.schedule(deadline: .now(), repeating: detector.threshold)
         timer.setEventHandler { [weak self] in
@@ -45,7 +51,8 @@ final class HangDetectorRunner: @unchecked Sendable {
         timer.activate()
         self.timer = timer
 
-        // Heartbeat: ping from the main thread at a fast interval.
+        // Heartbeat: ping from the main thread at a faster interval than the
+        // threshold so a healthy main thread always refreshes `lastPing`.
         let heartbeat = DispatchSource.makeTimerSource(queue: .main)
         heartbeat.schedule(deadline: .now(), repeating: 0.05)
         heartbeat.setEventHandler { [weak self] in
@@ -54,6 +61,7 @@ final class HangDetectorRunner: @unchecked Sendable {
         heartbeat.activate()
         self.heartbeatTimer = heartbeat
     }
+
 
     /// Stop monitoring and tear down timers.
     func stop() {

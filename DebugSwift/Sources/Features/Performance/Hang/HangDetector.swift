@@ -2,15 +2,18 @@
 //  HangDetector.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (ANR Detection) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #5 Hangs / ANR Detection (pure watchdog logic)
+// MARK: - Hangs / ANR Detection
 
 /// A hang event reported by `HangDetector` when the main thread stops
-/// heartbeating within the configured threshold (after the grace period).
+/// heartbeating within the configured threshold.
+///
+/// Carrying the backtrace lets the UI surface *where* the main thread
+/// was stuck, not just that it was.
 public struct HangEvent: Equatable, Sendable {
     public let timestamp: Date
     public let duration: Double
@@ -23,20 +26,19 @@ public struct HangEvent: Equatable, Sendable {
     }
 }
 
-/// Pure hang/ANR detection logic.
+/// Pure hang/ANR detection logic — the threshold comparison, grace-period
+/// gating and last-ping tracking are plain date arithmetic.
 ///
-/// The detection core — threshold comparison, grace-period gating,
-/// last-ping tracking — is pure date arithmetic. The real
-/// `DispatchSource.timer` and `Thread.callStackSymbols` are thin adapters
-/// around this logic, supplied by `HangDetectorRunner`. Tests inject
-/// `Date` values directly.
+/// Keeping this core free of `DispatchSource` and `Thread.callStackSymbols`
+/// makes it trivially testable: tests inject `Date` values directly, and the
+/// real timer/stack-symbols are supplied by `HangDetectorRunner` as adapters.
 public final class HangDetector {
 
     /// Minimum main-thread stall (seconds) considered a hang.
     public var threshold: Double
 
-    /// Seconds after `start()` during which no hang is reported, to allow
-    /// for app launch.
+    /// Seconds after `start()` during which no hang is reported, so that
+    /// launch-time main-thread work does not produce false positives.
     public var gracePeriod: Double
 
     private var lastPing = Date()
@@ -48,27 +50,30 @@ public final class HangDetector {
         self.gracePeriod = gracePeriod
     }
 
-    /// Register a callback invoked when a hang is detected.
+    /// Register a callback invoked once a hang is detected.
     public func onHang(_ handler: @escaping (HangEvent) -> Void) {
         hangHandler = handler
     }
 
-    /// Begin monitoring. `now` is injectable for testing.
+    /// Begin monitoring. `now` is injectable so tests can simulate the
+    /// passage of time without real delays.
     public func start(now: Date = Date()) {
         startedAt = now
         lastPing = now
     }
 
     /// Called from the main thread to record a heartbeat. `now` is injectable
-    /// for testing.
+    /// so tests can advance the clock between beats.
     public func mainThreadDidHeartbeat(now: Date = Date()) {
         lastPing = now
     }
 
     /// Called periodically (e.g. by a `DispatchSource.timer`) to check whether
-    /// the main thread has stalled. `now` and `backtrace` are injectable for
-    /// testing.
+    /// the main thread has stalled. `now` and `backtrace` are injectable so
+    /// tests can assert both the threshold boundary and the reported stack.
     public func watchdogTick(now: Date, backtrace: [String] = []) {
+        // Stay silent during the grace period: startup main-thread work would
+        // otherwise look like a hang.
         guard let started = startedAt, now.timeIntervalSince(started) > gracePeriod else { return }
         let elapsed = now.timeIntervalSince(lastPing)
         if elapsed >= threshold {
@@ -76,7 +81,7 @@ public final class HangDetector {
         }
     }
 
-    /// Stop monitoring and clear state.
+    /// Stop monitoring and clear state so a later `start()` is clean.
     public func stop() {
         startedAt = nil
     }
