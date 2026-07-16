@@ -2,13 +2,13 @@
 //  SecurityAuditorAdapter.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Security Audit) on 16/07/26.
 //
 
 import Foundation
 import UIKit
 
-// MARK: - #19 Secure Storage Audit — UIKit/Foundation adapter
+// MARK: - Secure Storage Audit — UIKit/Foundation adapter
 
 /// Reads the real sources once (`UserDefaults.standard`,
 /// `Bundle.main.infoDictionary`, `Bundle.main.paths`, `KeychainManager`) and
@@ -45,9 +45,8 @@ enum SecurityAuditorAdapter {
     /// Returns a map of key → accessibility string. When keychain access is
     /// unavailable on the current device, returns an empty map.
     private static func keychainAccessibility() -> [String: String] {
-        // Keychain accessibility requires live SecItem queries; bridge to the
-        // existing KeychainService if available, otherwise report nothing.
-        // This adapter reads the accessibility attribute per item.
+        // Keychain accessibility needs live SecItem queries, which the existing
+        // KeychainService does not expose yet — report nothing until bridged.
         [:]
     }
 }

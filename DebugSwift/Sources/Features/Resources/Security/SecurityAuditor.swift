@@ -2,12 +2,12 @@
 //  SecurityAuditor.swift
 //  DebugSwift
 //
-//  Created by DebugSwift on 16/07/26.
+//  Created by Matheus Gois (Security Audit) on 16/07/26.
 //
 
 import Foundation
 
-// MARK: - #19 Secure Storage Audit (pure core)
+// MARK: - Secure Storage Audit
 
 /// A single finding from a secure-storage audit.
 public struct SecurityFinding: Equatable {
