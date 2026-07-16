@@ -108,19 +108,17 @@ extension UserDefaultsDiffViewController {
     }
 
     private func configure(_ cell: UITableViewCell, with change: DefaultsChange) {
-        var content = cell.defaultContentConfiguration()
-        content.text = change.key
-        content.textProperties.font = .systemFont(ofSize: 15, weight: .medium)
-        content.textProperties.color = .white
+        cell.textLabel?.text = change.key
+        cell.textLabel?.font = .systemFont(ofSize: 15, weight: .medium)
+        cell.textLabel?.textColor = .white
 
         let oldValue = change.oldValue.map { "\($0)" } ?? "—"
         let newValue = change.newValue.map { "\($0)" } ?? "—"
-        content.secondaryText = "\(change.kind.title) · old: \(oldValue) → new: \(newValue)"
-        content.secondaryTextProperties.color = .lightGray
-        content.secondaryTextProperties.font = .systemFont(ofSize: 13)
-        content.secondaryTextProperties.numberOfLines = 2
+        cell.detailTextLabel?.text = "\(change.kind.title) · old: \(oldValue) → new: \(newValue)"
+        cell.detailTextLabel?.textColor = .lightGray
+        cell.detailTextLabel?.font = .systemFont(ofSize: 13)
+        cell.detailTextLabel?.numberOfLines = 2
 
-        cell.contentConfiguration = content
         cell.backgroundColor = .black
         cell.accessoryType = .none
         cell.imageView?.image = UIImage(systemName: change.kind.icon)
