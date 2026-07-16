@@ -72,7 +72,8 @@ extension SecurityAuditViewController {
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        groupedFindings[Section(rawValue: section)]?.count ?? 0
+        let bucket = Section(rawValue: section) ?? .info
+        return groupedFindings[bucket]?.count ?? 0
     }
 
     override func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
