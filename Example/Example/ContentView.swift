@@ -97,6 +97,19 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
+                if #available(iOS 15.0, *) {
+                    NavigationLink(destination: SecurityAuditTestView()) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Security Audit Test")
+                                .font(.headline)
+                            Text("Seed sensitive UserDefaults to test the security audit panel")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+
                 NavigationLink(destination: WebViewTestView()) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Google WebView")

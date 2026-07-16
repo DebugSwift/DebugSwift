@@ -231,4 +231,80 @@ final class SecurityAuditorTests: XCTestCase {
             XCTAssertFalse(finding.key.isEmpty, "Findings should have non-empty keys")
         }
     }
+
+    // MARK: - Integration: seeded sensitive UserDefaults
+
+    func testAdapter_detectsSeededSensitiveUserDefaults() {
+        let testKeys = ["test_api_key", "test_secret_token", "test_password"]
+        // Seed sensitive values.
+        for key in testKeys {
+            UserDefaults.standard.set("sensitive-value-\(key)", forKey: key)
+        }
+        defer {
+            for key in testKeys {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
+        }
+
+        let findings = SecurityAuditorAdapter.audit()
+        let udFindings = findings.filter { $0.source == .userDefaults }
+        let detectedKeys = Set(udFindings.map { $0.key })
+
+        for key in testKeys {
+            XCTAssertTrue(
+                detectedKeys.contains(key),
+                "Expected '\(key)' to be flagged as a sensitive UserDefaults key"
+            )
+        }
+    }
+
+    func testAdapter_noFindingsAfterRemovingSeededData() {
+        let testKeys = ["test_api_key", "test_secret_token", "test_password"]
+        // Seed then immediately remove.
+        for key in testKeys {
+            UserDefaults.standard.set("sensitive-value-\(key)", forKey: key)
+        }
+        for key in testKeys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+
+        let findings = SecurityAuditorAdapter.audit()
+        let udFindings = findings.filter { $0.source == .userDefaults }
+        let detectedKeys = Set(udFindings.map { $0.key })
+
+        for key in testKeys {
+            XCTAssertFalse(
+                detectedKeys.contains(key),
+                "Removed key '\(key)' should not appear in findings"
+            )
+        }
+    }
+
+    func testAdapter_multipleSensitivePatterns_detected() {
+        let testCases: [(String, String)] = [
+            ("my_apikey", "abc"),
+            ("oauth_token", "xyz"),
+            ("user_secret", "pass"),
+            ("admin_password", "123")
+        ]
+        for (key, value) in testCases {
+            UserDefaults.standard.set(value, forKey: key)
+        }
+        defer {
+            for (key, _) in testCases {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
+        }
+
+        let findings = SecurityAuditorAdapter.audit()
+        let udFindings = findings.filter { $0.source == .userDefaults }
+        let detectedKeys = Set(udFindings.map { $0.key })
+
+        for (key, _) in testCases {
+            XCTAssertTrue(
+                detectedKeys.contains(key),
+                "Expected '\(key)' to be flagged — it matches a sensitive pattern"
+            )
+        }
+    }
 }
