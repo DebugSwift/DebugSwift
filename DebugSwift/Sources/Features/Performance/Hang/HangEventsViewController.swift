@@ -176,6 +176,48 @@ final class HangDetailViewController: BaseTableController {
         title = "Hang · \(String(format: "%.2f", event.duration))s"
         tableView.backgroundColor = .black
         view.backgroundColor = .black
+        setupNavigationBar()
+    }
+
+    private func setupNavigationBar() {
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(
+                image: UIImage(systemName: "doc.on.doc"),
+                style: .plain,
+                target: self,
+                action: #selector(handleCopy)
+            ),
+            UIBarButtonItem(
+                barButtonSystemItem: .action,
+                target: self,
+                action: #selector(handleShare)
+            )
+        ]
+    }
+
+    private func reportText() -> String {
+        let header = "Hang · \(String(format: "%.2f", event.duration))s · "
+            + event.timestamp.formatted()
+        let frames = event.backtrace.enumerated()
+            .map { idx, frame in "\(idx): \(frame)" }
+            .joined(separator: "\n")
+        return "\(header)\n\n\(frames)"
+    }
+
+    @objc private func handleCopy() {
+        UIPasteboard.general.string = reportText()
+        let toast = UIAlertController(title: nil, message: "Backtrace copied", preferredStyle: .alert)
+        present(toast, animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            toast.dismiss(animated: true)
+        }
+    }
+
+    @objc private func handleShare() {
+        FileSharingManager.generateFileAndShare(
+            text: reportText(),
+            fileName: "hang_backtrace"
+        )
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
