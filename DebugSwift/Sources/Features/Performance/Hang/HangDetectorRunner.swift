@@ -81,4 +81,11 @@ final class HangDetectorRunner: @unchecked Sendable {
             }
         }
     }
+
+    /// Clear all recorded hang events.
+    func clearEvents() {
+        DispatchQueue.main.async { [weak self] in
+            self?.events.removeAll()
+        }
+    }
 }

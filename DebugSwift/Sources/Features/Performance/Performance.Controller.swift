@@ -48,6 +48,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case value = "ValueTableViewCell"
         case leak = "LeakTableViewCell"
         case memoryWarning = "MemoryWarningTableViewCell"
+        case hangEvents = "HangEventsRowCell"
 
         init?(rawValue: String?) {
             guard let rawValue else { return nil }
@@ -147,7 +148,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .batteryHistory:
             return isBatteryMonitoringEnabled ? 1 : 0
         case .hangDetection:
-            return 1
+            // 0: toggle · 1: "View Hangs" disclosure
+            return isHangDetectionEnabled ? 2 : 1
         }
     }
 
@@ -168,6 +170,17 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .batteryStatus: return nil
         case .batteryHistory: return isBatteryMonitoringEnabled ? "History" : nil
         case .hangDetection: return "Hang Detection"
+        }
+    }
+
+    override func tableView(_: UITableView, titleForFooterInSection section: Int) -> String? {
+        switch Section(rawValue: section)! {
+        case .hangDetection:
+            return isHangDetectionEnabled
+                ? "Fires when the main thread stalls ≥ 0.25s. Tap View Hangs to inspect events."
+                : "Enable to detect main-thread hangs (ANR) and capture their backtraces."
+        default:
+            return nil
         }
     }
 
@@ -198,7 +211,11 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .batteryHistory:
             return batteryHistoryCell()
         case .hangDetection:
-            return hangToggleCell()
+            switch indexPath.row {
+            case 0: return hangToggleCell()
+            case 1: return hangEventsRowCell()
+            default: return UITableViewCell()
+            }
         }
     }
 
@@ -230,6 +247,10 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
                 let threadCheckerController = PerformanceThreadCheckerViewController()
                 navigationController?.pushViewController(threadCheckerController, animated: true)
             }
+        case .hangEvents:
+            let controller = HangEventsViewController()
+            navigationController?.pushViewController(controller, animated: true)
+            break
         default:
             break
         }
@@ -474,6 +495,16 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         cell.valueSwitch.isOn = isHangDetectionEnabled
         cell.valueSwitch.tag = 3
         cell.delegate = self
+        return cell
+    }
+
+    private func hangEventsRowCell() -> UITableViewCell {
+        let cell = reuseCell(for: .hangEvents)
+        let events = HangDetectorRunner.shared.events
+        cell.setup(
+            title: "View Hangs",
+            description: events.isEmpty ? "No hangs yet" : "\(events.count) hang\(events.count == 1 ? "" : "s")"
+        )
         return cell
     }
 
