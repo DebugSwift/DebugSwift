@@ -74,7 +74,7 @@ struct GraphQLDemoView: View {
                     Text("Response")
                         .font(.headline)
                     Text(responseText)
-                        .font(.system(.body, design: .monospaced))
+                        .font(.body)
                         .padding(8)
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(8)
