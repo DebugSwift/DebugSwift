@@ -62,7 +62,6 @@ final class UserDefaultsDiffViewController: BaseTableController {
     }
 
     private func setupTable() {
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: .cell)
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
     }
@@ -101,7 +100,7 @@ extension UserDefaultsDiffViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "DiffCell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "DiffCell")
         let change = changes[indexPath.row]
         configure(cell, with: change)
         return cell
@@ -120,7 +119,7 @@ extension UserDefaultsDiffViewController {
         cell.detailTextLabel?.numberOfLines = 2
 
         cell.backgroundColor = .black
-        cell.accessoryType = .none
+        cell.accessoryType = .disclosureIndicator
         cell.imageView?.image = UIImage(systemName: change.kind.icon)
         cell.imageView?.tintColor = change.kind.color
     }
@@ -129,6 +128,18 @@ extension UserDefaultsDiffViewController {
 // MARK: - UITableViewDelegate
 
 extension UserDefaultsDiffViewController {
+    override func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let change = changes[indexPath.row]
+        navigationController?.pushViewController(
+            UserDefaultsDiffDetailViewController(change: change),
+            animated: true
+        )
+    }
+
     override func tableView(
         _ tableView: UITableView,
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
@@ -140,6 +151,86 @@ extension UserDefaultsDiffViewController {
         undoAction.image = UIImage(systemName: "arrow.uturn.backward")
         undoAction.backgroundColor = .systemOrange
         return UISwipeActionsConfiguration(actions: [undoAction])
+    }
+
+    override func tableView(
+        _: UITableView,
+        titleForHeaderInSection _: Int
+    ) -> String? {
+        "Defaults Diff"
+    }
+
+    override func tableView(
+        _: UITableView,
+        titleForFooterInSection _: Int
+    ) -> String? {
+        "Snapshots the current UserDefaults state and detects added, modified, or removed keys. Tap a row to see old and new values. Swipe left to undo a change."
+    }
+}
+
+// MARK: - Diff Detail View Controller
+
+final class UserDefaultsDiffDetailViewController: BaseTableController {
+
+    private let change: DefaultsChange
+
+    init(change: DefaultsChange) {
+        self.change = change
+        super.init(style: .grouped)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = change.key
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: .cell)
+    }
+
+    private enum Section: Int, CaseIterable {
+        case oldValue
+        case newValue
+
+        var header: String {
+            switch self {
+            case .oldValue: "Old Value"
+            case .newValue: "New Value"
+            }
+        }
+    }
+
+    override func numberOfSections(in _: UITableView) -> Int {
+        Section.allCases.count
+    }
+
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        1
+    }
+
+    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        Section(rawValue: section)?.header
+    }
+
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: .cell, for: indexPath)
+        let section = Section(rawValue: indexPath.section)
+        cell.backgroundColor = .black
+        cell.textLabel?.numberOfLines = 0
+        cell.textLabel?.textColor = .white
+        cell.textLabel?.font = .systemFont(ofSize: 15)
+
+        switch section {
+        case .oldValue:
+            cell.textLabel?.text = change.oldValue.map { String(describing: $0) } ?? "—"
+        case .newValue:
+            cell.textLabel?.text = change.newValue.map { String(describing: $0) } ?? "—"
+        case .none:
+            cell.textLabel?.text = "—"
+        }
+        return cell
     }
 }
 

@@ -12,7 +12,6 @@ final class ResourcesViewController: BaseController, MainFeatureType {
     private enum Item: CaseIterable {
         case fileManager
         case userDefaults
-        case userDefaultsDiff
         case keychain
         case persistentData
         case coreData
@@ -26,8 +25,6 @@ final class ResourcesViewController: BaseController, MainFeatureType {
                 "Files"
             case .userDefaults:
                 "User Defaults"
-            case .userDefaultsDiff:
-                "Defaults Diff"
             case .keychain:
                 "Keychain"
             case .persistentData:
@@ -58,7 +55,7 @@ final class ResourcesViewController: BaseController, MainFeatureType {
     private let items: [Item] = [
         .fileManager,
         .userDefaults,
-        .userDefaultsDiff,
+        .keychain,
         .persistentData,
         .httpCookies,
         .coreData,
@@ -132,9 +129,9 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             controller = ResourcesFilesViewController()
         case .userDefaults:
             let viewModel = ResourcesUserDefaultsViewModel()
-            controller = ResourcesGenericController(viewModel: viewModel)
-        case .userDefaultsDiff:
-            controller = UserDefaultsDiffViewController()
+            let genericController = ResourcesGenericController(viewModel: viewModel)
+            genericController.addDefaultsDiffButton()
+            controller = genericController
         case .keychain:
             let viewModel = ResourcesKeychainViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
