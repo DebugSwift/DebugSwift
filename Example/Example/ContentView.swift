@@ -41,6 +41,17 @@ struct ContentView: View {
                     }
                     .padding(.vertical, 4)
                 }
+
+                NavigationLink(destination: GraphQLDemoView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("GraphQL Inspector Test")
+                            .font(.headline)
+                        Text("Test GraphQL operation parsing with a public endpoint")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
                 
                 NavigationLink(destination: NetworkInjectionExampleView()) {
                     VStack(alignment: .leading, spacing: 4) {
