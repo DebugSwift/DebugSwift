@@ -117,9 +117,14 @@ final class CrashDetailViewModel: NSObject {
     }
 
     func getAllValues() -> String {
-        var result = "Details" + ":\n"
+        var result = "Details:\n"
         for detail in details {
-            result += "\(detail.title): \(detail.detail)\n"
+            // Some titles are authored with a trailing colon ("App Version:"),
+            // some without ("Error"). Strip it before joining so the copied
+            // output is consistent ("App Version: 1.11.3", not "App Version:: 1.11.3").
+            let title = detail.title
+            let normalized = title.hasSuffix(":") ? String(title.dropLast()) : title
+            result += "\(normalized): \(detail.detail)\n"
         }
 
         result += "\nStack Trace:\n"

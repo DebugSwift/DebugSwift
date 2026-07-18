@@ -47,9 +47,10 @@ final class CrashDetailViewModelTests: XCTestCase {
 
         XCTAssertTrue(values.contains("Details:"))
         XCTAssertTrue(values.contains("Error: nsexception"))
-        XCTAssertTrue(values.contains("App Version:: 1.0"))
-        XCTAssertTrue(values.contains("Build Version:: 1"))
-        XCTAssertTrue(values.contains("iOS Version:: 26.3.1"))
+        XCTAssertTrue(values.contains("App Version: 1.0"))
+        XCTAssertTrue(values.contains("Build Version: 1"))
+        XCTAssertTrue(values.contains("iOS Version: 26.3.1"))
+        XCTAssertFalse(values.contains("::"), "Details should use a single colon, not double: \(values)")
     }
 
     func testGetAllValuesContainsStackTraceSection() {
