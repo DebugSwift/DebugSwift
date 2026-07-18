@@ -56,7 +56,7 @@ final class ViewElement: NSObject, Element {
             if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(className),
                let tree = swiftUITree(for: view)
             {
-                return tree.children.map { SwiftUIElement(node: $0, parentFrame: view.frame) }
+                return SwiftUIElement.elements(for: tree, in: view.frame)
             }
         }
 
@@ -72,7 +72,7 @@ final class ViewElement: NSObject, Element {
             if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(className),
                let tree = swiftUITree(for: view)
             {
-                return tree.children.map { SwiftUIElement(node: $0, parentFrame: view.frame) }
+                return SwiftUIElement.elements(for: tree, in: view.frame)
             }
         }
 

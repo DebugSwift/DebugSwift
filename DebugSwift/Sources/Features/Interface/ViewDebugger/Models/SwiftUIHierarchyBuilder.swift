@@ -175,6 +175,21 @@ public enum SwiftUIHierarchyBuilder {
             // Skip already-handled internal wrappers
             if label == "_tree" { continue }
             if label == "content" && typeName.contains("ModifiedContent") { continue }
+            // TupleView's content (the tuple of views) is already unwrapped by
+            // step 2; skip it here to avoid emitting the same children twice.
+            if typeName.contains("TupleView") { continue }
+
+            // Skip SwiftUI layout/infrastructure values that would otherwise be
+            // surfaced as duplicate or meaningless nodes: the internal `Tree<…>`
+            // wrapper (already unwrapped via `_tree` in step 1), the layout
+            // descriptors (`_VStackLayout`, `_HStackLayout`, …), and `Optional`
+            // wrappers around non-view plumbing. These are not semantic views
+            // and, left in, they duplicate the real content (e.g. a VStack
+            // would emit both the TupleView of Buttons *and* a redundant
+            // Tree<_VStackLayout, TupleView<…>> child), splitting the 3D
+            // frame distribution across phantom siblings.
+            let childTypeName = String(describing: type(of: child.value))
+            if isInfrastructureType(childTypeName) { continue }
 
             if isSwiftUIViewType(value: child.value) {
                 childNodes.append(buildNode(
@@ -207,6 +222,12 @@ public enum SwiftUIHierarchyBuilder {
         var nodes: [SwiftUIElementNode] = []
 
         for child in treeMirror.children {
+            // Skip the layout descriptor (`_VStackLayout`, `_HStackLayout`, …)
+            // and spacing plumbing (`Optional<CGFloat>`): they are not views and
+            // would otherwise be emitted as meaningless siblings alongside the
+            // real content TupleView.
+            let childTypeName = String(describing: type(of: child.value))
+            if isInfrastructureType(childTypeName) { continue }
             if isSwiftUIViewType(value: child.value) {
                 nodes.append(buildNode(
                     from: child.value, depth: depth, maxDepth: maxDepth,
@@ -229,6 +250,8 @@ public enum SwiftUIHierarchyBuilder {
         var nodes: [SwiftUIElementNode] = []
 
         for (index, child) in tupleMirror.children.enumerated() {
+            let childTypeName = String(describing: type(of: child.value))
+            if isInfrastructureType(childTypeName) { continue }
             if isSwiftUIViewType(value: child.value) {
                 nodes.append(buildNode(
                     from: child.value, depth: depth, maxDepth: maxDepth,
@@ -237,6 +260,25 @@ public enum SwiftUIHierarchyBuilder {
             }
         }
         return nodes
+    }
+
+    /// Identifies SwiftUI-internal layout/infrastructure type names that should
+    /// not be surfaced as nodes in the semantic hierarchy: the `Tree<…>`
+    /// wrapper (content is already unwrapped via `_tree`), the layout
+    /// descriptors (`_VStackLayout`, `_HStackLayout`, `_ZStackLayout`,
+    /// `_TupleViewLayout`), and `Optional` wrappers around non-view plumbing
+    /// (e.g. spacing `Optional<CGFloat>`, `Optional<ButtonRole>`).
+    static func isInfrastructureType(_ typeName: String) -> Bool {
+        typeName.hasPrefix("Tree<") ||
+            typeName.contains("_VStackLayout") ||
+            typeName.contains("_HStackLayout") ||
+            typeName.contains("_ZStackLayout") ||
+            typeName.contains("_TupleViewLayout") ||
+            typeName.hasPrefix("Optional<") && typeName.contains("CGFloat") ||
+            typeName.hasPrefix("Optional<") && typeName.contains("ButtonRole") ||
+            typeName.contains("LayoutComputer") ||
+            typeName.contains("ViewRendererHost") ||
+            typeName.contains("Host<")
     }
 
     /// Detect if a UIView (in production) is a SwiftUI hosting view.

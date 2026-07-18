@@ -184,4 +184,105 @@ final class ViewDebuggerSwiftUIRenderTests: XCTestCase {
             "3D snapshot tree must have more than one renderable node after fix, got \(total)"
         )
     }
+
+    // MARK: - Three buttons must be visually separated (non-overlapping frames)
+
+    /// A VStack with three buttons — the user-facing case: three buttons must
+    /// render as three separated planes in the 3D view, not stacked on the
+    /// same X/Y. Before frame distribution, all SwiftUI siblings shared the
+    /// parent frame and overlapped perfectly.
+    private struct ThreeButtonsView: View, BodyAccessible {
+        var body: some View {
+            VStack {
+                Button("One") {}
+                Button("Two") {}
+                Button("Three") {}
+            }
+        }
+    }
+
+    /// Collects every Button SwiftUIElement node reachable from an Element tree.
+    private func collectButtons(from element: Element) -> [SwiftUIElement] {
+        var buttons: [SwiftUIElement] = []
+        if let swift = element as? SwiftUIElement, swift.label.name == "Button" {
+            // A Button is a leaf for collection — don't recurse into its
+            // label/style internals (which also contain "Button" in their
+            // mangled type names and would inflate the count).
+            buttons.append(swift)
+            return buttons
+        }
+        for child in element.children {
+            buttons.append(contentsOf: collectButtons(from: child))
+        }
+        return buttons
+    }
+
+    /// Three buttons in a VStack must produce three distinct SwiftUIElement
+    /// nodes (one per button) — not collapsed into a single node.
+    func testThreeButtonsProduceThreeSeparateElements() {
+        let hostingView = makeHostingView(ThreeButtonsView())
+        let element = ViewElement(view: hostingView, useSwiftUIHierarchy: false)
+
+        let buttons = collectButtons(from: element)
+        XCTAssertEqual(
+            buttons.count, 3,
+            "Expected 3 Button elements in the 3D tree, got \(buttons.count): \(buttons.map { $0.label.name ?? "" })"
+        )
+    }
+
+    /// The three buttons must have **non-overlapping** frames so they render
+    /// as separated planes in the SceneKit 3D view. Before the fix every
+    /// sibling shared the parent frame and the buttons overlapped at the same
+    /// X/Y (only separated by z-depth).
+    func testThreeButtonFramesAreNonOverlapping() {
+        let hostingView = makeHostingView(ThreeButtonsView())
+        let element = ViewElement(view: hostingView, useSwiftUIHierarchy: false)
+
+        let buttons = collectButtons(from: element)
+        XCTAssertEqual(buttons.count, 3, "Prerequisite: 3 buttons, got \(buttons.count)")
+
+        let frames = buttons.map { $0.frame }
+        for i in 0..<frames.count {
+            for j in (i + 1)..<frames.count {
+                XCTAssertFalse(
+                    frames[i].intersects(frames[j]),
+                    "Button \(i) and \(j) frames overlap: \(frames[i]) vs \(frames[j]) — they must be separated in the 3D view"
+                )
+            }
+        }
+    }
+
+    /// Three buttons in a VStack must be laid out **vertically** — their
+    /// frames share the same X column but have distinct, increasing Y origins.
+    /// This is the exact "separate the 3 buttons" behavior.
+    func testThreeButtonsAreStackedVerticallyWithDistinctY() {
+        let hostingView = makeHostingView(ThreeButtonsView())
+        let element = ViewElement(view: hostingView, useSwiftUIHierarchy: false)
+
+        let buttons = collectButtons(from: element)
+        XCTAssertEqual(buttons.count, 3, "Prerequisite: 3 buttons, got \(buttons.count)")
+
+        let xs = buttons.map { $0.frame.minX }
+        let ys = buttons.map { $0.frame.minY }
+
+        // Same column (VStack stacks vertically, not horizontally).
+        let xSpread = xs.max()! - xs.min()!
+        XCTAssertEqual(
+            xSpread, 0, accuracy: 0.01,
+            "VStack buttons should share the same X column, got Xs: \(xs)"
+        )
+
+        // Distinct, monotonically increasing Y origins.
+        XCTAssertEqual(
+            ys, ys.sorted(),
+            "VStack button Y origins must be monotonically increasing, got Ys: \(ys)"
+        )
+        for i in 1..<ys.count {
+            XCTAssertGreaterThan(
+                ys[i], ys[i - 1],
+                "VStack button \(i) must start below button \(i - 1), got Ys: \(ys)"
+            )
+        }
+    }
 }
+
