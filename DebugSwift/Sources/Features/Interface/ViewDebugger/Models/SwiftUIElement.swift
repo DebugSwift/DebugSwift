@@ -38,10 +38,25 @@ final class SwiftUIElement: NSObject, Element {
     /// the ancestor chain.
     private let inheritedLayout: Layout
 
-    init(node: SwiftUIElementNode, parentFrame: CGRect = .zero, inheritedLayout: Layout = .grid) {
+    /// A screenshot of the hosting `_UIHostingView` in its own coordinate
+    /// space, captured once at the UIKit→SwiftUI boundary. Each SwiftUI node
+    /// crops this image to its `assignedFrame` so its 3D plane shows the real
+    /// rendered pixels for that region — instead of an empty white plane
+    /// (the previous behavior, since SwiftUI semantic nodes have no UIView
+    /// to `drawHierarchy`). `nil` when no hosting snapshot is available
+    /// (e.g. the hierarchy-table mode); nodes then render as white planes.
+    private let hostingSnapshot: CGImage?
+
+    init(
+        node: SwiftUIElementNode,
+        parentFrame: CGRect = .zero,
+        inheritedLayout: Layout = .grid,
+        hostingSnapshot: CGImage? = nil
+    ) {
         self.node = node
         self.assignedFrame = parentFrame
         self.inheritedLayout = inheritedLayout
+        self.hostingSnapshot = hostingSnapshot
         super.init()
     }
 
@@ -78,9 +93,18 @@ final class SwiftUIElement: NSObject, Element {
     }
 
     var snapshotImage: CGImage? {
-        // SwiftUI semantic nodes don't have individual pixel snapshots.
-        // The snapshot is taken from the hosting UIView (the parent ViewElement).
-        nil
+        // SwiftUI semantic nodes have no UIView to drawHierarchy, so crop the
+        // hosting view's screenshot (captured once at the boundary) to this
+        // node's assigned frame. The frame is in the hosting view's coordinate
+        // space, matching the screenshot's coordinate space. This gives each
+        // 3D plane real rendered pixels (the button's label/background) instead
+        // of an empty white plane.
+        guard let hostingSnapshot else { return nil }
+        let frame = assignedFrame.intersection(CGRect(origin: .zero, size: CGSize(
+            width: hostingSnapshot.width, height: hostingSnapshot.height
+        )))
+        guard !frame.isEmpty, frame.width > 1, frame.height > 1 else { return nil }
+        return hostingSnapshot.cropping(to: frame)
     }
 
     var underlyingView: UIView? { nil }
@@ -110,7 +134,7 @@ final class SwiftUIElement: NSObject, Element {
             layout: childLayout
         )
         return zip(flattened, childFrames).map { child, frame in
-            SwiftUIElement(node: child, parentFrame: frame, inheritedLayout: childLayout)
+            SwiftUIElement(node: child, parentFrame: frame, inheritedLayout: childLayout, hostingSnapshot: hostingSnapshot)
         }
     }
 
@@ -165,14 +189,23 @@ final class SwiftUIElement: NSObject, Element {
     /// vertical, HStack → horizontal, …). Used at the UIKit→SwiftUI boundary
     /// (ViewElement hosting-view fallback) so top-level siblings don't all
     /// share the parent frame and overlap in the 3D scene.
-    static func elements(for tree: SwiftUIElementNode, in frame: CGRect) -> [SwiftUIElement] {
+    static func elements(
+        for tree: SwiftUIElementNode,
+        in frame: CGRect,
+        hostingSnapshot: CGImage? = nil
+    ) -> [SwiftUIElement] {
         // The tree is the rootView's content (e.g. a NavigationView, a
         // ScrollView, or a single Button). Keep the root as the top-level
         // element — do NOT flatten it away — so a single-Button screen renders
         // the Button (with its Text child) rather than just the Text. Only
         // flatten transparent wrappers *inside* each child via `children`.
+        // The hosting view's screenshot is threaded down so every node can
+        // crop its assigned frame and render real pixels on its 3D plane.
         let childLayout = childLayout(for: tree, inherited: .grid)
-        return [SwiftUIElement(node: tree, parentFrame: frame, inheritedLayout: childLayout)]
+        return [SwiftUIElement(
+            node: tree, parentFrame: frame, inheritedLayout: childLayout,
+            hostingSnapshot: hostingSnapshot
+        )]
     }
 
     // MARK: - Frame distribution

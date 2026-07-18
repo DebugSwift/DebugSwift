@@ -63,7 +63,13 @@ final class ViewElement: NSObject, Element {
         if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(className),
            let tree = swiftUITree(for: view)
         {
-            return SwiftUIElement.elements(for: tree, in: view.frame)
+            // Capture the hosting view's pixels once. Each SwiftUI node crops
+            // this screenshot to its assigned frame so its 3D plane shows the
+            // real rendered content (button background + label) instead of an
+            // empty white plane. Only for the 3D-snapshot path: the hierarchy
+            // table doesn't render planes, so skip the capture there.
+            let snapshot = useSwiftUIHierarchy ? nil : snapshotView(view)
+            return SwiftUIElement.elements(for: tree, in: view.frame, hostingSnapshot: snapshot)
         }
 
         // Plain UIKit view: walk its real subviews.
