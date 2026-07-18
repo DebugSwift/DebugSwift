@@ -86,6 +86,17 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
+                NavigationLink(destination: HangDemoView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Hang / ANR Demo")
+                            .font(.headline)
+                        Text("Block the main thread to trigger hang detection")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+
                 NavigationLink(destination: WebSocketTestView()) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("WebSocket Inspector Test")

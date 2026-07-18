@@ -35,10 +35,20 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         }
     }
 
+    private var isHangDetectionEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "debugswift.hang.monitoringEnabled") }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "debugswift.hang.monitoringEnabled")
+            if newValue { HangDetectorRunner.shared.start() } else { HangDetectorRunner.shared.stop() }
+            tableView.reloadData()
+        }
+    }
+
     enum Identifier: String {
         case value = "ValueTableViewCell"
         case leak = "LeakTableViewCell"
         case memoryWarning = "MemoryWarningTableViewCell"
+        case hangEvents = "HangEventsRowCell"
 
         init?(rawValue: String?) {
             guard let rawValue else { return nil }
@@ -59,6 +69,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case batteryToggle
         case batteryStatus
         case batteryHistory
+        case hangDetection
     }
 
     // MARK: - UIViewController Lifecycle
@@ -75,6 +86,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         diskAnalyzer.measure()
         if isDiskMonitoringEnabled { ioMonitor.start() }
         if isBatteryMonitoringEnabled { batteryMonitor.start() }
+        if isHangDetectionEnabled { HangDetectorRunner.shared.start() }
     }
 
     // MARK: - Setup Methods
@@ -135,6 +147,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return isBatteryMonitoringEnabled && batteryMonitor.isAvailable ? 3 : 0
         case .batteryHistory:
             return isBatteryMonitoringEnabled ? 1 : 0
+        case .hangDetection:
+            // 0: toggle · 1: "View Hangs" disclosure
+            return isHangDetectionEnabled ? 2 : 1
         }
     }
 
@@ -154,6 +169,18 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .batteryToggle: return "Battery"
         case .batteryStatus: return nil
         case .batteryHistory: return isBatteryMonitoringEnabled ? "History" : nil
+        case .hangDetection: return "Hang Detection"
+        }
+    }
+
+    override func tableView(_: UITableView, titleForFooterInSection section: Int) -> String? {
+        switch Section(rawValue: section)! {
+        case .hangDetection:
+            return isHangDetectionEnabled
+                ? "Fires when the main thread stalls ≥ 0.25s. Tap View Hangs to inspect events."
+                : "Enable to detect main-thread hangs (ANR) and capture their backtraces."
+        default:
+            return nil
         }
     }
 
@@ -183,6 +210,12 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return batteryStatusCell(at: indexPath.row)
         case .batteryHistory:
             return batteryHistoryCell()
+        case .hangDetection:
+            switch indexPath.row {
+            case 0: return hangToggleCell()
+            case 1: return hangEventsRowCell()
+            default: return UITableViewCell()
+            }
         }
     }
 
@@ -214,6 +247,10 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
                 let threadCheckerController = PerformanceThreadCheckerViewController()
                 navigationController?.pushViewController(threadCheckerController, animated: true)
             }
+        case .hangEvents:
+            let controller = HangEventsViewController()
+            navigationController?.pushViewController(controller, animated: true)
+            break
         default:
             break
         }
@@ -448,6 +485,29 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         return cell
     }
 
+    // MARK: - Cells: Hang
+
+    private func hangToggleCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
+        cell.titleLabel.text = "Hang Detection"
+        cell.valueSwitch.isOn = isHangDetectionEnabled
+        cell.valueSwitch.tag = 3
+        cell.delegate = self
+        return cell
+    }
+
+    private func hangEventsRowCell() -> UITableViewCell {
+        let cell = reuseCell(for: .hangEvents)
+        let events = HangDetectorRunner.shared.events
+        cell.setup(
+            title: "View Hangs",
+            description: events.isEmpty ? "No hangs yet" : "\(events.count) hang\(events.count == 1 ? "" : "s")"
+        )
+        return cell
+    }
+
     private func batteryStatusCell(at row: Int) -> UITableViewCell {
         let cell = UITableViewCell(style: .value1, reuseIdentifier: "BatteryStatusCell")
         cell.backgroundColor = .black
@@ -611,6 +671,7 @@ extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
         case 0: performanceToolkit.isWidgetShown = isOn
         case 1: isDiskMonitoringEnabled = isOn
         case 2: isBatteryMonitoringEnabled = isOn
+        case 3: isHangDetectionEnabled = isOn
         default: break
         }
     }
