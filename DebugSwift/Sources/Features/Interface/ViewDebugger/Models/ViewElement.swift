@@ -498,10 +498,18 @@ private func swiftUITree(for view: UIView) -> SwiftUIElementNode? {
             return SwiftUIHierarchyBuilder.buildTree(from: rootViewChild.value)
         }
 
-        // Try 3: KVC on the controller (rootView is a public property)
-        if let rootView = viewController.value(forKey: "rootView") {
-            return SwiftUIHierarchyBuilder.buildTree(from: rootView)
-        }
+        // Try 3 (formerly KVC `value(forKey:)`) has been removed.
+        // KVC's value(forKey:) raises an NSUnknownKeyException (an Obj-C
+        // exception, not a Swift error) when the key is not KVC-compliant.
+        // SwiftUI-internal hosting controllers — e.g.
+        // UIHostingController<ModifiedContent<…NavigationSearchColumnModifier…>>
+        // used by NavigationSplitView's sidebar — do NOT expose `rootView`
+        // via KVC, so this path threw an uncaught exception that DebugSwift's
+        // own UncaughtExceptionHandler captured as a crash, killing the app
+        // whenever the view debugger was opened on a screen using such a
+        // controller. Mirror reflection (Try 1 / Try 2) is safe and never
+        // raises; if it can't find rootView we fall back to the subview path
+        // rather than crashing.
     }
 
     return nil

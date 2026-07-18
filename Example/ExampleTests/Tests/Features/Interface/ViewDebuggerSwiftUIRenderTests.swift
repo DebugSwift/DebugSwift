@@ -284,5 +284,47 @@ final class ViewDebuggerSwiftUIRenderTests: XCTestCase {
             )
         }
     }
+
+    // MARK: - Non-KVC-compliant hosting controller must not crash
+
+    /// A UIViewController subclass whose name contains "HostingController" but
+    /// which is NOT a real `UIHostingController` and is not KVC-compliant for
+    /// `rootView`. Before the fix, `swiftUITree(for:)` fell back to
+    /// `value(forKey: "rootView")`, which raises `NSUnknownKeyException`
+    /// (an Obj-C exception, not a Swift error) on such controllers. DebugSwift's
+    /// own `UncaughtExceptionHandler` captured that as a crash, killing the app
+    /// whenever the view debugger was opened on a screen using a SwiftUI-internal
+    /// hosting controller (e.g. NavigationSplitView's sidebar
+    /// `UIHostingController<ModifiedContent<…NavigationSearchColumnModifier…>>`).
+    /// This test reproduces the shape: a controller with "HostingController" in
+    /// its type name and no `rootView` key. `ViewElement.children` must not
+    /// crash — it must fall back to the subview path.
+    private final class FakeHostingController: UIViewController {
+        // No `rootView` property, and not a real UIHostingController.
+    }
+
+    func testNonKVCCompliantHostingControllerDoesNotCrash() {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let fake = FakeHostingController()
+        // Force a name that contains "HostingController" so isSwiftUIHostingClassName
+        // would have matched and driven swiftUITree(for:) into the old KVC path.
+        window.rootViewController = fake
+        window.makeKeyAndVisible()
+        fake.view.layoutIfNeeded()
+
+        // The hosting-name check is on NSStringFromClass(type(of:)), so we also
+        // verify the name contains "HostingController" to confirm the test
+        // actually exercises the branch.
+        let className = NSStringFromClass(type(of: fake))
+        XCTAssertTrue(className.contains("HostingController"), "Test setup: \(className) should contain 'HostingController'")
+
+        // Must not crash. Before the fix this raised NSUnknownKeyException.
+        let element = ViewElement(view: fake.view, useSwiftUIHierarchy: true)
+        // Accessing children must not crash and must return an array (empty,
+        // since FakeHostingController.view has no subviews and no SwiftUI tree).
+        let children = element.children
+        XCTAssertEqual(children.count, 0, "FakeHostingController with no subviews should have 0 children, got \(children.count)")
+    }
 }
+
 
