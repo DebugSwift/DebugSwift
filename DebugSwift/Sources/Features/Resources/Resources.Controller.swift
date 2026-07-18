@@ -54,6 +54,8 @@ final class ResourcesViewController: BaseController, MainFeatureType {
 
     private let items: [Item] = [
         .fileManager,
+        .userDefaults,
+        .keychain,
         .persistentData,
         .httpCookies,
         .coreData,
@@ -127,7 +129,9 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             controller = ResourcesFilesViewController()
         case .userDefaults:
             let viewModel = ResourcesUserDefaultsViewModel()
-            controller = ResourcesGenericController(viewModel: viewModel)
+            let genericController = ResourcesGenericController(viewModel: viewModel)
+            genericController.addDefaultsDiffButton()
+            controller = genericController
         case .keychain:
             let viewModel = ResourcesKeychainViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
