@@ -93,7 +93,16 @@ final class SnapshotView: UIView {
             hideHeaderNodes: hideHeaderNodes
         )
         maximumDepth = depth
-        sceneView.scene = scene
+        // Depth-adaptive z-spacing: keep the deepest plane within the camera's
+        // comfortable viewing range. With the camera at z≈1200, planes sit at
+        // z = zSpacing * depth; cap the deepest at ~400 so deep hierarchies
+        // (depth 20+) don't push layers out of view or flatten them against the
+        // camera. Shallow trees keep the full 20.0 spacing; only deep trees
+        // compress.
+        if depth > 1 {
+            let adaptive = min(configuration.zSpacing, 400.0 / Float(depth))
+            configuration.zSpacing = max(adaptive, configuration.minimumZSpacing)
+        }
         sceneView.allowsCameraControl = true
         sceneView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(sceneView)
@@ -114,12 +123,17 @@ final class SnapshotView: UIView {
         cameraNode.camera = camera
         cameraNode.categoryBitMask = 0
         let nodePos = sceneView.scene?.rootNode.childNodes.last?.position.y ?? 760
+        // Pulled back (x -900, z 1200) and raised (y * 0.65) relative to the
+        // original (-700, nodePos/2, 1000) so the full fanned stack is visible
+        // without the topmost layer clipping off-screen. The yaw is softened
+        // from -π/4 (45°) to -π/6 (30°) so the layers fan apart more gently —
+        // each plane stays more face-on and readable instead of edge-on.
         cameraNode.position = .init(
-            x: -700,
-            y: nodePos / 2,
-            z: 1000
+            x: -900,
+            y: nodePos * 0.65,
+            z: 1200
         )
-        cameraNode.eulerAngles.y = -.pi / 4
+        cameraNode.eulerAngles.y = -.pi / 6
 
         sceneView.scene?.rootNode.addChildNode(cameraNode)
         sceneView.pointOfView = cameraNode
