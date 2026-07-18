@@ -87,17 +87,26 @@ enum WindowManager {
                 && window.windowLevel < UIWindow.Level.alert
         }
 
-        guard filteredWindows.count > 1 else {
-            InAppViewDebugger.presentForWindow(filteredWindows.first)
+        // Prefer the app's key window (the real content the developer wants to
+        // inspect) — sort it first so it's the default pick, and so the single-
+        // window fast path below grabs the right window when only one candidate
+        // remains after excluding DebugSwift's own alert-level windows.
+        let sortedWindows = filteredWindows.sorted { lhs, _ in
+            lhs.isKeyWindow
+        }
+
+        guard sortedWindows.count > 1 else {
+            InAppViewDebugger.presentForWindow(sortedWindows.first)
             return
         }
 
-        // Add an action for each window
-        for window in filteredWindows {
+        // Add an action for each window, key window first.
+        for window in sortedWindows {
             let className = NSStringFromClass(type(of: window))
             let moduleName = Bundle(for: type(of: window)).bundleIdentifier ?? "Unknown Module"
+            let isKey = window.isKeyWindow ? " (key)" : ""
 
-            let actionTitle = "\(className) - \(moduleName)"
+            let actionTitle = "\(className)\(isKey) - \(moduleName)"
             let action = UIAlertAction(title: actionTitle, style: .default) { _ in
                 // Handle the selected window here
                 isSelectingWindow = false
