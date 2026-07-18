@@ -115,20 +115,19 @@ public enum SwiftUIHierarchyBuilder {
             )
         }
 
-        // 0. For custom views (body is a computed property invisible to Mirror),
-        //    call the body accessor. We use a runtime check: if the value's type
-        //    conforms to View, we can call bodyAccessor() via the View extension.
-        //    The `as? BodyAccessible` cast fails because View doesn't explicitly
-        //    conform to BodyAccessible, so we use the bodyAccessor() method directly
-        //    via dynamic dispatch on the protocol extension.
-        if let bodyValue = extractBody(from: value) {
-            if isSwiftUIViewType(value: bodyValue) {
-                childNodes.append(buildNode(
-                    from: bodyValue, depth: depth + 1, maxDepth: maxDepth,
-                    includeProperties: includeProperties, path: "\(path).body"
-                ))
-            }
-        }
+        // 0. Mirror-first content extraction. SwiftUI primitive views
+        // (NavigationView, ScrollView, VStack, Button, …) expose their content
+        // through *stored* properties (`_tree`, `content`, tuple children, …)
+        // that Mirror can see. Custom views, conversely, expose their content
+        // only through the computed `body` property (invisible to Mirror).
+        //
+        // We therefore run the Mirror-based extraction (steps 1–5 below)
+        // FIRST and only fall back to calling `body` (step 0) when Mirror yields
+        // no children. This guarantees `body` is never invoked on a primitive:
+        // calling `body` on a primitive traps at runtime with "body() should
+        // not be called on …" (it is a stub that raises SIGTRAP), and primitives
+        // are exactly the views that always have Mirror-visible content, so
+        // the fallback never reaches them.
 
         // 1. Drill into SwiftUI's internal _tree wrapper (HStack/VStack/ZStack/
         //    ScrollView use it). Tree<_HStackLayout, TupleView<...>> → the
@@ -210,6 +209,21 @@ public enum SwiftUIHierarchyBuilder {
             }
         }
 
+        // 0 (fallback). Custom views (OSLogTestView, ContentView, …) expose
+        // their content only through the computed `body`, which Mirror cannot
+        // see, so the Mirror walk above produced no children for them. Only now
+        // — after confirming Mirror yielded nothing — do we call `body`. This is
+        // safe because primitives always produce Mirror children (so we never
+        // reach here for them), and `body` on a genuine custom view is the
+        // intended accessor. See the comment at the top of buildNode.
+        if childNodes.isEmpty, let bodyValue = extractBody(from: value),
+           isSwiftUIViewType(value: bodyValue)
+        {
+            childNodes.append(buildNode(
+                from: bodyValue, depth: depth + 1, maxDepth: maxDepth,
+                includeProperties: includeProperties, path: "\(path).body"
+            ))
+        }
         // Note: SwiftUI's Mirror layout can expose the same content through
         // multiple stored properties. The per-type skips above (content when
         // _tree/ModifiedContent/ScrollView is present, TupleView generic
@@ -415,53 +429,28 @@ public enum SwiftUIHierarchyBuilder {
 }
 // MARK: - Body extraction
 
-/// Extracts the `body` from a SwiftUI View value.
-/// Custom views must conform to `BodyAccessible` to expose their computed `body`
-/// property (Mirror only sees stored properties, not computed ones).
-/// Built-in SwiftUI views (VStack, Text, etc.) expose their content via
-/// stored properties like `_tree`, which the Mirror walk handles directly.
+/// Extracts the `body` from a SwiftUI `View` value.
+///
+/// `body` is the ONLY way to reach a custom view's content (Mirror can't see
+/// computed properties), but calling it on a SwiftUI *primitive* view traps at
+/// runtime with "body() should not be called on …". Primitives live in the
+/// `SwiftUI`/`SwiftUICore` module, so we guard `extractBody` on the module of
+/// the value's type — `String(reflecting: type(of:))` yields the fully-qualified
+/// path (e.g. `SwiftUI.Color`, `SwiftUI.SubscriptionView<A, B>`) and we skip
+/// anything whose module is SwiftUI. User-defined views (in the app's module)
+/// pass and get their `body` called. This needs no type-name allowlist, so it
+/// can't be broken by a new SwiftUI primitive like `SubscriptionView`.
 @MainActor
 private func extractBody(from value: Any) -> Any? {
-    // Calling `body` on a *primitive* SwiftUI view (NavigationView, ScrollView,
-    // Button, Text, …) traps at runtime with "body() should not be called on
-    // …", so we must NOT invoke it for those. Primitives expose their content
-    // through stored properties (`_tree`, `content`, …) handled by the Mirror
-    // walk below.
-    //
-    // Custom views, conversely, expose their content ONLY through `body`
-    // (Mirror can't see computed properties), so we DO call it for them. We
-    // distinguish by type name: anything whose outer type name is a known
-    // primitive is skipped; everything else (user types like OSLogInNavView,
-    // ContentView, …) goes through `body`.
-    let typeName = String(describing: type(of: value))
-    guard !isPrimitiveViewType(typeName) else { return nil }
-
-
+    // `String(reflecting:)` gives the fully-qualified type name including the
+    // module, e.g. "SwiftUI.Color" / "MyApp.MyView". Primitives live in SwiftUI
+    // (or SwiftUICore); user views live in the app module.
+    let qualified = String(reflecting: type(of: value))
+    if qualified.hasPrefix("SwiftUI.") || qualified.hasPrefix("SwiftUICore.") {
+        return nil
+    }
     if let view = value as? any View {
         return view.bodyAccessor()
     }
     return nil
-}
-
-/// Names of SwiftUI primitive view types whose `body` traps and must never be
-/// invoked. Their content is reached via Mirror stored properties instead.
-private let primitiveViewTypeNames: Set<String> = [
-    "NavigationView", "NavigationStack", "NavigationSplitView",
-    "ScrollView", "List", "Form", "Group", "Section",
-    "VStack", "HStack", "ZStack", "LazyVStack", "LazyHStack",
-    "TupleView", "ConditionalContent",
-    "Button", "Text", "Label", "Image", "Color",
-    "Spacer", "Divider", "EmptyView",
-    "ForEach", "ModifiedContent", "AnyView",
-    "Optional", "IdentityOptional",
-    "NavigationLink", "TabView", "Picker", "TextField", "Slider", "Toggle",
-    "Stepper", "SecureField", "Editor", "Map"
-]
-
-@MainActor
-private func isPrimitiveViewType(_ typeName: String) -> Bool {
-    // Match the outer type name (before any `<`), since primitives may carry
-    // generic parameters, e.g. "NavigationView<ModifiedContent<…>>".
-    let outer = typeName.split(separator: "<").first.map(String.init) ?? typeName
-    return primitiveViewTypeNames.contains(outer)
 }
