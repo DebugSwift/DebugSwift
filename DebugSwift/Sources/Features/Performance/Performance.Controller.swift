@@ -44,11 +44,21 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         }
     }
 
+    private var isHangDetectionEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "debugswift.hang.monitoringEnabled") }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "debugswift.hang.monitoringEnabled")
+            if newValue { HangDetectorRunner.shared.start() } else { HangDetectorRunner.shared.stop() }
+            tableView.reloadData()
+        }
+    }
+
     enum Identifier: String {
         case value = "ValueTableViewCell"
         case leak = "LeakTableViewCell"
         case memoryWarning = "MemoryWarningTableViewCell"
         case frameDropTimeline = "FrameDropTimelineRowCell"
+        case hangEvents = "HangEventsRowCell"
 
         init?(rawValue: String?) {
             guard let rawValue else { return nil }
@@ -69,6 +79,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case batteryToggle
         case batteryStatus
         case batteryHistory
+        case hangDetection
     }
 
     // MARK: - UIViewController Lifecycle
@@ -86,6 +97,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         if isDiskMonitoringEnabled { ioMonitor.start() }
         if isBatteryMonitoringEnabled { batteryMonitor.start() }
         if isFrameDropMonitoringEnabled { FrameDropAdapter.shared.start() }
+        if isHangDetectionEnabled { HangDetectorRunner.shared.start() }
     }
 
     // MARK: - Setup Methods
@@ -148,6 +160,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .frameDrops:
             // 0: toggle · 1: live FPS sparkline · 2: "View Timeline" disclosure
             return isFrameDropMonitoringEnabled ? 3 : 1
+        case .hangDetection:
+            // 0: toggle · 1: "View Hangs" disclosure
+            return isHangDetectionEnabled ? 2 : 1
         }
     }
 
@@ -167,6 +182,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .batteryStatus: return nil
         case .batteryHistory: return isBatteryMonitoringEnabled ? "History" : nil
         case .frameDrops: return "Frame Drops / FPS"
+        case .hangDetection: return "Hang Detection"
         }
     }
 
@@ -176,6 +192,10 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return isFrameDropMonitoringEnabled
                 ? "Recording frame drops below \(Int(FrameDropAdapter.shared.timeline.dropThreshold)) fps. Tap View Timeline to inspect events."
                 : "Enable to record frames below \(Int(FrameDropAdapter.shared.timeline.dropThreshold)) fps and inspect them in a timeline."
+        case .hangDetection:
+            return isHangDetectionEnabled
+                ? "Fires when the main thread stalls ≥ 0.25s. Tap View Hangs to inspect events."
+                : "Enable to detect main-thread hangs (ANR) and capture their backtraces."
         default:
             return nil
         }
@@ -212,6 +232,12 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             case 2: return frameDropTimelineRowCell()
             default: return UITableViewCell()
             }
+        case .hangDetection:
+            switch indexPath.row {
+            case 0: return hangToggleCell()
+            case 1: return hangEventsRowCell()
+            default: return UITableViewCell()
+            }
         }
     }
 
@@ -246,6 +272,10 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .frameDropTimeline:
             let controller = FrameDropTimelineViewController()
             navigationController?.pushViewController(controller, animated: true)
+        case .hangEvents:
+            let controller = HangEventsViewController()
+            navigationController?.pushViewController(controller, animated: true)
+            break
         default:
             break
         }
@@ -470,6 +500,29 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         return cell
     }
 
+    // MARK: - Cells: Hang
+
+    private func hangToggleCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
+        cell.titleLabel.text = "Hang Detection"
+        cell.valueSwitch.isOn = isHangDetectionEnabled
+        cell.valueSwitch.tag = 4
+        cell.delegate = self
+        return cell
+    }
+
+    private func hangEventsRowCell() -> UITableViewCell {
+        let cell = reuseCell(for: .hangEvents)
+        let events = HangDetectorRunner.shared.events
+        cell.setup(
+            title: "View Hangs",
+            description: events.isEmpty ? "No hangs yet" : "\(events.count) hang\(events.count == 1 ? "" : "s")"
+        )
+        return cell
+    }
+
     private func batteryStatusCell(at row: Int) -> UITableViewCell {
         let cell = UITableViewCell(style: .value1, reuseIdentifier: "BatteryStatusCell")
         cell.backgroundColor = .black
@@ -683,6 +736,7 @@ extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
         case 1: isDiskMonitoringEnabled = isOn
         case 2: isBatteryMonitoringEnabled = isOn
         case 3: isFrameDropMonitoringEnabled = isOn
+        case 4: isHangDetectionEnabled = isOn
         default: break
         }
     }
