@@ -87,4 +87,27 @@ final class CrashDetailViewModelTests: XCTestCase {
         XCTAssertTrue(values.contains("Error: signal"))
         XCTAssertTrue(values.contains("Error: SIGABRT"))
     }
+
+    /// Regression: getAllValues() must copy the human-readable frame text for
+    /// each stack-trace line, NOT the raw struct description
+    /// ("Info(title: \"0x0001 main\", detail: \"\")"). Before the fix, tapping
+    /// "Copy Text" pasted the Swift struct dump instead of the frame symbols.
+    func testGetAllValuesStackTraceIsReadableNotStructDump() {
+        let viewModel = CrashDetailViewModel(
+            data: makeCrash(traces: ["0x0001 main", "0x0002 foo", "0x0003 bar"])
+        )
+
+        let values = viewModel.getAllValues()
+
+        // Must contain the bare frame symbols, as a user would expect.
+        XCTAssertTrue(values.contains("0x0001 main"), "Expected frame text in: \(values)")
+        XCTAssertTrue(values.contains("0x0002 foo"))
+        XCTAssertTrue(values.contains("0x0003 bar"))
+
+        // Must NOT contain the Swift struct description of UserInfo.Info.
+        XCTAssertFalse(
+            values.contains("Info(title:"),
+            "Stack trace should not contain the raw struct dump, got: \(values)"
+        )
+    }
 }

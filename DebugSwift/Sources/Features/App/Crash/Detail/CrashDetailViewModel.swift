@@ -129,7 +129,11 @@ final class CrashDetailViewModel: NSObject {
             }
         } else {
             for trace in data.traces {
-                result += "\(trace.info)\n"
+                // Print the human-readable frame text, not the raw struct
+                // description (which was "Info(title: \"…\", detail: \"…\")").
+                let frame = trace.info.title
+                let detail = trace.info.detail.isEmpty ? "" : " — \(trace.info.detail)"
+                result += "\(frame)\(detail)\n"
             }
         }
 
