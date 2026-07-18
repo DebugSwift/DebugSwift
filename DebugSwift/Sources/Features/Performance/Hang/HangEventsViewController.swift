@@ -33,7 +33,7 @@ final class HangEventsViewController: BaseTableController {
         super.viewWillAppear(animated)
         tableView.reloadData()
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.tableView.reloadData()
+            DispatchQueue.main.async { self?.tableView.reloadData() }
         }
     }
 
