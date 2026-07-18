@@ -35,6 +35,15 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         }
     }
 
+    private var isFrameDropMonitoringEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "debugswift.framedrop.monitoringEnabled") }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "debugswift.framedrop.monitoringEnabled")
+            if newValue { FrameDropAdapter.shared.start() } else { FrameDropAdapter.shared.stop() }
+            tableView.reloadData()
+        }
+    }
+
     private var isHangDetectionEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: "debugswift.hang.monitoringEnabled") }
         set {
@@ -48,6 +57,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case value = "ValueTableViewCell"
         case leak = "LeakTableViewCell"
         case memoryWarning = "MemoryWarningTableViewCell"
+        case frameDropTimeline = "FrameDropTimelineRowCell"
         case hangEvents = "HangEventsRowCell"
 
         init?(rawValue: String?) {
@@ -60,7 +70,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case widget
         case cpu
         case memory
-        case fps
+        case frameDrops
         case leaks
         case diskToggle
         case diskMetrics
@@ -86,6 +96,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         diskAnalyzer.measure()
         if isDiskMonitoringEnabled { ioMonitor.start() }
         if isBatteryMonitoringEnabled { batteryMonitor.start() }
+        if isFrameDropMonitoringEnabled { FrameDropAdapter.shared.start() }
         if isHangDetectionEnabled { HangDetectorRunner.shared.start() }
     }
 
@@ -128,8 +139,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return 1
         case .memory:
             return 2
-        case .fps:
-            return 1
+
         case .leaks:
             if DebugSwift.App.shared.disableMethods.contains(.leaksDetector) { return 0 }
             return 2
@@ -147,6 +157,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return isBatteryMonitoringEnabled && batteryMonitor.isAvailable ? 3 : 0
         case .batteryHistory:
             return isBatteryMonitoringEnabled ? 1 : 0
+        case .frameDrops:
+            // 0: toggle · 1: live FPS sparkline · 2: "View Timeline" disclosure
+            return isFrameDropMonitoringEnabled ? 3 : 1
         case .hangDetection:
             // 0: toggle · 1: "View Hangs" disclosure
             return isHangDetectionEnabled ? 2 : 1
@@ -158,7 +171,6 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .widget: return nil
         case .cpu: return nil
         case .memory: return nil
-        case .fps: return nil
         case .leaks:
             if DebugSwift.App.shared.disableMethods.contains(.leaksDetector) { return nil }
             return "Leaks & Threads"
@@ -169,12 +181,17 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .batteryToggle: return "Battery"
         case .batteryStatus: return nil
         case .batteryHistory: return isBatteryMonitoringEnabled ? "History" : nil
+        case .frameDrops: return "Frame Drops / FPS"
         case .hangDetection: return "Hang Detection"
         }
     }
 
     override func tableView(_: UITableView, titleForFooterInSection section: Int) -> String? {
         switch Section(rawValue: section)! {
+        case .frameDrops:
+            return isFrameDropMonitoringEnabled
+                ? "Recording frame drops below \(Int(FrameDropAdapter.shared.timeline.dropThreshold)) fps. Tap View Timeline to inspect events."
+                : "Enable to record frames below \(Int(FrameDropAdapter.shared.timeline.dropThreshold)) fps and inspect them in a timeline."
         case .hangDetection:
             return isHangDetectionEnabled
                 ? "Fires when the main thread stalls ≥ 0.25s. Tap View Hangs to inspect events."
@@ -192,8 +209,6 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return cpuCell(at: indexPath.row)
         case .memory:
             return memoryCell(at: indexPath.row)
-        case .fps:
-            return fpsCell(at: indexPath.row)
         case .leaks:
             return leaksCell(at: indexPath.row)
         case .diskToggle:
@@ -210,6 +225,13 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return batteryStatusCell(at: indexPath.row)
         case .batteryHistory:
             return batteryHistoryCell()
+        case .frameDrops:
+            switch indexPath.row {
+            case 0: return frameDropToggleCell()
+            case 1: return frameDropSparklineCell()
+            case 2: return frameDropTimelineRowCell()
+            default: return UITableViewCell()
+            }
         case .hangDetection:
             switch indexPath.row {
             case 0: return hangToggleCell()
@@ -247,6 +269,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
                 let threadCheckerController = PerformanceThreadCheckerViewController()
                 navigationController?.pushViewController(threadCheckerController, animated: true)
             }
+        case .frameDropTimeline:
+            let controller = FrameDropTimelineViewController()
+            navigationController?.pushViewController(controller, animated: true)
         case .hangEvents:
             let controller = HangEventsViewController()
             navigationController?.pushViewController(controller, animated: true)
@@ -318,37 +343,27 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         let cell = reuseCell(for: .memoryWarning)
 
         if memoryWarningSimulator.isCurrentlySimulating {
-            cell.textLabel?.text = "⚠️ Simulating Memory Warning..."
-            cell.contentView.backgroundColor = .systemOrange
+            cell.textLabel?.text = "⚠️ Simulating Memory Warning…"
+            cell.textLabel?.textColor = .systemOrange
+            cell.imageView?.tintColor = .systemOrange
             cell.selectionStyle = .none
         } else {
             cell.textLabel?.text = "Simulate Memory Warning"
-            cell.contentView.backgroundColor = .systemRed
+            cell.textLabel?.textColor = .systemRed
+            cell.imageView?.tintColor = .systemRed
             cell.selectionStyle = .default
         }
 
-        cell.textLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        cell.textLabel?.textColor = .white
-        cell.contentView.layer.cornerRadius = 8
-        cell.contentView.layer.masksToBounds = true
-        cell.backgroundColor = .clear
-
-        return cell
-    }
-
-    // MARK: - Cells: FPS
-
-    private func fpsCell(at row: Int) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: SparklineMetricCell.identifier) as? SparklineMetricCell ?? SparklineMetricCell()
-        let current = performanceToolkit.currentFPS
-        let minFPS = performanceToolkit.minFPS
-        cell.configure(
-            title: "FPS",
-            value: String(format: "%.0f fps", current),
-            color: current >= 55 ? .systemGreen : current >= 40 ? .systemYellow : .systemRed,
-            measurements: performanceToolkit.fpsMeasurements,
-            peakText: String(format: "Peak %.0ffps · Min %.0ffps", performanceToolkit.maxFPS, minFPS == 9999 ? 0 : minFPS)
+        // Subtle inline action: small red-tinted icon, no full-width colored block.
+        cell.textLabel?.font = .systemFont(ofSize: 15, weight: .medium)
+        let icon = UIImage(systemName: "exclamationmark.triangle")
+        cell.imageView?.image = icon?.withTintColor(
+            memoryWarningSimulator.isCurrentlySimulating ? .systemOrange : .systemRed,
+            renderingMode: .alwaysOriginal
         )
+        cell.backgroundColor = .black
+        cell.contentView.backgroundColor = .clear
+
         return cell
     }
 
@@ -493,7 +508,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         ) as? MenuSwitchTableViewCell ?? .init()
         cell.titleLabel.text = "Hang Detection"
         cell.valueSwitch.isOn = isHangDetectionEnabled
-        cell.valueSwitch.tag = 3
+        cell.valueSwitch.tag = 4
         cell.delegate = self
         return cell
     }
@@ -570,6 +585,55 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             peakText: "Peak \(Int(peak))% · Min \(Int(min))%"
         )
 
+        return cell
+    }
+
+    // MARK: - Cells: Frame Drops
+
+    private func frameDropToggleCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuSwitchTableViewCell.identifier
+        ) as? MenuSwitchTableViewCell ?? .init()
+        cell.titleLabel.text = "Frame Drop Recording"
+        cell.valueSwitch.isOn = isFrameDropMonitoringEnabled
+        cell.valueSwitch.tag = 3
+        cell.delegate = self
+        return cell
+    }
+
+    private func frameDropSparklineCell() -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: SparklineMetricCell.identifier
+        ) as? SparklineMetricCell ?? SparklineMetricCell()
+        let adapter = FrameDropAdapter.shared
+        let measurements = adapter.fpsHistory.map { CGFloat($0) }
+        let current = adapter.currentFPS ?? 0
+        let dropCount = adapter.timeline.events.count
+        let peakText: String
+        if measurements.isEmpty {
+            peakText = "Waiting for samples…"
+        } else {
+            let peak = measurements.max() ?? 0
+            let min = measurements.min() ?? 0
+            peakText = "Peak \(Int(peak)) fps · Min \(Int(min)) fps · \(dropCount) drops"
+        }
+        cell.configure(
+            title: "FPS (Live)",
+            value: String(format: "%.0f fps", current),
+            color: current >= 55 ? .systemGreen : current >= 40 ? .systemYellow : .systemRed,
+            measurements: measurements,
+            peakText: peakText
+        )
+        return cell
+    }
+
+    private func frameDropTimelineRowCell() -> UITableViewCell {
+        let cell = reuseCell(for: .frameDropTimeline)
+        let events = FrameDropAdapter.shared.timeline.events
+        cell.setup(
+            title: "View Timeline",
+            description: events.isEmpty ? "No drops yet" : "\(events.count) drops"
+        )
         return cell
     }
 
@@ -671,7 +735,8 @@ extension PerformanceViewController: MenuSwitchTableViewCellDelegate {
         case 0: performanceToolkit.isWidgetShown = isOn
         case 1: isDiskMonitoringEnabled = isOn
         case 2: isBatteryMonitoringEnabled = isOn
-        case 3: isHangDetectionEnabled = isOn
+        case 3: isFrameDropMonitoringEnabled = isOn
+        case 4: isHangDetectionEnabled = isOn
         default: break
         }
     }
