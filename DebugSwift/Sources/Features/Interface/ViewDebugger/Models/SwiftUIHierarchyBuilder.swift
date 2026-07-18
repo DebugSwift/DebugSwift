@@ -91,7 +91,30 @@ public enum SwiftUIHierarchyBuilder {
         maxDepth: Int = 50,
         includeProperties: Bool = true
     ) -> SwiftUIElementNode {
-        buildNode(from: view, depth: 0, maxDepth: maxDepth, includeProperties: includeProperties, path: "root")
+        // The root is virtually always a user-defined custom view
+        // (OSLogTestView, ContentView, …) whose content lives ONLY behind the
+        // computed `body` — Mirror cannot see it. So we evaluate `body` ONCE
+        // here, at the root, and then recurse into `buildNode`, which uses ONLY
+        // Mirror and never calls `body` again.
+        //
+        // Why once and only at the root: calling `body` on a SwiftUI *primitive*
+        // (NavigationView, ScrollView, SubscriptionView<A, B>, Color, …) traps
+        // at runtime with "body() should not be called on …" and kills the app
+        // through DebugSwift's own CrashSignalHandler. Primitives can only ever
+        // appear as *children* (the result of some custom view's `body`, or
+        // nested inside a primitive's stored `_tree`/`content`), so by calling
+        // `body` exactly once — at the root, which is the developer's view and
+        // therefore safe — and never again, we guarantee no primitive is ever
+        // asked for its `body`. This replaces the fragile type-name allowlist
+        // and the "fallback when Mirror is empty" heuristic (both of which
+        // crashed on SubscriptionView).
+        if let bodyValue = extractRootBody(from: view) {
+            return buildNode(
+                from: bodyValue, depth: 0, maxDepth: maxDepth,
+                includeProperties: includeProperties, path: "root.body"
+            )
+        }
+        return buildNode(from: view, depth: 0, maxDepth: maxDepth, includeProperties: includeProperties, path: "root")
     }
 
     static func buildNode(
@@ -209,28 +232,14 @@ public enum SwiftUIHierarchyBuilder {
             }
         }
 
-        // 0 (fallback). Custom views (OSLogTestView, ContentView, …) expose
-        // their content only through the computed `body`, which Mirror cannot
-        // see, so the Mirror walk above produced no children for them. Only now
-        // — after confirming Mirror yielded nothing — do we call `body`. This is
-        // safe because primitives always produce Mirror children (so we never
-        // reach here for them), and `body` on a genuine custom view is the
-        // intended accessor. See the comment at the top of buildNode.
-        if childNodes.isEmpty, let bodyValue = extractBody(from: value),
-           isSwiftUIViewType(value: bodyValue)
-        {
-            childNodes.append(buildNode(
-                from: bodyValue, depth: depth + 1, maxDepth: maxDepth,
-                includeProperties: includeProperties, path: "\(path).body"
-            ))
-        }
-        // Note: SwiftUI's Mirror layout can expose the same content through
-        // multiple stored properties. The per-type skips above (content when
-        // _tree/ModifiedContent/ScrollView is present, TupleView generic
-        // walk, infrastructure types) handle the known duplication paths.
-        // A structural-equality dedup here was attempted but collapsed
-        // legitimately-identical-structure siblings (e.g. six Buttons whose
-        // Text labels don't surface in the displayName), so it was removed.
+        // NOTE: `buildNode` deliberately never calls `body`. The root's `body`
+        // is evaluated exactly once in `buildTree` (see extractRootBody); every
+        // node below it is reached purely via Mirror stored properties. This
+        // is what makes traversal crash-safe: a primitive can only ever appear
+        // as a child of some other view, and children are never asked for
+        // their `body` here. The previous per-node `extractBody` fallback
+        // crashed on SubscriptionView (and any future primitive) because it
+        // invoked `body` on leaf primitives that have no Mirror children.
         return SwiftUIElementNode(
             id: path, typeName: typeName, displayName: displayName,
             depth: depth, children: childNodes, properties: properties
@@ -427,30 +436,36 @@ public enum SwiftUIHierarchyBuilder {
         return result
     }
 }
-// MARK: - Body extraction
+// MARK: - Root body extraction
 
-/// Extracts the `body` from a SwiftUI `View` value.
+/// Evaluates `body` exactly once, at the root of the view tree.
 ///
-/// `body` is the ONLY way to reach a custom view's content (Mirror can't see
-/// computed properties), but calling it on a SwiftUI *primitive* view traps at
-/// runtime with "body() should not be called on …". Primitives live in the
-/// `SwiftUI`/`SwiftUICore` module, so we guard `extractBody` on the module of
-/// the value's type — `String(reflecting: type(of:))` yields the fully-qualified
-/// path (e.g. `SwiftUI.Color`, `SwiftUI.SubscriptionView<A, B>`) and we skip
-/// anything whose module is SwiftUI. User-defined views (in the app's module)
-/// pass and get their `body` called. This needs no type-name allowlist, so it
-/// can't be broken by a new SwiftUI primitive like `SubscriptionView`.
+/// The root passed to `buildTree` is the hosting controller's `rootView` — a
+/// user-defined custom view (OSLogTestView, ContentView, …). Its content lives
+/// ONLY behind the computed `body` (Mirror can't see computed properties), so
+/// we must call `body` to get past it. We do so exactly once, here, and then
+/// recurse into `buildNode`, which uses ONLY Mirror and never calls `body`
+/// again.
+///
+/// Why only here: calling `body` on a SwiftUI *primitive* (NavigationView,
+/// ScrollView, SubscriptionView<A, B>, Color, …) traps at runtime with
+/// "body() should not be called on …" and kills the app via DebugSwift's own
+/// CrashSignalHandler. Primitives can only ever appear as *children* — the
+/// result of some custom view's `body`, or nested inside a primitive's stored
+/// `_tree`/`content`. By calling `body` only at the root (the developer's own
+/// view, which is safe) and never again, no primitive is ever asked for its
+/// `body`. This replaces the fragile type-name allowlist AND the per-node
+/// "fallback when Mirror is empty" heuristic — both crashed on SubscriptionView.
+///
+/// Guard: if the root itself is somehow a SwiftUI-module view (e.g. someone
+/// hosts `Color.red` directly), skip `body` and let Mirror handle it — never
+/// call `body` on a primitive, even the root.
 @MainActor
-private func extractBody(from value: Any) -> Any? {
-    // `String(reflecting:)` gives the fully-qualified type name including the
-    // module, e.g. "SwiftUI.Color" / "MyApp.MyView". Primitives live in SwiftUI
-    // (or SwiftUICore); user views live in the app module.
+private func extractRootBody(from value: Any) -> Any? {
     let qualified = String(reflecting: type(of: value))
     if qualified.hasPrefix("SwiftUI.") || qualified.hasPrefix("SwiftUICore.") {
         return nil
     }
-    if let view = value as? any View {
-        return view.bodyAccessor()
-    }
-    return nil
+    guard let view = value as? any View else { return nil }
+    return view.bodyAccessor()
 }

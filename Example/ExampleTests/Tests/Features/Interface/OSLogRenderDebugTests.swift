@@ -98,4 +98,38 @@ final class OSLogRenderDebugTests: XCTestCase {
         XCTAssertEqual(yOrigins, yOrigins.sorted(), "Button Y origins must be non-decreasing; got \(yOrigins)")
         XCTAssertEqual(Set(yOrigins).count, yOrigins.count, "Button Y origins must be distinct; got \(yOrigins)")
     }
+
+    /// Regression for the SubscriptionView SIGTRAP crash: a view using `.onReceive`
+    /// (which wraps content in `SubscriptionView<A, B>`) must not crash the view
+    /// debugger. Previously, `extractBody` called `body()` on every node whose
+    /// Mirror walk was empty — and `SubscriptionView` (a primitive with no
+    /// Mirror children) trapped with "body() should not be called on …". The
+    /// root-only-`body` strategy never calls `body` on a child, so primitives
+    /// like SubscriptionView are reached only via Mirror and never trap.
+    func testViewWithOnReceiveDoesNotCrashViewDebugger() {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let hc = UIHostingController(rootView: SubscriptionTestView())
+        window.rootViewController = hc
+        window.makeKeyAndVisible()
+        hc.view.layoutIfNeeded()
+        // Building the snapshot walks the full SwiftUI tree; if body() were
+        // called on the SubscriptionView primitive, this would SIGTRAP.
+        let snapshot = Snapshot(element: ViewElement(view: window, useSwiftUIHierarchy: false))
+        func countAll(_ node: Snapshot) -> Int { 1 + node.children.reduce(0) { $0 + countAll($1) } }
+        XCTAssertGreaterThan(countAll(snapshot), 0, "Snapshot tree should have nodes, not crash")
+    }
+}
+
+@MainActor
+private struct SubscriptionTestView: View {
+    @State private var value = 0
+    var body: some View {
+        VStack {
+            Text("Count: \(value)")
+            Button("Increment") { value += 1 }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            value += 0
+        }
+    }
 }

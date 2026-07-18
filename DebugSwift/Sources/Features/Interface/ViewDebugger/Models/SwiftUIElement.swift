@@ -166,19 +166,13 @@ final class SwiftUIElement: NSObject, Element {
     /// (ViewElement hosting-view fallback) so top-level siblings don't all
     /// share the parent frame and overlap in the 3D scene.
     static func elements(for tree: SwiftUIElementNode, in frame: CGRect) -> [SwiftUIElement] {
-        // Flatten transparent wrappers at the root too, so the top-level
-        // siblings are the real content nodes (e.g. a ScrollView's buttons,
-        // not the ScrollView→ModifiedContent→VStack nesting).
-        let flattened = flattenedChildren(of: tree)
+        // The tree is the rootView's content (e.g. a NavigationView, a
+        // ScrollView, or a single Button). Keep the root as the top-level
+        // element — do NOT flatten it away — so a single-Button screen renders
+        // the Button (with its Text child) rather than just the Text. Only
+        // flatten transparent wrappers *inside* each child via `children`.
         let childLayout = childLayout(for: tree, inherited: .grid)
-        let childFrames = distributeFrames(
-            count: flattened.count,
-            in: frame,
-            layout: childLayout
-        )
-        return zip(flattened, childFrames).map { child, childFrame in
-            SwiftUIElement(node: child, parentFrame: childFrame, inheritedLayout: childLayout)
-        }
+        return [SwiftUIElement(node: tree, parentFrame: frame, inheritedLayout: childLayout)]
     }
 
     // MARK: - Frame distribution
