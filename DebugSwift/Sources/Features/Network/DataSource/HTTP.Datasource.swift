@@ -65,6 +65,11 @@ final class HttpDatasource: @unchecked Sendable {
         }
         
         httpModels.append(model)
+        EventBusSubscriber.shared.publish(DebugEvent(
+            timestamp: Date(),
+            domain: .network,
+            summary: "\(model.method ?? "GET") \(model.url?.path ?? model.url?.host ?? "unknown")"
+        ))
 
 #if canImport(SwiftData)
         if #available(iOS 17.0, *) {

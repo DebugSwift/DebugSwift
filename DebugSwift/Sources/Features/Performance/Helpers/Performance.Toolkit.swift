@@ -132,10 +132,19 @@ final class PerformanceToolkit {
     }
 
     private func refreshWidget() {
+        // When frame-drop recording is enabled, the HUD FPS reflects the
+        // adapter's per-second sampler so the widget matches the timeline.
+        let fps: CGFloat = {
+            if UserDefaults.standard.bool(forKey: "debugswift.framedrop.monitoringEnabled"),
+               let adapterFPS = FrameDropAdapter.shared.currentFPS {
+                return CGFloat(adapterFPS)
+            }
+            return currentFPS
+        }()
         widget.updateValues(
             cpu: currentCPU,
             memory: currentMemory,
-            fps: currentFPS,
+            fps: fps,
             leaks: currentLeaks
         )
     }
