@@ -60,6 +60,22 @@ final class ViewElement: NSObject, Element {
             }
         }
 
+        // 3D snapshot fallback: a `_UIHostingView` renders its content
+        // directly into the hosting view and exposes *no* UIView subviews.
+        // Without this fallback the 3D view collapses to a single flat plane
+        // (no depth, no hierarchy, sliders hidden via `isLeft`). When a
+        // hosting view has no UIKit subviews, fall back to the SwiftUI
+        // semantic tree so its children render as layered planes in the 3D
+        // scene, mirroring the hierarchy table.
+        if view.subviews.isEmpty {
+            let className = NSStringFromClass(type(of: view))
+            if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(className),
+               let tree = swiftUITree(for: view)
+            {
+                return tree.children.map { SwiftUIElement(node: $0, parentFrame: view.frame) }
+            }
+        }
+
         return view.subviews.map { ViewElement(view: $0, useSwiftUIHierarchy: useSwiftUIHierarchy) }
     }
 
