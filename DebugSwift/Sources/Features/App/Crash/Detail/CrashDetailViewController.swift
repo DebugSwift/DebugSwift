@@ -29,6 +29,7 @@ final class CrashDetailViewController: BaseController {
         super.viewDidLoad()
         setupTable()
         setupShare()
+        setupSymbolication()
     }
 
     private func setupTable() {
@@ -54,6 +55,18 @@ final class CrashDetailViewController: BaseController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+
+    /// Load the build-time symbol map (if bundled) and pre-resolve the crash's
+    /// traces so the stack-trace section renders human-readable symbols.
+    /// Falls back silently to raw traces when no map is available.
+    private func setupSymbolication() {
+        if let mapURL = Bundle.main.url(forResource: "symbol_map", withExtension: "json") {
+            SymbolicatorAdapter.shared.load(from: mapURL.path)
+        }
+
+        viewModel.symbolicateTraces()
+        tableView.reloadData()
     }
 
     private func setupTabBar() {
