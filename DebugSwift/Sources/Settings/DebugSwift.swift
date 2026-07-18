@@ -20,8 +20,27 @@ public class DebugSwift {
     ) -> Self {
         FeatureHandling.setup(hide: features, disable: methods, enableBeta: betaFeatures)
         LaunchTimeTracker.shared.measureAppStartUpTime()
+        setupEventBusLifecycleListeners()
 
         return self
+    }
+
+    private func setupEventBusLifecycleListeners() {
+        let bus = EventBusSubscriber.shared
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            bus.publish(DebugEvent(timestamp: Date(), domain: .app, summary: "App became active"))
+        }
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            bus.publish(DebugEvent(timestamp: Date(), domain: .app, summary: "App entered background"))
+        }
     }
 
     @discardableResult

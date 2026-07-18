@@ -41,6 +41,17 @@ struct ContentView: View {
                     }
                     .padding(.vertical, 4)
                 }
+
+                NavigationLink(destination: GraphQLDemoView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("GraphQL Inspector Test")
+                            .font(.headline)
+                        Text("Test GraphQL operation parsing with a public endpoint")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
                 
                 NavigationLink(destination: NetworkInjectionExampleView()) {
                     VStack(alignment: .leading, spacing: 4) {
@@ -69,6 +80,17 @@ struct ContentView: View {
                         Text("Disk I/O Test Suite")
                             .font(.headline)
                         Text("Generate write activity to exercise the Disk panel")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                NavigationLink(destination: HangDemoView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Hang / ANR Demo")
+                            .font(.headline)
+                        Text("Block the main thread to trigger hang detection")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

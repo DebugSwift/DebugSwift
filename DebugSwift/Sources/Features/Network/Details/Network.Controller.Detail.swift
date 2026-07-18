@@ -415,6 +415,14 @@ extension NetworkViewControllerDetail {
         
         static func buildSections(from model: HttpModel) -> [DetailSection] {
             var sections: [DetailSection] = []
+
+            // GraphQL operation summary — shown first only for GraphQL captures
+            // so a developer sees the operation identity before transport details.
+            if GraphQLInspectorAdapter.isGraphQL(model) {
+                if let gqlSection = buildGraphQLSection(from: model) {
+                    sections.append(gqlSection)
+                }
+            }
             
             // Basic info section
             var basicItems: [DetailItem] = []
@@ -519,6 +527,44 @@ extension NetworkViewControllerDetail {
             
             return sections
         }
+
+        /// Builds the GraphQL operation section so the detail view leads with the
+        /// operation name/type and variables, which are what a developer needs to
+        /// identify the call rather than raw request/response rows.
+        private static func buildGraphQLSection(from model: HttpModel) -> DetailSection? {
+            let detail = GraphQLInspectorAdapter.detail(for: model)
+            var items: [DetailItem] = []
+
+            // Operation title combines type and name, e.g. "Query: GetUser".
+            if let operation = detail.operation {
+                let typeLabel: String
+                let operationName: String
+                switch operation {
+                case .query(let name):
+                    typeLabel = "Query"
+                    operationName = name ?? ""
+                case .mutation(let name):
+                    typeLabel = "Mutation"
+                    operationName = name ?? ""
+                case .subscription(let name):
+                    typeLabel = "Subscription"
+                    operationName = name ?? ""
+                }
+                let title = operationName.isEmpty ? typeLabel : "\(typeLabel): \(operationName)"
+                items.append(DetailItem(title: "OPERATION", value: title))
+            }
+
+            // Variables are JSON-encoded so nested structures stay readable in
+            // a single cell instead of a flattened key path.
+            if let variables = detail.variables,
+               let data = try? JSONSerialization.data(withJSONObject: variables, options: [.prettyPrinted, .sortedKeys]),
+               let pretty = String(data: data, encoding: .utf8) {
+                items.append(DetailItem(title: "VARIABLES", value: pretty))
+            }
+
+            guard !items.isEmpty else { return nil }
+            return DetailSection(title: "GRAPHQL", items: items)
+        }
         
         private static func detectConnectionType(headers: [String: Any]) -> String {
             // Check for text/event-stream
@@ -607,26 +653,33 @@ extension NetworkViewControllerDetail {
     }
 
     @objc private func shareButtonTapped() {
-        let logText = formatLog(model: model)
-        var fileName = model.url?.path.replacingOccurrences(of: "/", with: "-") ?? "-log"
-        fileName.removeFirst()
-        FileSharingManager.generateFileAndShare(text: logText, fileName: fileName)
+        // Offer both the raw log and a standard HAR 1.2 export from one entry
+        // point; HAR keeps the capture portable across DevTools/Charles/Proxyman.
+        let sheet = UIAlertController(
+            title: "Share",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        sheet.addAction(UIAlertAction(title: "Share Log", style: .default) { [weak self] _ in
+            guard let self else { return }
+            let logText = self.formatLog(model: self.model)
+            var fileName = self.model.url?.path.replacingOccurrences(of: "/", with: "-") ?? "-log"
+            fileName.removeFirst()
+            FileSharingManager.generateFileAndShare(text: logText, fileName: fileName)
+        })
+
+        sheet.addAction(UIAlertAction(title: "Export HAR", style: .default) { [weak self] _ in
+            self.map { HARExportAdapter.exportHAR([$0.model]) }
+        })
+
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        present(sheet, animated: true)
     }
 
     @objc private func copyCurlButtonTapped() {
-        var curlCommand = "curl -X \(model.method ?? "GET")"
-        if let headers = model.requestHeaderFields, !headers.isEmpty {
-            for (key, value) in headers where !key.isEmpty {
-                curlCommand += " \\\n     -H '\("\(key): \(value)".escapedForCurl())'"
-            }
-        }
-        if let body = model.requestData?.formattedCurlString(), !body.isEmpty {
-            curlCommand += " \\\n     -d '\(body)'"
-        }
-        if let url = model.url?.absoluteString, !url.isEmpty {
-            curlCommand += " \\\n     '\(url.escapedForCurl())'"
-        }
-        UIPasteboard.general.string = curlCommand
+        HARExportAdapter.copyCURL(model)
         showToast(message: "cURL copied to clipboard")
     }
     
