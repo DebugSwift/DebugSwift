@@ -87,25 +87,76 @@ final class SwiftUIElement: NSObject, Element {
 
     var children: [Element] {
         // SwiftUI views don't expose real frames, so distribute this node's
-        // assigned frame among its children as non-overlapping slices. Without
-        // this, every sibling would share the parent frame and overlap at the
-        // same X/Y in the 3D scene (only separated by z-depth).
+        // assigned frame among its children as non-overlapping slices.
         //
-        // The distribution axis is inherited from the nearest layout container
-        // ancestor: a VStack sets `.vertical`, an HStack sets `.horizontal`,
-        // and transparent containers (TupleView, ModifiedContent, …) pass
-        // the inherited axis through so the real siblings — e.g. three Buttons
-        // nested under VStack → TupleView → Button×3 — get distributed along
-        // the VStack's vertical axis instead of falling back to a grid.
+        // Transparent SwiftUI wrappers (ScrollView, ModifiedContent, TupleView,
+        // Group, _ConditionalContent, AnyView, ForEach, raw tuples) don't lay
+        // out their content — they pass it through. If they each took a slice
+        // of the parent frame, the real layout container (VStack/HStack) would
+        // receive only a tiny fraction, and its buttons would be subdivided
+        // into degenerate ~0px slivers (ScrollView > VStack > ModifiedContent >
+        // VStack > TupleView > Button×6 divides 874px six ways → ~0px each).
+        //
+        // So: first flatten transparent wrappers — collect the real content
+        // nodes (Buttons) that live under them — then distribute the assigned
+        // frame among those real siblings. This way three buttons in a VStack
+        // (even nested under ScrollView > ModifiedContent > TupleView) each
+        // get a full vertical slice of the VStack's frame.
+        let flattened = SwiftUIElement.flattenedChildren(of: node)
         let childLayout = SwiftUIElement.childLayout(for: node, inherited: inheritedLayout)
         let childFrames = SwiftUIElement.distributeFrames(
-            count: node.children.count,
+            count: flattened.count,
             in: assignedFrame,
             layout: childLayout
         )
-        return zip(node.children, childFrames).map { child, frame in
+        return zip(flattened, childFrames).map { child, frame in
             SwiftUIElement(node: child, parentFrame: frame, inheritedLayout: childLayout)
         }
+    }
+
+    /// Recursively flattens transparent SwiftUI wrappers, returning the real
+    /// content nodes. A transparent wrapper's children replace it, and any of
+    /// those children that are themselves transparent are flattened too — so
+    // VStack > TupleView > Button×6 yields the six Buttons directly, and
+    // ScrollView > ModifiedContent > VStack yields the VStack.
+    static func flattenedChildren(of node: SwiftUIElementNode) -> [SwiftUIElementNode] {
+        var result: [SwiftUIElementNode] = []
+        for child in node.children {
+            if isTransparentWrapper(child.typeName) {
+                result.append(contentsOf: flattenedChildren(of: child))
+            } else {
+                result.append(child)
+            }
+        }
+        return result
+    }
+
+    /// Transparent SwiftUI wrappers that pass their content through without
+    /// laying it out. Their children are flattened into the parent so only the
+    /// real layout containers (VStack/HStack/ZStack) subdivide the frame.
+    static func isTransparentWrapper(_ typeName: String) -> Bool {
+        // True pass-through wrappers: they don't lay out content themselves.
+        // List/Form/LazyVStack/LazyHStack DO lay out content (vertically or
+        // horizontally) and are handled by childLayout, not flattened here.
+        // A raw Swift tuple "(A, B, C)" (the TupleView's unwrapped content)
+        // also just groups its elements — flatten it so its children become
+        // the enclosing layout container's direct children.
+        //
+        // Match by prefix/contains carefully: a VStack<TupleView<…>> or
+        // HStack<…, TupleView<…>> *contains* "TupleView" but is a real layout
+        // container, so use hasPrefix for TupleView and exclude the stack
+        // containers explicitly.
+        if typeName.contains("VStack") || typeName.contains("HStack") || typeName.contains("ZStack") {
+            return false
+        }
+        return typeName.contains("ScrollView") ||
+            typeName.contains("ModifiedContent") ||
+            typeName.hasPrefix("TupleView") ||
+            typeName.hasPrefix("(") ||
+            typeName.contains("Group") ||
+            typeName.contains("_ConditionalContent") ||
+            typeName.contains("AnyView") ||
+            typeName.contains("ForEach")
     }
 
     /// Builds the top-level SwiftUI element children for a reflected tree,
@@ -115,13 +166,17 @@ final class SwiftUIElement: NSObject, Element {
     /// (ViewElement hosting-view fallback) so top-level siblings don't all
     /// share the parent frame and overlap in the 3D scene.
     static func elements(for tree: SwiftUIElementNode, in frame: CGRect) -> [SwiftUIElement] {
+        // Flatten transparent wrappers at the root too, so the top-level
+        // siblings are the real content nodes (e.g. a ScrollView's buttons,
+        // not the ScrollView→ModifiedContent→VStack nesting).
+        let flattened = flattenedChildren(of: tree)
         let childLayout = childLayout(for: tree, inherited: .grid)
         let childFrames = distributeFrames(
-            count: tree.children.count,
+            count: flattened.count,
             in: frame,
             layout: childLayout
         )
-        return zip(tree.children, childFrames).map { child, childFrame in
+        return zip(flattened, childFrames).map { child, childFrame in
             SwiftUIElement(node: child, parentFrame: childFrame, inheritedLayout: childLayout)
         }
     }
@@ -154,6 +209,15 @@ final class SwiftUIElement: NSObject, Element {
         let typeName = node.typeName
         if typeName.contains("VStack") || typeName.contains("ZStack") { return .vertical }
         if typeName.contains("HStack") { return .horizontal }
+        // List / Form / LazyVStack lay content out vertically; LazyHStack
+        // horizontally. ScrollView content flows vertically by default (and
+        // its horizontal-scroll variant is rare); treat it as vertical so the
+        // buttons inside a ScrollView > VStack stack vertically even when the
+        // ScrollView is the root node passed to elements(for:).
+        if typeName.contains("List") || typeName.contains("Form") || typeName.contains("LazyVStack") || typeName.contains("ScrollView") {
+            return .vertical
+        }
+        if typeName.contains("LazyHStack") { return .horizontal }
         // Transparent containers pass the inherited layout through.
         return inherited
     }

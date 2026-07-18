@@ -45,37 +45,28 @@ final class ViewElement: NSObject, Element {
         guard let view else {
             return []
         }
-
-        // Check if this is a SwiftUI hosting view. If so, and the hierarchy
-        // mode is enabled, reflect the declarative SwiftUI tree via Mirror
-        // instead of walking UIView subviews (which only expose internal
-        // infrastructure views). The 3D snapshot view passes `false` so it
-        // can render real frames and pixel snapshots.
-        if useSwiftUIHierarchy {
-            let className = NSStringFromClass(type(of: view))
-            if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(className),
-               let tree = swiftUITree(for: view)
-            {
-                return SwiftUIElement.elements(for: tree, in: view.frame)
-            }
+        // A SwiftUI `_UIHostingView` renders its content directly into the
+        // hosting view. Its UIKit subviews (when it has any) are always
+        // SwiftUI internals — PlatformContainer, HostingScrollView,
+        // PlatformGroupContainer, … — never the developer's semantic content, so
+        // walking UIView.subviews produces a flat tree of infrastructure nodes
+        // (a single ScrollView card) instead of the real hierarchy (the buttons
+        // inside it). This applies to BOTH modes:
+        //   - hierarchy table (useSwiftUIHierarchy: true): show VStack/Text/Button.
+        //   - 3D snapshot (useSwiftUIHierarchy: false): previously only fell back to
+        //     the semantic tree when subviews were EMPTY, which worked for a plain
+        //     VStack but collapsed to one flat card for a ScrollView (whose hosting
+        //     view has non-empty internal subviews). Now always prefer the semantic
+        //     tree for a hosting view, so ScrollView/Form/List children render as
+        //     separated planes too.
+        let className = NSStringFromClass(type(of: view))
+        if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(className),
+           let tree = swiftUITree(for: view)
+        {
+            return SwiftUIElement.elements(for: tree, in: view.frame)
         }
 
-        // 3D snapshot fallback: a `_UIHostingView` renders its content
-        // directly into the hosting view and exposes *no* UIView subviews.
-        // Without this fallback the 3D view collapses to a single flat plane
-        // (no depth, no hierarchy, sliders hidden via `isLeft`). When a
-        // hosting view has no UIKit subviews, fall back to the SwiftUI
-        // semantic tree so its children render as layered planes in the 3D
-        // scene, mirroring the hierarchy table.
-        if view.subviews.isEmpty {
-            let className = NSStringFromClass(type(of: view))
-            if SwiftUIHierarchyBuilder.isSwiftUIHostingClassName(className),
-               let tree = swiftUITree(for: view)
-            {
-                return SwiftUIElement.elements(for: tree, in: view.frame)
-            }
-        }
-
+        // Plain UIKit view: walk its real subviews.
         return view.subviews.map { ViewElement(view: $0, useSwiftUIHierarchy: useSwiftUIHierarchy) }
     }
 

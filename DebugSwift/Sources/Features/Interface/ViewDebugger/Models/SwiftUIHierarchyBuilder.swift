@@ -130,8 +130,10 @@ public enum SwiftUIHierarchyBuilder {
             }
         }
 
-        // 1. Drill into SwiftUI's internal _tree wrapper (HStack/VStack/ZStack use it).
-        //    Tree<_HStackLayout, TupleView<...>> → the content is the second generic.
+        // 1. Drill into SwiftUI's internal _tree wrapper (HStack/VStack/ZStack/
+        //    ScrollView use it). Tree<_HStackLayout, TupleView<...>> → the
+        //    content is the second generic.
+        let hasTree = mirror.children.contains { $0.label == "_tree" }
         if let treeChild = mirror.children.first(where: { $0.label == "_tree" }) {
             childNodes.append(contentsOf: extractTreeChildren(
                 from: treeChild.value, depth: depth + 1, maxDepth: maxDepth,
@@ -140,15 +142,16 @@ public enum SwiftUIHierarchyBuilder {
         }
 
         // 2. For TupleView, drill into its content to find the individual views.
-        if typeName.contains("TupleView") {
+        //    Match by prefix so a ModifiedContent<VStack<TupleView<…>>> (whose
+        //    mangled name *contains* "TupleView") isn't mistaken for a TupleView.
+        if typeName.hasPrefix("TupleView") {
             childNodes.append(contentsOf: extractTupleChildren(
                 from: value, depth: depth + 1, maxDepth: maxDepth,
                 includeProperties: includeProperties, path: "\(path).tuple"
             ))
         }
 
-        // 3. For _ConditionalContent (if/else in ViewBuilder), both branches are stored.
-        if typeName.contains("_ConditionalContent") {
+        if typeName.hasPrefix("_ConditionalContent") {
             for child in mirror.children {
                 if isSwiftUIViewType(value: child.value) {
                     childNodes.append(buildNode(
@@ -172,12 +175,15 @@ public enum SwiftUIHierarchyBuilder {
         // 5. Generic Mirror walk for stored properties that are views or leaf properties.
         for (index, child) in mirror.children.enumerated() {
             let label = child.label ?? "\(index)"
-            // Skip already-handled internal wrappers
+            // Skip already-handled internal wrappers:
+            //   - _tree: unwrapped in step 1.
+            //   - content (ModifiedContent OR when _tree is present): emitted
+            //     via step 1/4, so skip the duplicate here.
             if label == "_tree" { continue }
-            if label == "content" && typeName.contains("ModifiedContent") { continue }
+            if label == "content" && (typeName.contains("ModifiedContent") || typeName.contains("ScrollView") || hasTree) { continue }
             // TupleView's content (the tuple of views) is already unwrapped by
             // step 2; skip it here to avoid emitting the same children twice.
-            if typeName.contains("TupleView") { continue }
+            if typeName.hasPrefix("TupleView") { continue }
 
             // Skip SwiftUI layout/infrastructure values that would otherwise be
             // surfaced as duplicate or meaningless nodes: the internal `Tree<…>`
@@ -204,6 +210,13 @@ public enum SwiftUIHierarchyBuilder {
             }
         }
 
+        // Note: SwiftUI's Mirror layout can expose the same content through
+        // multiple stored properties. The per-type skips above (content when
+        // _tree/ModifiedContent/ScrollView is present, TupleView generic
+        // walk, infrastructure types) handle the known duplication paths.
+        // A structural-equality dedup here was attempted but collapsed
+        // legitimately-identical-structure siblings (e.g. six Buttons whose
+        // Text labels don't surface in the displayName), so it was removed.
         return SwiftUIElementNode(
             id: path, typeName: typeName, displayName: displayName,
             depth: depth, children: childNodes, properties: properties
@@ -274,11 +287,22 @@ public enum SwiftUIHierarchyBuilder {
             typeName.contains("_HStackLayout") ||
             typeName.contains("_ZStackLayout") ||
             typeName.contains("_TupleViewLayout") ||
+            typeName.contains("_PaddingLayout") ||
             typeName.hasPrefix("Optional<") && typeName.contains("CGFloat") ||
             typeName.hasPrefix("Optional<") && typeName.contains("ButtonRole") ||
+            // SwiftUI configuration/gesture/state plumbing attached to
+            // containers (ScrollViewConfiguration, gesture recognizers, etc.).
+            // These are stored alongside the real content and are not views.
+            typeName.contains("ScrollViewConfiguration") ||
+            typeName.contains("Configuration") && typeName.hasSuffix("Configuration") ||
+            typeName.contains("Gesture") ||
+            typeName.contains("ScrollToTopGestureAction") ||
+            typeName.contains("SafeAreaTransitionState") ||
+            typeName.contains("RefreshAction") ||
             typeName.contains("LayoutComputer") ||
             typeName.contains("ViewRendererHost") ||
-            typeName.contains("Host<")
+            typeName.contains("Host<") ||
+            typeName.contains("ButtonAction")
     }
 
     /// Detect if a UIView (in production) is a SwiftUI hosting view.
