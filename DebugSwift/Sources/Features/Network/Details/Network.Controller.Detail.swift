@@ -607,26 +607,33 @@ extension NetworkViewControllerDetail {
     }
 
     @objc private func shareButtonTapped() {
-        let logText = formatLog(model: model)
-        var fileName = model.url?.path.replacingOccurrences(of: "/", with: "-") ?? "-log"
-        fileName.removeFirst()
-        FileSharingManager.generateFileAndShare(text: logText, fileName: fileName)
+        // Offer both the raw log and a standard HAR 1.2 export from one entry
+        // point; HAR keeps the capture portable across DevTools/Charles/Proxyman.
+        let sheet = UIAlertController(
+            title: "Share",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        sheet.addAction(UIAlertAction(title: "Share Log", style: .default) { [weak self] _ in
+            guard let self else { return }
+            let logText = self.formatLog(model: self.model)
+            var fileName = self.model.url?.path.replacingOccurrences(of: "/", with: "-") ?? "-log"
+            fileName.removeFirst()
+            FileSharingManager.generateFileAndShare(text: logText, fileName: fileName)
+        })
+
+        sheet.addAction(UIAlertAction(title: "Export HAR", style: .default) { [weak self] _ in
+            self.map { HARExportAdapter.exportHAR([$0.model]) }
+        })
+
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        present(sheet, animated: true)
     }
 
     @objc private func copyCurlButtonTapped() {
-        var curlCommand = "curl -X \(model.method ?? "GET")"
-        if let headers = model.requestHeaderFields, !headers.isEmpty {
-            for (key, value) in headers where !key.isEmpty {
-                curlCommand += " \\\n     -H '\("\(key): \(value)".escapedForCurl())'"
-            }
-        }
-        if let body = model.requestData?.formattedCurlString(), !body.isEmpty {
-            curlCommand += " \\\n     -d '\(body)'"
-        }
-        if let url = model.url?.absoluteString, !url.isEmpty {
-            curlCommand += " \\\n     '\(url.escapedForCurl())'"
-        }
-        UIPasteboard.general.string = curlCommand
+        HARExportAdapter.copyCURL(model)
         showToast(message: "cURL copied to clipboard")
     }
     
