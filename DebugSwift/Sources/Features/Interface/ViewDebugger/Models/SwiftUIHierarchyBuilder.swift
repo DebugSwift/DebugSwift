@@ -422,8 +422,46 @@ public enum SwiftUIHierarchyBuilder {
 /// stored properties like `_tree`, which the Mirror walk handles directly.
 @MainActor
 private func extractBody(from value: Any) -> Any? {
-    if let bodyful = value as? BodyAccessible {
-        return bodyful.bodyAccessor()
+    // Calling `body` on a *primitive* SwiftUI view (NavigationView, ScrollView,
+    // Button, Text, …) traps at runtime with "body() should not be called on
+    // …", so we must NOT invoke it for those. Primitives expose their content
+    // through stored properties (`_tree`, `content`, …) handled by the Mirror
+    // walk below.
+    //
+    // Custom views, conversely, expose their content ONLY through `body`
+    // (Mirror can't see computed properties), so we DO call it for them. We
+    // distinguish by type name: anything whose outer type name is a known
+    // primitive is skipped; everything else (user types like OSLogInNavView,
+    // ContentView, …) goes through `body`.
+    let typeName = String(describing: type(of: value))
+    guard !isPrimitiveViewType(typeName) else { return nil }
+
+
+    if let view = value as? any View {
+        return view.bodyAccessor()
     }
     return nil
+}
+
+/// Names of SwiftUI primitive view types whose `body` traps and must never be
+/// invoked. Their content is reached via Mirror stored properties instead.
+private let primitiveViewTypeNames: Set<String> = [
+    "NavigationView", "NavigationStack", "NavigationSplitView",
+    "ScrollView", "List", "Form", "Group", "Section",
+    "VStack", "HStack", "ZStack", "LazyVStack", "LazyHStack",
+    "TupleView", "ConditionalContent",
+    "Button", "Text", "Label", "Image", "Color",
+    "Spacer", "Divider", "EmptyView",
+    "ForEach", "ModifiedContent", "AnyView",
+    "Optional", "IdentityOptional",
+    "NavigationLink", "TabView", "Picker", "TextField", "Slider", "Toggle",
+    "Stepper", "SecureField", "Editor", "Map"
+]
+
+@MainActor
+private func isPrimitiveViewType(_ typeName: String) -> Bool {
+    // Match the outer type name (before any `<`), since primitives may carry
+    // generic parameters, e.g. "NavigationView<ModifiedContent<…>>".
+    let outer = typeName.split(separator: "<").first.map(String.init) ?? typeName
+    return primitiveViewTypeNames.contains(outer)
 }

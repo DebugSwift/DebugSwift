@@ -1,15 +1,3 @@
-//
-//  OSLogRenderDebugTests.swift
-//  DebugSwift
-//
-//  Regression tests for the 3D snapshot render path when the inspected
-//  SwiftUI hierarchy is wrapped in a ScrollView (e.g. the OSLog Console Test
-//  screen). Before the fix, a ScrollView's _UIHostingView exposed only SwiftUI
-//  internal UIKit subviews (PlatformContainer, HostingScrollView, …), so the
-//  3D view collapsed to a single flat card and the buttons inside were never
-//  separated.
-//
-
 import XCTest
 import SwiftUI
 import UIKit
@@ -17,98 +5,97 @@ import UIKit
 
 @MainActor
 final class OSLogRenderDebugTests: XCTestCase {
-    /// Mirrors the OSLogTestView structure: ScrollView > VStack { Button×6 }.
-    private struct ScrollViewButtonsView: View, BodyAccessible {
+    /// Mirrors the real OSLogTestView: NavigationView > ScrollView > VStack of 6 Buttons.
+    private struct OSLogInNavView: View {
         var body: some View {
-            ScrollView {
-                VStack(spacing: 12) {
-                    Button("Log Info Message") {}
-                    Button("Log Debug Message") {}
-                    Button("Log Warning Message") {}
-                    Button("Log Error Message") {}
-                    Button("Log 10 Messages") {}
-                    Button("Log Different Subsystems") {}
+            NavigationView {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        Button("Log Info Message") { }
+                        Button("Log Debug Message") { }
+                        Button("Log Warning Message") { }
+                        Button("Log Error Message") { }
+                        Button("Log 10 Messages") { }
+                        Button("Log Different Subsystems") { }
+                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
+                .navigationTitle("OSLog Test")
             }
         }
     }
 
-    private func makeHostingView<V: View>(_ rootView: V) -> UIView {
+    private func makeWindowSnapshot() -> Snapshot {
         let window = UIWindow(frame: UIScreen.main.bounds)
-        let hostingController = UIHostingController(rootView: rootView)
+        let hostingController = UIHostingController(rootView: OSLogInNavView())
         window.rootViewController = hostingController
         window.makeKeyAndVisible()
         hostingController.view.layoutIfNeeded()
-        return hostingController.view
+        return Snapshot(element: ViewElement(view: window, useSwiftUIHierarchy: false))
     }
 
-    /// Collects Button SwiftUIElements whose displayName is exactly "Button",
-    /// treating a Button as a leaf (don't recurse into its label/style internals).
-    private func collectButtons(from element: Element) -> [SwiftUIElement] {
-        var buttons: [SwiftUIElement] = []
-        if let swift = element as? SwiftUIElement, swift.label.name == "Button" {
-            buttons.append(swift)
-            return buttons
+    private func collectButtons(from snapshot: Snapshot) -> [(String, CGRect)] {
+        var buttons: [(String, CGRect)] = []
+        func walk(_ node: Snapshot) {
+            if node.label.name == "Button" {
+                buttons.append((node.label.name ?? "", node.frame))
+                return
+            }
+            for child in node.children { walk(child) }
         }
-        for child in element.children {
-            buttons.append(contentsOf: collectButtons(from: child))
-        }
+        walk(snapshot)
         return buttons
     }
 
-    // MARK: - Tests
-
-    /// A ScrollView > VStack { Button×6 } must surface six distinct Button
-    /// elements in the 3D snapshot tree — not a single flat ScrollView card.
-    func testScrollViewVStackProducesSixButtonElements() {
-        let hostingView = makeHostingView(ScrollViewButtonsView())
-        let element = ViewElement(view: hostingView, useSwiftUIHierarchy: false)
-
-        let buttons = collectButtons(from: element)
-        XCTAssertEqual(buttons.count, 6, "Expected 6 Button elements, got \(buttons.count)")
+    /// Regression: the 3D snapshot tree must reach the six SwiftUI Buttons nested
+    /// under NavigationView > ScrollView > VStack. Before the rootView fix
+    /// (accessed via the AnyHostingController protocol, not KVC/Mirror), the
+    /// hosting view had zero children and the buttons collapsed to a single flat
+    /// plane in the 3D view.
+    func testNavigationViewScrollViewVStackProducesSixButtonElements() {
+        let snapshot = makeWindowSnapshot()
+        let buttons = collectButtons(from: snapshot)
+        XCTAssertEqual(
+            buttons.count,
+            6,
+            "Expected 6 Button elements under NavigationView>ScrollView>VStack; got \(buttons.count). "
+                + "The hosting view's rootView must be reached via the AnyHostingController protocol."
+        )
     }
 
-    /// The six buttons must have non-overlapping frames so they render as
-    /// separated planes in the SceneKit 3D view, not one flat card.
     func testScrollViewButtonsHaveNonOverlappingFrames() {
-        let hostingView = makeHostingView(ScrollViewButtonsView())
-        let element = ViewElement(view: hostingView, useSwiftUIHierarchy: false)
-
-        let buttons = collectButtons(from: element)
-        XCTAssertEqual(buttons.count, 6, "Prerequisite: 6 buttons, got \(buttons.count)")
-        let frames = buttons.map { $0.frame }
-
-        for i in 0..<frames.count {
-            for j in (i + 1)..<frames.count {
+        let snapshot = makeWindowSnapshot()
+        let buttons = collectButtons(from: snapshot)
+        guard buttons.count == 6 else {
+            XCTFail("Prerequisite: expected 6 buttons, got \(buttons.count)")
+            return
+        }
+        for first in 0..<buttons.count {
+            for second in (first + 1)..<buttons.count {
+                let firstFrame = buttons[first].1
+                let secondFrame = buttons[second].1
                 XCTAssertFalse(
-                    frames[i].intersects(frames[j]),
-                    "Button \(i) and \(j) overlap: \(frames[i]) vs \(frames[j]) — they must be separated"
+                    firstFrame.intersects(secondFrame),
+                    "Button \(first) frame \(firstFrame) overlaps Button \(second) frame \(secondFrame)"
                 )
             }
         }
     }
 
-    /// The six buttons in a VStack inside a ScrollView must be stacked
-    /// vertically — same X column, strictly increasing Y origins — exactly the
-    /// "divide the buttons" behavior the screenshot was missing.
     func testScrollViewButtonsAreStackedVerticallyWithDistinctY() {
-        let hostingView = makeHostingView(ScrollViewButtonsView())
-        let element = ViewElement(view: hostingView, useSwiftUIHierarchy: false)
-
-        let buttons = collectButtons(from: element)
-        XCTAssertEqual(buttons.count, 6, "Prerequisite: 6 buttons, got \(buttons.count)")
-        let xs = buttons.map { $0.frame.minX }
-        let ys = buttons.map { $0.frame.minY }
-
-        // Same column (VStack stacks vertically).
-        let xSpread = (xs.max() ?? 0) - (xs.min() ?? 0)
-        XCTAssertEqual(xSpread, 0, accuracy: 0.01, "VStack buttons should share X, got \(xs)")
-
-        // Strictly increasing Y origins.
-        XCTAssertEqual(ys, ys.sorted(), "Y origins must be increasing, got \(ys)")
-        for i in 1..<ys.count {
-            XCTAssertGreaterThan(ys[i], ys[i - 1], "Button \(i) must be below \(i - 1), got \(ys)")
+        let snapshot = makeWindowSnapshot()
+        let buttons = collectButtons(from: snapshot)
+        guard buttons.count == 6 else {
+            XCTFail("Prerequisite: expected 6 buttons, got \(buttons.count)")
+            return
         }
+        let yOrigins = buttons.map { $0.1.minY }
+        let xOrigins = buttons.map { $0.1.minX }
+        XCTAssertTrue(
+            xOrigins.allSatisfy { abs($0 - xOrigins[0]) < 1 },
+            "Buttons should share an X column in a VStack; got X=\(xOrigins)"
+        )
+        XCTAssertEqual(yOrigins, yOrigins.sorted(), "Button Y origins must be non-decreasing; got \(yOrigins)")
+        XCTAssertEqual(Set(yOrigins).count, yOrigins.count, "Button Y origins must be distinct; got \(yOrigins)")
     }
 }

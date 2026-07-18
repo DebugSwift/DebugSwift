@@ -458,13 +458,22 @@ private func getViewController(view: UIView) -> UIViewController? {
     return nil
 }
 
-/// Extracts the SwiftUI view tree from a `_UIHostingView` by reflecting
-/// the hosting controller's `rootView` via `SwiftUIHierarchyBuilder`.
-/// Returns `nil` if the view is not backed by a `UIHostingController`.
-/// Uses Mirror to avoid needing the generic type parameter of `UIHostingController`.
+/// Extracts the SwiftUI view tree from a `_UIHostingView` by reaching the
+/// hosting controller's `rootView` and building a semantic tree via
+/// `SwiftUIHierarchyBuilder`. Returns `nil` if the view is not backed by a
+/// `UIHostingController`.
+///
+/// `UIHostingController.rootView` is a generic Swift property (not `@objc`, not
+/// KVC-compliant, not visible to Mirror), so the only generic way to read it is
+/// to cast the controller through a protocol whose conformance captures the
+/// generic `Content` and returns `rootView as Any`. We define that protocol
+/// (`AnyHostingController`) and conform `UIHostingController` to it, then walk
+/// up the responder chain to a hosting controller and read `rootViewValue`.
+/// This never raises an Obj-C exception (no KVC), so it cannot trigger the
+/// `NSUnknownKeyException` crash that KVC caused on NavigationSplitView-backed
+/// controllers.
 @MainActor
 private func swiftUITree(for view: UIView) -> SwiftUIElementNode? {
-    // Walk up the responder chain to find a hosting controller
     let candidates: [UIViewController?] = [
         getViewController(view: view),
         getNearestAncestorViewController(responder: view),
@@ -472,38 +481,29 @@ private func swiftUITree(for view: UIView) -> SwiftUIElementNode? {
 
     for viewController in candidates {
         guard let viewController else { continue }
-        let typeName = String(describing: type(of: viewController))
-        guard typeName.contains("UIHostingController") || typeName.contains("HostingController") else {
+        guard let hostingController = viewController as? any AnyHostingController else {
             continue
         }
-
-        // Try 1: Mirror on the _UIHostingView itself — rootView is stored as `_rootView`
-        let viewMirror = Mirror(reflecting: view)
-        if let rootViewChild = viewMirror.children.first(where: { $0.label == "_rootView" || $0.label == "rootView" }) {
-            return SwiftUIHierarchyBuilder.buildTree(from: rootViewChild.value)
-        }
-
-        // Try 2: Mirror on the controller
-        let vcMirror = Mirror(reflecting: viewController)
-        if let rootViewChild = vcMirror.children.first(where: { $0.label == "_rootView" || $0.label == "rootView" }) {
-            return SwiftUIHierarchyBuilder.buildTree(from: rootViewChild.value)
-        }
-
-        // Try 3 (formerly KVC `value(forKey:)`) has been removed.
-        // KVC's value(forKey:) raises an NSUnknownKeyException (an Obj-C
-        // exception, not a Swift error) when the key is not KVC-compliant.
-        // SwiftUI-internal hosting controllers — e.g.
-        // UIHostingController<ModifiedContent<…NavigationSearchColumnModifier…>>
-        // used by NavigationSplitView's sidebar — do NOT expose `rootView`
-        // via KVC, so this path threw an uncaught exception that DebugSwift's
-        // own UncaughtExceptionHandler captured as a crash, killing the app
-        // whenever the view debugger was opened on a screen using such a
-        // controller. Mirror reflection (Try 1 / Try 2) is safe and never
-        // raises; if it can't find rootView we fall back to the subview path
-        // rather than crashing.
+        return SwiftUIHierarchyBuilder.buildTree(from: hostingController.rootViewValue)
     }
 
     return nil
+}
+
+/// Type-erased accessor for `UIHostingController.rootView`. `rootView` is a
+/// generic Swift property (not `@objc`, not KVC-compliant, not visible to
+/// Mirror), so the only generic way to read it is to cast the controller
+/// through a protocol whose conformance captures the generic `Content` and
+/// returns `rootView as Any`. This never raises an Obj-C exception (no KVC),
+/// so it cannot trigger the `NSUnknownKeyException` crash that KVC caused on
+/// NavigationSplitView-backed controllers.
+@MainActor
+private protocol AnyHostingController: AnyObject {
+    var rootViewValue: Any { get }
+}
+
+extension UIHostingController: AnyHostingController {
+    var rootViewValue: Any { rootView }
 }
 
 @MainActor
