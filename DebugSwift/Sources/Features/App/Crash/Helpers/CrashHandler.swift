@@ -205,7 +205,7 @@ func CrashSignalHandler(
     """
 
     CrashSignalExceptionHandler.exceptionReceiveClosure?(signal, nil, exceptionInfo)
-    ClearSignalRigister()
+    ClearSignalRegister()
 
     let handler = CrashHandlerGlobalState.shared.getSignalHandler(signal: signal)
     handler?(signal, info, context)
@@ -226,7 +226,7 @@ func SignalName(_ signal: Int32) -> String {
     }
 }
 
-func ClearSignalRigister() {
+func ClearSignalRegister() {
     signal(SIGSEGV, SIG_DFL)
     signal(SIGFPE, SIG_DFL)
     signal(SIGBUS, SIG_DFL)
