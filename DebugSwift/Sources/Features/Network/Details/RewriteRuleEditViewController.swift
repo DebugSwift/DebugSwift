@@ -268,7 +268,7 @@ final class RewriteRuleEditViewController: BaseController {
     }
 
     private func updateMethodSelection() {
-        let title = selectedHTTPMethod?.rawValue ?? "All Methodes"
+        let title = selectedHTTPMethod?.rawValue ?? "All Methods"
         methodButton.setTitle(title, for: .normal)
         if #available(iOS 14.0, *) {
             methodButton.menu = buildMethodMenu()
@@ -279,7 +279,7 @@ final class RewriteRuleEditViewController: BaseController {
         var actions: [UIAction] = []
         actions.append(
             UIAction(
-                title: "All Methodes",
+                title: "All Methods",
                 state: selectedHTTPMethod == nil ? .on : .off
             ) { [weak self] _ in
                 self?.selectedHTTPMethod = nil
@@ -300,7 +300,7 @@ final class RewriteRuleEditViewController: BaseController {
 
     @objc private func selectMethodTappedLegacy() {
         let alert = UIAlertController(title: "HTTP Method", message: "Select one method", preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: "All Methodes", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "All Methods", style: .default) { [weak self] _ in
             self?.selectedHTTPMethod = nil
             self?.updateMethodSelection()
         })
