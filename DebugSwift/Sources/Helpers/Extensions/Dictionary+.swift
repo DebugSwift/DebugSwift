@@ -36,7 +36,7 @@ extension Dictionary {
     func asJsonStr() -> String? {
         var jsonCompatibleDictionary: [String: Any] = [:]
 
-        // Converte valores incompatíveis
+        // Converts incompatible values
         for (key, value) in self {
             if let data = value as? Data {
                 jsonCompatibleDictionary[key as! String] = data.base64EncodedString()
