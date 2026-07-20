@@ -217,6 +217,9 @@ extension AppViewController: UITableViewDataSource, UITableViewDelegate {
             case .eventTimeline:
                 let controller = EventTimelineViewController()
                 navigationController?.pushViewController(controller, animated: true)
+            case .agentDebugLog:
+                let controller = AgentDebugLogViewController()
+                navigationController?.pushViewController(controller, animated: true)
             }
         default:
             break
@@ -317,6 +320,7 @@ extension AppViewController {
         case pushNotifications
         case deepLink
         case eventTimeline
+        case agentDebugLog
 
         var title: String {
             switch self {
@@ -336,9 +340,12 @@ extension AppViewController {
                 return "Deep Links"
             case .eventTimeline:
                 return "Event Timeline"
+            case .agentDebugLog:
+                return "Agent Debug Log"
             }
         }
 
+        @MainActor
         static var allCasesWithPermission: [ActionInfo] {
             var actions = ActionInfo.allCases
             let disabledActions = DebugSwift.App.shared.disableMethods
@@ -357,6 +364,10 @@ extension AppViewController {
 
             if disabledActions.contains(.pushNotifications) {
                 actions.removeAll(where: { $0 == .pushNotifications })
+            }
+
+            if !FeatureHandling.enabledBetaFeatures.contains(.agentDebugLog) {
+                actions.removeAll(where: { $0 == .agentDebugLog })
             }
 
             return actions

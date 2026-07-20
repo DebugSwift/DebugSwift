@@ -34,7 +34,7 @@ class FeatureBaseTests: XCTestCase {
 
     func testDebugSwiftBetaFeature_allCases() {
         // Given
-        let expectedCases: [DebugSwiftBetaFeature] = [.swiftUIRenderTracking, .networkSessionPersistence]
+        let expectedCases: [DebugSwiftBetaFeature] = [.swiftUIRenderTracking, .networkSessionPersistence, .agentDebugLog]
 
         // When
         let allCases = DebugSwiftBetaFeature.allCases
