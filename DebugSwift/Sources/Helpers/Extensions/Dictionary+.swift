@@ -32,16 +32,16 @@ extension [AnyHashable: Any] {
     }
 }
 
-extension Dictionary {
+extension Dictionary where Key == String {
     func asJsonStr() -> String? {
         var jsonCompatibleDictionary: [String: Any] = [:]
 
         // Converte valores incompatíveis
         for (key, value) in self {
             if let data = value as? Data {
-                jsonCompatibleDictionary[key as! String] = data.base64EncodedString()
+                jsonCompatibleDictionary[key] = data.base64EncodedString()
             } else {
-                jsonCompatibleDictionary[key as! String] = value
+                jsonCompatibleDictionary[key] = value
             }
         }
 
