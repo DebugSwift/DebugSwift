@@ -13,8 +13,7 @@ final class AgentDebugLogTests: XCTestCase {
 
     // MARK: - Helpers
 
-    /// Sets `AGENT_DEBUG_LOG_PATH` to a temp file for the duration of the
-    /// test, returning the URL. Restores the prior value on teardown.
+    /// Sets `AGENT_DEBUG_LOG_PATH` to a temp file, returning the URL.
     private func withHostLogPath() -> URL {
         let url = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent("agent-debug-\(UUID().uuidString).ndjson")

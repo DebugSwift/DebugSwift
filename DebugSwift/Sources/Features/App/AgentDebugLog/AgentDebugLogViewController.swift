@@ -2,10 +2,9 @@
 //  AgentDebugLogViewController.swift
 //  DebugSwift
 //
-//  Screen that exposes the aggregated `agent-debug.ndjson` log to the user
-//  and to an AI agent. Shows a copyable description (where the log lives,
-//  how to pull it, the NDJSON schema) and a toggle for the underlying
-//  beta feature.
+//  Exposes the aggregated `agent-debug.ndjson` log to the user and to an
+//  AI agent: log path, pull commands, NDJSON schema, and a toggle for the
+//  underlying beta feature.
 //
 
 import UIKit
@@ -114,11 +113,9 @@ final class AgentDebugLogViewController: BaseController {
             stackView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor, constant: -32)
         ])
 
-        // Toggle row
         let toggleRow = makeToggleRow()
         stackView.addArrangedSubview(toggleRow)
 
-        // Section header: What is this?
         stackView.addArrangedSubview(makeSectionHeader("What is this?"))
         stackView.addArrangedSubview(makeBodyLabel(
             "When enabled, DebugSwift aggregates network logs, crashes, " +
@@ -128,15 +125,12 @@ final class AgentDebugLogViewController: BaseController {
             "description below and hand it to your AI agent."
         ))
 
-        // Section header: Log path
         stackView.addArrangedSubview(makeSectionHeader("Log path"))
         stackView.addArrangedSubview(pathLabel)
 
-        // Section header: AI agent instructions (copyable)
         stackView.addArrangedSubview(makeSectionHeader("AI agent instructions (copy this)"))
         stackView.addArrangedSubview(descriptionTextView)
 
-        // Section header: Actions
         stackView.addArrangedSubview(makeSectionHeader("Actions"))
         stackView.addArrangedSubview(makeActionButton("Copy instructions", action: #selector(copyDescriptionTapped)))
         stackView.addArrangedSubview(makeActionButton("Share log file", action: #selector(shareTapped)))

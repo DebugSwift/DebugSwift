@@ -4,7 +4,6 @@
 //
 //  Aggregates debug data (network, crashes, console, events) into a single
 //  NDJSON file an AI agent can pull from the simulator or device.
-//
 //  Protocol: https://github.com/DebugSwift/skills/blob/main/skills/swift-agent-debug-log/SKILL.md
 //
 
@@ -12,24 +11,17 @@ import Foundation
 
 // MARK: - AgentDebugLog
 
-/// Singleton that streams debug data as NDJSON lines to a file an AI agent
-/// can read. Disabled by default; activated through the `agentDebugLog`
-/// beta feature (see `FeatureHandling`).
-///
-/// Write path strategy (matches the SKILL spec):
-/// 1. `AGENT_DEBUG_LOG_PATH` env var (absolute host path) when present —
-///    used by `bazel_ios_build_and_run` / Cursor DEBUG MODE.
-/// 2. `Documents/agent-debug.ndjson` fallback — sandbox-safe for the
-///    simulator, pulled via `bazel_ios_agent_debug_log_pull`.
+/// Streams debug data as NDJSON lines to a file an AI agent can read.
+/// Disabled by default; activated through the `agentDebugLog` beta feature.
+/// Path resolution: `AGENT_DEBUG_LOG_PATH` env var when set, otherwise
+/// `Documents/agent-debug.ndjson`.
 final class AgentDebugLog: @unchecked Sendable {
     static let shared = AgentDebugLog()
 
     // MARK: - Configuration
 
-    /// Default sandbox-safe file name used when no host path is provided.
     static let defaultFileName = "agent-debug.ndjson"
 
-    /// NDJSON line schema fields (see SKILL.md).
     enum Field {
         static let sessionId = "sessionId"
         static let location = "location"
@@ -66,9 +58,8 @@ final class AgentDebugLog: @unchecked Sendable {
 
     // MARK: - Lifecycle
 
-    /// Enables aggregation. Idempotent. Subscribes to `EventBusSubscriber`,
-    /// mirrors `ConsoleOutput`, and records a lifecycle entry so the agent
-    /// can see when capture started.
+    /// Enables aggregation. Idempotent. Records a lifecycle entry so the
+    /// agent can see when capture started.
     func enable() {
         lock.lock()
         if isEnabled {
@@ -85,7 +76,6 @@ final class AgentDebugLog: @unchecked Sendable {
             data: ["path": currentLogPath().path]
         )
 
-        // EventBus delivers network/performance/interface/app events.
         let token = EventBusSubscriber.shared.subscribe { [weak self] event in
             self?.record(
                 kind: .event,
@@ -99,14 +89,11 @@ final class AgentDebugLog: @unchecked Sendable {
         }
         eventListenerToken = token
 
-        // Console output (print/NSLog) and stderr are surfaced via
-        // `ConsoleOutput`. We poll on a lightweight cadence instead of
-        // swizzling further — the data is already captured by DebugSwift.
         startConsoleMirror()
     }
 
-    /// Disables aggregation. Idempotent. Removes listeners and records a
-    /// lifecycle entry so the agent can see when capture stopped.
+    /// Disables aggregation. Idempotent. Records a lifecycle entry so the
+    /// agent can see when capture stopped.
     func disable() {
         lock.lock()
         if let token = eventListenerToken {
@@ -143,8 +130,7 @@ final class AgentDebugLog: @unchecked Sendable {
         return documentsURL().appendingPathComponent(Self.defaultFileName)
     }
 
-    /// Sandbox-safe Documents directory URL. Falls back to NSTemporaryDirectory
-    /// if the documents directory cannot be resolved.
+    /// Sandbox-safe Documents directory URL, falling back to NSTemporaryDirectory.
     func documentsURL() -> URL {
         if let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             return url
@@ -153,7 +139,6 @@ final class AgentDebugLog: @unchecked Sendable {
     }
 
     /// Human-readable description shown in the UI and copyable to an AI agent.
-    /// Tells the agent exactly where the log lives and how to pull it.
     var agentDescription: String {
         let path = currentLogPath().path
         let sessionId = ProcessInfo.processInfo.environment["AGENT_DEBUG_SESSION_ID"] ?? "(none)"
@@ -232,23 +217,19 @@ final class AgentDebugLog: @unchecked Sendable {
     private static let writeLock = NSLock()
 
     /// Appends a single UTF-8 line to `url`, creating the file if needed.
-    /// Serialized so concurrent callers (EventBus listener + mirror timer)
-    /// never interleave or truncate each other.
+    /// Serialized so concurrent callers never interleave or truncate.
     private func appendLine(_ line: String, to url: URL) {
         Self.writeLock.lock()
         defer { Self.writeLock.unlock() }
 
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: url.path) {
-            // Create the file with this line as its first content.
             guard let data = line.data(using: .utf8) else { return }
             fileManager.createFile(atPath: url.path, contents: data)
             return
         }
 
         guard let handle = try? FileHandle(forWritingTo: url) else {
-            // Could not open for writing — fall back to temp dir so we
-            // never silently lose the entry.
             let fallback = URL(fileURLWithPath: NSTemporaryDirectory())
                 .appendingPathComponent(Self.defaultFileName)
             if !fileManager.fileExists(atPath: fallback.path) {
@@ -270,13 +251,13 @@ final class AgentDebugLog: @unchecked Sendable {
         try? handle.close()
     }
 
-    /// Clears the log file. Useful before a fresh repro run.
+    /// Clears the log file.
     func clear() {
         let url = currentLogPath()
         try? FileManager.default.removeItem(at: url)
     }
 
-    /// Reads the raw NDJSON contents (for sharing / preview).
+    /// Reads the raw NDJSON contents.
     func contents() -> String {
         let url = currentLogPath()
         return (try? String(contentsOf: url, encoding: .utf8)) ?? ""
@@ -304,7 +285,6 @@ final class AgentDebugLog: @unchecked Sendable {
         let console = ConsoleOutput.shared.getPrintAndNSLogOutput()
         let stderr = ConsoleOutput.shared.getErrorOutput()
 
-        // New console lines since last poll.
         if console.count > lastSeenConsoleCount {
             let start = max(0, lastSeenConsoleCount)
             for line in console[start..<console.count] {
