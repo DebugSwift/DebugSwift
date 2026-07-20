@@ -13,15 +13,9 @@ import Foundation
  */
 class CallStackParser {
     static var bundleName: String? {
-        if let name: String = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String {
-            return name
-        }
-        if let name: String = Bundle(
-            for: self
-        ).infoDictionary?[kCFBundleNameKey as String] as? String {
-            return name
-        }
-        return nil
+        Bundle.main.object(forInfoDictionaryKey: kCFBundleNameKey as String) as? String
+        ??
+        Bundle(for: self).object(forInfoDictionaryKey: kCFBundleNameKey as String) as? String
     }
 
     private static func cleanMethod(
