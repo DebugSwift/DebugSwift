@@ -10,14 +10,14 @@ import Foundation
 
 extension HTTPURLResponse {
     func expires() -> Date? {
-        if let cc = (allHeaderFields["Cache-Control"] as? String)?.lowercased(),
+        if let cc = value(forHTTPHeaderField: "Cache-Control")?.lowercased(),
            let range = cc.range(of: "max-age="),
            let s = cc[range.upperBound...].components(separatedBy: ",").first,
            let age = TimeInterval(s) {
             return Date(timeIntervalSinceNow: age)
         }
 
-        if let ex = (allHeaderFields["Expires"] as? String)?.lowercased(),
+        if let ex = value(forHTTPHeaderField: "Expires"),
            let exp = Date.dateFormatter.date(from: ex) {
             return exp
         }
