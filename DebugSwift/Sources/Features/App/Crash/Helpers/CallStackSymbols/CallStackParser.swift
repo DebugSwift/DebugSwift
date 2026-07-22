@@ -36,7 +36,7 @@ class CallStackParser {
         if !result.hasSuffix(
             ")"
         ) {
-            result = result + ")" // add closing bracket
+        result += ")" // add closing bracket
         }
         return result
     }

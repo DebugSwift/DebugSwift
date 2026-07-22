@@ -9,6 +9,7 @@
 import Foundation
 
 enum ErrorHelper {
+// swiftlint:disable cyclomatic_complexity
     static func handle(_ error: Error?, model: HttpModel) -> HttpModel {
         if error == nil {
             // https://httpstatuses.com
@@ -207,3 +208,4 @@ enum ErrorHelper {
         return model
     }
 }
+// swiftlint:enable cyclomatic_complexity

@@ -9,12 +9,12 @@
 import UIKit
 
 final class GridOverlayView: TopLevelViewWrapper {
-    let GridOverlayViewMinHorizontalMiddlePartSize: NSInteger = 8
-    let GridOverlayViewMinVerticalMiddlePartSize: NSInteger = 8
-    let GridOverlayViewLabelFontSize: CGFloat = 9.0
-    let GridOverlayViewHorizontalLabelTopOffset: CGFloat = 72.0
-    let GridOverlayViewVerticalLabelRightOffset: CGFloat = 32.0
-    let GridOverlayViewVerticalLabelContentOffsets: CGFloat = 4.0
+    let minHorizontalMiddlePartSize: NSInteger = 8
+    let minVerticalMiddlePartSize: NSInteger = 8
+    let labelFontSize: CGFloat = 9.0
+    let horizontalLabelTopOffset: CGFloat = 72.0
+    let verticalLabelRightOffset: CGFloat = 32.0
+    let verticalLabelContentOffsets: CGFloat = 4.0
 
     // MARK: - Properties
 
@@ -78,7 +78,7 @@ final class GridOverlayView: TopLevelViewWrapper {
 
     private func newMiddlePartLabel() -> UILabel {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: GridOverlayViewLabelFontSize)
+        label.font = UIFont.systemFont(ofSize: labelFontSize)
         label.textColor = UIColor.white
         label.backgroundColor = .purple
         label.textAlignment = .center
@@ -101,9 +101,9 @@ final class GridOverlayView: TopLevelViewWrapper {
         var middlePartSize = screenSize - linesPerHalf * 2 * gridSize
         let showsLabel = middlePartSize != 0
 
-        if middlePartSize < GridOverlayViewMinHorizontalMiddlePartSize, showsLabel {
+        if middlePartSize < minHorizontalMiddlePartSize, showsLabel {
             linesPerHalf -=
-                (GridOverlayViewMinHorizontalMiddlePartSize - middlePartSize + 2 * gridSize - 1)
+                (minHorizontalMiddlePartSize - middlePartSize + 2 * gridSize - 1)
                 / (2 * gridSize)
             middlePartSize = screenSize - linesPerHalf * 2 * gridSize
         }
@@ -114,7 +114,7 @@ final class GridOverlayView: TopLevelViewWrapper {
             let labelSize = horizontalLabel.frame.size
             horizontalLabel.frame = CGRect(
                 x: CGFloat(linesPerHalf) * CGFloat(gridSize) - lineWidth,
-                y: GridOverlayViewHorizontalLabelTopOffset,
+                y: horizontalLabelTopOffset,
                 width: CGFloat(middlePartSize) + 2 * lineWidth,
                 height: labelSize.height
             )
@@ -147,9 +147,9 @@ final class GridOverlayView: TopLevelViewWrapper {
         middlePartSize = screenSize - linesPerHalf * 2 * gridSize
         let showsVerticalLabel = middlePartSize != 0
 
-        if middlePartSize < GridOverlayViewMinVerticalMiddlePartSize, showsVerticalLabel {
+        if middlePartSize < minVerticalMiddlePartSize, showsVerticalLabel {
             linesPerHalf -=
-                (GridOverlayViewMinVerticalMiddlePartSize - middlePartSize + 2 * gridSize - 1)
+                (minVerticalMiddlePartSize - middlePartSize + 2 * gridSize - 1)
                 / (2 * gridSize)
             middlePartSize = screenSize - linesPerHalf * 2 * gridSize
         }
@@ -158,9 +158,9 @@ final class GridOverlayView: TopLevelViewWrapper {
             verticalLabel.text = "\(middlePartSize)"
             verticalLabel.sizeToFit()
             let labelSize = verticalLabel.frame.size
-            let labelWidth = labelSize.width + GridOverlayViewVerticalLabelContentOffsets
+            let labelWidth = labelSize.width + verticalLabelContentOffsets
             verticalLabel.frame = CGRect(
-                x: frame.size.width - GridOverlayViewVerticalLabelRightOffset - labelWidth,
+                x: frame.size.width - verticalLabelRightOffset - labelWidth,
                 y: CGFloat(linesPerHalf) * CGFloat(gridSize) - lineWidth,
                 width: labelWidth,
                 height: CGFloat(middlePartSize) + 2 * lineWidth
