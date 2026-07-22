@@ -48,7 +48,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         DiskWriteTracker.install()
 
         debugSwift
-            .setup(enableBetaFeatures: [.swiftUIRenderTracking, .networkSessionPersistence])
+            .setup(enableBetaFeatures: [.swiftUIRenderTracking, .networkSessionPersistence, .agentDebugLog])
             .show()
         
         DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 1)

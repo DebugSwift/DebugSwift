@@ -149,6 +149,12 @@ enum FeatureHandling {
     private static func setupBetaFeatures(_ betaFeatures: [DebugSwiftBetaFeature]) {
         enabledBetaFeatures = betaFeatures
 
+        if betaFeatures.contains(.agentDebugLog) {
+            AgentDebugLog.shared.enable()
+        } else {
+            AgentDebugLog.shared.disable()
+        }
+
 #if canImport(SwiftData)
         if #available(iOS 17.0, *) {
             Task { @MainActor in
