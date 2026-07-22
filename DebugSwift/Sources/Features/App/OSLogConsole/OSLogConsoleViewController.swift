@@ -277,9 +277,10 @@ final class OSLogConsoleViewController: BaseController {
     }
     
     private func scrollToBottom() {
+        guard viewModel.isCaptureEnabled else { return }
         let entries = viewModel.getFilteredEntries()
         guard !entries.isEmpty else { return }
-        
+
         let indexPath = IndexPath(row: entries.count - 1, section: 0)
         tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
     }
