@@ -34,7 +34,7 @@ DERIVED    ?= $(PWD)/build/DerivedData
 APP_PATH   := $(DERIVED)/Build/Products/$(CONFIG)-iphonesimulator/$(SCHEME).app
 
 # ── Rules ─────────────────────────────────────────────────────────────────
-.PHONY: build install launch run terminate booted path clean open help
+.PHONY: build install launch run terminate booted path clean open help danger danger-setup danger-local danger-ci
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -70,3 +70,26 @@ open: ## Open the Simulator app window
 
 clean: ## Remove build products
 	rm -rf $(DERIVED)/Build/Products
+
+# ── Danger ────────────────────────────────────────────────────────────────
+danger-setup: ## Clone DangerSwift deps so swift build can compile Dangerfile
+	@cp Package.swift /tmp/DebugSwift-Package.swift.bak; \
+	git clone --depth 1 https://github.com/DebugSwift/DangerSwift /tmp/DangerSwift-clone 2>/dev/null; \
+	rm -rf /tmp/DangerSwift-clone/.git /tmp/DangerSwift-clone/Readme.md; \
+	cp /tmp/DangerSwift-clone/Package.swift .; \
+	mkdir -p Sources/DangerDependencies; \
+	touch Sources/DangerDependencies/placeholder.swift; \
+	rm -rf /tmp/DangerSwift-clone; \
+	echo "✓ DangerSwift Package.swift installed (original backed up to /tmp/DebugSwift-Package.swift.bak)"
+
+danger-restore: ## Restore the original Package.swift after danger runs
+	@mv -f /tmp/DebugSwift-Package.swift.bak Package.swift 2>/dev/null; \
+	rm -rf Sources/DangerDependencies; \
+	echo "✓ Package.swift restored"
+
+danger-local: danger-setup ## Run danger-swift local (setup + build + run)
+	swift build && swift run danger-swift local; make danger-restore
+
+danger-ci: danger-setup ## Run danger-swift ci (setup + build + run)
+	swift build && swift run danger-swift ci --verbose; make danger-restore
+
