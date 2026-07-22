@@ -159,7 +159,7 @@ enum ErrorHelper {
                 model.errorLocalizedDescription = "Internal Server Error"
             case 501:
                 model.errorDescription = "Server Error:\nServer does not recognize the method or lacks the ability to fulfill"
-                model.errorLocalizedDescription = "Not Implemented"
+                model.errorLocalizedDescription = "501 Not Implemented"
             case 502:
                 model.errorDescription = "Server Error:\nServer received an invalid response from the upstream server"
                 model.errorLocalizedDescription = "Bad Gateway"
