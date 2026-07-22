@@ -803,7 +803,7 @@ extension CustomHTTPProtocol: URLSessionTaskDelegate {
                originalDelegate.responds(to: #selector(URLSessionTaskDelegate.urlSession(_:task:didReceive:completionHandler:))) {
                 originalDelegate.urlSession?(session, task: task, didReceive: challenge, completionHandler: completionHandler)
             } else {
-                // Fallback to session-level challenge if task-level not implemented
+                // Delegate the challenge to the session-level handler as fallback
                 self.urlSession(session, didReceive: challenge, completionHandler: completionHandler)
             }
         }
