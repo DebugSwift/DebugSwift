@@ -1104,7 +1104,7 @@ final class Keychain {
     #if os(iOS) && !targetEnvironment(macCatalyst)
     /**
      @abstract Returns a randomly generated password.
-     @return String password in the form xxx-xxx-xxx-xxx where x is taken from the sets "abcdefghkmnopqrstuvwxy", "ABCDEFGHJKLMNPQRSTUVWXYZ", "3456789" with at least one character from each set being present.
+     @return A random password with four groups of three characters, drawn from lowercase letters, uppercase letters, and digits, with at least one character from each set.
      */
     @available(iOS 8.0, *)
     final class func generatePassword() -> String {
