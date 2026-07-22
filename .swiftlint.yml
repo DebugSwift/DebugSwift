@@ -3,6 +3,8 @@ included:
 
 excluded:
   - Tests
+  - DebugSwift/Sources/Features/App/Crash/Helpers/CallStackSymbols/CwlDemangle.swift
+  - DebugSwift/Sources/Features/Resources/Keychain/KeychainService.swift
 
 analyzer_rules:
   - unused_declaration
@@ -24,6 +26,8 @@ disabled_rules:
   - explicit_type_interface
   - file_types_order
   - final_test_case
+  - empty_count
+  - force_cast
   - force_unwrapping
   - function_default_parameter_at_end
   - implicit_return
@@ -64,8 +68,11 @@ attributes:
     - "@ConfigurationElement"
     - "@OptionGroup"
     - "@RuleConfigurationDescriptionBuilder"
-    
 identifier_name:
+  min_length:
+    warning: 1
+  allowed_symbols:
+    - "_"
   excluded:
     - id
 large_tuple: 3
@@ -94,3 +101,13 @@ single_test_class: *unit_test_configuration
 
 function_body_length: 60
 type_body_length: 400
+line_length:
+  warning: 200
+  error: 250
+file_length:
+  warning: 1200
+  error: 1500
+
+cyclomatic_complexity:
+  warning: 15
+  error: 40

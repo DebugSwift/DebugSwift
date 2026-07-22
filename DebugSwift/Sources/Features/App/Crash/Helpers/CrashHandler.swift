@@ -7,6 +7,7 @@
 
 import Foundation
 import MachO.dyld
+// swiftlint:disable identifier_name
 
 func calculate() -> Int {
     var slide = 0

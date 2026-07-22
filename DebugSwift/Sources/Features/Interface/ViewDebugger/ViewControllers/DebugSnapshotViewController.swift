@@ -153,8 +153,8 @@ final class DebugSnapshotViewController: UIViewController, SnapshotViewDelegate,
     }
 
     private func topDebugSnapshotViewController() -> DebugSnapshotViewController {
-        if let DebugSnapshotViewController = navigationController?.topViewController as? DebugSnapshotViewController {
-            return DebugSnapshotViewController
+        if let topVC = navigationController?.topViewController as? DebugSnapshotViewController {
+            return topVC
         }
         return self
     }
