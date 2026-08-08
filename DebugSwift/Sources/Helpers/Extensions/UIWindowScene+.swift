@@ -33,24 +33,55 @@ extension UIWindowScene {
 }
 
 extension UIViewController {
+    /// Swizzles `viewDidAppear(_:)` using IMP-replacement rather than
+    /// `method_exchangeImplementations`.
+    ///
+    /// `method_exchangeImplementations` renames the original method to
+    /// `db_viewDidAppear(_:)` and dispatches through that renamed selector.
+    /// Third-party agents that instrument UIKit lifecycle methods (e.g. NewRelic)
+    /// detect the renamed selector on core UIKit classes such as
+    /// `UINavigationController` and throw `NRInvalidArgumentException`, crashing
+    /// the host app when another swizzler (e.g. SFMCSDK) also wraps
+    /// `viewDidAppear(_:)` and calls through the chain.
+    ///
+    /// IMP-replacement keeps `viewDidAppear(_:)` pointing at a valid
+    /// implementation and never exposes `db_viewDidAppear(_:)` in the dispatch
+    /// chain, so co-swizzlers and method scanners never see a renamed selector.
+    /// The original implementation is captured at install time and invoked
+    /// directly via its IMP, so install order relative to other swizzlers does
+    /// not matter.
     static func db_swizzleViewDidAppear() {
         DispatchQueue.once(token: "debugswift.uiviewcontroller.db_swizzleViewDidAppear") {
-            let original = #selector(UIViewController.viewDidAppear(_:))
-            let swizzled = #selector(UIViewController.db_viewDidAppear(_:))
-            guard
-                let originalMethod = class_getInstanceMethod(UIViewController.self, original),
-                let swizzledMethod = class_getInstanceMethod(UIViewController.self, swizzled)
-            else { return }
-            method_exchangeImplementations(originalMethod, swizzledMethod)
+            guard let originalMethod = class_getInstanceMethod(
+                UIViewController.self,
+                #selector(UIViewController.viewDidAppear(_:))
+            ) else { return }
+
+            db_originalViewDidAppearIMP = method_getImplementation(originalMethod)
+
+            let swizzledIMP: @convention(block) (UIViewController, Bool) -> Void = { vc, animated in
+                // Invoke the original implementation directly via its IMP with
+                // the canonical selector, avoiding any dispatch through a
+                // renamed selector.
+                typealias ViewDidAppearIMP = @convention(c) (UIViewController, Selector, Bool) -> Void
+                if let originalIMP = UIViewController.db_originalViewDidAppearIMP {
+                    let castedIMP = unsafeBitCast(originalIMP, to: ViewDidAppearIMP.self)
+                    castedIMP(vc, #selector(UIViewController.viewDidAppear(_:)), animated)
+                }
+
+                if #available(iOS 16.0, *) {
+                    WindowManager.window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+                } else {
+                    UIViewController.attemptRotationToDeviceOrientation()
+                }
+            }
+
+            method_setImplementation(originalMethod, imp_implementationWithBlock(swizzledIMP))
         }
     }
 
-    @objc private func db_viewDidAppear(_ animated: Bool) {
-        db_viewDidAppear(animated)
-        if #available(iOS 16.0, *) {
-            WindowManager.window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
-        } else {
-            UIViewController.attemptRotationToDeviceOrientation()
-        }
-    }
+    /// Stored original `viewDidAppear(_:)` IMP, captured before swizzling.
+    /// `nonisolated(unsafe)` because it is written exactly once (guarded by
+    /// `DispatchQueue.once`) and only read afterward.
+    nonisolated(unsafe) static var db_originalViewDidAppearIMP: IMP?
 }
