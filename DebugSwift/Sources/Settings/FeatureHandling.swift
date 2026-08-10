@@ -85,6 +85,10 @@ enum FeatureHandling {
         if !methodsToDisable.contains(.orientationForwarding) {
             enableOrientationForwarding()
         }
+
+        if !methodsToDisable.contains(.superCallDetector) {
+            enableSuperCallDetector()
+        }
     }
 
     private static func enableNetwork() {
@@ -135,6 +139,10 @@ enum FeatureHandling {
             UIWindowScene.db_swizzleRequestGeometryUpdate()
         }
         UIViewController.db_swizzleViewDidAppear()
+    }
+
+    private static func enableSuperCallDetector() {
+        UIViewController.db_swizzleLifecycleForSuperCallDetection()
     }
 
     private static func enableSwiftUIRender() {
