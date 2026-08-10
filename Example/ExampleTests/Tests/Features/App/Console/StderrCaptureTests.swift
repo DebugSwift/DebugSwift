@@ -86,6 +86,57 @@ final class StderrCaptureTests: XCTestCase {
             "stderr marker appeared \(matches.count) times — readabilityHandler is re-firing (leak #433)")
     }
 
+    // MARK: - Passthrough (recursion fix)
+
+    /// Writing a stderr line containing "]" triggers stderrMessageSafe →
+    /// writeDirectlyToOriginalStderr, which writes the post-"]" fragment to
+    /// originalDescriptor. Before the fix, originalDescriptor aliased fd 2
+    /// (the capture pipe), so the fragment re-entered the capture loop and
+    /// appeared as its own console error entry. After the fix,
+    /// originalDescriptor is an owned dup of real stderr, so the fragment
+    /// exits the pipe and only the original full marker is captured.
+    func testStderrPassthroughDoesNotRecurse() throws {
+        StderrCapture.shared.startCapturing()
+        waitForCaptureReady()
+        guard StderrCapture.shared.isCapturing else {
+            throw XCTSkip("stderr fd-2 redirect unsupported in this environment")
+        }
+
+        // The "]" triggers the writeDirectlyToOriginalStderr code path in
+        // stderrMessageSafe, which splits on "]", removes the first segment,
+        // and writes the remainder to originalDescriptor.
+        let uuid = UUID().uuidString
+        let marker = "[DSWIFT_433_PASSTHROUGH] \(uuid)"
+        FileHandle.standardError.write(Data((marker + "\n").utf8))
+
+        let exp = expectation(description: "passthrough-received")
+        DispatchQueue(label: "test.passthrough").asyncAfter(deadline: .now() + 1.0) {
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 10)
+
+        let errors = ConsoleOutput.shared.getErrorOutput()
+
+        // The full marker must be captured once (capture works).
+        let fullMatches = errors.filter { $0.contains(marker) }
+        XCTAssertFalse(fullMatches.isEmpty, "passthrough marker was not captured")
+        XCTAssertLessThanOrEqual(fullMatches.count, 2,
+            "full marker appeared \(fullMatches.count) times — readabilityHandler is re-firing (leak #433)")
+
+        // The distinguishing assertion for the recursion fix:
+        // stderrMessageSafe splits on "]", removes the first segment, and
+        // writes the trimmed remainder (the bare uuid) to
+        // writeDirectlyToOriginalStderr. Pre-fix, originalDescriptor aliased
+        // the capture pipe, so the bare uuid re-entered the loop and appeared
+        // as its own console error entry. Post-fix, it goes to real stderr
+        // and must NOT appear as a standalone entry.
+        let bareFragmentMatches = errors.filter {
+            $0.trimmingCharacters(in: .whitespacesAndNewlines) == uuid
+        }
+        XCTAssertTrue(bareFragmentMatches.isEmpty,
+            "bare uuid fragment '\(uuid)' appeared as its own console entry — writeDirectlyToOriginalStderr re-entered the capture pipe (recursion bug)")
+    }
+
     // MARK: - Stop restores stderr
 
     /// After stopCapturing, writing to stderr must NOT show up in the console
