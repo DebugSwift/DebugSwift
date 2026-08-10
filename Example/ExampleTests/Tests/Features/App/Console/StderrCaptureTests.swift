@@ -22,14 +22,15 @@ final class StderrCaptureTests: XCTestCase {
 
     private func waitForCaptureReady() {
         // startCapturing() dispatches startCapturingInternal() to
-        // captureQueue.async and returns immediately. Wait for the dup2
-        // redirect to land before writing to stderr, else the marker goes
-        // to real stderr and is never captured (false failure).
-        let exp = expectation(description: "capture-ready")
-        DispatchQueue(label: "test.ready").asyncAfter(deadline: .now() + 0.3) {
-            exp.fulfill()
+        // captureQueue.async and returns immediately. Poll isCapturing
+        // until it flips true — which now means the dup2 redirect has
+        // landed and the readabilityHandler is armed. A fixed sleep was
+        // racy under CI startup load: the marker was written to fd 2
+        // while it still pointed at real stderr and escaped capture (#433).
+        let deadline = Date().addingTimeInterval(5)
+        while !StderrCapture.shared.isCapturing, Date() < deadline {
+            Thread.sleep(forTimeInterval: 0.01)
         }
-        wait(for: [exp], timeout: 5)
     }
 
     /// Stop capture and wait for the serial captureQueue to drain so fd 2
@@ -80,15 +81,18 @@ final class StderrCaptureTests: XCTestCase {
         let marker = "DSWIFT_433_MARKER_\(UUID().uuidString)"
         FileHandle.standardError.write(Data((marker + "\n").utf8))
 
-        // Wait for the processingQueue to drain the forwarded string.
-        let exp = expectation(description: "console-received")
-        DispatchQueue(label: "test.poll").asyncAfter(deadline: .now() + 1.0) {
-            exp.fulfill()
+        // Poll for the marker to land in ConsoleOutput. The readabilityHandler
+        // dispatches parsing to a serial processingQueue; under CI load a
+        // fixed sleep can elapse before the marker reaches addErrorOutput,
+        // producing a false failure — the exact CI failure mode from #433.
+        let deadline = Date().addingTimeInterval(5)
+        var matches: [String] = []
+        while Date() < deadline {
+            matches = ConsoleOutput.shared.getErrorOutput().filter { $0.contains(marker) }
+            if !matches.isEmpty { break }
+            Thread.sleep(forTimeInterval: 0.01)
         }
-        wait(for: [exp], timeout: 10)
 
-        let errors = ConsoleOutput.shared.getErrorOutput()
-        let matches = errors.filter { $0.contains(marker) }
 
         // Must receive the marker at least once (capture works).
         XCTAssertFalse(matches.isEmpty, "stderr marker was not captured")
@@ -123,16 +127,19 @@ final class StderrCaptureTests: XCTestCase {
         let marker = "[DSWIFT_433_PASSTHROUGH] \(uuid)"
         FileHandle.standardError.write(Data((marker + "\n").utf8))
 
-        let exp = expectation(description: "passthrough-received")
-        DispatchQueue(label: "test.passthrough").asyncAfter(deadline: .now() + 1.0) {
-            exp.fulfill()
+        // Poll for the marker to land in ConsoleOutput — same rationale as
+        // testSingleStderrWriteProducesOneConsoleEntry: the serial
+        // processingQueue can lag under CI load, and a fixed sleep produced
+        // the exact false-failure mode from #433.
+        let deadline = Date().addingTimeInterval(5)
+        var fullMatches: [String] = []
+        while Date() < deadline {
+            fullMatches = ConsoleOutput.shared.getErrorOutput().filter { $0.contains(marker) }
+            if !fullMatches.isEmpty { break }
+            Thread.sleep(forTimeInterval: 0.01)
         }
-        wait(for: [exp], timeout: 10)
-
-        let errors = ConsoleOutput.shared.getErrorOutput()
 
         // The full marker must be captured once (capture works).
-        let fullMatches = errors.filter { $0.contains(marker) }
         XCTAssertFalse(fullMatches.isEmpty, "passthrough marker was not captured")
         XCTAssertLessThanOrEqual(fullMatches.count, 2,
             "full marker appeared \(fullMatches.count) times — readabilityHandler is re-firing (leak #433)")
@@ -144,6 +151,7 @@ final class StderrCaptureTests: XCTestCase {
         // the capture pipe, so the bare uuid re-entered the loop and appeared
         // as its own console error entry. Post-fix, it goes to real stderr
         // and must NOT appear as a standalone entry.
+        let errors = ConsoleOutput.shared.getErrorOutput()
         let bareFragmentMatches = errors.filter {
             $0.trimmingCharacters(in: .whitespacesAndNewlines) == uuid
         }

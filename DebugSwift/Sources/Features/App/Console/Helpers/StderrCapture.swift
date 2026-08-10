@@ -59,7 +59,6 @@ class StderrCapture: @unchecked Sendable {
             stateLock.unlock()
             return
         }
-        _isCapturing = true
         stateLock.unlock()
 
         // Save an owned copy of the real stderr fd *before* redirecting fd 2
@@ -69,50 +68,15 @@ class StderrCapture: @unchecked Sendable {
         originalDescriptor = dup(FileHandle.standardError.fileDescriptor)
         if originalDescriptor == -1 {
             print("[DebugSwift] Failed to duplicate original stderr descriptor")
-            stateLock.lock()
-            _isCapturing = false
-            stateLock.unlock()
             return
         }
 
-        // Consume availableData synchronously inside the readabilityHandler.
-        // The read source re-fires as long as data is unconsumed, so reading
-        // it in a deferred captureQueue.async block left the source signalled
-        // and caused it to re-fire immediately, enqueuing a new dispatch block
-        // per callback and leaking unbounded _Block_copy allocations (#433).
-        // Only the heavier parsing/forwarding work is dispatched off-handler.
-        inputPipe.fileHandleForReading.readabilityHandler = { [weak self] fileHandle in
-            guard let self = self, self.isCapturing else { return }
-
-            // Read synchronously — clears the read source's signal so it does
-            // not re-fire until new bytes arrive. Empty data means EOF.
-            let data = fileHandle.availableData
-            guard !data.isEmpty else { return }
-
-            // Forward to stderr (passthrough) on the I/O queue.
-            self.writeLock.lock()
-            self.outputPipe.fileHandleForWriting.write(data)
-            self.writeLock.unlock()
-
-            // Parse + forward to the console on a background queue; keep the
-            // readabilityHandler off the hot path.
-            self.processingQueue.async {
-                guard let string = String(data: data, encoding: .utf8),
-                      !string.isEmpty else { return }
-                self.stderrMessageSafe(string: string)
-            }
-        }
-
         setvbuf(stderr, nil, _IONBF, 0)
-
         // Copy STDERR file descriptor to outputPipe for writing strings back to STDERR
         if dup2(FileHandle.standardError.fileDescriptor, outputPipe.fileHandleForWriting.fileDescriptor) == -1 {
             print("[DebugSwift] Failed to duplicate stderr for output pipe")
             close(originalDescriptor)
             originalDescriptor = -1
-            stateLock.lock()
-            _isCapturing = false
-            stateLock.unlock()
             return
         }
 
@@ -121,10 +85,35 @@ class StderrCapture: @unchecked Sendable {
             print("[DebugSwift] Failed to redirect stderr to input pipe")
             close(originalDescriptor)
             originalDescriptor = -1
-            stateLock.lock()
-            _isCapturing = false
-            stateLock.unlock()
             return
+        }
+        // fd 2 is now redirected and the handler is about to be armed —
+        // publish the capturing flag so isCapturing faithfully means
+        // "fd 2 is redirected and the handler is armed." Setting it earlier
+        // created a window where isCapturing returned true before fd 2 was
+        // actually redirected, causing tests to write markers to real stderr
+        // (which escaped capture) under CI startup load (#433).
+        stateLock.lock()
+        _isCapturing = true
+        stateLock.unlock()
+        // Consume availableData synchronously inside the readabilityHandler.
+        // The read source re-fires as long as data is unconsumed, so reading
+        // it in a deferred captureQueue.async block left the source signalled
+        // and caused it to re-fire immediately, enqueuing a new dispatch block
+        // per callback and leaking unbounded _Block_copy allocations (#433).
+        // Only the heavier parsing/forwarding work is dispatched off-handler.
+        inputPipe.fileHandleForReading.readabilityHandler = { [weak self] fileHandle in
+            guard let self = self, self.isCapturing else { return }
+            let data = fileHandle.availableData
+            guard !data.isEmpty else { return }
+            self.writeLock.lock()
+            self.outputPipe.fileHandleForWriting.write(data)
+            self.writeLock.unlock()
+            self.processingQueue.async {
+                guard let string = String(data: data, encoding: .utf8),
+                      !string.isEmpty else { return }
+                self.stderrMessageSafe(string: string)
+            }
         }
     }
 
