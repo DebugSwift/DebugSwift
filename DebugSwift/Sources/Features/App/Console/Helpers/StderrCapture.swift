@@ -165,16 +165,24 @@ class StderrCapture: @unchecked Sendable {
         stateLock.unlock()
         
         inputPipe.fileHandleForReading.readabilityHandler = nil
-        // Restore fd 2 to the real stderr *before* freopen: "/dev/stderr"
-        // resolves to /dev/fd/2, which after the capture redirect points at
-        // the capture pipe. Without this, freopen reopens stderr onto the
-        // capture pipe and stderr stays redirected after stop.
+        // Restore fd 2 to the real stderr. The dup2 call makes fd 2 point
+        // at the original stderr destination again. We do NOT use
+        // freopen("/dev/stderr", "a", stderr) here because it closes fd 2
+        // first and then tries to open /dev/fd/2 — which is now closed,
+        // so it fails with EBADF and leaves fd 2 permanently invalid.
+        // That made the next startCapturing()'s dup(2) fail (returning -1),
+        // and silently broke all post-stop stderr output (NSLog, crash logs,
+        // OS-level writes).
+        // After dup2 restores the fd, the C stderr FILE* stream still
+        // references fd 2, so it writes to the right destination. We just
+        // clear any error state and reset the buffer mode.
         if originalDescriptor != -1 {
             dup2(originalDescriptor, FileHandle.standardError.fileDescriptor)
             close(originalDescriptor)
             originalDescriptor = -1
         }
-        freopen("/dev/stderr", "a", stderr)
+        clearerr(stderr)
+        setvbuf(stderr, nil, _IOLBF, 0)
     }
 
     private func stderrMessageSafe(string: String) {

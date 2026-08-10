@@ -32,15 +32,29 @@ final class StderrCaptureTests: XCTestCase {
         wait(for: [exp], timeout: 5)
     }
 
-    override func tearDown() {
-        // Always stop so fd 2 is restored even if a test fails mid-way.
+    /// Stop capture and wait for the serial captureQueue to drain so fd 2
+    /// is fully restored before the next call.
+    private func stopAndDrain(_ timeout: TimeInterval = 0.5) {
         StderrCapture.shared.stopCapturing()
-        // stopCapturing is async — give the serial captureQueue time to drain.
         let exp = expectation(description: "stop-drained")
-        DispatchQueue(label: "test.teardown").asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue(label: "test.drain").asyncAfter(deadline: .now() + timeout) {
             exp.fulfill()
         }
-        wait(for: [exp], timeout: 5)
+        wait(for: [exp], timeout: 10)
+    }
+
+    override func setUp() {
+        // The app may have started StderrCapture at launch (enableCrashManager
+        // → startCapturing). Stop it and drain so every test starts from a
+        // known-stopped state and exercises a real startCapturing →
+        // startCapturingInternal path through the fixed code.
+        stopAndDrain()
+        super.setUp()
+    }
+
+    override func tearDown() {
+        // Always stop so fd 2 is restored even if a test fails mid-way.
+        stopAndDrain()
         super.tearDown()
     }
 
@@ -149,14 +163,7 @@ final class StderrCaptureTests: XCTestCase {
             throw XCTSkip("stderr fd-2 redirect unsupported in this environment")
         }
 
-        StderrCapture.shared.stopCapturing()
-
-        // Let stop drain on the serial captureQueue.
-        let stopDrain = expectation(description: "stop-settled")
-        DispatchQueue(label: "test.stopdrain").asyncAfter(deadline: .now() + 0.5) {
-            stopDrain.fulfill()
-        }
-        wait(for: [stopDrain], timeout: 5)
+        stopAndDrain()
 
         let marker = "DSWIFT_433_POSTSTOP_\(UUID().uuidString)"
         FileHandle.standardError.write(Data((marker + "\n").utf8))
