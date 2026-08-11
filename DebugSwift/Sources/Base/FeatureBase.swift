@@ -32,6 +32,7 @@ public enum DebugSwiftSwizzleFeature: String, CaseIterable {
     case pushNotifications
     case swiftUIRender
     case orientationForwarding
+    case superCallDetector
 }
 
 @MainActor

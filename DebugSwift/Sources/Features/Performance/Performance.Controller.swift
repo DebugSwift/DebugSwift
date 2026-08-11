@@ -59,6 +59,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case memoryWarning = "MemoryWarningTableViewCell"
         case frameDropTimeline = "FrameDropTimelineRowCell"
         case hangEvents = "HangEventsRowCell"
+        case superCall = "SuperCallTableViewCell"
 
         init?(rawValue: String?) {
             guard let rawValue else { return nil }
@@ -72,6 +73,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case memory
         case frameDrops
         case leaks
+        case superCall
         case diskToggle
         case diskMetrics
         case diskUsage
@@ -143,6 +145,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .leaks:
             if DebugSwift.App.shared.disableMethods.contains(.leaksDetector) { return 0 }
             return 2
+        case .superCall:
+            if DebugSwift.App.shared.disableMethods.contains(.superCallDetector) { return 0 }
+            return 1
         case .diskToggle:
             return 1
         case .diskMetrics:
@@ -174,6 +179,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .leaks:
             if DebugSwift.App.shared.disableMethods.contains(.leaksDetector) { return nil }
             return "Leaks & Threads"
+        case .superCall:
+            if DebugSwift.App.shared.disableMethods.contains(.superCallDetector) { return nil }
+            return "Super Call Checker"
         case .diskToggle: return "Disk I/O"
         case .diskMetrics: return nil
         case .diskUsage: return diskAnalyzer.usageInfo != nil ? "Disk Usage" : nil
@@ -211,6 +219,8 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             return memoryCell(at: indexPath.row)
         case .leaks:
             return leaksCell(at: indexPath.row)
+        case .superCall:
+            return superCallCell()
         case .diskToggle:
             return diskToggleCell()
         case .diskMetrics:
@@ -269,6 +279,10 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
                 let threadCheckerController = PerformanceThreadCheckerViewController()
                 navigationController?.pushViewController(threadCheckerController, animated: true)
             }
+        case .superCall:
+            let viewModel = SuperCallViolationsViewModel()
+            let controller = ResourcesGenericController(viewModel: viewModel)
+            navigationController?.pushViewController(controller, animated: true)
         case .frameDropTimeline:
             let controller = FrameDropTimelineViewController()
             navigationController?.pushViewController(controller, animated: true)
@@ -382,6 +396,14 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         default:
             return UITableViewCell()
         }
+    }
+
+    // MARK: - Cells: Super Call Checker
+
+    private func superCallCell() -> UITableViewCell {
+        let cell = reuseCell(for: .superCall)
+        cell.setup(title: "🚨 Super Call Violations", image: .named("chevron.right", default: "Action"))
+        return cell
     }
 
     // MARK: - Cells: Disk

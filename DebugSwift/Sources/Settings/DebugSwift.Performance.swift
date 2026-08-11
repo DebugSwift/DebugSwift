@@ -118,6 +118,33 @@ extension DebugSwift {
                 PerformanceThreadChecker.shared.clearViolations()
             }
         }
+
+        public enum SuperCallChecker {
+            /// Set a callback invoked whenever a missing super call is detected.
+            public static func onDetect(_ callback: @escaping (SuperCallViolation) -> Void) {
+                SuperCallDetector.shared.callback = callback
+            }
+
+            /// All violations recorded so far.
+            public static var violations: [SuperCallViolation] {
+                SuperCallDetector.shared.violations
+            }
+
+            /// Add a class name to the ignore list.
+            public static func ignoreClass(_ className: String) {
+                SuperCallDetector.shared.ignoreClass(className)
+            }
+
+            /// Replace the entire ignore list.
+            public static func setIgnoredClasses(_ classNames: [String]) {
+                SuperCallDetector.shared.setIgnoredClasses(Set(classNames))
+            }
+
+            /// Clear all recorded violations.
+            public static func clearViolations() {
+                SuperCallDetector.shared.clearViolations()
+            }
+        }
     }
 }
 
