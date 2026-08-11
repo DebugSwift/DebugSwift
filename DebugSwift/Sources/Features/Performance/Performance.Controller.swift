@@ -60,6 +60,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case frameDropTimeline = "FrameDropTimelineRowCell"
         case hangEvents = "HangEventsRowCell"
         case superCall = "SuperCallTableViewCell"
+        case backtrace = "BacktraceTableViewCell"
 
         init?(rawValue: String?) {
             guard let rawValue else { return nil }
@@ -82,6 +83,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case batteryStatus
         case batteryHistory
         case hangDetection
+        case backtrace
     }
 
     // MARK: - UIViewController Lifecycle
@@ -168,6 +170,9 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .hangDetection:
             // 0: toggle · 1: "View Hangs" disclosure
             return isHangDetectionEnabled ? 2 : 1
+        case .backtrace:
+            // 0: "Capture Now" action · 1: "View Captures" disclosure
+            return 2
         }
     }
 
@@ -191,6 +196,7 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .batteryHistory: return isBatteryMonitoringEnabled ? "History" : nil
         case .frameDrops: return "Frame Drops / FPS"
         case .hangDetection: return "Hang Detection"
+        case .backtrace: return "Backtrace Capture"
         }
     }
 
@@ -248,6 +254,12 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
             case 1: return hangEventsRowCell()
             default: return UITableViewCell()
             }
+        case .backtrace:
+            switch indexPath.row {
+            case 0: return backtraceCaptureCell()
+            case 1: return backtraceEventsRowCell()
+            default: return UITableViewCell()
+            }
         }
     }
 
@@ -289,7 +301,20 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         case .hangEvents:
             let controller = HangEventsViewController()
             navigationController?.pushViewController(controller, animated: true)
-            break
+        case .backtrace:
+            // "Capture Now" is row 0 (handled by cell tap action, not nav);
+            // "View Captures" is row 1 → push list controller.
+            if indexPath.row == 1 {
+                let controller = BacktraceEventsViewController()
+                navigationController?.pushViewController(controller, animated: true)
+            } else {
+                // Capture Now — perform immediate capture and refresh
+                _ = DebugSwift.Performance.Backtrace.capture(label: "Manual Capture")
+                tableView.reloadSections(
+                    IndexSet(integer: Section.backtrace.rawValue),
+                    with: .none
+                )
+            }
         default:
             break
         }
@@ -541,6 +566,24 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         cell.setup(
             title: "View Hangs",
             description: events.isEmpty ? "No hangs yet" : "\(events.count) hang\(events.count == 1 ? "" : "s")"
+        )
+        return cell
+    }
+
+    // MARK: - Cells: Backtrace
+
+    private func backtraceCaptureCell() -> UITableViewCell {
+        let cell = reuseCell(for: .backtrace)
+        cell.setup(title: "Capture Now", description: "Tap to capture the current call stack")
+        return cell
+    }
+
+    private func backtraceEventsRowCell() -> UITableViewCell {
+        let cell = reuseCell(for: .backtrace)
+        let count = BacktraceManager.shared.backtraces.count
+        cell.setup(
+            title: "View Captures",
+            description: count == 0 ? "No backtraces yet" : "\(count) capture\(count == 1 ? "" : "s")"
         )
         return cell
     }

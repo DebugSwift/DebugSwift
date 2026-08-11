@@ -145,6 +145,41 @@ extension DebugSwift {
                 SuperCallDetector.shared.clearViolations()
             }
         }
+
+        // MARK: - Backtrace
+
+        /// Programmatic backtrace capture during normal execution (not crash
+        /// reporting).  Addresses Swift 6.2 SE-0419.
+        ///
+        /// On iOS, `Thread.callStackSymbols` is used as the capture mechanism
+        /// because SE-0419's `Runtime` module is not available on native iOS.
+        /// On macOS/Catalyst, the symbolicated `Runtime` path is used
+        /// automatically when available.
+        public enum Backtrace {
+            /// Captures the current call stack.
+            /// - Parameter label: Optional human-readable label for easy
+            ///   identification in the inspector list.
+            /// - Returns: The captured backtrace.
+            @discardableResult
+            public static func capture(label: String? = nil) -> CapturedBacktrace {
+                BacktraceManager.shared.capture(label: label)
+            }
+
+            /// All captured backtraces, newest first.
+            public static var captured: [CapturedBacktrace] {
+                BacktraceManager.shared.backtraces
+            }
+
+            /// Set a callback invoked whenever a new backtrace is captured.
+            public static func onCapture(_ callback: @escaping (CapturedBacktrace) -> Void) {
+                BacktraceManager.shared.callback = callback
+            }
+
+            /// Clear all captured backtraces.
+            public static func clear() {
+                BacktraceManager.shared.clear()
+            }
+        }
     }
 }
 

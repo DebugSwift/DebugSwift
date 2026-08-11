@@ -97,6 +97,17 @@ struct ContentView: View {
                     .padding(.vertical, 4)
                 }
 
+                NavigationLink(destination: BacktraceDemoView()) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Backtrace Capture Demo")
+                            .font(.headline)
+                        Text("Programmatically capture call stacks via SE-0419 API")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+
                 NavigationLink(destination: WebSocketTestView()) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("WebSocket Inspector Test")
