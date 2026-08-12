@@ -527,7 +527,7 @@ DebugSwift.Resources.shared.configureAppGroups([
 
 ```swift
 // Configure memory leak detection
-DebugSwift.Performance.shared.onLeakDetected { leakData in
+DebugSwift.Performance.shared.leakDetector.onDetect(detectionDelay: 1) { leakData in
     print("🔴 Memory leak detected: \(leakData.message)")
 }
 ```
