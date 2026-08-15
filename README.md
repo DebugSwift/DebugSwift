@@ -622,7 +622,7 @@ Contributions are welcome! If you have suggestions, improvements, or bug fixes, 
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=DebugSwift/DebugSwift&type=Date)](https://star-history.com/#DebugSwift/DebugSwift&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=DebugSwift/DebugSwift&type=Date)](https://star-history.dera.page/#DebugSwift/DebugSwift&type=Date)
 
 ## License
 
