@@ -25,7 +25,7 @@ class StderrCapture: @unchecked Sendable {
     
     private let captureQueue = DispatchQueue(
         label: "com.debugswift.stderr.capture",
-        qos: .utility
+        qos: .default
     )
     
     // Changed to serial queue to prevent concurrent writes to FileHandle and file descriptors
@@ -87,21 +87,16 @@ class StderrCapture: @unchecked Sendable {
             originalDescriptor = -1
             return
         }
-        // fd 2 is now redirected and the handler is about to be armed —
-        // publish the capturing flag so isCapturing faithfully means
-        // "fd 2 is redirected and the handler is armed." Setting it earlier
-        // created a window where isCapturing returned true before fd 2 was
-        // actually redirected, causing tests to write markers to real stderr
-        // (which escaped capture) under CI startup load (#433).
-        stateLock.lock()
-        _isCapturing = true
-        stateLock.unlock()
-        // Consume availableData synchronously inside the readabilityHandler.
-        // The read source re-fires as long as data is unconsumed, so reading
-        // it in a deferred captureQueue.async block left the source signalled
-        // and caused it to re-fire immediately, enqueuing a new dispatch block
-        // per callback and leaking unbounded _Block_copy allocations (#433).
-        // Only the heavier parsing/forwarding work is dispatched off-handler.
+        // Arm the readabilityHandler BEFORE publishing _isCapturing = true.
+        // Both statements run sequentially on the same serial captureQueue,
+        // so ordering them handler-first guarantees that when
+        // waitForCaptureReady() sees isCapturing == true, the handler is
+        // already armed and will fire on the first byte. Setting the flag
+        // first (the previous order) created a window where the test wrote
+        // a marker to the redirected pipe before the handler was attached;
+        // the data sat unread until the starved .utility captureQueue
+        // eventually reached the handler assignment — on CI runners under
+        // load that gap exceeded the 5 s poll timeout (#433 flaky CI).
         inputPipe.fileHandleForReading.readabilityHandler = { [weak self] fileHandle in
             guard let self = self, self.isCapturing else { return }
             let data = fileHandle.availableData
@@ -115,6 +110,9 @@ class StderrCapture: @unchecked Sendable {
                 self.stderrMessageSafe(string: string)
             }
         }
+        stateLock.lock()
+        _isCapturing = true
+        stateLock.unlock()
     }
 
     func syncData() {

@@ -23,13 +23,13 @@ final class StderrCaptureTests: XCTestCase {
     private func waitForCaptureReady() {
         // startCapturing() dispatches startCapturingInternal() to
         // captureQueue.async and returns immediately. Poll isCapturing
-        // until it flips true — which now means the dup2 redirect has
-        // landed and the readabilityHandler is armed. A fixed sleep was
-        // racy under CI startup load: the marker was written to fd 2
-        // while it still pointed at real stderr and escaped capture (#433).
-        let deadline = Date().addingTimeInterval(5)
+        // until it flips true. As of the #433 flaky-CI fix, the flag is
+        // set AFTER the readabilityHandler is armed (both on the same
+        // serial captureQueue), so isCapturing == true guarantees the
+        // handler is ready to fire — no race between flag and handler.
+        let deadline = Date().addingTimeInterval(10)
         while !StderrCapture.shared.isCapturing, Date() < deadline {
-            Thread.sleep(forTimeInterval: 0.01)
+            RunLoop.current.run(until: Date().addingTimeInterval(0.01))
         }
     }
 
@@ -82,15 +82,17 @@ final class StderrCaptureTests: XCTestCase {
         FileHandle.standardError.write(Data((marker + "\n").utf8))
 
         // Poll for the marker to land in ConsoleOutput. The readabilityHandler
-        // dispatches parsing to a serial processingQueue; under CI load a
-        // fixed sleep can elapse before the marker reaches addErrorOutput,
-        // producing a false failure — the exact CI failure mode from #433.
-        let deadline = Date().addingTimeInterval(5)
+        // fires on a private dispatch queue and dispatches parsing to a serial
+        // processingQueue — both complete in microseconds on any runner. The
+        // previous 5 s timeout was adequate for the processing time but failed
+        // because isCapturing was set before the handler was armed (now fixed
+        // in StderrCapture). 10 s is a generous margin.
+        let deadline = Date().addingTimeInterval(10)
         var matches: [String] = []
         while Date() < deadline {
             matches = ConsoleOutput.shared.getErrorOutput().filter { $0.contains(marker) }
             if !matches.isEmpty { break }
-            Thread.sleep(forTimeInterval: 0.01)
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
         }
 
 
@@ -128,15 +130,13 @@ final class StderrCaptureTests: XCTestCase {
         FileHandle.standardError.write(Data((marker + "\n").utf8))
 
         // Poll for the marker to land in ConsoleOutput — same rationale as
-        // testSingleStderrWriteProducesOneConsoleEntry: the serial
-        // processingQueue can lag under CI load, and a fixed sleep produced
-        // the exact false-failure mode from #433.
-        let deadline = Date().addingTimeInterval(5)
+        // testSingleStderrWriteProducesOneConsoleEntry.
+        let deadline = Date().addingTimeInterval(10)
         var fullMatches: [String] = []
         while Date() < deadline {
             fullMatches = ConsoleOutput.shared.getErrorOutput().filter { $0.contains(marker) }
             if !fullMatches.isEmpty { break }
-            Thread.sleep(forTimeInterval: 0.01)
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
         }
 
         // The full marker must be captured once (capture works).
