@@ -32,11 +32,12 @@ final class NetworkViewModel {
 
     func applyFilter(for mode: NetworkInspectorMode = .http) {
         // Select the appropriate data source based on mode
+        // Newest first, so fresh requests are visible without scrolling
         switch mode {
         case .http:
-            cacheModels = httpModels
+            cacheModels = Array(httpModels.reversed())
         case .webview:
-            cacheModels = webViewModels
+            cacheModels = Array(webViewModels.reversed())
         case .websocket:
             cacheModels = [] // WebSocket uses different data structure
         }
