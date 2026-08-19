@@ -276,6 +276,93 @@ extension DebugSwift {
             clearWebSocketHistory()
         }
 
+        // MARK: - Custom Request Logging
+
+        /// Logs a request that DebugSwift cannot capture automatically because it
+        /// bypasses `URLSession` — for example gRPC over SwiftNIO, a custom socket,
+        /// or any hand-rolled transport. The entry shows up in the Network tab
+        /// alongside automatically captured traffic and respects
+        /// ``ignoredURLs``/``onlyURLs`` filtering.
+        ///
+        /// Example (logging a gRPC call from a client interceptor):
+        /// ```swift
+        /// DebugSwift.Network.shared.logRequest(
+        ///     url: URL(string: "grpc://api.example.com/example.v1.UserService/GetUser")!,
+        ///     method: "POST",
+        ///     requestHeaders: requestHeaders,
+        ///     requestBody: requestJSON.data(using: .utf8),
+        ///     responseStatusCode: status.isOk ? 200 : 500,
+        ///     responseHeaders: responseHeaders,
+        ///     responseBody: responseJSON.data(using: .utf8),
+        ///     error: nil,
+        ///     startTime: callStartDate,
+        ///     endTime: Date()
+        /// )
+        /// ```
+        ///
+        /// - Parameters:
+        ///   - url: The full URL identifying the call. For non-HTTP transports use a
+        ///     descriptive scheme and path, e.g. `grpc://host/Service/Method`.
+        ///   - method: HTTP-style method label shown in the list. Defaults to `"GET"`.
+        ///   - requestHeaders: Request headers or transport metadata.
+        ///   - requestBody: Raw request payload (e.g. JSON-encoded message).
+        ///   - responseStatusCode: HTTP-style status code shown in the list.
+        ///   - responseHeaders: Response headers or trailing metadata.
+        ///   - responseBody: Raw response payload.
+        ///   - error: Transport error, if the call failed.
+        ///   - startTime: When the request started. Defaults to `endTime` (zero duration).
+        ///   - endTime: When the request finished. Defaults to now.
+        /// - Returns: `true` if the entry was stored, `false` if it was filtered out
+        ///   by ``ignoredURLs``/``onlyURLs`` or rejected as a duplicate.
+        @discardableResult
+        public func logRequest(
+            url: URL,
+            method: String = "GET",
+            requestHeaders: [String: String]? = nil,
+            requestBody: Data? = nil,
+            responseStatusCode: Int? = nil,
+            responseHeaders: [String: String]? = nil,
+            responseBody: Data? = nil,
+            error: Error? = nil,
+            startTime: Date? = nil,
+            endTime: Date = Date()
+        ) -> Bool {
+            var model = HttpModel()
+            model.url = url
+            model.method = method
+            model.requestData = requestBody
+            model.responseData = responseBody
+            model.requestHeaderFields = requestHeaders
+            model.responseHeaderFields = responseHeaders
+            model.requestId = UUID().uuidString
+            model.size = responseBody?.formattedSize()
+
+            if let responseStatusCode {
+                model.statusCode = "\(responseStatusCode)"
+            }
+            model.mineType = responseHeaders?.first { $0.key.lowercased() == "content-type" }?.value
+            model.isImage = model.mineType?.contains("image") ?? false
+
+            let start = startTime ?? endTime
+            let duration = abs(endTime.timeIntervalSince1970 - start.timeIntervalSince1970)
+            model.startTime = "\(start.formatted())"
+            model.endTime = "\(endTime.formatted())"
+            model.totalDuration = String(format: "%.4f (s)", duration)
+
+            model.errorDescription = error?.localizedDescription ?? ""
+            model.errorLocalizedDescription = error?.localizedDescription ?? ""
+            model = ErrorHelper.handle(error, model: model)
+
+            let stored = HttpDatasource.shared.addHttpRequest(model)
+            if stored {
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("reloadHttp_DebugSwift"),
+                    object: nil
+                )
+            }
+            return stored
+        }
+
         /// Configure how long Session History is kept and how often new requests are written to disk.
         /// By default, Session History keeps 7 days of sessions and writes every 2 captured requests.
         /// Use a longer `retentionDays` value if you want more historical sessions available in the Session History UI.
