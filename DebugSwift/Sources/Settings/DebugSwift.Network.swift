@@ -353,14 +353,32 @@ extension DebugSwift {
             model.errorLocalizedDescription = error?.localizedDescription ?? ""
             model = ErrorHelper.handle(error, model: model)
 
-            let stored = HttpDatasource.shared.addHttpRequest(model)
-            if stored {
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("reloadHttp_DebugSwift"),
-                    object: nil
-                )
+            // HttpDatasource is confined to the main thread (the capture pipeline
+            // reports via @MainActor). When called from another thread (e.g. a gRPC
+            // event loop) the store hops to main and the return value reflects URL
+            // filtering only.
+            if Thread.isMainThread {
+                let stored = HttpDatasource.shared.addHttpRequest(model)
+                if stored {
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("reloadHttp_DebugSwift"),
+                        object: nil
+                    )
+                }
+                return stored
             }
-            return stored
+
+            guard HttpDatasource.shared.passesURLFilters(url) else { return false }
+            nonisolated(unsafe) let pendingModel = model
+            DispatchQueue.main.async {
+                if HttpDatasource.shared.addHttpRequest(pendingModel) {
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("reloadHttp_DebugSwift"),
+                        object: nil
+                    )
+                }
+            }
+            return true
         }
 
         /// Configure how long Session History is kept and how often new requests are written to disk.
