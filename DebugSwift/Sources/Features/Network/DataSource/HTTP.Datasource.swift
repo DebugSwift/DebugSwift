@@ -13,24 +13,23 @@ final class HttpDatasource: @unchecked Sendable {
 
     var httpModels: [HttpModel] = []
 
-    func addHttpRequest(_ model: HttpModel) -> Bool {
-        guard let modelUrl = model.url else {
-            return false
-        }
-        
+    func passesURLFilters(_ url: URL) -> Bool {
         if !DebugSwift.Network.shared.onlyURLs.isEmpty {
-            if !modelUrl.matchesAny(
+            return url.matchesAny(
                 wildcardPatterns: DebugSwift.Network.shared.onlyURLs,
                 strategy: .contains,
                 queryStrategy: .subset
-            ) {
-                return false
-            }
-        } else if modelUrl.matchesAny(
+            )
+        }
+        return !url.matchesAny(
             wildcardPatterns: DebugSwift.Network.shared.ignoredURLs,
             strategy: .contains,
             queryStrategy: .subset
-        ) {
+        )
+    }
+
+    func addHttpRequest(_ model: HttpModel) -> Bool {
+        guard let modelUrl = model.url, passesURLFilters(modelUrl) else {
             return false
         }
         
