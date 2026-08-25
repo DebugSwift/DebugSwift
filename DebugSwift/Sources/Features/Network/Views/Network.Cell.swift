@@ -89,6 +89,28 @@ final class NetworkTableViewCell: UITableViewCell {
         return view
     }()
 
+    // Labelled so the failure state doesn't rely on colour alone.
+    private let graphQLErrorBadge: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 9, weight: .bold)
+        label.textColor = .systemRed
+        label.backgroundColor = UIColor.systemRed.withAlphaComponent(0.2)
+        label.layer.cornerRadius = 4
+        label.layer.masksToBounds = true
+        label.textAlignment = .center
+        label.accessibilityLabel = "GraphQL error"
+        return label
+    }()
+
+    private let errorSubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .systemRed
+        label.numberOfLines = 1
+        label.lineBreakMode = .byTruncatingTail
+        return label
+    }()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -117,8 +139,22 @@ final class NetworkTableViewCell: UITableViewCell {
         setupContentTypeIndicator(model)
         setupSizeAndDuration(model)
         
-        // Error state
-        errorIndicator.isHidden = model.isSuccess
+        // Error state. GraphQL failures arrive inside a successful HTTP exchange,
+        // so they get a labelled badge and message while the HTTP status keeps
+        // its own (usually green) colour to distinguish transport failures.
+        if model.hasGraphQLErrors {
+            errorIndicator.isHidden = true
+            graphQLErrorBadge.isHidden = false
+            graphQLErrorBadge.text = " ⓧ GRAPHQL ERROR "
+            errorSubtitleLabel.text = model.graphQLErrors.count == 1
+                ? model.graphQLErrors[0].message
+                : "GraphQL errors (\(model.graphQLErrors.count))"
+        } else {
+            errorIndicator.isHidden = model.isSuccess
+            graphQLErrorBadge.isHidden = true
+            graphQLErrorBadge.text = nil
+            errorSubtitleLabel.text = nil
+        }
     }
     
     private func formatURL(_ urlString: String?) -> String {
@@ -161,9 +197,12 @@ final class NetworkTableViewCell: UITableViewCell {
     }
     
     private func setupPerformanceIndicators(_ model: HttpModel) {
-        // Performance color based on response time
-        let performanceColor = getPerformanceColor(duration: model.totalDuration)
-        performanceIndicatorView.backgroundColor = performanceColor
+        // A GraphQL failure turns the left rail red; otherwise it reflects response time
+        if model.hasGraphQLErrors {
+            performanceIndicatorView.backgroundColor = .systemRed
+        } else {
+            performanceIndicatorView.backgroundColor = getPerformanceColor(duration: model.totalDuration)
+        }
     }
     
     private func setupStatusColors(_ model: HttpModel) {
@@ -251,9 +290,9 @@ final class NetworkTableViewCell: UITableViewCell {
     }
 
     func setupViews() {
-        [methodLabel, numberLabel, statusCodeLabel, descriptionLabel, 
+        [methodLabel, numberLabel, statusCodeLabel, descriptionLabel,
          timestampLabel, performanceIndicatorView, sizeLabel, durationLabel,
-         contentTypeIndicator, errorIndicator].forEach {
+         contentTypeIndicator, errorIndicator, graphQLErrorBadge, errorSubtitleLabel].forEach {
             contentView.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -264,7 +303,15 @@ final class NetworkTableViewCell: UITableViewCell {
     }
 
     private func setupConstraints() {
+        // Stretches the description to fill available width (needed for wrapping),
+        // but yields to the required inequality against the GraphQL badge below.
+        let descriptionTrailing = descriptionLabel.trailingAnchor.constraint(
+            equalTo: errorIndicator.leadingAnchor, constant: -8
+        )
+        descriptionTrailing.priority = .defaultHigh
+
         NSLayoutConstraint.activate([
+            descriptionTrailing,
             // Performance indicator (left edge)
             performanceIndicatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
             performanceIndicatorView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
@@ -292,14 +339,24 @@ final class NetworkTableViewCell: UITableViewCell {
             errorIndicator.widthAnchor.constraint(equalToConstant: 8),
             errorIndicator.heightAnchor.constraint(equalToConstant: 8),
             
+            // GraphQL error badge (below the HTTP status, which stays visible)
+            graphQLErrorBadge.trailingAnchor.constraint(equalTo: statusCodeLabel.trailingAnchor),
+            graphQLErrorBadge.topAnchor.constraint(equalTo: statusCodeLabel.bottomAnchor, constant: 2),
+            graphQLErrorBadge.heightAnchor.constraint(equalToConstant: 16),
+
             // URL description
             descriptionLabel.leadingAnchor.constraint(equalTo: methodLabel.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: errorIndicator.leadingAnchor, constant: -8),
+            descriptionLabel.trailingAnchor.constraint(lessThanOrEqualTo: graphQLErrorBadge.leadingAnchor, constant: -8),
             descriptionLabel.topAnchor.constraint(equalTo: methodLabel.bottomAnchor, constant: 4),
-            
+
+            // GraphQL error subtitle (zero height when empty)
+            errorSubtitleLabel.leadingAnchor.constraint(equalTo: methodLabel.leadingAnchor),
+            errorSubtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            errorSubtitleLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 2),
+
             // Content type indicator
             contentTypeIndicator.leadingAnchor.constraint(equalTo: methodLabel.leadingAnchor),
-            contentTypeIndicator.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 4),
+            contentTypeIndicator.topAnchor.constraint(equalTo: errorSubtitleLabel.bottomAnchor, constant: 4),
             contentTypeIndicator.widthAnchor.constraint(equalToConstant: 45),
             contentTypeIndicator.heightAnchor.constraint(equalToConstant: 16),
             

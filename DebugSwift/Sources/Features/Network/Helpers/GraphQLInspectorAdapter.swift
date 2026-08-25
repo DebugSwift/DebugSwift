@@ -57,6 +57,17 @@ enum GraphQLInspectorAdapter {
         return GraphQLDetail(operation: operation, variables: variables, response: response, query: query)
     }
 
+    /// Populates `model.graphQLErrors` from the response body. Runs at capture
+    /// time so the list/detail UI and `isSuccess` never re-parse payloads, and
+    /// leaves errors a producer (e.g. an app-side bridge) already set untouched.
+    static func classify(_ model: HttpModel) {
+        guard model.graphQLErrors.isEmpty,
+              isGraphQL(model),
+              let body = responseBodyString(model)
+        else { return }
+        model.graphQLErrors = GraphQLInspector.extractErrors(from: body)
+    }
+
     // MARK: - Private
 
     private static func requestBodyString(_ model: HttpModel) -> String? {

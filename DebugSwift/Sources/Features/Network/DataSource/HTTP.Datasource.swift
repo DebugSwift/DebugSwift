@@ -64,6 +64,10 @@ public final class HttpDatasource: @unchecked Sendable {
             }
         }
         
+        // Surface GraphQL failures (errors array inside an HTTP 200) as a
+        // first-class error state, regardless of which capture path built the model.
+        GraphQLInspectorAdapter.classify(model)
+
         httpModels.append(model)
         EventBusSubscriber.shared.publish(DebugEvent(
             timestamp: Date(),

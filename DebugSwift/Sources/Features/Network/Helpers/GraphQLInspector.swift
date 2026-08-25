@@ -51,6 +51,22 @@ public enum GraphQLInspector {
         return (json["data"], json["errors"])
     }
 
+    /// Parses the `errors` array into structured values so the UI can badge a
+    /// row, show the first message, and expose paths/extension codes without
+    /// each caller re-walking the JSON.
+    public static func extractErrors(from body: String) -> [HttpGraphQLError] {
+        guard let data = body.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let errors = json["errors"] as? [[String: Any]]
+        else { return [] }
+        return errors.compactMap { error in
+            guard let message = error["message"] as? String else { return nil }
+            let path = (error["path"] as? [Any]).map { $0.map { "\($0)" }.joined(separator: ".") }
+            let code = (error["extensions"] as? [String: Any])?["code"] as? String
+            return HttpGraphQLError(message: message, path: path, code: code)
+        }
+    }
+
     // MARK: - Private
 
     /// Reads the operation with a regex instead of a full GraphQL parser: the

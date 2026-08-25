@@ -423,6 +423,22 @@ extension NetworkViewControllerDetail {
                     sections.append(gqlSection)
                 }
             }
+
+            // GraphQL failures lead the view: they are why a developer opened
+            // an HTTP-200 row that is flagged as an error.
+            if !model.graphQLErrors.isEmpty {
+                let items = model.graphQLErrors.enumerated().map { index, error -> DetailItem in
+                    var lines = [error.message]
+                    if let path = error.path {
+                        lines.append("path: \(path)")
+                    }
+                    if let code = error.code {
+                        lines.append("code: \(code)")
+                    }
+                    return DetailItem(title: "ERROR \(index + 1)", value: lines.joined(separator: "\n"))
+                }
+                sections.append(DetailSection(title: "GRAPHQL ERRORS (\(model.graphQLErrors.count))", items: items))
+            }
             
             // Basic info section
             var basicItems: [DetailItem] = []

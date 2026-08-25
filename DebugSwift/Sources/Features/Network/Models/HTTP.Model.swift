@@ -13,6 +13,21 @@ public enum RequestSerializer: UInt {
     case form
 }
 
+/// A single entry from a GraphQL response's `errors` array. GraphQL transports
+/// failures inside an HTTP 200, so these are tracked separately from
+/// `errorDescription` (transport failures) to keep the two distinguishable.
+public struct HttpGraphQLError: Equatable, Sendable {
+    public let message: String
+    public let path: String?
+    public let code: String?
+
+    public init(message: String, path: String? = nil, code: String? = nil) {
+        self.message = message
+        self.path = path
+        self.code = code
+    }
+}
+
 public final class HttpModel: NSObject {
     public var url: URL?
     public var requestData: Data?
@@ -42,6 +57,12 @@ public final class HttpModel: NSObject {
     /// Optional custom title to display instead of the URL (e.g., GraphQL operation name)
     public var title: String?
 
+    /// Errors returned in the GraphQL response's `errors` array. Non-empty means
+    /// the operation failed even though the HTTP exchange (and status code) succeeded.
+    public var graphQLErrors: [HttpGraphQLError] = []
+
+    public var hasGraphQLErrors: Bool { !graphQLErrors.isEmpty }
+
     public override init() {
         super.init()
         self.statusCode = "0"
@@ -49,6 +70,6 @@ public final class HttpModel: NSObject {
     }
 
     public var isSuccess: Bool {
-        errorDescription == nil || errorDescription?.isEmpty == true
+        (errorDescription == nil || errorDescription?.isEmpty == true) && graphQLErrors.isEmpty
     }
 }

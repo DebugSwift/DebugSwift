@@ -117,6 +117,102 @@ final class GraphQLInspectorTests: XCTestCase {
         XCTAssertNil(result)
     }
 
+    // MARK: - GraphQLInspector.extractErrors
+
+    func testExtractErrors_messagePathAndCode() {
+        let response = jsonBody([
+            "data": NSNull(),
+            "errors": [[
+                "message": "Not authorised to hide this friend",
+                "path": ["hideFriendRequest"],
+                "extensions": ["code": "FORBIDDEN"]
+            ]]
+        ])
+
+        let errors = GraphQLInspector.extractErrors(from: response)
+
+        XCTAssertEqual(errors.count, 1)
+        XCTAssertEqual(errors.first?.message, "Not authorised to hide this friend")
+        XCTAssertEqual(errors.first?.path, "hideFriendRequest")
+        XCTAssertEqual(errors.first?.code, "FORBIDDEN")
+    }
+
+    func testExtractErrors_multipleErrorsAndNestedPath() {
+        let response = jsonBody([
+            "errors": [
+                ["message": "first", "path": ["user", "friends", 0, "id"]],
+                ["message": "second"],
+                ["message": "third", "extensions": ["code": "INTERNAL"]]
+            ]
+        ])
+
+        let errors = GraphQLInspector.extractErrors(from: response)
+
+        XCTAssertEqual(errors.count, 3)
+        XCTAssertEqual(errors[0].path, "user.friends.0.id")
+        XCTAssertNil(errors[1].path)
+        XCTAssertNil(errors[1].code)
+        XCTAssertEqual(errors[2].code, "INTERNAL")
+    }
+
+    func testExtractErrors_noErrorsField_returnsEmpty() {
+        XCTAssertTrue(GraphQLInspector.extractErrors(from: jsonBody(["data": ["id": 1]])).isEmpty)
+    }
+
+    func testExtractErrors_invalidJSON_returnsEmpty() {
+        XCTAssertTrue(GraphQLInspector.extractErrors(from: "not json").isEmpty)
+    }
+
+    // MARK: - GraphQLInspectorAdapter.classify
+
+    func testClassify_populatesErrorsAndFlipsIsSuccess() {
+        let model = makeModel(
+            body: body(query: "mutation HideFriendRequest { hideFriendRequest { id } }"),
+            response: jsonBody(["errors": [["message": "Not authorised to hide this friend"]]])
+        )
+        model.statusCode = "200"
+        XCTAssertTrue(model.isSuccess)
+
+        GraphQLInspectorAdapter.classify(model)
+
+        XCTAssertTrue(model.hasGraphQLErrors)
+        XCTAssertFalse(model.isSuccess)
+        XCTAssertEqual(model.graphQLErrors.first?.message, "Not authorised to hide this friend")
+    }
+
+    func testClassify_successfulResponse_staysSuccess() {
+        let model = makeModel(
+            body: body(query: "query GetUser { user { id } }"),
+            response: jsonBody(["data": ["user": ["id": "1"]]])
+        )
+
+        GraphQLInspectorAdapter.classify(model)
+
+        XCTAssertFalse(model.hasGraphQLErrors)
+        XCTAssertTrue(model.isSuccess)
+    }
+
+    func testClassify_nonGraphQLModel_ignoresErrorsShapedBody() {
+        let model = makeModel(method: "GET", body: "",
+                              response: jsonBody(["errors": [["message": "not graphql"]]]))
+
+        GraphQLInspectorAdapter.classify(model)
+
+        XCTAssertFalse(model.hasGraphQLErrors)
+    }
+
+    func testClassify_doesNotOverwriteProducerSetErrors() {
+        let model = makeModel(
+            body: body(query: "query GetUser { user { id } }"),
+            response: jsonBody(["errors": [["message": "from response"]]])
+        )
+        model.graphQLErrors = [HttpGraphQLError(message: "from bridge")]
+
+        GraphQLInspectorAdapter.classify(model)
+
+        XCTAssertEqual(model.graphQLErrors.map(\.message), ["from bridge"])
+    }
+
     // MARK: - GraphQLInspectorAdapter.isGraphQL
 
     func testIsGraphQL_postWithJsonAndQuery_returnsTrue() {

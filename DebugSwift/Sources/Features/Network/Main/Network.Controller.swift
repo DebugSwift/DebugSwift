@@ -69,6 +69,14 @@ final class NetworkViewController: BaseController, MainFeatureType {
         return label
     }()
 
+    private let errorCountLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        label.textColor = .systemRed
+        label.textAlignment = .center
+        return label
+    }()
+
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -233,6 +241,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
         let stackView = UIStackView(arrangedSubviews: [
             createStatView(titleLabel: UILabel(), valueLabel: totalRequestsLabel, title: "Total"),
             createStatView(titleLabel: UILabel(), valueLabel: successRateLabel, title: "Success"),
+            createErrorsStatView(),
             createStatView(titleLabel: UILabel(), valueLabel: avgResponseTimeLabel, title: "Avg Time"),
             createStatView(titleLabel: UILabel(), valueLabel: totalTimeLabel, title: "Total Time")
         ])
@@ -284,6 +293,30 @@ final class NetworkViewController: BaseController, MainFeatureType {
         return containerView
     }
     
+    /// The Errors tile doubles as a quick errors-only toggle so failures can be
+    /// isolated without opening the full filter sheet.
+    private func createErrorsStatView() -> UIView {
+        let container = createStatView(titleLabel: UILabel(), valueLabel: errorCountLabel, title: "Errors")
+        container.isAccessibilityElement = true
+        container.accessibilityLabel = "Errors"
+        container.accessibilityTraits = .button
+        container.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(toggleErrorsOnlyFilter))
+        )
+        return container
+    }
+
+    @objc private func toggleErrorsOnlyFilter() {
+        currentFilter.showOnlyErrors.toggle()
+        if currentFilter.showOnlyErrors {
+            currentFilter.showOnlySuccessful = false
+        }
+        applyAdvancedFilter()
+        updateFilterButtonAppearance()
+        updateHTTPStatistics()
+        tableView.reloadData()
+    }
+
     private func updateHTTPStatistics() {
         // Skip statistics update if not visible or not needed
         guard currentMode == .http || currentMode == .webview else { return }
@@ -299,6 +332,11 @@ final class NetworkViewController: BaseController, MainFeatureType {
         let successCount = requests.filter { $0.isSuccess }.count
         let successRate = requests.isEmpty ? 0 : (Double(successCount) / Double(requests.count)) * 100
         successRateLabel.text = String(format: "%.1f%%", successRate)
+
+        // Error count, dimmed when everything succeeded
+        let errorCount = requests.count - successCount
+        errorCountLabel.text = "\(errorCount)"
+        errorCountLabel.textColor = errorCount > 0 ? .systemRed : .darkGray
         
         // Average response time
         let durations = requests.compactMap { request -> Double? in
