@@ -14,7 +14,7 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
 
     // MARK: - ViewModel
 
-    var isSearchActived = false
+    var isSearchActivated = false
 
     var reloadData: (() -> Void)?
 
@@ -23,11 +23,11 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func numberOfItems() -> Int {
-        isSearchActived ? filteredInfo.count : data.count
+        isSearchActivated ? filteredInfo.count : data.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> ViewData {
-        let info = isSearchActived ? filteredInfo[index] : data[index]
+        let info = isSearchActivated ? filteredInfo[index] : data[index]
         return .init(title: info)
     }
 
@@ -37,7 +37,7 @@ final class AppConsoleViewModel: NSObject, ResourcesGenericListViewModel {
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
-        if isSearchActived {
+        if isSearchActivated {
             let info = filteredInfo.remove(at: index)
             ConsoleOutput.shared.removeAllPrintAndNSLogOutput(info)
         } else {

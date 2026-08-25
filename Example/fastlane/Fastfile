@@ -8,6 +8,6 @@ lane :test do
     clean:                            true,
     result_bundle:                    true,
     code_coverage:                    true,
-    devices:                          ['iPhone 16']
+    devices:                          ['iPhone 17 Pro']
   )
 end

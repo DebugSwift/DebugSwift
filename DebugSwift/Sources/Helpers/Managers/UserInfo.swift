@@ -122,7 +122,7 @@ public enum UserInfo {
 
         return Info(
             title: "Initialization Time:",
-            detail: String(format: "%.4lf%", launchStartTime) + " (s)"
+            detail: String(format: "%.4f", launchStartTime) + " (s)"
         )
     }
 

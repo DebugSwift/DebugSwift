@@ -23,7 +23,7 @@ class FeatureBaseTests: XCTestCase {
 
     func testDebugSwiftSwizzleFeature_allCases() {
         // Given
-        let expectedCases: [DebugSwiftSwizzleFeature] = [.network, .webSocket, .wkWebView, .location, .views, .crashManager, .leaksDetector, .console, .pushNotifications, .swiftUIRender]
+        let expectedCases: [DebugSwiftSwizzleFeature] = [.network, .webSocket, .wkWebView, .location, .views, .crashManager, .leaksDetector, .console, .pushNotifications, .swiftUIRender, .orientationForwarding, .superCallDetector]
 
         // When
         let allCases = DebugSwiftSwizzleFeature.allCases
@@ -34,7 +34,7 @@ class FeatureBaseTests: XCTestCase {
 
     func testDebugSwiftBetaFeature_allCases() {
         // Given
-        let expectedCases: [DebugSwiftBetaFeature] = [.swiftUIRenderTracking]
+        let expectedCases: [DebugSwiftBetaFeature] = [.swiftUIRenderTracking, .networkSessionPersistence, .agentDebugLog]
 
         // When
         let allCases = DebugSwiftBetaFeature.allCases
@@ -43,14 +43,4 @@ class FeatureBaseTests: XCTestCase {
         XCTAssertEqual(allCases, expectedCases, "DebugSwiftBetaFeature.allCases should return all defined cases")
     }
 
-    func testDebugSwiftFeatures_deprecated() {
-        // Given
-        let expectedType: DebugSwiftFeature.Type = DebugSwiftFeature.self
-
-        // When
-        let aliasType: DebugSwiftFeatures.Type = DebugSwiftFeatures.self
-
-        // Then
-        XCTAssertTrue(aliasType == expectedType, "DebugSwiftFeatures should be an alias for DebugSwiftFeature")
-    }
 }

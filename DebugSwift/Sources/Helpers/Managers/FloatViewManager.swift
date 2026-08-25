@@ -30,8 +30,8 @@ final class FloatViewManager: NSObject {
         shared.floatViewController = viewController
     }
 
-    static func animate(success: Bool) {
-        shared.ballView.animate(success: success)
+    static func animate(success: Bool, matchedResponseModifier: Bool = false) {
+        shared.ballView.animate(success: success, matchedResponseModifier: matchedResponseModifier)
     }
     
     static func animateWebSocket(connected: Bool) {
@@ -75,10 +75,11 @@ final class FloatViewManager: NSObject {
             object: nil,
             queue: .main
         ) { notification in
-            let success = notification.object as? Bool
+            let success = notification.userInfo?["success"] as? Bool
+            let matchedResponseModifier = notification.userInfo?["matchedResponseModifier"] as? Bool ?? false
             MainActor.assumeIsolated {
                 if let success = success {
-                    Self.animate(success: success)
+                    Self.animate(success: success, matchedResponseModifier: matchedResponseModifier)
                 }
             }
         }
@@ -99,12 +100,7 @@ final class FloatViewManager: NSObject {
 
 extension FloatViewManager {
     private func setup() {
-        ballRedCancelView.frame = .init(
-            x: DSFloatChat.screenWidth,
-            y: DSFloatChat.screenHeight,
-            width: DSFloatChat.bottomViewFloatWidth,
-            height: DSFloatChat.bottomViewFloatHeight
-        )
+        ballRedCancelView.frame = FloatBallPositionHelper.hiddenBottomFrame(in: WindowManager.window)
         ballRedCancelView.type = BottomFloatViewType.red
         WindowManager.window.addSubview(ballRedCancelView)
 
@@ -143,11 +139,8 @@ extension FloatViewManager: FloatViewDelegate {
         UIView.animate(
             withDuration: 0.2,
             animations: {
-                self.ballRedCancelView.frame = CGRect(
-                    x: DSFloatChat.screenWidth - DSFloatChat.bottomViewFloatWidth,
-                    y: DSFloatChat.screenHeight - DSFloatChat.bottomViewFloatHeight,
-                    width: DSFloatChat.bottomViewFloatWidth,
-                    height: DSFloatChat.bottomViewFloatHeight
+                self.ballRedCancelView.frame = FloatBallPositionHelper.visibleBottomFrame(
+                    in: WindowManager.window
                 )
             }
         ) { _ in
@@ -193,11 +186,8 @@ extension FloatViewManager: FloatViewDelegate {
         UIView.animate(
             withDuration: DSFloatChat.animationCancelMoveDuration,
             animations: {
-                self.ballRedCancelView.frame = .init(
-                    x: DSFloatChat.screenWidth,
-                    y: DSFloatChat.screenHeight,
-                    width: DSFloatChat.bottomViewFloatWidth,
-                    height: DSFloatChat.bottomViewFloatHeight
+                self.ballRedCancelView.frame = FloatBallPositionHelper.hiddenBottomFrame(
+                    in: WindowManager.window
                 )
             }
         ) { _ in

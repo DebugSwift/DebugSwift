@@ -1,19 +1,33 @@
 name: CI and Danger
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled]
     branches:
       - main
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   ci:
     name: CI Build, Tests & Danger
-    permissions: write-all
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved') ||
+      contains(github.event.pull_request.labels.*.name, 'run-ci')
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      statuses: write
     runs-on: macos-15
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -31,11 +45,17 @@ jobs:
           git clone https://github.com/DebugSwift/DangerSwift && rm -rf DangerSwift/.git Readme.md
           mv DangerSwift/* .
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Danger Stage
         run: |
-          brew install danger/tap/danger-js
+          npm install -g danger@13.0.10
           swift build
           swift run danger-swift ci --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DANGER_SWIFT_NO_UPDATE_CHECK: "1"

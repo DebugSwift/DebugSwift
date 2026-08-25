@@ -16,6 +16,8 @@ final class DatabaseTableViewController: BaseController {
     private let table: DatabaseTable
     private var columns: [String] = []
     private var rows: [[Any?]] = []
+    private var filteredRows: [[Any?]] = []
+    private var currentSearchText = ""
     private var currentPage = 0
     private let pageSize = 100
     private var sortColumn: String?
@@ -178,6 +180,7 @@ private extension DatabaseTableViewController {
         
         columns = result.columns
         rows = result.rows
+        applySearchFilter()
         
         // Update content width based on column count
         let columnWidth: CGFloat = 150
@@ -229,12 +232,12 @@ extension DatabaseTableViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return rows.count
+        return filteredRows.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DataCell", for: indexPath) as! DatabaseDataCell
-        let row = rows[indexPath.row]
+        let row = filteredRows[indexPath.row]
         let columnWidth: CGFloat = 150
         cell.configure(with: row, columns: columns, columnWidth: columnWidth)
         return cell
@@ -259,7 +262,7 @@ extension DatabaseTableViewController: UITableViewDelegate {
         
         // Only open edit view if in edit mode or if database is SQLite
         if tableView.isEditing && database.type == .sqlite {
-            let row = rows[indexPath.row]
+            let row = filteredRows[indexPath.row]
             let editVC = DatabaseRowEditViewController(
                 database: database,
                 table: table,
@@ -282,7 +285,9 @@ extension DatabaseTableViewController: UITableViewDelegate {
 
 extension DatabaseTableViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        // TODO: Implement search functionality
+        currentSearchText = searchController.searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        applySearchFilter()
+        tableView.reloadData()
     }
 }
 
@@ -313,6 +318,35 @@ extension DatabaseTableViewController: DatabaseRowEditDelegate {
 // MARK: - Helper Methods
 
 private extension DatabaseTableViewController {
+    func applySearchFilter() {
+        guard !currentSearchText.isEmpty else {
+            filteredRows = rows
+            return
+        }
+
+        let query = currentSearchText.lowercased()
+        filteredRows = rows.filter { row in
+            row.contains { value in
+                valueMatchesQuery(value, query: query)
+            }
+        }
+    }
+
+    func valueMatchesQuery(_ value: Any?, query: String) -> Bool {
+        guard let value else {
+            return "null".contains(query)
+        }
+
+        if let data = value as? Data {
+            if let jsonString = data.toJSONString() {
+                return jsonString.lowercased().contains(query)
+            }
+            return "<blob \(data.count) bytes>".contains(query)
+        }
+
+        return String(describing: value).lowercased().contains(query)
+    }
+
     func showRowActionSheet(for indexPath: IndexPath) {
         let actionSheet = UIAlertController(
             title: "Row Actions",
@@ -349,9 +383,9 @@ private extension DatabaseTableViewController {
     }
     
     func editRow(at indexPath: IndexPath) {
-        guard indexPath.row < rows.count else { return }
+        guard indexPath.row < filteredRows.count else { return }
         
-        let row = rows[indexPath.row]
+        let row = filteredRows[indexPath.row]
         let editVC = DatabaseRowEditViewController(
             database: database,
             table: table,
@@ -365,9 +399,9 @@ private extension DatabaseTableViewController {
     }
     
     func duplicateRow(at indexPath: IndexPath) {
-        guard indexPath.row < rows.count else { return }
+        guard indexPath.row < filteredRows.count else { return }
         
-        var row = rows[indexPath.row]
+        var row = filteredRows[indexPath.row]
         
         // Find primary key and set it to nil to create a new row
         if let primaryKeyColumn = table.columns.first(where: { $0.isPrimaryKey }),
@@ -405,12 +439,12 @@ private extension DatabaseTableViewController {
     func deleteRow(at indexPath: IndexPath) {
         guard let primaryKeyColumn = table.columns.first(where: { $0.isPrimaryKey })?.name,
               let primaryKeyIndex = columns.firstIndex(of: primaryKeyColumn),
-              indexPath.row < rows.count else {
+              indexPath.row < filteredRows.count else {
             showAlert(with: "Cannot delete row without primary key")
             return
         }
         
-        let row = rows[indexPath.row]
+        let row = filteredRows[indexPath.row]
         guard let primaryKeyValue = row[primaryKeyIndex] else {
             showAlert(with: "Primary key value is missing")
             return
@@ -427,14 +461,7 @@ private extension DatabaseTableViewController {
         switch result {
         case .update(let affectedRows):
             if affectedRows > 0 {
-                // Remove from local data
-                rows.remove(at: indexPath.row)
-                tableView.deleteRows(at: [indexPath], with: .fade)
-                
-                // If no more rows, reload to show empty state
-                if rows.isEmpty {
-                    loadTableData()
-                }
+                loadTableData()
             } else {
                 showAlert(with: "No rows were deleted")
             }
@@ -623,4 +650,4 @@ final class DatabaseTableHeaderView: UIView {
 @MainActor
 protocol DatabaseRowEditDelegate: AnyObject {
     func didSaveRow()
-} 
+}

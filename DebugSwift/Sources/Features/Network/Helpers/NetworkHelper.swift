@@ -23,6 +23,13 @@ final class NetworkHelper: @unchecked Sendable {
     @MainActor func enable() {
         guard !isNetworkEnable else { return }
         isNetworkEnable = true
+
+#if canImport(SwiftData)
+        if #available(iOS 17.0, *) {
+            NetworkSessionPersistenceManager.shared.activateFromPreferences()
+        }
+#endif
+
         CustomHTTPProtocol.start()
         WebSocketMonitor.shared.enable()
 

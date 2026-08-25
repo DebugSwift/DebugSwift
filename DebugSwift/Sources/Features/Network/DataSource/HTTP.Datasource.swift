@@ -14,27 +14,26 @@ public final class HttpDatasource: @unchecked Sendable {
     public var httpModels: [HttpModel] = []
 
     public func addHttpRequest(_ model: HttpModel) -> Bool {
-        if model.url?.absoluteString.isEmpty == true {
+        guard let modelUrl = model.url else {
             return false
         }
-
+        
         if !DebugSwift.Network.shared.onlyURLs.isEmpty {
-            if let modelUrl = model.url?.absoluteString.lowercased() {
-                let found = DebugSwift.Network.shared.onlyURLs.contains { modelUrl.contains($0.lowercased()) }
-                if !found {
-                    return false
-                }
+            if !modelUrl.matchesAny(
+                wildcardPatterns: DebugSwift.Network.shared.onlyURLs,
+                strategy: .contains,
+                queryStrategy: .subset
+            ) {
+                return false
             }
-        } else {
-            for urlString in DebugSwift.Network.shared.ignoredURLs {
-                if model.url?.absoluteString.lowercased().contains(
-                    urlString.lowercased()
-                ) == true {
-                    return false
-                }
-            }
+        } else if modelUrl.matchesAny(
+            wildcardPatterns: DebugSwift.Network.shared.ignoredURLs,
+            strategy: .contains,
+            queryStrategy: .subset
+        ) {
+            return false
         }
-
+        
         // Maximum number limit
         if httpModels.count >= 10000 {
             if !httpModels.isEmpty {
@@ -66,6 +65,17 @@ public final class HttpDatasource: @unchecked Sendable {
         }
         
         httpModels.append(model)
+        EventBusSubscriber.shared.publish(DebugEvent(
+            timestamp: Date(),
+            domain: .network,
+            summary: "\(model.method ?? "GET") \(model.url?.path ?? model.url?.host ?? "unknown")"
+        ))
+
+#if canImport(SwiftData)
+        if #available(iOS 17.0, *) {
+            NetworkSessionPersistenceManager.enqueuePersist(from: model)
+        }
+#endif
         return true
     }
 

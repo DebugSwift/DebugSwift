@@ -75,7 +75,9 @@ public enum MeasurementWindowManager {
             window = MeasurementWindow(frame: UIScreen.main.bounds)
         }
 
-        let navigation = UINavigationController(rootViewController: CustomViewController())
+        let navigation = OrientationForwardingNavigationController(
+            rootViewController: CustomViewController()
+        )
         window.rootViewController = navigation
         window.isHidden = false
 
@@ -110,7 +112,9 @@ final class MeasurementWindow: UIWindow {
                 let ballViewInScreen = ballView.convert(ballView.bounds, to: nil)
                 
                 if ballViewInScreen.contains(pointInScreen) {
-                    MeasurementWindowManager.attachedWindow = nil
+                    DispatchQueue.main.async {
+                        MeasurementWindowManager.attachedWindow = nil
+                    }
                     return false
                 }
             }

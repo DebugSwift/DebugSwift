@@ -33,7 +33,7 @@ final class ResourcesHTTPCookiesViewModel: NSObject, ResourcesGenericListViewMod
 
     // MARK: - ViewModel
 
-    var isSearchActived: Bool = false
+    var isSearchActivated: Bool = false
 
     var reloadData: (() -> Void)?
 
@@ -42,11 +42,11 @@ final class ResourcesHTTPCookiesViewModel: NSObject, ResourcesGenericListViewMod
     }
 
     func numberOfItems() -> Int {
-        isSearchActived ? filteredKeys.count : keys.count
+        isSearchActivated ? filteredKeys.count : keys.count
     }
 
     func dataSourceForItem(atIndex index: Int) -> ViewData {
-        let key = isSearchActived ? filteredKeys[index] : keys[index]
+        let key = isSearchActivated ? filteredKeys[index] : keys[index]
         let value: String = {
             if let cookie = storage.cookies?.first(where: { $0.domain == key.domain && $0.name == key.name }) {
                 return "\(cookie)"
@@ -57,12 +57,12 @@ final class ResourcesHTTPCookiesViewModel: NSObject, ResourcesGenericListViewMod
     }
 
     func handleClearAction() {
-        let keys = isSearchActived ? filteredKeys : self.keys
+        let keys = isSearchActivated ? filteredKeys : self.keys
         removeItems(forKeys: keys)
     }
 
     func handleDeleteItemAction(atIndex index: Int) {
-        let key = isSearchActived ? filteredKeys[index] : keys[index]
+        let key = isSearchActivated ? filteredKeys[index] : keys[index]
         removeItems(forKeys: [key])
     }
 

@@ -256,7 +256,7 @@ extension DebugSwift {
             
             private func executeMarketingCampaign(_ simulator: PushNotificationSimulator) async {
                 let notifications = [
-                    SimulatedNotification(title: "Welcome Offer! 🎉", body: "Get 50% off your first purchase", badge: 1, trigger: .immediate),
+                    SimulatedNotification(title: "Welcome Offer!", body: "Get 50% off your first purchase", badge: 1, trigger: .immediate),
                     SimulatedNotification(title: "Cart Reminder", body: "You have items waiting in your cart", trigger: .timeInterval(300)), // 5 minutes
                     SimulatedNotification(title: "Flash Sale! ⚡", body: "24-hour flash sale starts now", badge: 2, trigger: .timeInterval(600)) // 10 minutes
                 ]

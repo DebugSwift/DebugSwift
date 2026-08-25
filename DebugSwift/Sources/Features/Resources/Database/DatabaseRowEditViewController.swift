@@ -320,8 +320,8 @@ final class DatabaseRowEditViewController: BaseController {
     
     private func executeInsert(values: [Any?]) {
         let placeholders = Array(repeating: "?", count: columns.count).joined(separator: ", ")
-        let columnNames = columns.joined(separator: ", ")
-        let query = "INSERT INTO '\(table.name)' (\(columnNames)) VALUES (\(placeholders))"
+        let columnNames = columns.map(quotedIdentifier).joined(separator: ", ")
+        let query = "INSERT INTO \(quotedIdentifier(table.name)) (\(columnNames)) VALUES (\(placeholders))"
         
         let result = SQLiteManager.shared.executeInsert(
             path: database.path,
@@ -346,12 +346,12 @@ final class DatabaseRowEditViewController: BaseController {
         for (index, column) in columns.enumerated() {
             // Skip primary key in SET clause
             if column != primaryKeyColumn {
-                setClause.append("\(column) = ?")
+                setClause.append("\(quotedIdentifier(column)) = ?")
                 updateValues.append(values[index])
             }
         }
         
-        let query = "UPDATE '\(table.name)' SET \(setClause.joined(separator: ", ")) WHERE \(primaryKeyColumn) = ?"
+        let query = "UPDATE \(quotedIdentifier(table.name)) SET \(setClause.joined(separator: ", ")) WHERE \(quotedIdentifier(primaryKeyColumn)) = ?"
         updateValues.append(primaryKeyValue)
         
         let result = SQLiteManager.shared.executeUpdate(
@@ -378,5 +378,8 @@ final class DatabaseRowEditViewController: BaseController {
             break
         }
     }
-}
 
+    private func quotedIdentifier(_ value: String) -> String {
+        "\"\(value.replacingOccurrences(of: "\"", with: "\"\""))\""
+    }
+}

@@ -49,6 +49,13 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
         return label
     }()
 
+    let diskValueLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: labelFontSize)
+        label.textColor = UIColor.white
+        return label
+    }()
+
     weak var delegate: PerformanceWidgetViewDelegate?
 
     func updateValues(cpu: CGFloat, memory: CGFloat, fps: CGFloat, leaks: CGFloat) {
@@ -56,6 +63,14 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
         memoryValueLabel.text = String(format: "\("Memory"): %.1lf MB", memory)
         fpsValueLabel.text = String(format: "\("FPS"): %.0lf", fps)
         leaksValueLabel.text = String(format: "\("Leaks"): %.0lf", leaks)
+
+        let diskIO = DiskIOMonitor.shared
+        let kb = diskIO.writeBytesPerSecond / 1024
+        let diskText: String
+        if kb < 1 { diskText = "0K" }
+        else if kb < 1024 { diskText = String(format: "%.0fK", kb) }
+        else { diskText = String(format: "%.1fM", kb / 1024) }
+        diskValueLabel.text = "DSK: \(diskText)"
     }
 
     override func showWidgetWindow() {
@@ -97,6 +112,7 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
         if !DebugSwift.App.shared.disableMethods.contains(.leaksDetector) {
             stackView.addArrangedSubview(leaksValueLabel)
         }
+        stackView.addArrangedSubview(diskValueLabel)
 
         addSubview(stackView)
 

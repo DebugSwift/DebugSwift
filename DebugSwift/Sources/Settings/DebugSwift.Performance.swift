@@ -34,8 +34,19 @@ extension DebugSwift {
              Triggers the callback whenever a leaked `ViewController` or `View` is detected.
 
              - Parameters:
-               - detectionDelay: The time in seconds allowed for each ViewController or View to deinitialize itself after it has been closed or removed (i.e., grace period). If the ViewController, View, or any of its subviews are still in memory after this delay, the callback will be triggered. Increasing the delay may help prevent certain false positives. The default value is 1.0 seconds, though a shorter delay may be considered for debug builds.
-               - callback: This callback is triggered whenever a ViewController is closed or a View is removed but remains in memory along with any of its subviews. The callback is triggered again once the ViewController or View does deinitialize (if it ever does). It provides the leaked ViewController or View and a warning message string that you can use for logging. If the deinitialization warning is triggered, both the ViewController and View will be nil. Return true to display an alert dialog with the message. Return nil to prevent the callback from being triggered again for the same ViewController or View in future (useful if you want to ignore warnings for certain ViewControllers or Views).
+              - detectionDelay: The time in seconds allowed for each ViewController or View to deinitialize itself
+                after it has been closed or removed (i.e., grace period). If the ViewController, View, or any of
+                its subviews are still in memory after this delay, the callback will be triggered. Increasing
+                the delay may help prevent certain false positives. The default value is 1.0 seconds, though
+                a shorter delay may be considered for debug builds.
+              - callback: This callback is triggered whenever a ViewController is closed or a View is removed
+                but remains in memory along with any of its subviews. The callback is triggered again once
+                the ViewController or View does deinitialize (if it ever does). It provides the leaked
+                ViewController or View and a warning message string that you can use for logging. If the
+                deinitialization warning is triggered, both the ViewController and View will be nil. Return
+                true to display an alert dialog with the message. Return nil to prevent the callback from
+                being triggered again for the same ViewController or View in future (useful if you want to
+                ignore warnings for certain ViewControllers or Views).
              */
             public func onDetect(
                 detectionDelay: TimeInterval = 1,
@@ -46,30 +57,18 @@ extension DebugSwift {
             }
 
             public var ignoredWindowClassNames: [String] {
-                get {
-                    PerformanceLeakDetector.shared.ignoredWindowClassNames
-                }
-                set {
-                    PerformanceLeakDetector.shared.ignoredWindowClassNames = newValue
-                }
+                get { PerformanceLeakDetector.shared.ignoredWindowClassNames }
+                set { PerformanceLeakDetector.shared.ignoredWindowClassNames = newValue }
             }
 
             public var ignoredViewControllerClassNames: [String] {
-                get {
-                    PerformanceLeakDetector.shared.ignoredViewControllerClassNames
-                }
-                set {
-                    PerformanceLeakDetector.shared.ignoredViewControllerClassNames = newValue
-                }
+                get { PerformanceLeakDetector.shared.ignoredViewControllerClassNames }
+                set { PerformanceLeakDetector.shared.ignoredViewControllerClassNames = newValue }
             }
 
             public var ignoredViewClassNames: [String] {
-                get {
-                    PerformanceLeakDetector.shared.ignoredViewClassNames
-                }
-                set {
-                    PerformanceLeakDetector.shared.ignoredViewClassNames = newValue
-                }
+                get { PerformanceLeakDetector.shared.ignoredViewClassNames }
+                set { PerformanceLeakDetector.shared.ignoredViewClassNames = newValue }
             }
         }
         
@@ -119,6 +118,68 @@ extension DebugSwift {
                 PerformanceThreadChecker.shared.clearViolations()
             }
         }
+
+        public enum SuperCallChecker {
+            /// Set a callback invoked whenever a missing super call is detected.
+            public static func onDetect(_ callback: @escaping (SuperCallViolation) -> Void) {
+                SuperCallDetector.shared.callback = callback
+            }
+
+            /// All violations recorded so far.
+            public static var violations: [SuperCallViolation] {
+                SuperCallDetector.shared.violations
+            }
+
+            /// Add a class name to the ignore list.
+            public static func ignoreClass(_ className: String) {
+                SuperCallDetector.shared.ignoreClass(className)
+            }
+
+            /// Replace the entire ignore list.
+            public static func setIgnoredClasses(_ classNames: [String]) {
+                SuperCallDetector.shared.setIgnoredClasses(Set(classNames))
+            }
+
+            /// Clear all recorded violations.
+            public static func clearViolations() {
+                SuperCallDetector.shared.clearViolations()
+            }
+        }
+
+        // MARK: - Backtrace
+
+        /// Programmatic backtrace capture during normal execution (not crash
+        /// reporting).  Addresses Swift 6.2 SE-0419.
+        ///
+        /// On iOS, `Thread.callStackSymbols` is used as the capture mechanism
+        /// because SE-0419's `Runtime` module is not available on native iOS.
+        /// On macOS/Catalyst, the symbolicated `Runtime` path is used
+        /// automatically when available.
+        public enum Backtrace {
+            /// Captures the current call stack.
+            /// - Parameter label: Optional human-readable label for easy
+            ///   identification in the inspector list.
+            /// - Returns: The captured backtrace.
+            @discardableResult
+            public static func capture(label: String? = nil) -> CapturedBacktrace {
+                BacktraceManager.shared.capture(label: label)
+            }
+
+            /// All captured backtraces, newest first.
+            public static var captured: [CapturedBacktrace] {
+                BacktraceManager.shared.backtraces
+            }
+
+            /// Set a callback invoked whenever a new backtrace is captured.
+            public static func onCapture(_ callback: @escaping (CapturedBacktrace) -> Void) {
+                BacktraceManager.shared.callback = callback
+            }
+
+            /// Clear all captured backtraces.
+            public static func clear() {
+                BacktraceManager.shared.clear()
+            }
+        }
     }
 }
 
@@ -128,7 +189,28 @@ public class PerformanceManager: @unchecked Sendable {
     public let leakDetector = DebugSwift.Performance.LeakDetector()
     
     internal init() {}
-    
+
+    // MARK: - Battery Monitoring
+
+    /// Enables or disables battery monitoring programmatically.
+    /// When enabled, tracks battery level, state, and energy impact in real time.
+    ///
+    /// Usage:
+    /// ```swift
+    /// DebugSwift.Performance.shared.isBatteryMonitoringEnabled = true
+    /// ```
+    @MainActor
+    public var isBatteryMonitoringEnabled: Bool {
+        get { BatteryMonitor.shared.isRunning }
+        set {
+            if newValue {
+                BatteryMonitor.shared.start()
+            } else {
+                BatteryMonitor.shared.stop()
+            }
+        }
+    }
+
     // MARK: - Leak Detection (Legacy Support)
     
     private var leakCallbacks: [(LeakData) -> Void] = []

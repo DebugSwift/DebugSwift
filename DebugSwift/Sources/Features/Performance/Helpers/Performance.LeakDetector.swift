@@ -495,6 +495,19 @@ extension UIViewController {
             originalVdaMethod!,
             swizzledVdaMethod!
         )
+        
+        let originalVwdMethod = class_getInstanceMethod(
+            UIViewController.self,
+            #selector(viewWillDisappear(_:))
+        )
+        let swizzledVwdMethod = class_getInstanceMethod(
+            UIViewController.self,
+            #selector(lvcdViewWillDisappear(_:))
+        )
+        method_exchangeImplementations(
+            originalVwdMethod!,
+            swizzledVwdMethod!
+        )
 
         let originalVddMethod = class_getInstanceMethod(
             UIViewController.self,
@@ -508,7 +521,7 @@ extension UIViewController {
             originalVddMethod!,
             swizzledVddMethod!
         )
-
+        
         let originalRfpMethod = class_getInstanceMethod(
             UIViewController.self,
             #selector(removeFromParent)
@@ -571,31 +584,27 @@ extension UIViewController {
             newView
         )
     }
+    
+    func setAssociatedObject() {
+        if !lvcdShouldIgnore() {
+            if objc_getAssociatedObject(self, &LVCDDeallocator.key) == nil {
+                objc_setAssociatedObject(
+                    self,
+                    &LVCDDeallocator.key,
+                    LVCDDeallocator(view),
+                    .OBJC_ASSOCIATION_RETAIN
+                )
+                addCheckForMemoryLeakObserver(skipIgnoreCheck: true)
+            }
+        }
+    }
 
     @objc private func lvcdViewDidLoad() {
         lvcdViewDidLoad() // run original implementation
         DispatchQueue.main.asyncAfter(
             deadline: .now() + 0.1
         ) { [weak self] in
-            guard let self else { return }
-            if !self.lvcdShouldIgnore() {
-                if objc_getAssociatedObject(
-                    self,
-                    &LVCDDeallocator.key
-                ) == nil {
-                    objc_setAssociatedObject(
-                        self,
-                        &LVCDDeallocator.key,
-                        LVCDDeallocator(
-                            self.view
-                        ),
-                        .OBJC_ASSOCIATION_RETAIN
-                    )
-                }
-                self.addCheckForMemoryLeakObserver(
-                    skipIgnoreCheck: true
-                )
-            }
+            self?.setAssociatedObject()
         }
     }
 
@@ -617,11 +626,17 @@ extension UIViewController {
         }
     }
 
+    @objc private func lvcdViewWillDisappear(_ animated: Bool) {
+        lvcdViewWillDisappear(animated) // run original implementation
+        self.setAssociatedObject() // fallback in case super.viewDidLoad() was not called
+    }
+    
     @objc private func lvcdViewDidDisappear(
         _ animated: Bool
     ) {
         lvcdViewDidDisappear(animated) // run original implementation
-
+        self.setAssociatedObject() // fallback in case super.viewDidLoad() was not called
+        
         // ignore parent VCs because one of their children will trigger viewDidDisappear() too
         if (self as? UINavigationController)?.viewControllers.isEmpty ?? true,
            (
@@ -678,8 +693,6 @@ extension UIViewController {
         ) // run original implementation
     }
 
-    fileprivate static var lvcdMemoryCheckQueue = Set<ObjectIdentifier>()
-
     private var lvcdRootParentViewController: UIViewController {
         parent?.lvcdRootParentViewController ?? self
     }
@@ -687,143 +700,135 @@ extension UIViewController {
     @objc private func lvcdCheckForMemoryLeak(
         restarted: Bool = false
     ) {
-        // only check when active for now
-        guard UIApplication.shared.applicationState == .active else { return }
 
-        if (view != nil && view.window != nil) || lvcdShouldIgnore() {
-            return
+        let rootParentVC = lvcdRootParentViewController
+        
+        guard UIApplication.shared.applicationState == .active,
+              view == nil || view?.window == nil,
+              !lvcdShouldIgnore(),
+              rootParentVC.presentedViewController == nil,
+              !isViewLoaded || rootParentVC.view.window == nil,
+              let deallocator = objc_getAssociatedObject(self, &LVCDDeallocator.key) as? LVCDDeallocator,
+              deallocator.objectIdentifier == 0,
+              !deallocator.pending else { return }
+    
+        deallocator.pending = true
+    
+        if let svc = self as? UISplitViewController {
+            NotificationCenter.lvcd.post(name: Self.Constants.lvcdCheckForSplitViewVCMemoryLeakNotification, object: svc)
         }
 
-        let objectIdentifier = ObjectIdentifier(self)
+        let startTime = Date()
+        let delay = PerformanceLeakDetector.shared.delay
 
-        // in some cases Constants.lvcdCheckForMemoryLeakNotification may be called multiple times at once, this guard prevents double checking
-        guard !Self.lvcdMemoryCheckQueue.contains(
-            objectIdentifier
-        ) else {
-            return
-        }
-        Self.lvcdMemoryCheckQueue.insert(
-            objectIdentifier
-        )
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + delay
+        ) { [weak self, weak deallocator] in
+            // if self is nil it deinitted, so no memory leak
+            guard let self, let deallocator else { return }
 
-        DispatchQueue.main.async { [self] in
-            Self.lvcdMemoryCheckQueue.remove(objectIdentifier)
-            let rootParentVC = lvcdRootParentViewController
-            guard
-                rootParentVC.presentedViewController == nil,
-                !isViewLoaded || rootParentVC.view.window == nil,
-                let deallocator = objc_getAssociatedObject(self, &LVCDDeallocator.key) as? LVCDDeallocator,
-                deallocator.objectIdentifier == 0
-            else { return }
+            deallocator.pending = false
+            
+            // if backgrounded now or during the delay ignore for now
+            if UIApplication.shared.applicationState != .active || PerformanceLeakDetector.shared.lastBackgroundedDate > startTime {
+                return
+            }
 
-            if let svc = self as? UISplitViewController {
-                NotificationCenter.lvcd.post(
-                    name: Self.Constants.lvcdCheckForSplitViewVCMemoryLeakNotification,
-                    object: svc
+            // if somehow this asyncAfter code is executed way too late restart just in case
+            if !restarted && abs(startTime.timeIntervalSinceNow) > delay + 0.5 {
+                self.lvcdCheckForMemoryLeak(restarted: true)
+                return
+            }
+
+            // these conditions constitute a 'limbo' ViewController, i.e. a memory leak:
+            if
+                !self.isViewLoaded || self.view?.window == nil,
+                self.parent == nil, self.presentedViewController == nil,
+                self.view == nil || self.view.superview == nil
+                    || (type(of: self.view.rootView).description() == "UILayoutContainerView" && self.view.rootView.viewController == nil) {
+                // once warned don't warn again
+                NotificationCenter.lvcd.removeObserver(
+                    self,
+                    name: Self.Constants.lvcdCheckForMemoryLeakNotification,
+                    object: nil
                 )
-            }
 
-            let startTime = Date()
-
-            let delay = PerformanceLeakDetector.shared.delay
-            DispatchQueue.main.asyncAfter(
-                deadline: .now() + delay
-            ) { [weak self] in
-                // if self is nil it deinitted, so no memory leak
-                guard let self else { return }
-
-                // if backgrounded now or during the delay ignore for now
-                if UIApplication.shared.applicationState != .active || PerformanceLeakDetector.shared.lastBackgroundedDate > startTime {
-                    return
+                var errorTitle = "VIEWCONTROLLER STILL IN MEMORY"
+                var errorMessage = debugDescription.lvcdRemoveBundleAndModuleName()
+                
+                // add children's names to the message in case of NavVC or TabVC for easier identification
+                if let nvc = self as? UINavigationController {
+                    errorTitle = "NAVIGATIONCONTROLLER STILL IN MEMORY"
+                    nvc.viewControllers.forEach({
+                        errorMessage = "\(errorMessage)\n📄 \($0.debugDescription.lvcdRemoveBundleAndModuleName())"
+                    })
                 }
-
-                // if somehow this asyncAfter code is executed way too late restart just in case
-                if !restarted && abs(startTime.timeIntervalSinceNow) > delay + 0.5 {
-                    self.lvcdCheckForMemoryLeak(restarted: true)
-                    return
+                if let tbvc = self as? UITabBarController, let vcs = tbvc.viewControllers {
+                    errorTitle = "TABBARCONTROLLER STILL IN MEMORY"
+                    vcs.forEach({
+                        errorMessage = "\(errorMessage)\n📄 \($0.debugDescription.lvcdRemoveBundleAndModuleName())"
+                    })
                 }
+                // add alert title/message to the message for easier identification
+                if let alertVC = self as? UIAlertController {
+                    errorTitle = "ALERTCONTROLLER STILL IN MEMORY"
+                    var actions = alertVC.actions.isEmpty ? "-" : ""
+                    for action in alertVC.actions {
+                        actions = "\(actions) \"\(action.title ?? "-")\","
+                    }
 
-                // these conditions constitute a 'limbo' ViewController, i.e. a memory leak:
-                if
-                    !self.isViewLoaded || self.view?.window == nil,
-                    self.parent == nil, self.presentedViewController == nil,
-                    self.view == nil || self.view.superview == nil || type(of: self.view.rootView).description() == "UILayoutContainerView" {
-                    // once warned don't warn again
-                    NotificationCenter.lvcd.removeObserver(
-                        self,
-                        name: Self.Constants.lvcdCheckForMemoryLeakNotification,
-                        object: nil
+                    errorMessage = """
+                        \(errorMessage)
+                        title: \"\((alertVC.title ?? "") == "" ? "" : alertVC.title!)\"
+                        message: \"\((alertVC.message ?? "") == "" ? "" : alertVC.message!)\"
+                        actions: \(actions);
+                    """
+
+                    if alertVC.textFields?.isEmpty == false {
+                        var tfs = ""
+                        for tf in alertVC.textFields ?? [] {
+                            tfs = "\(tfs) \"\(tf.placeholder ?? "-")\","
+                        }
+                        errorMessage += "\ntextfields: \(tfs);"
+                    }
+
+                    errorMessage = errorMessage.replacingOccurrences(
+                        of: ",;",
+                        with: ";"
                     )
+                }
 
-                    let errorTitle = "VIEWCONTROLLER STILL IN MEMORY"
-                    var errorMessage = self.debugDescription.lvcdRemoveBundleAndModuleName()
+                PerformanceLeakDetector.shared.callback?(
+                    .init(
+                        controller: self,
+                        message: "\(errorTitle) \(errorMessage)"
+                    )
+                )
+                Debug.print("\(errorTitle) \(errorMessage)")
 
-                    // add children's names to the message in case of NavVC or TabVC for easier identification
-                    if let nvc = self as? UINavigationController {
-                        errorMessage = "\(errorMessage):\n\(nvc.viewControllers)"
-                    }
-                    if let tbvc = self as? UITabBarController, let vcs = tbvc.viewControllers {
-                        errorMessage = "\(errorMessage):\n\(vcs)"
-                    }
-                    // add alert title/message to the message for easier identification
-                    if let alertVC = self as? UIAlertController {
-                        var actions = alertVC.actions.isEmpty ? "-" : ""
-                        for action in alertVC.actions {
-                            actions = "\(actions) \"\(action.title ?? "-")\","
-                        }
+                // Disable screenshots on false positives (UIPageViewController's child viewcontrollers are incorrectly flagged as leaking)
+//                let screenshot = self.view?.rootView.makeScreenshot()
+                let id = Int(bitPattern: ObjectIdentifier(self))
 
-                        errorMessage = """
-                            \(errorMessage)
-                            title: \"\((alertVC.title ?? "") == "" ? "" : alertVC.title!)\"
-                            message: \"\((alertVC.message ?? "") == "" ? "" : alertVC.message!)\"
-                            actions: \(actions);
-                        """
-
-                        if alertVC.textFields?.isEmpty == false {
-                            var tfs = ""
-                            for tf in alertVC.textFields ?? [] {
-                                tfs = "\(tfs) \"\(tf.placeholder ?? "-")\","
-                            }
-                            errorMessage += "\ntextfields: \(tfs);"
-                        }
-
-                        errorMessage = errorMessage.replacingOccurrences(
-                            of: ",;",
-                            with: ";"
-                        )
-                    }
-
-                    PerformanceLeakDetector.shared.callback?(
+                if !PerformanceLeakDetector.shared.leaks.contains(where: { $0.id == id }) {
+                    FloatViewManager.animateLeek(alloced: true)
+                    PerformanceLeakDetector.shared.leaks.append(
                         .init(
-                            controller: self,
-                            message: "\(errorTitle) \(errorMessage)"
+                            details: errorMessage,
+                            screenshot: nil,
+                            id: id
                         )
                     )
-                    Debug.print("\(errorTitle) \(errorMessage)")
-
-                    // Disable screenshots on false positives (UIPageViewController's child viewcontrollers are incorrectly flagged as leaking)
-//                    let screenshot = self.view?.rootView.makeScreenshot()
-                    let id = Int(bitPattern: ObjectIdentifier(self))
-
-                    if !PerformanceLeakDetector.shared.leaks.contains(where: { $0.id == id }) {
-                        FloatViewManager.animateLeek(alloced: true)
-                        PerformanceLeakDetector.shared.leaks.append(
-                            .init(
-                                details: errorMessage,
-                                screenshot: nil,
-                                id: id
-                            )
-                        )
-                    }
-
-                    deallocator.memoryLeakDetectionDate = Date().timeIntervalSince1970 - delay
-                    deallocator.errorMessage = errorMessage
-                    deallocator.objectIdentifier = Int(bitPattern: ObjectIdentifier(self))
-                    deallocator.objectType = "VIEWCONTROLLER"
-                    deallocator.screenshot = nil
                 }
+
+                deallocator.memoryLeakDetectionDate = Date().timeIntervalSince1970 - delay
+                deallocator.errorMessage = errorMessage
+                deallocator.objectIdentifier = Int(bitPattern: ObjectIdentifier(self))
+                deallocator.objectType = "VIEWCONTROLLER"
+                deallocator.screenshot = nil
             }
         }
+        
     }
 
     // Call this method if the ViewController deinitializes.
@@ -839,21 +844,27 @@ extension UIViewController {
         let interval = Date().timeIntervalSince1970 - memoryLeakDetectionDate
 
         FloatViewManager.animateLeek(alloced: false)
-        let errorTitle = "LEAKED \(objectType) DEINNITED"
+        let errorTitle = "LEAKED \(objectType) DEINITED"
         let errorMessage = String(
-            format: "\(errorMessage)\n\nDeinnited after %.3fs.",
+            format: "\(errorMessage)\nDeinited after %.3fs.",
             interval
         )
 
         if let index = PerformanceLeakDetector.shared.leaks.firstIndex(where: { $0.id == objectIdentifier }) {
             PerformanceLeakDetector.shared.leaks[index].hasDeallocated = true
-            PerformanceLeakDetector.shared.leaks[index].timeAllocated = String(format: "%.3fs.", interval)
+            PerformanceLeakDetector.shared.leaks[index].timeAllocated = String(format: "%.3fs", interval)
+            PerformanceLeakDetector.shared.leaks[index].details = errorMessage
         }
 
         PerformanceLeakDetector.shared.callback?(
             .init(message: "\(errorTitle) \(errorMessage)")
         )
 
+        if objectType.contains("CONTROLLER") {
+            // Check again to make sure there are no leaked children.
+            NotificationCenter.lvcd.post(name: Self.Constants.lvcdCheckForMemoryLeakNotification, object: nil)
+        }
+        
         Debug.print("\(errorTitle) \(errorMessage)")
     }
 
@@ -933,6 +944,7 @@ private class LVCDDeallocator: @unchecked Sendable {
     var objectIdentifier = 0
     var objectType = ""
     var screenshot: UIImage?
+    var pending = false // in some cases lvcdCheckForMemoryLeakNotification may be called multiple times at once, this prevents double checking
 
     // used by ViewController
     var strongView: UIView?
@@ -960,35 +972,39 @@ private class LVCDDeallocator: @unchecked Sendable {
     }
 
     deinit {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
 
-            // ViewController
-            strongView?.checkForLeakedSubViews()
-            strongView = nil // not needed, but just for peace of mind
+        self.subviewObserver?.invalidate()
+
+        if self.strongView != nil || !(self.subviews ?? []).isEmpty || self.objectIdentifier != 0 {
             
-            // View
-            subviewObserver?.invalidate()
-            for subview in subviews ?? [] {
-                subview.checkForLeakedSubViews()
-            }
-        }
-
-        if objectIdentifier != 0 {
-            Task { [weak self] in
-                let memoryLeakDetectionDate = self?.memoryLeakDetectionDate ?? 0
-                let errorMessage = self?.errorMessage ?? ""
-                let objectIdentifier = self?.objectIdentifier ?? 0
-                let objectType = self?.objectType ?? ""
-                let screenshot = self?.screenshot
+            // fetch some things from self for use inside async (where self will be gone)
+            let strongView = self.strongView
+            let subviews = self.subviews
+            let objectIdentifier = self.objectIdentifier
+            let memoryLeakDetectionDate = self.memoryLeakDetectionDate
+            let errorMessage = self.errorMessage
+            let objectType = self.objectType
+            let screenshot = self.screenshot
+            
+            DispatchQueue.main.async {
                 
-                await UIViewController.lvcdMemoryLeakResolved(
-                    memoryLeakDetectionDate: memoryLeakDetectionDate,
-                    errorMessage: errorMessage,
-                    objectIdentifier: objectIdentifier,
-                    objectType: objectType,
-                    screenshot: screenshot
-                )
+                // ViewController
+                strongView?.checkForLeakedSubViews()
+
+                // View
+                for subview in subviews ?? [] {
+                    subview.checkForLeakedSubViews()
+                }
+
+                if objectIdentifier != 0 {
+                    UIViewController.lvcdMemoryLeakResolved(
+                        memoryLeakDetectionDate: memoryLeakDetectionDate,
+                        errorMessage: errorMessage,
+                        objectIdentifier: objectIdentifier,
+                        objectType: objectType,
+                        screenshot: screenshot
+                    )
+                }
             }
         }
     }
@@ -1099,7 +1115,7 @@ extension String {
 
 extension PerformanceLeakDetector {
     struct LeakModel {
-        let details: String
+        var details: String
         let screenshot: UIImage?
         let id: Int
 

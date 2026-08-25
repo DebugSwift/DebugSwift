@@ -49,13 +49,13 @@ extension CLLocationManager {
         SwizzleManager.swizzle(
             CLLocationManager.self,
             originalSelector: #selector(requestLocation),
-            swizzledSelector: #selector(swizzedRequestLocation)
+            swizzledSelector: #selector(swizzledRequestLocation)
         )
 
         SwizzleManager.swizzle(
             CLLocationManager.self,
             originalSelector: #selector(getter: location),
-            swizzledSelector: #selector(swizzedLocation)
+            swizzledSelector: #selector(swizzledLocation)
         )
     }
 
@@ -85,20 +85,20 @@ extension CLLocationManager {
         }
     }
 
-    @objc func swizzedRequestLocation() {
+    @objc func swizzledRequestLocation() {
         if let simulatedLocation {
             delegate?.locationManager?(self, didUpdateLocations: [simulatedLocation])
         } else {
             if delegate != nil {
-                swizzedRequestLocation()
+                swizzledRequestLocation()
             }
         }
     }
 
-    @objc func swizzedLocation() -> CLLocation {
+    @objc func swizzledLocation() -> CLLocation {
         if let simulatedLocation {
             return simulatedLocation
         }
-        return swizzedLocation()
+        return swizzledLocation()
     }
 }

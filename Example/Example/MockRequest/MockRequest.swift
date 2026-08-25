@@ -33,12 +33,6 @@ struct MockRequestView: View {
     private let endpoints = [
         // GET Requests
         APIEndpoint(
-            title: "Get All Posts",
-            method: "GET",
-            endpoint: "https://doordash.chronosphere.io/dashboards/attestation/attestation?orgId=1&refresh=30s&from=now-2d&to=now&var-env=production&var-client=All&var-platform=All&var-target_type=All&var-is_synchronous=",
-            description: "Fetch all posts (100 items)"
-        ),
-        APIEndpoint(
             title: "Get Single Post",
             method: "GET",
             endpoint: "https://jsonplaceholder.typicode.com/posts/1",

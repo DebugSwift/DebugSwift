@@ -7,19 +7,20 @@
 //
 
 import Foundation
+import UIKit
 
-final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
+public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private static let requestProperty = "com.custom.http.protocol"
 
-    final class func clearCache() {
+    public final class func clearCache() {
         URLCache.customHttp.removeAllCachedResponses()
     }
 
-    final class func start() {
+    public final class func start() {
         URLProtocol.registerClass(self)
     }
 
-    final class func stop() {
+    public final class func stop() {
         URLProtocol.unregisterClass(self)
     }
 
@@ -33,6 +34,11 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             }
         }
 
+        // URLSessionWebSocketTask performs its handshake as an HTTP upgrade request.
+        if isWebSocketUpgradeRequest(request) {
+            return false
+        }
+
         for onlyScheme in DebugSwift.Network.shared.onlySchemes {
             if let scheme = request.url?.scheme?.lowercased(), scheme == onlyScheme.rawValue {
                 return true
@@ -42,16 +48,27 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         return false
     }
 
-    override final class func canInit(with request: URLRequest) -> Bool {
+    private final class func isWebSocketUpgradeRequest(_ request: URLRequest) -> Bool {
+        guard let headers = request.allHTTPHeaderFields else { return false }
+
+        let upgrade = headers.first { $0.key.caseInsensitiveCompare("Upgrade") == .orderedSame }?.value
+        if upgrade?.caseInsensitiveCompare("websocket") == .orderedSame {
+            return true
+        }
+
+        return headers.keys.contains { $0.caseInsensitiveCompare("Sec-WebSocket-Key") == .orderedSame }
+    }
+
+    public override final class func canInit(with request: URLRequest) -> Bool {
         canServeRequest(request)
     }
 
-    override final class func canInit(with task: URLSessionTask) -> Bool {
+    public override final class func canInit(with task: URLSessionTask) -> Bool {
         guard let request = task.currentRequest else { return false }
         return canServeRequest(request)
     }
 
-    override final class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    public override final class func canonicalRequest(for request: URLRequest) -> URLRequest {
         request
     }
 
@@ -66,8 +83,14 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private var error: Error?
     private var prevUrl: URL?
     private var prevStartTime: Date?
+    private var matchedRewriteRule: ResponseBodyRewriteRule?
+    private let reportQueue = DispatchQueue(label: "com.debugswift.http-protocol.report")
+    private var didReport = false
 
     private var threadOperator: ThreadOperator?
+    
+    // Store reference to original delegate for forwarding
+    private weak var originalDelegate: URLSessionDelegate?
 
     private func use(_ cache: CachedURLResponse) {
         DebugSwift.Network.shared.delegate?.urlSession(
@@ -93,7 +116,7 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         client?.urlProtocolDidFinishLoading(self)
     }
 
-    override func startLoading() {
+    public override func startLoading() {
         guard let newRequest = (request as NSObject).mutableCopy() as? NSMutableURLRequest else {
             fatalError("Can not convert to NSMutableURLRequest")
         }
@@ -120,10 +143,37 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         }
 
         Debug.print(request.requestId)
+        
+        // Apply delay injection first (synchronous)
+        NetworkInjectionManager.shared.applyDelayIfNeeded(for: request)
+        
+        // Check for failure injection
+        let (shouldInject, injectedError, statusCode) = NetworkInjectionManager.shared.shouldInjectFailure(for: request)
+        
+        if shouldInject {
+            // Inject HTTP error with status code if specified
+            if let statusCode = statusCode {
+                injectHTTPError(statusCode: statusCode, for: request)
+            } else if let error = injectedError {
+                // Inject network error
+                injectNetworkError(error)
+            }
+            return
+        }
+        
+        matchedRewriteRule = resolveRewriteRule(for: request)
+        if let matchedRewriteRule, NetworkInjectionManager.shared.isRewriteShortCircuitEnabled() {
+            injectRewrittenResponse(using: matchedRewriteRule, for: request)
+            return
+        }
+        
         threadOperator = ThreadOperator()
         startTime = Date()
         prevUrl = request.url
         prevStartTime = startTime
+        
+        // Capture the most recent application delegate for forwarding authentication challenges
+        originalDelegate = URLSessionDelegateRegistry.shared.getMostRecentDelegate()
         
         // Use preserved configuration if available, otherwise fall back to default
         let config = getPreservedConfigurationForRequest() ?? URLSessionConfiguration.default
@@ -131,6 +181,214 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         dataTask = session?.dataTask(with: newRequest as URLRequest)
         dataTask?.resume()
+    }
+
+    private func resolveRewriteRule(for request: URLRequest) -> ResponseBodyRewriteRule? {
+        let manager = NetworkInjectionManager.shared
+        guard manager.isRewriteMultipleMatchEnabled() else {
+            return manager.matchingRewriteRule(for: request)
+        }
+
+        let matches = manager.matchingRewriteRules(for: request)
+        guard !matches.isEmpty else { return nil }
+        guard matches.count > 1 else { return matches.first }
+
+        return showMultipleMatchSelectionDialog(for: request, matches: matches)
+    }
+
+    private func showMultipleMatchSelectionDialog(
+        for request: URLRequest,
+        matches: [ResponseBodyRewriteRule]
+    ) -> ResponseBodyRewriteRule? {
+        if Thread.isMainThread {
+            return nil
+        }
+
+        let semaphore = DispatchSemaphore(value: 0)
+        let selectionBox = RewriteRuleSelectionBox()
+
+        DispatchQueue.main.async {
+            guard let presenter = UIApplication.topViewController() else {
+                semaphore.signal()
+                return
+            }
+
+            let requestLink = request.url?.absoluteString ?? "Unknown URL"
+            let requestMethod = (request.httpMethod ?? HTTPMethod.get.rawValue).uppercased()
+            let message = "[\(requestMethod)] \(requestLink)"
+
+            let alert = UIAlertController(
+                title: "Choose Response Modifier Rule",
+                message: message,
+                preferredStyle: .alert
+            )
+
+            for rule in matches {
+                let statusCode = rule.responseStatusCode ?? 200
+                let title = "Status Code: \(statusCode)"
+                alert.addAction(UIAlertAction(title: title, style: .default) { _ in
+                    selectionBox.set(rule)
+                    semaphore.signal()
+                })
+            }
+
+            alert.addAction(UIAlertAction(title: "No Rewrite", style: .cancel) { _ in
+                semaphore.signal()
+            })
+
+            presenter.present(alert, animated: true)
+        }
+
+        let waitResult = semaphore.wait(timeout: .now() + 30)
+        if waitResult == .timedOut {
+            return nil
+        }
+        return selectionBox.get()
+    }
+    
+    private func injectHTTPError(statusCode: Int, for request: URLRequest) {
+        guard let url = request.url else { return }
+        
+        // Create a mock HTTP response with error status code
+        let httpResponse = HTTPURLResponse(
+            url: url,
+            statusCode: statusCode,
+            httpVersion: "HTTP/1.1",
+            headerFields: ["Content-Type": "application/json"]
+        )
+        
+        // Create error response body
+        let errorBody = """
+        {
+            "error": "Injected HTTP Error",
+            "statusCode": \(statusCode),
+            "message": "This is a simulated HTTP \(statusCode) error for testing purposes.",
+            "injected": true
+        }
+        """.data(using: .utf8) ?? Data()
+        
+        guard markReportedIfNeeded() else { return }
+
+        // Notify client of response
+        if let response = httpResponse {
+            self.response = response
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: errorBody)
+            
+            self.data = errorBody
+        }
+        
+        client?.urlProtocolDidFinishLoading(self)
+        
+        let method = request.httpMethod
+        let capturedStartTime = startTime
+        let requestId = request.requestId
+        let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
+        let requestHeaderFields = request.allHTTPHeaderFields
+
+        // Process for DebugSwift tracking
+        Task { @MainActor in
+            let data = NetworkReportData(
+                url: url,
+                method: method,
+                requestData: nil,
+                responseData: errorBody,
+                statusCode: "\(statusCode)",
+                mineType: "application/json",
+                startTime: capturedStartTime,
+                endTime: Date(),
+                error: nil,
+                requestHeaderFields: requestHeaderFields,
+                responseHeaderFields: ["Content-Type": "application/json"],
+                requestId: requestId,
+                cachePolicy: cachePolicy
+            )
+            Self.report(data, matchedResponseModifier: false)
+        }
+    }
+    
+    private func injectNetworkError(_ error: Error) {
+        guard markReportedIfNeeded() else { return }
+        self.error = error
+        client?.urlProtocol(self, didFailWithError: error)
+        
+        let url = request.url
+        let method = request.httpMethod
+        let capturedStartTime = startTime
+        let requestId = request.requestId
+        let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
+        let requestHeaderFields = request.allHTTPHeaderFields
+        let capturedError = error
+
+        // Process for DebugSwift tracking
+        Task { @MainActor in
+            let data = NetworkReportData(
+                url: url,
+                method: method,
+                requestData: nil,
+                responseData: nil,
+                statusCode: "0",
+                mineType: nil,
+                startTime: capturedStartTime,
+                endTime: Date(),
+                error: capturedError,
+                requestHeaderFields: requestHeaderFields,
+                responseHeaderFields: nil,
+                requestId: requestId,
+                cachePolicy: cachePolicy
+            )
+            Self.report(data, matchedResponseModifier: false)
+        }
+    }
+    
+    private func injectRewrittenResponse(using rule: ResponseBodyRewriteRule, for request: URLRequest) {
+        guard let url = request.url else { return }
+        
+        let rewrittenData = rule.responseBody.data(using: .utf8) ?? Data()
+        let statusCode = rule.responseStatusCode ?? 200
+        
+        let response = HTTPURLResponse(
+            url: url,
+            statusCode: statusCode,
+            httpVersion: "HTTP/1.1",
+            headerFields: ["Content-Type": "application/json"]
+        )
+        
+        guard markReportedIfNeeded() else { return }
+
+        if let response {
+            self.response = response
+            self.data = rewrittenData
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: rewrittenData)
+        }
+        
+        client?.urlProtocolDidFinishLoading(self)
+        
+        let method = request.httpMethod
+        let requestId = request.requestId
+        let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
+        let requestHeaderFields = request.allHTTPHeaderFields
+        let now = Date()
+        
+        Task { @MainActor in
+            let data = NetworkReportData(
+                url: url,
+                method: method,
+                requestData: nil,
+                responseData: rewrittenData,
+                statusCode: "\(statusCode)",
+                mineType: "application/json",
+                startTime: now,
+                endTime: now,
+                error: nil,
+                requestHeaderFields: requestHeaderFields,
+                responseHeaderFields: ["Content-Type": "application/json"],
+                requestId: requestId,
+                cachePolicy: cachePolicy
+            )
+            Self.report(data, matchedResponseModifier: true)
+        }
     }
     
     private func getPreservedConfigurationForRequest() -> URLSessionConfiguration? {
@@ -155,70 +413,105 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         return config
     }
 
-    override func stopLoading() {
+    public override func stopLoading() {
         dataTask?.cancel()
 
         if let task = dataTask {
             task.cancel()
             dataTask = nil
         }
+        
+        // Invalidate session to break retain cycle
+        session?.invalidateAndCancel()
+        session = nil
 
-        Task { @Sendable in
-            guard await NetworkHelper.shared.isNetworkEnable else {
+        let url = request.url
+        let method = request.httpMethod
+        let requestData = request.httpBody ?? request.httpBodyStream?.toData()
+        let responseData = data
+        let statusCode = response.map { "\($0.statusCode)" }
+        let mineType = response?.mimeType
+        let capturedStartTime = startTime
+        let capturedError = error
+        let requestHeaderFields = request.allHTTPHeaderFields
+        let responseHeaderFields = headersToString(response?.allHeaderFields)
+        let requestId = request.requestId
+        let cachePolicy = getCachePolicy(value: request.cachePolicy.rawValue)
+        let matchedResponseModifier = matchedRewriteRule != nil
+
+        guard markReportedIfNeeded() else { return }
+
+        Task { @MainActor in
+            guard NetworkHelper.shared.isNetworkEnable else {
                 return
             }
             
-            await processNetworkData()
+            let reportData = NetworkReportData(
+                url: url,
+                method: method,
+                requestData: requestData,
+                responseData: responseData,
+                statusCode: statusCode,
+                mineType: mineType,
+                startTime: capturedStartTime,
+                endTime: Date(),
+                error: capturedError,
+                requestHeaderFields: requestHeaderFields,
+                responseHeaderFields: responseHeaderFields,
+                requestId: requestId,
+                cachePolicy: cachePolicy
+            )
+            Self.report(reportData, matchedResponseModifier: matchedResponseModifier)
+        }
+    }
+
+    private func markReportedIfNeeded() -> Bool {
+        reportQueue.sync {
+            guard !didReport else { return false }
+            didReport = true
+            return true
         }
     }
     
     @MainActor
-    private func processNetworkData() async {
+    private static func report(_ data: NetworkReportData, matchedResponseModifier: Bool = false) {
         var model = HttpModel()
-        model.url = request.url
-        model.method = request.httpMethod
-        model.mineType = response?.mimeType
+        model.url = data.url
+        model.method = data.method
+        model.mineType = data.mineType
 
-        if let requestBody = request.httpBody {
-            model.requestData = requestBody
+        model.requestData = data.requestData
+
+        if let statusCode = data.statusCode {
+            model.statusCode = statusCode
         }
 
-        if let requestBodyStream = request.httpBodyStream {
-            model.requestData = requestBodyStream.toData()
-        }
-
-        if let httpResponse = response {
-            model.statusCode = "\(httpResponse.statusCode)"
-        }
-
-        model.responseData = data
-        model.size = data.formattedSize()
-        model.isImage = (response?.mimeType?.contains("image")) ?? false
+        model.responseData = data.responseData
+        model.size = data.responseData?.formattedSize()
+        model.isImage = (data.mineType?.contains("image")) ?? false
 
         // Time
-        let startTimeDouble = startTime.timeIntervalSince1970
-        let endTimeDouble = Date().timeIntervalSince1970
+        let startTimeDouble = data.startTime.timeIntervalSince1970
+        let endTimeDouble = data.endTime.timeIntervalSince1970
         let durationDouble = abs(endTimeDouble - startTimeDouble)
         let formattedDuration = String(format: "%.4f", durationDouble)
 
-        model.startTime = "\(startTime.formatted())"
-        model.endTime = "\(Date().formatted())"
+        model.startTime = "\(data.startTime.formatted())"
+        model.endTime = "\(data.endTime.formatted())"
         model.totalDuration = "\(formattedDuration) (s)"
 
-        model.errorDescription = error?.localizedDescription ?? ""
-        model.errorLocalizedDescription = error?.localizedDescription ?? ""
-        model.requestHeaderFields = request.allHTTPHeaderFields
+        model.errorDescription = data.error?.localizedDescription ?? ""
+        model.errorLocalizedDescription = data.error?.localizedDescription ?? ""
+        model.requestHeaderFields = data.requestHeaderFields
 
-        if let response {
-            model.responseHeaderFields = response.allHeaderFields.convertKeysToString()
-            model.responseHeaderFields?.updateValue(getCachePolicy(value: request.cachePolicy.rawValue), forKey: "Cache-Policy")
-        }
+        model.responseHeaderFields = data.responseHeaderFields
+        model.responseHeaderFields?.updateValue(data.cachePolicy, forKey: "Cache-Policy")
 
         if let responseDate = model.endTime {
             model.responseHeaderFields?.updateValue(responseDate, forKey: "Response-Date")
         }
 
-        if response?.mimeType == nil {
+        if data.mineType == nil {
             model.isImage = false
         }
 
@@ -236,19 +529,32 @@ final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             }
         }
 
-        model.requestId = request.requestId
-        model = ErrorHelper.handle(error, model: model)
+        model.requestId = data.requestId
+        model = ErrorHelper.handle(data.error, model: model)
         if HttpDatasource.shared.addHttpRequest(model) {
             NotificationCenter.default.post(
                 name: NSNotification.Name("reloadHttp_DebugSwift"),
-                object: model.isSuccess
+                object: nil,
+                userInfo: [
+                    "success": model.isSuccess,
+                    "matchedResponseModifier": matchedResponseModifier
+                ]
             )
         }
+    }
+
+    private func headersToString(_ headers: [AnyHashable: Any]?) -> [String: String]? {
+        guard let headers = headers else { return nil }
+        var result = [String: String]()
+        for (key, value) in headers {
+            result["\(key)"] = "\(value)"
+        }
+        return result
     }
 }
 
 extension CustomHTTPProtocol: URLSessionDataDelegate {
-    func urlSession(
+    public func urlSession(
         _: URLSession,
         task _: URLSessionTask,
         willPerformHTTPRedirection response: HTTPURLResponse,
@@ -265,7 +571,7 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
         }
     }
 
-    func urlSession(
+    public func urlSession(
         _: URLSession,
         dataTask: URLSessionDataTask,
         didReceive response: URLResponse,
@@ -279,20 +585,33 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                 self.cachePolicy = CacheHelper.cacheStoragePolicy(for: request, and: response)
             }
 
+            var interceptedResponse = response
+            if let httpResponse = response as? HTTPURLResponse, let matchedRewriteRule = self.matchedRewriteRule {
+                interceptedResponse = self.rewriteResponse(
+                    from: httpResponse,
+                    using: matchedRewriteRule
+                ) ?? response
+            }
+            
             DebugSwift.Network.shared.delegate?.urlSession(
                 self,
-                didReceive: response
+                didReceive: interceptedResponse
             )
-            self.client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: self.cachePolicy)
-            self.response = response as? HTTPURLResponse
+            self.client?.urlProtocol(self, didReceive: interceptedResponse, cacheStoragePolicy: self.cachePolicy)
+            self.response = interceptedResponse as? HTTPURLResponse
             completionHandler(.allow)
         }
     }
 
-    func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
+    public func urlSession(_: URLSession, dataTask _: URLSessionDataTask, didReceive data: Data) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             Debug.print(#function)
+            
+            if self.matchedRewriteRule != nil {
+                self.didReceiveData = true
+                return
+            }
 
             var hasAddedData = false
             if self.cachePolicy == .allowed {
@@ -344,8 +663,31 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
             return "reloadIgnoringCacheData"
         }
     }
+    
+    private func rewriteResponse(
+        from response: HTTPURLResponse,
+        using rule: ResponseBodyRewriteRule
+    ) -> HTTPURLResponse? {
+        guard let responseURL = response.url ?? request.url else { return nil }
+        
+        var headers = [String: String]()
+        response.allHeaderFields.forEach { key, value in
+            headers["\(key)"] = "\(value)"
+        }
+        
+        headers = headers.filter { headerKey, _ in
+            headerKey.caseInsensitiveCompare("Content-Length") != .orderedSame
+        }
+        
+        return HTTPURLResponse(
+            url: responseURL,
+            statusCode: rule.responseStatusCode ?? response.statusCode,
+            httpVersion: "HTTP/1.1",
+            headerFields: headers
+        )
+    }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         threadOperator?.execute { [weak self] in
             guard let self else { return }
             if let error {
@@ -361,7 +703,22 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
                     didFailWithError: error
                 )
                 self.client?.urlProtocol(self, didFailWithError: error)
+                
+                // Invalidate session to break retain cycle
+                self.session?.finishTasksAndInvalidate()
+                self.session = nil
                 return
+            }
+            
+            if let matchedRewriteRule = self.matchedRewriteRule {
+                let rewrittenData = matchedRewriteRule.responseBody.data(using: .utf8) ?? Data()
+                self.data = rewrittenData
+                
+                DebugSwift.Network.shared.delegate?.urlSession(
+                    self,
+                    didReceive: rewrittenData
+                )
+                self.client?.urlProtocol(self, didLoad: rewrittenData)
             }
 
             DebugSwift.Network.shared.delegate?.didFinishLoading(self)
@@ -370,12 +727,16 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
             if self.cachePolicy == .allowed {
                 URLCache.customHttp.storeIfNeeded(for: task, data: self.data)
             }
+            
+            // Invalidate session to break retain cycle
+            self.session?.finishTasksAndInvalidate()
+            self.session = nil
         }
     }
 }
 
 extension CustomHTTPProtocol: URLSessionTaskDelegate {
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         didSendBodyData bytesSent: Int64,
@@ -395,5 +756,160 @@ extension CustomHTTPProtocol: URLSessionTaskDelegate {
                 totalBytesExpectedToSend: totalBytesExpectedToSend
             )
         }
+    }
+    
+    // MARK: - Authentication Challenge Forwarding (Fix for issue #240)
+    
+    public func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        threadOperator?.execute { [weak self] in
+            guard let self else {
+                completionHandler(.performDefaultHandling, nil)
+                return
+            }
+            
+            Debug.print(#function)
+            
+            // Forward to original delegate if available and implements the method
+            if let originalDelegate = self.originalDelegate,
+               originalDelegate.responds(to: #selector(URLSessionDelegate.urlSession(_:didReceive:completionHandler:))) {
+                originalDelegate.urlSession?(session, didReceive: challenge, completionHandler: completionHandler)
+            } else {
+                // Default handling if no original delegate
+                completionHandler(.performDefaultHandling, nil)
+            }
+        }
+    }
+    
+    public func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        threadOperator?.execute { [weak self] in
+            guard let self else {
+                completionHandler(.performDefaultHandling, nil)
+                return
+            }
+            
+            Debug.print(#function)
+            
+            // Forward to original delegate if available and implements the method
+            if let originalDelegate = self.originalDelegate as? URLSessionTaskDelegate,
+               originalDelegate.responds(to: #selector(URLSessionTaskDelegate.urlSession(_:task:didReceive:completionHandler:))) {
+                originalDelegate.urlSession?(session, task: task, didReceive: challenge, completionHandler: completionHandler)
+            } else {
+                // Delegate the challenge to the session-level handler as fallback
+                self.urlSession(session, didReceive: challenge, completionHandler: completionHandler)
+            }
+        }
+    }
+    
+    public func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willBeginDelayedRequest request: URLRequest,
+        completionHandler: @escaping @Sendable (URLSession.DelayedRequestDisposition, URLRequest?) -> Void
+    ) {
+        threadOperator?.execute { [weak self] in
+            guard let self else {
+                completionHandler(.continueLoading, nil)
+                return
+            }
+            
+            Debug.print(#function)
+            
+            // Forward to original delegate if available and implements the method
+            if let originalDelegate = self.originalDelegate as? URLSessionTaskDelegate,
+               originalDelegate.responds(to: #selector(URLSessionTaskDelegate.urlSession(_:task:willBeginDelayedRequest:completionHandler:))) {
+                originalDelegate.urlSession?(session, task: task, willBeginDelayedRequest: request, completionHandler: completionHandler)
+            } else {
+                completionHandler(.continueLoading, nil)
+            }
+        }
+    }
+    
+    public func urlSession(
+        _ session: URLSession,
+        taskIsWaitingForConnectivity task: URLSessionTask
+    ) {
+        threadOperator?.execute { [weak self] in
+            guard let self else { return }
+            
+            Debug.print(#function)
+            
+            // Forward to original delegate if available and implements the method
+            if let originalDelegate = self.originalDelegate as? URLSessionTaskDelegate,
+               originalDelegate.responds(to: #selector(URLSessionTaskDelegate.urlSession(_:taskIsWaitingForConnectivity:))) {
+                originalDelegate.urlSession?(session, taskIsWaitingForConnectivity: task)
+            }
+        }
+    }
+}
+
+// MARK: - Network Reporting Data
+
+struct NetworkReportData: Sendable {
+    let url: URL?
+    let method: String?
+    let requestData: Data?
+    let responseData: Data?
+    let statusCode: String?
+    let mineType: String?
+    let startTime: Date
+    let endTime: Date
+    let error: Error?
+    let requestHeaderFields: [String: String]?
+    let responseHeaderFields: [String: String]?
+    let requestId: String
+    let cachePolicy: String
+
+    init(
+        url: URL?,
+        method: String?,
+        requestData: Data?,
+        responseData: Data?,
+        statusCode: String?,
+        mineType: String?,
+        startTime: Date,
+        endTime: Date,
+        error: Error?,
+        requestHeaderFields: [String: String]?,
+        responseHeaderFields: [String: String]?,
+        requestId: String,
+        cachePolicy: String
+    ) {
+        self.url = url
+        self.method = method
+        self.requestData = requestData
+        self.responseData = responseData
+        self.statusCode = statusCode
+        self.mineType = mineType
+        self.startTime = startTime
+        self.endTime = endTime
+        self.error = error
+        self.requestHeaderFields = requestHeaderFields
+        self.responseHeaderFields = responseHeaderFields
+        self.requestId = requestId
+        self.cachePolicy = cachePolicy
+    }
+}
+
+private final class RewriteRuleSelectionBox: @unchecked Sendable {
+    private let queue = DispatchQueue(label: "com.debugswift.http-protocol.selection-box")
+    private var value: ResponseBodyRewriteRule?
+    
+    func set(_ newValue: ResponseBodyRewriteRule?) {
+        queue.sync {
+            value = newValue
+        }
+    }
+    
+    func get() -> ResponseBodyRewriteRule? {
+        queue.sync { value }
     }
 }

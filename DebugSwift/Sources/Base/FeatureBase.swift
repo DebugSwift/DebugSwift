@@ -31,11 +31,19 @@ public enum DebugSwiftSwizzleFeature: String, CaseIterable {
     case console
     case pushNotifications
     case swiftUIRender
+    case orientationForwarding
+    case superCallDetector
 }
 
 @MainActor
 public enum DebugSwiftBetaFeature: String, CaseIterable {
     case swiftUIRenderTracking
+    case networkSessionPersistence
+    /// Aggregates network logs, crashes, console output, and debug events
+    /// into a single NDJSON file (`Documents/agent-debug.ndjson`) that an
+    /// AI agent can pull from the simulator/device. See
+    /// https://github.com/DebugSwift/skills/blob/main/skills/swift-agent-debug-log/SKILL.md
+    case agentDebugLog
 }
 
 @available(*, deprecated, renamed: "DebugSwiftFeature", message: "Use now DebugSwiftFeature")

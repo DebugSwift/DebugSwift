@@ -1,0 +1,9 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+
+swift_library(
+    name = "DebugSwift",
+    srcs = glob(["DebugSwift/Sources/**/*.swift"]),
+    data = glob(["DebugSwift/Resources/**"]),
+    module_name = "DebugSwift",
+    visibility = ["//visibility:public"],
+)

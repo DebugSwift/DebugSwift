@@ -15,8 +15,10 @@ final class ResourcesViewController: BaseController, MainFeatureType {
         case keychain
         case persistentData
         case coreData
+        case swiftData
         case httpCookies
         case database
+        case securityAudit
 
         var localized: String {
             switch self {
@@ -29,11 +31,15 @@ final class ResourcesViewController: BaseController, MainFeatureType {
             case .persistentData:
                 "Persistent Data"
             case .coreData:
-                ""
+                "Core Data"
+            case .swiftData:
+                "SwiftData Browser"
             case .httpCookies:
                 "HTTP Cookies"
             case .database:
                 "Database Browser"
+            case .securityAudit:
+                "Security Audit"
             }
         }
     }
@@ -51,9 +57,14 @@ final class ResourcesViewController: BaseController, MainFeatureType {
 
     private let items: [Item] = [
         .fileManager,
+        .userDefaults,
+        .keychain,
         .persistentData,
         .httpCookies,
-        .database
+        .coreData,
+        .swiftData,
+        .database,
+        .securityAudit
     ]
 
     override init() {
@@ -122,21 +133,36 @@ extension ResourcesViewController: UITableViewDataSource, UITableViewDelegate {
             controller = ResourcesFilesViewController()
         case .userDefaults:
             let viewModel = ResourcesUserDefaultsViewModel()
-            controller = ResourcesGenericController(viewModel: viewModel)
+            let genericController = ResourcesGenericController(viewModel: viewModel)
+            genericController.addDefaultsDiffButton()
+            controller = genericController
         case .keychain:
             let viewModel = ResourcesKeychainViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
         case .persistentData:
             controller = ResourcesTabbedController()
         case .coreData:
-            // Handle "CoreData" selection
-            showAlert(with: "TODO")
+            controller = CoreDataBrowserViewController()
+        case .swiftData:
+            if #available(iOS 17.0, *) {
+                controller = SwiftDataBrowserViewController()
+            } else {
+                let alert = UIAlertController(
+                    title: "SwiftData Unavailable",
+                    message: "SwiftData Browser requires iOS 17.0 or newer.",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: true)
+            }
 
         case .httpCookies:
             let viewModel = ResourcesHTTPCookiesViewModel()
             controller = ResourcesGenericController(viewModel: viewModel)
         case .database:
             controller = DatabaseBrowserViewController()
+        case .securityAudit:
+            controller = SecurityAuditViewController()
         }
         if let controller {
             navigationController?.pushViewController(controller, animated: true)

@@ -9,6 +9,7 @@
 import Foundation
 
 enum ErrorHelper {
+// swiftlint:disable cyclomatic_complexity
     static func handle(_ error: Error?, model: HttpModel) -> HttpModel {
         if error == nil {
             // https://httpstatuses.com
@@ -159,7 +160,7 @@ enum ErrorHelper {
                 model.errorLocalizedDescription = "Internal Server Error"
             case 501:
                 model.errorDescription = "Server Error:\nServer does not recognize the method or lacks the ability to fulfill"
-                model.errorLocalizedDescription = "Not Implemented"
+                model.errorLocalizedDescription = "501 Not Implemented"
             case 502:
                 model.errorDescription = "Server Error:\nServer received an invalid response from the upstream server"
                 model.errorLocalizedDescription = "Bad Gateway"
@@ -207,3 +208,4 @@ enum ErrorHelper {
         return model
     }
 }
+// swiftlint:enable cyclomatic_complexity

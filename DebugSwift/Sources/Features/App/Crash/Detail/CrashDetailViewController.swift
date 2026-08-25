@@ -29,6 +29,7 @@ final class CrashDetailViewController: BaseController {
         super.viewDidLoad()
         setupTable()
         setupShare()
+        setupSymbolication()
     }
 
     private func setupTable() {
@@ -56,6 +57,18 @@ final class CrashDetailViewController: BaseController {
         ])
     }
 
+    /// Load the build-time symbol map (if bundled) and pre-resolve the crash's
+    /// traces so the stack-trace section renders human-readable symbols.
+    /// Falls back silently to raw traces when no map is available.
+    private func setupSymbolication() {
+        if let mapURL = Bundle.main.url(forResource: "symbol_map", withExtension: "json") {
+            SymbolicatorAdapter.shared.load(from: mapURL.path)
+        }
+
+        viewModel.symbolicateTraces()
+        tableView.reloadData()
+    }
+
     private func setupTabBar() {
         title = viewModel.data.type.rawValue
     }
@@ -64,11 +77,45 @@ final class CrashDetailViewController: BaseController {
         addRightBarButton(
             image: .named("square.and.arrow.up", default: "Share")
         ) { [weak self] in
-            self?.share()
+            self?.presentShareOptions()
         }
     }
 
-    private func share() {
+    private func presentShareOptions() {
+        let actionSheet = UIAlertController(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        actionSheet.addAction(
+            UIAlertAction(
+                title: "share-as-pdf".localized(),
+                style: .default
+            ) { [weak self] _ in
+                self?.shareAsPDF()
+            }
+        )
+
+        actionSheet.addAction(
+            UIAlertAction(
+                title: "copy-text".localized(),
+                style: .default
+            ) { [weak self] _ in
+                self?.copyCrashText()
+            }
+        )
+
+        actionSheet.addAction(UIAlertAction(title: "close".localized(), style: .cancel))
+
+        if let popover = actionSheet.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItem
+        }
+
+        present(actionSheet, animated: true)
+    }
+
+    private func shareAsPDF() {
         let image = viewModel.data.context.uiImage
 
         guard let pdf = PDFManager.generatePDF(
@@ -99,6 +146,14 @@ final class CrashDetailViewController: BaseController {
             popover.permittedArrowDirections = .up
         }
         present(activity, animated: true, completion: nil)
+    }
+
+    private func copyCrashText() {
+        UIPasteboard.general.string = viewModel.getAllValues()
+        showAlert(
+            with: "crash.copied.description".localized(),
+            title: "crash.copied.title".localized()
+        )
     }
 }
 

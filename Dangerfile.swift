@@ -44,7 +44,6 @@ internal class Validator {
         checkSize()
         checkDescription()
         checkUnitTest()
-        checkTitle()
         checkAssignee()
         checkModifiedFiles()
         checkFails()
@@ -120,18 +119,6 @@ fileprivate extension Validator {
         UnitTestValidator.shared.validate()
     }
 
-    func checkTitle() {
-        let result = prTitle.range(
-            of: #"\[[A-zÀ-ú0-9 ]*\][A-zÀ-ú0-9- ]+"#,
-            options: .regularExpression
-        ) != nil
-
-        if !result {
-            let message = "The PR title should be: [<i>Feature or Flow</i>] <i>What flow was done</i>"
-            warn(message)
-        }
-    }
-
     func checkAssignee() {
         if danger.github.pullRequest.assignee == nil {
             warn("Please assign yourself to the PR.")
@@ -159,16 +146,6 @@ fileprivate extension Validator {
         """
         The PR added \(additions) and removed \(deletions) lines. \(changedFiles) file(s) changed.
         """
-
-        // TODO: - Add PR documentation link
-        // let seeOurDocumentation =
-        // """
-        // Documentation: \
-        // <a href=''> \
-        // Link</a>
-        // """
-
-        // message(seeOurDocumentation)
         message(overview)
     }
 }
@@ -192,7 +169,7 @@ fileprivate extension Danger.File {
         hasSuffix(".swift") || hasSuffix(".h") || hasSuffix(".m")
     }
 
-    var isSwiftPackageDefintion: Bool {
+    var isSwiftPackageDefinition: Bool {
         hasPrefix("Package") && hasSuffix(".swift")
     }
 
@@ -218,8 +195,7 @@ fileprivate extension UnitTestValidator {
     func checkUnitTestCoverage() {
         Coverage.xcodeBuildCoverage(
             .xcresultBundle("Example/fastlane/test_output/Example.xcresult"),
-            minimumCoverage: 70,
-            excludedTargets: ["DangerSwiftCoverageTests.xctest"]
+            minimumCoverage: 70
         )
     }
 }

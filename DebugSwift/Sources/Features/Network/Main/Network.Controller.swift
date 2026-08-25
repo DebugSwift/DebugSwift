@@ -164,11 +164,13 @@ final class NetworkViewController: BaseController, MainFeatureType {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            let success = notification.object as? Bool ?? false
+            let success = (notification.userInfo?["success"] as? Bool) ?? (notification.object as? Bool) ?? false
+            let matchedResponseModifier = notification.userInfo?["matchedResponseModifier"] as? Bool ?? false
             MainActor.assumeIsolated {
                 self?.reloadHttp(
-                    needScrollToEnd: self?.viewModel.reachEnd ?? true,
-                    success: success
+                    needScrollToEnd: (self?.viewModel.isReachEnd ?? true) && self?.view.window != nil,
+                    success: success,
+                    matchedResponseModifier: matchedResponseModifier
                 )
                 self?.updateHTTPStatistics()
             }
@@ -197,14 +199,26 @@ final class NetworkViewController: BaseController, MainFeatureType {
         }
     }
 
-    func reloadHttp(needScrollToEnd: Bool = false, success: Bool = true) {
+    func reloadHttp(
+        needScrollToEnd: Bool = false,
+        success: Bool = true,
+        matchedResponseModifier: Bool = false
+    ) {
         guard viewModel.reloadDataFinish else { return }
         guard currentMode == .http || currentMode == .webview else { return }
 
-        FloatViewManager.animate(success: success)
+        // Only animate if the float view is showing to avoid unnecessary work
+        if FloatViewManager.shared.ballView.isShowing {
+            FloatViewManager.animate(success: success, matchedResponseModifier: matchedResponseModifier)
+        }
+        
         viewModel.applyFilter(for: currentMode)
         applyAdvancedFilter()
-        tableView.reloadData()
+        
+        // Use batch updates for better performance
+        if tableView.window != nil {
+            tableView.reloadData()
+        }
 
         if needScrollToEnd {
             scrollToBottom()
@@ -271,6 +285,10 @@ final class NetworkViewController: BaseController, MainFeatureType {
     }
     
     private func updateHTTPStatistics() {
+        // Skip statistics update if not visible or not needed
+        guard currentMode == .http || currentMode == .webview else { return }
+        guard view.window != nil else { return }
+        
         // Use appropriate data based on current mode
         let requests = currentMode == .webview ? viewModel.webViewModels : viewModel.httpModels
         
@@ -489,9 +507,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
         searchController.obscuresBackgroundDuringPresentation = false
         
         // Force search bar placement if available
-        if #available(iOS 16.0, *) {
-            navigationItem.preferredSearchBarPlacement = .stacked
-        }
+        navigationItem.preferredSearchBarPlacement = .stacked
         
         // Ensure search bar is active and visible
         definesPresentationContext = true
@@ -585,6 +601,33 @@ final class NetworkViewController: BaseController, MainFeatureType {
         
         switch currentMode {
         case .http, .webview:
+            if currentMode == .http,
+               #available(iOS 17.0, *),
+               NetworkSessionPersistenceManager.isPersistenceEnabledPreference {
+                let historyButton = UIBarButtonItem(
+                    image: UIImage(systemName: "clock.arrow.circlepath"),
+                    style: .plain,
+                    target: self,
+                    action: #selector(showSessionHistory)
+                )
+                historyButton.tintColor = .systemBlue
+                rightBarButtons.append(historyButton)
+            }
+
+            // Add network injection settings button
+            let injectionButton = UIBarButtonItem(
+                image: injectionSymbolImage(),
+                style: .plain,
+                target: self,
+                action: #selector(showNetworkInjectionSettings)
+            )
+            let injectionManager = NetworkInjectionManager.shared
+            let isInjectionActive = injectionManager.getDelayConfig().isEnabled || 
+                                    injectionManager.getFailureConfig().isEnabled ||
+                                    injectionManager.getRewriteConfig().isEnabled
+            injectionButton.tintColor = isInjectionActive ? .systemOrange : .systemGray
+            rightBarButtons.append(injectionButton)
+            
             // Add encryption toggle button
             let encryptionButton = UIBarButtonItem(
                 image: UIImage(systemName: DebugSwift.Network.shared.isDecryptionEnabled ? "lock.open" : "lock"),
@@ -642,6 +685,19 @@ final class NetworkViewController: BaseController, MainFeatureType {
         }
         
         navigationItem.rightBarButtonItems = rightBarButtons
+    }
+
+    private func injectionSymbolImage() -> UIImage? {
+        if #available(iOS 16.0, *) {
+            return UIImage(systemName: "syringe")
+        }
+
+        return UIImage(systemName: "pencil")
+    }
+    
+    @objc private func showNetworkInjectionSettings() {
+        let settingsController = NetworkInjectionSettingsController()
+        navigationController?.pushViewController(settingsController, animated: true)
     }
     
     @objc private func showDeleteAlert() {
@@ -701,6 +757,29 @@ final class NetworkViewController: BaseController, MainFeatureType {
     
     @objc private func refreshWebSocketConnections() {
         loadWebSocketConnections()
+    }
+
+    @objc private func showSessionHistory() {
+#if canImport(SwiftData)
+        if #available(iOS 17.0, *) {
+            let controller = NetworkSessionHistoryViewController()
+            navigationController?.pushViewController(controller, animated: true)
+            return
+        }
+#endif
+
+        let alert = UIAlertController(
+            title: "Session History Unavailable",
+            message: "Session history requires iOS 17.0 or newer.",
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(
+                title: "OK",
+                style: .default
+            )
+        )
+        present(alert, animated: true)
     }
 }
 
@@ -917,5 +996,13 @@ extension NetworkViewController: UITableViewDelegate, UITableViewDataSource {
             
             return UISwipeActionsConfiguration(actions: actions)
         }
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard currentMode == .http || currentMode == .webview else { return }
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let visibleHeight = scrollView.frame.height
+        viewModel.isReachEnd = offsetY >= max(0, contentHeight - visibleHeight)
     }
 }

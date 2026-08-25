@@ -5,7 +5,7 @@ let package = Package(
     name: "DebugSwift",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v14)
+        .iOS(.v13)
     ],
     products: [
         .library(

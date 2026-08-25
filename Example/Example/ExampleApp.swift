@@ -9,6 +9,7 @@ import DebugSwift
 import SwiftUI
 import UserNotifications
 import UIKit
+import CoreData
 
 @available(iOS 14.0, *)
 @main
@@ -21,12 +22,16 @@ struct ExampleApp: App {
                 .onAppear() {
                     DebugSwift.PushNotification.enableSimulation()
                 }
+                .onOpenURL { url in
+                    print("🔗 [SwiftUI] onOpenURL called with: \(url.absoluteString)")
+                    appDelegate.handleDeepLinkFromSwiftUI(url)
+                }
         }
     }
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    private let debugSwift = DebugSwift()
+    let debugSwift = DebugSwift()
 
     func application(
         _: UIApplication,
@@ -38,25 +43,160 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // If you have New Relic, disable leak detector to prevent conflicts:
         // debugSwift.setup(disable: [.leaksDetector])
         
-        print("Hey, DebugSwift is running! 🎉")
-        
+        print("Hey, DebugSwift is running!")
+
+        DiskWriteTracker.install()
+
         debugSwift
-            .setup(enableBetaFeatures: [.swiftUIRenderTracking])
+            .setup(enableBetaFeatures: [.swiftUIRenderTracking, .networkSessionPersistence, .agentDebugLog])
             .show()
+        
+        DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 1)
 
         // To fix Alamofire `uploadProgress`
 //        DebugSwift.Network.delegate = self
+        
+        // MARK: Core Data Example Setup
+        setupCoreDataExample()
+
+        // MARK: SwiftData Example Setup
+        setupSwiftDataExample()
+        
+        // MARK: Custom Actions Demo - Including Network History Clear
+        setupCustomActions()
         
         // Request push notification permissions for APNS token demo
         requestPushNotificationPermissions()
 
         return true
     }
+    
+    // MARK: - Core Data Setup
+    
+    private func setupCoreDataExample() {
+        CoreDataExample.shared.setupDebugSwift()
+        
+        let context = CoreDataExample.shared.viewContext
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Person")
+        let count = try? context.count(for: fetchRequest)
+        
+        if count == 0 {
+            CoreDataExample.shared.createSampleData()
+        }
+    }
+
+    private func setupSwiftDataExample() {
+        guard #available(iOS 17.0, *) else { return }
+
+        SwiftDataExample.shared.setupDebugSwift()
+        SwiftDataExample.shared.createSampleDataIfNeeded()
+    }
+    
+    // MARK: - Deep Link Handling
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        // Handle debugswift:// URLs
+        if url.scheme == "debugswift" {
+            handleDeepLink(url)
+            return true
+        }
+        return false
+    }
+    
+    func handleDeepLinkFromSwiftUI(_ url: URL) {
+        handleDeepLink(url)
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        // Show test view with deep link details
+        DispatchQueue.main.async {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                return
+            }
+            
+            // Find the main app window (not CustomWindow from DebugSwift)
+            let appWindow = windowScene.windows.first { window in
+                let isCustomWindow = String(describing: type(of: window)).contains("CustomWindow")
+                return !isCustomWindow && window.rootViewController != nil
+            }
+            
+            guard let window = appWindow else {
+                return
+            }
+            
+            // Get the topmost view controller
+            guard let topViewController = self.getTopViewController(from: window.rootViewController) else {
+                return
+            }
+            
+            let testView = DeepLinkTestView(url: url)
+            let hostingController = UIHostingController(rootView: testView)
+            hostingController.modalPresentationStyle = .fullScreen
+            
+            topViewController.present(hostingController, animated: true)
+        }
+    }
+    
+    private func getTopViewController(from viewController: UIViewController?) -> UIViewController? {
+        if let presented = viewController?.presentedViewController {
+            return getTopViewController(from: presented)
+        }
+        
+        if let navigation = viewController as? UINavigationController {
+            return getTopViewController(from: navigation.visibleViewController)
+        }
+        
+        if let tab = viewController as? UITabBarController {
+            return getTopViewController(from: tab.selectedViewController)
+        }
+        
+        return viewController
+    }
 
     func additionalViewControllers() -> [UIViewController] {
         let viewController = UITableViewController()
         viewController.title = "PURE"
         return [viewController]
+    }
+    
+    // MARK: - Custom Actions Setup
+    
+    private func setupCustomActions() {
+        DebugSwift.App.shared.customAction = {
+            [
+                .init(title: "Environment Management", actions: [
+                    .init(title: "Clear Network History") {
+                        DebugSwift.Network.shared.clearNetworkHistory()
+                        print("✅ Network history cleared!")
+                    },
+                    .init(title: "Clear All Network Data") {
+                        DebugSwift.Network.shared.clearAllNetworkData()
+                            print("✅ All network data cleared!")
+                    },
+                    .init(title: "Switch to Development") {
+                        // Your environment switch logic here
+                        print("🔄 Switching to Development...")
+                        DebugSwift.Network.shared.clearNetworkHistory()
+                        print("✅ Switched to Development & cleared network history")
+                    },
+                    .init(title: "Switch to Production") {
+                        // Your environment switch logic here
+                        print("🔄 Switching to Production...")
+                        DebugSwift.Network.shared.clearNetworkHistory()
+                        print("✅ Switched to Production & cleared network history")
+                    }
+                ]),
+                .init(title: "Development Tools", actions: [
+                    .init(title: "Clear UserDefaults") {
+                        // Example: Clear specific user data
+                        print("🗑️ UserDefaults cleared")
+                    },
+                    .init(title: "Reset App State") {
+                        print("🔄 App state reset")
+                    }
+                ])
+            ]
+        }
     }
     
     // MARK: - Push Notification Setup

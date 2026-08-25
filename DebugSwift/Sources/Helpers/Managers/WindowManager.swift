@@ -28,7 +28,7 @@ enum WindowManager {
         }
         window.windowLevel = floatingWindowLevel
 
-        let navigation = UINavigationController(rootViewController: UIViewController())
+        let navigation = OrientationForwardingNavigationController(rootViewController: UIViewController())
         navigation.interactivePopGestureRecognizer?.isEnabled = false
         navigation.setBackgroundColor(color: .clear)
         window.rootViewController = navigation
@@ -60,6 +60,7 @@ enum WindowManager {
 
         FloatViewManager.isShowingDebuggerView = false
         removeNavigationBar()
+        rootNavigation?.topViewController?.view.layer.mask = nil
         rootNavigation?.popViewController(animated: true)
         restorePreviousKeyWindow()
     }
@@ -153,6 +154,18 @@ enum WindowManager {
 }
 
 final class CustomWindow: UIWindow {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        for subview in subviews {
+            if let ballView = subview as? FloatBallView {
+                ballView.layer.position = FloatBallPositionHelper.restoreSavedPosition(in: self)
+            } else if let bottomView = subview as? BottomFloatView {
+                bottomView.frame = FloatBallPositionHelper.hiddenBottomFrame(in: self)
+            }
+        }
+    }
+
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if WindowManager.isSelectingWindow { return true }
 

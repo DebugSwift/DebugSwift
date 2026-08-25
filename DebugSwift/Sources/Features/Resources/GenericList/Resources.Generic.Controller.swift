@@ -241,6 +241,17 @@ final class ResourcesGenericController: BaseTableController {
             rightButtons.append(deleteButton)
         }
         
+        if showDefaultsDiffButton {
+            let diffButton = UIBarButtonItem(
+                image: UIImage(systemName: "arrow.left.arrow.right.circle"),
+                style: .plain,
+                target: self,
+                action: #selector(pushDefaultsDiff)
+            )
+            diffButton.tintColor = .systemBlue
+            rightButtons.append(diffButton)
+        }
+
         navigationItem.rightBarButtonItems = rightButtons
         // Don't set left bar buttons to preserve the back button
         navigationItem.leftBarButtonItems = []
@@ -565,6 +576,16 @@ final class ResourcesGenericController: BaseTableController {
     // MARK: - Private Properties
     
     private var editingIndex: Int?
+    private var showDefaultsDiffButton = false
+
+    // MARK: - Defaults Diff
+    func addDefaultsDiffButton() {
+        showDefaultsDiffButton = true
+    }
+
+    @objc func pushDefaultsDiff() {
+        navigationController?.pushViewController(UserDefaultsDiffViewController(), animated: true)
+    }
 }
 
 // MARK: - ResourcesGenericEditDelegate
@@ -586,7 +607,7 @@ extension ResourcesGenericController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let searchText = searchController.searchBar.text ?? ""
         viewModel.filterContentForSearchText(searchText)
-        viewModel.isSearchActived = !searchText.isEmpty
+        viewModel.isSearchActivated = !searchText.isEmpty
         tableView.reloadData()
     }
 }
@@ -594,7 +615,7 @@ extension ResourcesGenericController: UISearchResultsUpdating {
 protocol ResourcesGenericListViewModel: AnyObject {
     typealias ViewData = ResourcesGenericController.CellViewData
 
-    var isSearchActived: Bool { get set }
+    var isSearchActivated: Bool { get set }
 
     var isDeleteEnable: Bool { get }
 

@@ -94,7 +94,7 @@ class MeasurementElementsFactory {
         return shape
     }
 
-    // Collumns lines
+    // Columns lines
     func setLines(in mainView: UIView, for view: UIView, with attachedWindow: UIWindow) -> [CAShapeLayer] {
         guard let globalSelectedRect = view.superview?.convert(view.frame, to: mainView) else { return [] }
 
