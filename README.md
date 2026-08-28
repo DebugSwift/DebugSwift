@@ -426,6 +426,30 @@ DebugSwift.App.shared.customAction = {
 }
 ```
 
+### Custom Request Logging (gRPC and other non-URLSession transports)
+
+DebugSwift captures `URLSession` traffic automatically, but traffic that bypasses
+`URLSession` — gRPC over SwiftNIO, custom sockets, hand-rolled transports — is
+invisible to the swizzler. Use `logRequest` to record those calls manually; they
+show up in the Network tab next to the captured traffic and respect
+`ignoredURLs`/`onlyURLs`:
+
+```swift
+// Example: logging a gRPC call from a grpc-swift client interceptor
+DebugSwift.Network.shared.logRequest(
+    url: URL(string: "grpc://api.example.com/example.v1.UserService/GetUser")!,
+    method: "POST",
+    requestHeaders: requestMetadata,
+    requestBody: requestJSON.data(using: .utf8),
+    responseStatusCode: status.isOk ? 200 : 500,
+    responseHeaders: responseMetadata,
+    responseBody: responseJSON.data(using: .utf8),
+    error: transportError,
+    startTime: callStartDate,
+    endTime: Date()
+)
+```
+
 ### Manual URLSessionConfiguration Injection
 
 If you create `URLSessionConfiguration` instances **before** calling `DebugSwift.setup()`, you can manually inject the network monitoring protocol:
