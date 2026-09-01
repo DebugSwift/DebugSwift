@@ -34,20 +34,20 @@ enum WindowManager {
     }()
 
     static func presentDebugger() {
-        guard !FloatViewManager.isShowingDebuggerView else { return }
+        guard !FloatViewManager.isShowingDebuggerView,
+              let viewController = FloatViewManager.shared.floatViewController
+        else { return }
         FloatViewManager.isShowingDebuggerView = true
-        if let viewController = FloatViewManager.shared.floatViewController {
-            // Prevent clicks
-            window.isUserInteractionEnabled = false
-            // Remove keyboard, if opened.
-            UIWindow.keyWindow?.endEditing(true)
+        // Prevent clicks
+        window.isUserInteractionEnabled = false
+        // Remove keyboard, if opened.
+        UIWindow.keyWindow?.endEditing(true)
 
-            rootNavigation?.pushViewController(
-                viewController,
-                animated: true
-            )
-            window.isUserInteractionEnabled = true
-        }
+        rootNavigation?.pushViewController(
+            viewController,
+            animated: true
+        )
+        window.isUserInteractionEnabled = true
     }
 
     static func removeDebugger() {
