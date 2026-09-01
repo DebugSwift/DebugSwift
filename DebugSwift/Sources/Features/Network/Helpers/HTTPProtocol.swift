@@ -634,9 +634,13 @@ extension CustomHTTPProtocol: URLSessionDataDelegate {
     }
 
     private func canRetry(error: NSError) -> Bool {
+        // Only retry idempotent methods: silently re-issuing POST/PUT/PATCH/DELETE
+        // can duplicate server-side effects.
+        let idempotentMethods = ["GET", "HEAD", "OPTIONS", "TRACE"]
         guard error.code == Int(CFNetworkErrors.cfurlErrorNetworkConnectionLost.rawValue),
               !didRetry,
-              !didReceiveData
+              !didReceiveData,
+              idempotentMethods.contains(request.httpMethod?.uppercased() ?? "")
         else {
             return false
         }
