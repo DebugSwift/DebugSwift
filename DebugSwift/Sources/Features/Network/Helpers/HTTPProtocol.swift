@@ -39,6 +39,12 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
             return false
         }
 
+        // Server-sent-event streams are long-lived; intercepting would buffer the
+        // whole stream in memory and delay event delivery.
+        if request.value(forHTTPHeaderField: "Accept")?.lowercased().contains("text/event-stream") == true {
+            return false
+        }
+
         for onlyScheme in DebugSwift.Network.shared.onlySchemes {
             if let scheme = request.url?.scheme?.lowercased(), scheme == onlyScheme.rawValue {
                 return true
