@@ -211,7 +211,7 @@ enum BacktraceCaptureEngine {
     }
 
     #if canImport(Runtime)
-    private static func describe(_ frame: Frame) -> String {
+    private static func describe(_ frame: SymbolicatedBacktrace.Frame) -> String {
         guard let symbol = frame.symbol else { return "<frame \(frame.captured)>" }
         var parts = [symbol.name]
         if let loc = symbol.sourceLocation {
