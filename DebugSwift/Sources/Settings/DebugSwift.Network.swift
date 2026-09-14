@@ -33,6 +33,10 @@ extension DebugSwift {
         public var encryptionService: EncryptionServiceProtocol = EncryptionService.shared
         public var isDecryptionEnabled = false
         
+        /// Whether to redact sensitive credentials (e.g. Authorization, Cookie) when copying cURL commands.
+        /// Defaults to `true` for security.
+        public var redactCurlCredentials = true
+        
         // MARK: - Threshold Limiter API
         
         /// Get or set the global request threshold

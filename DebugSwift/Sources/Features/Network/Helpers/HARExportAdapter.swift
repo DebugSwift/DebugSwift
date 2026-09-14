@@ -51,9 +51,15 @@ enum HARExportAdapter {
     }
     /// Copy a cURL command for a single model to the pasteboard so the request
     /// can be replayed in a terminal without retyping headers and body.
-    static func copyCURL(_ model: HttpModel) {
-        let capture = capture(from: model)
-        UIPasteboard.general.string = HAREncoder.curlCommand(for: capture)
+    @discardableResult
+    static func copyCURL(
+        _ model: HttpModel,
+        redact: Bool = DebugSwift.Network.shared.redactCurlCredentials
+    ) -> String {
+        let capture = capture(from: model, redact: redact)
+        let command = HAREncoder.curlCommand(for: capture)
+        UIPasteboard.general.string = command
+        return command
     }
 
     // MARK: - Private helpers

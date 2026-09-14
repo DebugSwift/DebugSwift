@@ -250,4 +250,32 @@ final class HARExportTests: XCTestCase {
         XCTAssertEqual(capture.request.headers["Authorization"], "Bearer token")
         XCTAssertEqual(capture.request.headers["Content-Type"], "application/json")
     }
+
+    func testCopyCURL_redactsByDefault() {
+        let model = makeHttpModel()
+        let curl = HARExportAdapter.copyCURL(model)
+
+        XCTAssertTrue(curl.contains("-H 'Authorization: <redacted>'"))
+    }
+
+    func testCopyCURL_noRedactWhenDisabled() {
+        let model = makeHttpModel()
+        let curl = HARExportAdapter.copyCURL(model, redact: false)
+
+        XCTAssertTrue(curl.contains("-H 'Authorization: Bearer token'"))
+    }
+
+    func testCopyCURL_respectsNetworkSharedConfiguration() {
+        let model = makeHttpModel()
+        let originalConfig = DebugSwift.Network.shared.redactCurlCredentials
+        defer { DebugSwift.Network.shared.redactCurlCredentials = originalConfig }
+
+        DebugSwift.Network.shared.redactCurlCredentials = false
+        let unredactedCurl = HARExportAdapter.copyCURL(model)
+        XCTAssertTrue(unredactedCurl.contains("-H 'Authorization: Bearer token'"))
+
+        DebugSwift.Network.shared.redactCurlCredentials = true
+        let redactedCurl = HARExportAdapter.copyCURL(model)
+        XCTAssertTrue(redactedCurl.contains("-H 'Authorization: <redacted>'"))
+    }
 }
