@@ -30,15 +30,36 @@ final class NetworkViewControllerDetail: BaseTableController {
         setupSearch()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupNavigation()
+    }
+
     private func setupNavigation() {
         title = "Request Details"
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(
+        let injectionManager = NetworkInjectionManager.shared
+        let isInjectionActive = injectionManager.getDelayConfig().isEnabled || 
+                                injectionManager.getFailureConfig().isEnabled ||
+                                injectionManager.getRewriteConfig().isEnabled
+
+        let injectionButton: UIBarButtonItem
+        if #available(iOS 14.0, *) {
+            injectionButton = UIBarButtonItem(
+                image: injectionSymbolImage(),
+                menu: buildInjectionMenu()
+            )
+        } else {
+            injectionButton = UIBarButtonItem(
                 image: injectionSymbolImage(),
                 style: .plain,
                 target: self,
                 action: #selector(configureInjectionForEndpoint)
-            ),
+            )
+        }
+        injectionButton.tintColor = isInjectionActive ? .systemOrange : .systemGray
+
+        navigationItem.rightBarButtonItems = [
+            injectionButton,
             UIBarButtonItem(
                 image: UIImage(systemName: "square.and.arrow.up"),
                 style: .plain,
@@ -64,6 +85,72 @@ final class NetworkViewControllerDetail: BaseTableController {
                 action: #selector(replayButtonTapped)
             )
         ]
+    }
+
+    private func buildInjectionMenu() -> UIMenu {
+        let delayMenu = UIMenu(
+            title: "Delay Injection",
+            image: UIImage(systemName: "timer"),
+            children: [
+                UIAction(title: "Add 2s Delay", image: UIImage(systemName: "clock")) { [weak self] _ in
+                    self?.applyDelayToEndpoint(delay: 2.0)
+                },
+                UIAction(title: "Add 5s Delay", image: UIImage(systemName: "clock.fill")) { [weak self] _ in
+                    self?.applyDelayToEndpoint(delay: 5.0)
+                }
+            ]
+        )
+
+        let failureMenu = UIMenu(
+            title: "Failure Injection",
+            image: UIImage(systemName: "exclamationmark.triangle"),
+            children: [
+                UIAction(title: "Inject Timeout (100%)", image: UIImage(systemName: "hourglass.bottomhalf.filled")) { [weak self] _ in
+                    self?.applyFailureToEndpoint(type: .timeout)
+                },
+                UIAction(title: "Inject HTTP 404 (100%)", image: UIImage(systemName: "questionmark.circle")) { [weak self] _ in
+                    self?.applyHTTPErrorToEndpoint(statusCode: 404)
+                },
+                UIAction(title: "Inject HTTP 500 (100%)", image: UIImage(systemName: "xmark.octagon")) { [weak self] _ in
+                    self?.applyHTTPErrorToEndpoint(statusCode: 500)
+                }
+            ]
+        )
+
+        let rewriteAction = UIAction(
+            title: "Create Response Modifier",
+            image: UIImage(systemName: "pencil.and.outline")
+        ) { [weak self] _ in
+            self?.showCreateRewriteRuleEditor()
+        }
+
+        let advancedAction = UIAction(
+            title: "Advanced Settings...",
+            image: UIImage(systemName: "gearshape")
+        ) { [weak self] _ in
+            let settingsController = NetworkInjectionSettingsController()
+            self?.navigationController?.pushViewController(settingsController, animated: true)
+        }
+
+        let clearAction = UIAction(
+            title: "Clear All Injection",
+            image: UIImage(systemName: "trash"),
+            attributes: .destructive
+        ) { [weak self] _ in
+            self?.clearInjectionForEndpoint()
+        }
+
+        let hostTitle = model.url?.host ?? "Network Injection"
+        return UIMenu(
+            title: hostTitle,
+            children: [
+                delayMenu,
+                failureMenu,
+                rewriteAction,
+                advancedAction,
+                clearAction
+            ]
+        )
     }
 
     private func injectionSymbolImage() -> UIImage? {
@@ -137,12 +224,8 @@ final class NetworkViewControllerDetail: BaseTableController {
         config.httpMethods = model.method.map { [$0] } ?? []
         
         NetworkInjectionManager.shared.setDelayConfig(config)
-        
-        showAlert(
-            with: "Injection Applied",
-            title: String(format: "%.1fs delay applied to \(urlPattern)", delay),
-            rightButtonTitle: "OK"
-        )
+        setupNavigation()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
     
     private func applyFailureToEndpoint(type: NetworkFailureConfig.FailureType) {
@@ -157,12 +240,8 @@ final class NetworkViewControllerDetail: BaseTableController {
         config.httpMethods = model.method.map { [$0] } ?? []
         
         NetworkInjectionManager.shared.setFailureConfig(config)
-        
-        showAlert(
-            with: "Injection Applied",
-            title: "Failure injection applied to \(urlPattern)",
-            rightButtonTitle: "OK"
-        )
+        setupNavigation()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
     
     private func applyHTTPErrorToEndpoint(statusCode: Int) {
@@ -178,12 +257,8 @@ final class NetworkViewControllerDetail: BaseTableController {
         config.customStatusCodes = [statusCode]
         
         NetworkInjectionManager.shared.setFailureConfig(config)
-        
-        showAlert(
-            with: "Injection Applied",
-            title: "HTTP \(statusCode) error injection applied to \(urlPattern)",
-            rightButtonTitle: "OK"
-        )
+        setupNavigation()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
     
     private func clearInjectionForEndpoint() {
@@ -195,11 +270,12 @@ final class NetworkViewControllerDetail: BaseTableController {
         failureConfig.isEnabled = false
         NetworkInjectionManager.shared.setFailureConfig(failureConfig)
         
-        showAlert(
-            with: "Injection Cleared",
-            title: "All network injection has been disabled",
-            rightButtonTitle: "OK"
-        )
+        var rewriteConfig = NetworkInjectionManager.shared.getRewriteConfig()
+        rewriteConfig.isEnabled = false
+        NetworkInjectionManager.shared.setRewriteConfig(rewriteConfig)
+        
+        setupNavigation()
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
     private func showCreateRewriteRuleEditor() {
@@ -225,6 +301,7 @@ final class NetworkViewControllerDetail: BaseTableController {
         config.isEnabled = true
         config.rules.append(rule)
         NetworkInjectionManager.shared.setRewriteConfig(config)
+        setupNavigation()
         showAlert(
             with: "Rewrite rule created for this request. Response Modifier is now active.",
             title: "Response Modifier Added",

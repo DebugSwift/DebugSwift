@@ -52,29 +52,6 @@ final class NetworkInjectionSettingsController: BaseTableController {
         view.backgroundColor = .black
         tableView.backgroundColor = .black
         tableView.separatorColor = .darkGray
-        
-        // Add apply button
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Apply",
-            style: .done,
-            target: self,
-            action: #selector(saveSettings)
-        )
-    }
-    
-    @objc private func saveSettings() {
-        NetworkInjectionManager.shared.setDelayConfig(delayConfig)
-        NetworkInjectionManager.shared.setFailureConfig(failureConfig)
-        
-        let alert = UIAlertController(
-            title: "Settings Applied",
-            message: "Network injection settings have been updated",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-            self?.navigationController?.popViewController(animated: true)
-        })
-        present(alert, animated: true)
     }
     
     // MARK: - UITableViewDataSource
@@ -263,11 +240,13 @@ final class NetworkInjectionSettingsController: BaseTableController {
     
     @objc private func delayToggled(_ sender: UISwitch) {
         delayConfig.isEnabled = sender.isOn
+        NetworkInjectionManager.shared.setDelayConfig(delayConfig)
         tableView.reloadSections(IndexSet(integer: Section.delay.rawValue), with: .automatic)
     }
     
     @objc private func failureToggled(_ sender: UISwitch) {
         failureConfig.isEnabled = sender.isOn
+        NetworkInjectionManager.shared.setFailureConfig(failureConfig)
         tableView.reloadSections(IndexSet(integer: Section.failure.rawValue), with: .automatic)
     }
     
@@ -339,15 +318,19 @@ final class NetworkInjectionSettingsController: BaseTableController {
         let alert = UIAlertController(title: "Delay Type", message: nil, preferredStyle: .actionSheet)
         
         alert.addAction(UIAlertAction(title: "Fixed Delay", style: .default) { [weak self] _ in
-            self?.delayConfig.fixedDelay = 2.0
-            self?.tableView.reloadData()
+            guard let self = self else { return }
+            self.delayConfig.fixedDelay = 2.0
+            NetworkInjectionManager.shared.setDelayConfig(self.delayConfig)
+            self.tableView.reloadData()
         })
         
         alert.addAction(UIAlertAction(title: "Random Range", style: .default) { [weak self] _ in
-            self?.delayConfig.fixedDelay = nil
-            self?.delayConfig.minDelay = 1.0
-            self?.delayConfig.maxDelay = 3.0
-            self?.tableView.reloadData()
+            guard let self = self else { return }
+            self.delayConfig.fixedDelay = nil
+            self.delayConfig.minDelay = 1.0
+            self.delayConfig.maxDelay = 3.0
+            NetworkInjectionManager.shared.setDelayConfig(self.delayConfig)
+            self.tableView.reloadData()
         })
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -373,17 +356,18 @@ final class NetworkInjectionSettingsController: BaseTableController {
             
             if self.delayConfig.fixedDelay != nil {
                 if let text = alert.textFields?.first?.text, let value = Double(text) {
-                    self.delayConfig.fixedDelay = value
+                    self.delayConfig.fixedDelay = max(value, 0)
                 }
             } else {
                 if let minText = alert.textFields?[0].text,
                    let maxText = alert.textFields?[1].text,
                    let min = Double(minText),
-                   let max = Double(maxText) {
-                    self.delayConfig.minDelay = min
-                    self.delayConfig.maxDelay = max
+                   let maxVal = Double(maxText) {
+                    self.delayConfig.minDelay = max(min, 0)
+                    self.delayConfig.maxDelay = max(maxVal, self.delayConfig.minDelay)
                 }
             }
+            NetworkInjectionManager.shared.setDelayConfig(self.delayConfig)
             self.tableView.reloadData()
         })
         
@@ -396,9 +380,11 @@ final class NetworkInjectionSettingsController: BaseTableController {
         alert.addTextField { $0.keyboardType = .numberPad; $0.placeholder = "50" }
         
         alert.addAction(UIAlertAction(title: "Save", style: .default) { [weak self] _ in
+            guard let self = self else { return }
             if let text = alert.textFields?.first?.text, let value = Double(text) {
-                self?.failureConfig.failureRate = min(max(value / 100.0, 0), 1)
-                self?.tableView.reloadData()
+                self.failureConfig.failureRate = min(max(value / 100.0, 0), 1)
+                NetworkInjectionManager.shared.setFailureConfig(self.failureConfig)
+                self.tableView.reloadData()
             }
         })
         
@@ -422,8 +408,10 @@ final class NetworkInjectionSettingsController: BaseTableController {
         
         for (title, type) in types {
             alert.addAction(UIAlertAction(title: title, style: .default) { [weak self] _ in
-                self?.failureConfig.failureType = type
-                self?.tableView.reloadData()
+                guard let self = self else { return }
+                self.failureConfig.failureType = type
+                NetworkInjectionManager.shared.setFailureConfig(self.failureConfig)
+                self.tableView.reloadData()
             })
         }
         
@@ -436,11 +424,13 @@ final class NetworkInjectionSettingsController: BaseTableController {
         alert.addTextField { $0.keyboardType = .numbersAndPunctuation; $0.placeholder = "404, 500, 503" }
         
         alert.addAction(UIAlertAction(title: "Save", style: .default) { [weak self] _ in
+            guard let self = self else { return }
             if let text = alert.textFields?.first?.text {
-                let codes = text.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+                let codes = text.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }.filter { (100...599).contains($0) }
                 if !codes.isEmpty {
-                    self?.failureConfig.customStatusCodes = codes
-                    self?.tableView.reloadData()
+                    self.failureConfig.customStatusCodes = codes
+                    NetworkInjectionManager.shared.setFailureConfig(self.failureConfig)
+                    self.tableView.reloadData()
                 }
             }
         })
@@ -456,15 +446,18 @@ final class NetworkInjectionSettingsController: BaseTableController {
         alert.addTextField { $0.placeholder = "api.example.com, */auth/*"; $0.text = patterns.joined(separator: ", ") }
         
         alert.addAction(UIAlertAction(title: "Save", style: .default) { [weak self] _ in
+            guard let self = self else { return }
             let text = alert.textFields?.first?.text ?? ""
             let newPatterns = text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
             
             if type == .delay {
-                self?.delayConfig.urlPatterns = newPatterns
+                self.delayConfig.urlPatterns = newPatterns
+                NetworkInjectionManager.shared.setDelayConfig(self.delayConfig)
             } else {
-                self?.failureConfig.urlPatterns = newPatterns
+                self.failureConfig.urlPatterns = newPatterns
+                NetworkInjectionManager.shared.setFailureConfig(self.failureConfig)
             }
-            self?.tableView.reloadData()
+            self.tableView.reloadData()
         })
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -492,9 +485,12 @@ final class NetworkInjectionSettingsController: BaseTableController {
                 
                 if type == .delay {
                     self.delayConfig.httpMethods = newMethods
+                    NetworkInjectionManager.shared.setDelayConfig(self.delayConfig)
                 } else {
                     self.failureConfig.httpMethods = newMethods
+                    NetworkInjectionManager.shared.setFailureConfig(self.failureConfig)
                 }
+                self.tableView.reloadData()
                 self.showHTTPMethodsInput(for: type)
             })
         }

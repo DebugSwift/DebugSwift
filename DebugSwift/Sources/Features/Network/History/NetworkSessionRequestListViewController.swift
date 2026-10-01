@@ -63,6 +63,7 @@ final class NetworkSessionRequestListViewController: BaseController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = false
+        updateNavigationButtons()
         loadRequests()
     }
 
@@ -119,15 +120,54 @@ final class NetworkSessionRequestListViewController: BaseController {
                 target: self,
                 action: #selector(shareTapped)
             )
-            let importButton = UIBarButtonItem(
+
+            let injectionManager = NetworkInjectionManager.shared
+            let isInjectionActive = injectionManager.getDelayConfig().isEnabled || 
+                                    injectionManager.getFailureConfig().isEnabled ||
+                                    injectionManager.getRewriteConfig().isEnabled
+
+            let injectionButton = UIBarButtonItem(
                 image: injectionSymbolImage(),
-                style: .plain,
-                target: self,
-                action: #selector(importSessionTapped)
+                menu: buildSessionInjectionMenu()
             )
-            navigationItem.rightBarButtonItems = [shareButton, importButton]
+            injectionButton.tintColor = isInjectionActive ? .systemOrange : .systemGray
+
+            navigationItem.rightBarButtonItems = [shareButton, injectionButton]
             navigationItem.leftBarButtonItem = nil
         }
+    }
+
+    private func injectionSymbolImage() -> UIImage? {
+        if #available(iOS 16.0, *) {
+            return UIImage(systemName: "syringe")
+        }
+
+        return UIImage(systemName: "pencil")
+    }
+
+    private func buildSessionInjectionMenu() -> UIMenu {
+        let importAction = UIAction(
+            title: "Import to Response Modifier",
+            image: UIImage(systemName: "arrow.triangle.2.circlepath")
+        ) { [weak self] _ in
+            self?.importSessionTapped()
+        }
+
+        let advancedAction = UIAction(
+            title: "Advanced Settings...",
+            image: UIImage(systemName: "gearshape")
+        ) { [weak self] _ in
+            let settingsController = NetworkInjectionSettingsController()
+            self?.navigationController?.pushViewController(settingsController, animated: true)
+        }
+
+        return UIMenu(
+            title: "Session Injection",
+            children: [
+                importAction,
+                advancedAction
+            ]
+        )
     }
 
     @objc private func shareTapped() {
@@ -164,9 +204,6 @@ final class NetworkSessionRequestListViewController: BaseController {
         cancelSelectionTapped()
     }
 
-    private func injectionSymbolImage() -> UIImage? {
-        UIImage(systemName: "syringe")
-    }
 
     private func loadRequests() {
         Task { @MainActor in
