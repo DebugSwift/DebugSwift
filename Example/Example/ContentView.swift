@@ -68,7 +68,7 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Memory Leak Demo")
                             .font(.headline)
-                        Text("Test memory leak detection")
+                        Text("Test detection of leaked UIViewControllers")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
