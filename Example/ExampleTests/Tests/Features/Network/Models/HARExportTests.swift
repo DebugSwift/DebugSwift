@@ -224,6 +224,7 @@ final class HARExportTests: XCTestCase {
 
     func testCapture_fromHttpModel_convertsFields() {
         let model = makeHttpModel()
+        model.startTime = "16:30:15 - 01/10/2026"
         let capture = HARExportAdapter.capture(from: model, redact: false)
 
         XCTAssertEqual(capture.request.method, "POST")
@@ -231,8 +232,14 @@ final class HARExportTests: XCTestCase {
         XCTAssertEqual(capture.request.body, "{\"key\":\"value\"}")
         XCTAssertEqual(capture.response.status, 200)
         XCTAssertEqual(capture.response.body, "{}")
-        XCTAssertEqual(capture.time, 0.5)
+        XCTAssertEqual(capture.time, 500.0)
         XCTAssertEqual(capture.request.headers["Content-Type"], "application/json")
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.dateFormat = "HH:mm:ss - dd/MM/yyyy"
+        let expectedDate = formatter.date(from: "16:30:15 - 01/10/2026")
+        XCTAssertEqual(capture.startedDateTime, expectedDate)
     }
 
     func testCapture_fromHttpModel_redactsByDefault() {
@@ -277,5 +284,42 @@ final class HARExportTests: XCTestCase {
         DebugSwift.Network.shared.redactCurlCredentials = true
         let redactedCurl = HARExportAdapter.copyCURL(model)
         XCTAssertTrue(redactedCurl.contains("-H 'Authorization: <redacted>'"))
+    }
+
+    // MARK: - PostData and Response Content Tests
+
+    func testEncode_includesPostDataAndResponseText() {
+        let capture = makeCapture(
+            method: "POST",
+            url: "https://example.com/api/login",
+            requestHeaders: ["Content-Type": "application/json"],
+            requestBody: "{\"username\":\"john\"}",
+            responseStatus: 200,
+            responseHeaders: ["Content-Type": "application/json"],
+            responseBody: "{\"token\":\"abc\"}"
+        )
+
+        let har = HAREncoder.encode([capture])
+        guard let log = har["log"] as? [String: Any],
+              let entries = log["entries"] as? [[String: Any]],
+              let firstEntry = entries.first else {
+            return XCTFail("Expected valid HAR structure")
+        }
+
+        // Request postData
+        guard let request = firstEntry["request"] as? [String: Any],
+              let postData = request["postData"] as? [String: Any] else {
+            return XCTFail("Expected request.postData dictionary")
+        }
+        XCTAssertEqual(postData["text"] as? String, "{\"username\":\"john\"}")
+        XCTAssertEqual(postData["mimeType"] as? String, "application/json")
+
+        // Response content.text
+        guard let response = firstEntry["response"] as? [String: Any],
+              let content = response["content"] as? [String: Any] else {
+            return XCTFail("Expected response.content dictionary")
+        }
+        XCTAssertEqual(content["text"] as? String, "{\"token\":\"abc\"}")
+        XCTAssertEqual(content["mimeType"] as? String, "application/json")
     }
 }
