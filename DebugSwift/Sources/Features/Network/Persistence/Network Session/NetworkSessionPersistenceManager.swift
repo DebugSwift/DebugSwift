@@ -17,8 +17,10 @@ final class NetworkSessionPersistenceManager {
         static let enabledKey = "DebugSwift.Network.SessionPersistence.Enabled"
         static let retentionDaysKey = "DebugSwift.Network.SessionPersistence.RetentionDays"
         static let batchSizeKey = "DebugSwift.Network.SessionPersistence.BatchSize"
+        static let compressionMethodKey = "DebugSwift.Network.SessionPersistence.CompressionMethod"
         static let defaultRetentionDays = 7
         static let defaultBatchSize = 2
+        static let defaultCompressionMethod: NetworkPayloadCompressionMethod = .lzfse
     }
     
     struct RequestSnapshot: Sendable {
@@ -83,20 +85,32 @@ final class NetworkSessionPersistenceManager {
 
     private init() {}
 
-    static var isPersistenceEnabledPreference: Bool {
+    nonisolated static var isPersistenceEnabledPreference: Bool {
         UserDefaults.standard.bool(forKey: Preference.enabledKey)
     }
 
-    static var retentionDaysPreference: Int {
+    nonisolated static var retentionDaysPreference: Int {
         let saved = UserDefaults.standard.integer(forKey: Preference.retentionDaysKey)
         return saved > 0 ? saved : Preference.defaultRetentionDays
     }
 
-    static var batchSizePreference: Int {
+    nonisolated static var batchSizePreference: Int {
         guard let saved = UserDefaults.standard.object(forKey: Preference.batchSizeKey) as? Int else {
             return Preference.defaultBatchSize
         }
         return saved
+    }
+
+    nonisolated static var compressionMethodPreference: NetworkPayloadCompressionMethod {
+        guard let saved = UserDefaults.standard.string(forKey: Preference.compressionMethodKey),
+              let method = NetworkPayloadCompressionMethod(rawValue: saved) else {
+            return Preference.defaultCompressionMethod
+        }
+        return method
+    }
+
+    nonisolated static func setCompressionMethod(_ method: NetworkPayloadCompressionMethod) {
+        UserDefaults.standard.set(method.rawValue, forKey: Preference.compressionMethodKey)
     }
 
     func activateFromPreferences() {
@@ -123,12 +137,18 @@ final class NetworkSessionPersistenceManager {
         }
     }
 
-    func enable(retentionDays: Int, batchSize: Int) async {
+    func enable(
+        retentionDays: Int,
+        batchSize: Int,
+        compressionMethod: NetworkPayloadCompressionMethod = Preference.defaultCompressionMethod
+    ) async {
         self.retentionDays = max(1, retentionDays)
         self.batchSize = max(1, batchSize)
         UserDefaults.standard.set(true, forKey: Preference.enabledKey)
         UserDefaults.standard.set(self.retentionDays, forKey: Preference.retentionDaysKey)
         UserDefaults.standard.set(self.batchSize, forKey: Preference.batchSizeKey)
+        UserDefaults.standard.set(compressionMethod.rawValue, forKey: Preference.compressionMethodKey)
+
         isEnabled = true
         if writeStore == nil {
             writeStore = await NetworkSessionPersistenceStore.make()
@@ -140,14 +160,23 @@ final class NetworkSessionPersistenceManager {
         )
     }
 
-    func configure(retentionDays: Int, batchSize: Int) async {
+    func configure(
+        retentionDays: Int,
+        batchSize: Int,
+        compressionMethod: NetworkPayloadCompressionMethod = Preference.defaultCompressionMethod
+    ) async {
         if isEnabled {
-            await enable(retentionDays: retentionDays, batchSize: batchSize)
+            await enable(
+                retentionDays: retentionDays,
+                batchSize: batchSize,
+                compressionMethod: compressionMethod
+            )
             return
         }
 
         UserDefaults.standard.set(max(1, retentionDays), forKey: Preference.retentionDaysKey)
         UserDefaults.standard.set(max(1, batchSize), forKey: Preference.batchSizeKey)
+        UserDefaults.standard.set(compressionMethod.rawValue, forKey: Preference.compressionMethodKey)
         self.retentionDays = Self.retentionDaysPreference
         self.batchSize = Self.batchSizePreference
     }
@@ -244,10 +273,11 @@ final class NetworkSessionPersistenceManager {
             containsFileContentType(contentTypeValue) ||
             contentDispositionValue.contains("attachment")
 
+        let method = compressionMethodPreference
         let snapshot = RequestSnapshot(
             urlString: model.url?.absoluteString,
-            requestData: model.requestData,
-            responseData: model.responseData,
+            requestData: model.requestData?.compressedPayload(using: method),
+            responseData: model.responseData?.compressedPayload(using: method),
             requestId: model.requestId,
             method: model.method,
             statusCode: model.statusCode,
