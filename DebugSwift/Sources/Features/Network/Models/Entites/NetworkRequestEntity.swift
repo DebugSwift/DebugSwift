@@ -15,8 +15,8 @@ import SwiftData
 final class NetworkRequestEntity {
     @Attribute(.unique) var id: UUID
     var url: String?
-    var requestData: Data?
-    var responseData: Data?
+    @Attribute(.externalStorage) var requestData: Data?
+    @Attribute(.externalStorage) var responseData: Data?
     var requestId: String?
     var method: String?
     var statusCode: String?
@@ -93,8 +93,8 @@ extension NetworkRequestEntity {
     func makeHttpModel() -> HttpModel {
         let model = HttpModel()
         model.url = url.flatMap(URL.init(string:))
-        model.requestData = requestData
-        model.responseData = responseData
+        model.requestData = requestData?.decompressedPayload()
+        model.responseData = responseData?.decompressedPayload()
         model.requestId = requestId
         model.method = method
         model.statusCode = statusCode
@@ -119,8 +119,8 @@ extension NetworkSessionPersistenceManager.RequestRecord {
     func makeHttpModel() -> HttpModel {
         let model = HttpModel()
         model.url = url.flatMap(URL.init(string:))
-        model.requestData = requestData
-        model.responseData = responseData
+        model.requestData = requestData?.decompressedPayload()
+        model.responseData = responseData?.decompressedPayload()
         model.requestId = requestId
         model.method = method
         model.statusCode = statusCode
