@@ -66,32 +66,46 @@ public enum HAREncoder {
     /// Charles and Proxyman without conversion.
     public static func encode(_ captures: [HARCapture]) -> [String: Any] {
         let entries = captures.map { capture -> [String: Any] in
-            [
+            var requestDict: [String: Any] = [
+                "method": capture.request.method,
+                "url": capture.request.url,
+                "headers": capture.request.headers.map { ["name": $0.key, "value": $0.value] },
+                "httpVersion": "HTTP/1.1",
+                "cookies": [],
+                "queryString": [],
+                "headersSize": -1,
+                "bodySize": capture.request.body?.utf8.count ?? 0
+            ]
+            if let body = capture.request.body {
+                let mimeType = capture.request.headers.first { $0.key.caseInsensitiveCompare("Content-Type") == .orderedSame }?.value ?? "application/octet-stream"
+                requestDict["postData"] = [
+                    "mimeType": mimeType,
+                    "text": body
+                ]
+            }
+
+            var contentDict: [String: Any] = [
+                "size": capture.response.body?.utf8.count ?? 0,
+                "mimeType": capture.response.headers.first { $0.key.caseInsensitiveCompare("Content-Type") == .orderedSame }?.value ?? "application/octet-stream"
+            ]
+            if let body = capture.response.body {
+                contentDict["text"] = body
+            }
+
+            return [
                 "startedDateTime": ISO8601DateFormatter().string(from: capture.startedDateTime),
                 "time": capture.time,
-                "request": [
-                    "method": capture.request.method,
-                    "url": capture.request.url,
-                    "headers": capture.request.headers.map { ["name": $0.key, "value": $0.value] },
-                    "httpVersion": "HTTP/1.1",
-                    "cookies": [],
-                    "queryString": [],
-                    "headersSize": -1,
-                    "bodySize": capture.request.body?.count ?? 0
-                ] as [String: Any],
+                "request": requestDict,
                 "response": [
                     "status": capture.response.status,
                     "statusText": "",
                     "httpVersion": "HTTP/1.1",
                     "headers": capture.response.headers.map { ["name": $0.key, "value": $0.value] },
                     "cookies": [],
-                    "content": [
-                        "size": capture.response.body?.count ?? 0,
-                        "mimeType": capture.response.headers["Content-Type"] ?? "application/octet-stream"
-                    ],
+                    "content": contentDict,
                     "redirectURL": "",
                     "headersSize": -1,
-                    "bodySize": capture.response.body?.count ?? 0
+                    "bodySize": capture.response.body?.utf8.count ?? 0
                 ] as [String: Any],
                 "cache": [:],
                 "timings": ["send": 0, "wait": capture.time, "receive": 0] as [String: Any]
