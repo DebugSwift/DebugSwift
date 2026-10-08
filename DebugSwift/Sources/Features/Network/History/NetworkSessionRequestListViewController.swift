@@ -13,9 +13,7 @@ import SwiftData
 @available(iOS 17.0, *)
 @MainActor
 final class NetworkSessionRequestListViewController: BaseController {
-    private let sessionID: UUID
-    private var requests: [NetworkSessionPersistenceManager.RequestRecord] = []
-    private var filteredRequests: [NetworkSessionPersistenceManager.RequestRecord] = []
+    private let viewModel: NetworkSessionRequestListViewModel
 
     private lazy var searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
@@ -29,6 +27,7 @@ final class NetworkSessionRequestListViewController: BaseController {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = UIColor.black
+        tableView.tintColor = .systemBlue
         tableView.estimatedRowHeight = 85
         tableView.dataSource = self
         tableView.delegate = self
@@ -39,18 +38,16 @@ final class NetworkSessionRequestListViewController: BaseController {
         return tableView
     }()
 
-    private lazy var emptyStateLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.text = "No requests in this session."
-        return label
-    }()
+    private lazy var emptyStateView = NetworkEmptyStateView(message: "No requests in this session.")
 
     init(sessionID: UUID, titleText: String) {
-        self.sessionID = sessionID
+        self.viewModel = NetworkSessionRequestListViewModel(sessionID: sessionID)
+        super.init()
+        title = titleText
+    }
+
+    init(viewModel: NetworkSessionRequestListViewModel, titleText: String) {
+        self.viewModel = viewModel
         super.init()
         title = titleText
     }
@@ -66,6 +63,7 @@ final class NetworkSessionRequestListViewController: BaseController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.prefersLargeTitles = false
+        updateNavigationButtons()
         loadRequests()
     }
 
@@ -74,6 +72,7 @@ final class NetworkSessionRequestListViewController: BaseController {
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
+        tableView.allowsMultipleSelectionDuringEditing = true
 
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -84,51 +83,149 @@ final class NetworkSessionRequestListViewController: BaseController {
     }
 
     private func setupNavigation() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: injectionSymbolImage(),
-            style: .plain,
-            target: self,
-            action: #selector(importSessionTapped)
-        )
+        updateNavigationButtons()
+    }
+
+    private func updateNavigationButtons() {
+        if tableView.isEditing {
+            let selectedCount = tableView.indexPathsForSelectedRows?.count ?? 0
+            let exportTitle = selectedCount > 0 ? "Export (\(selectedCount))" : "Export"
+            let exportButton = UIBarButtonItem(
+                title: exportTitle,
+                style: .done,
+                target: self,
+                action: #selector(exportHARTapped)
+            )
+            exportButton.isEnabled = selectedCount > 0
+
+            let isAllSelected = !viewModel.isEmpty && selectedCount == viewModel.numberOfRequests
+            let selectAllImage = UIImage(systemName: isAllSelected ? "checkmark.circle.fill" : "checkmark.circle")
+            let toggleSelectAllButton = UIBarButtonItem(
+                image: selectAllImage,
+                style: .plain,
+                target: self,
+                action: #selector(toggleSelectAllTapped)
+            )
+            navigationItem.rightBarButtonItems = [exportButton, toggleSelectAllButton]
+            navigationItem.leftBarButtonItem = UIBarButtonItem(
+                title: "Cancel",
+                style: .plain,
+                target: self,
+                action: #selector(cancelSelectionTapped)
+            )
+        } else {
+            let shareButton = UIBarButtonItem(
+                image: UIImage(systemName: "square.and.arrow.up"),
+                style: .plain,
+                target: self,
+                action: #selector(shareTapped)
+            )
+
+            let injectionManager = NetworkInjectionManager.shared
+            let isInjectionActive = injectionManager.getDelayConfig().isEnabled || 
+                                    injectionManager.getFailureConfig().isEnabled ||
+                                    injectionManager.getRewriteConfig().isEnabled
+
+            let injectionButton = UIBarButtonItem(
+                image: injectionSymbolImage(),
+                menu: buildSessionInjectionMenu()
+            )
+            injectionButton.tintColor = isInjectionActive ? .systemOrange : .systemGray
+
+            navigationItem.rightBarButtonItems = [shareButton, injectionButton]
+            navigationItem.leftBarButtonItem = nil
+        }
     }
 
     private func injectionSymbolImage() -> UIImage? {
-        UIImage(systemName: "syringe")
+        if #available(iOS 16.0, *) {
+            return UIImage(systemName: "syringe")
+        }
+
+        return UIImage(systemName: "pencil")
     }
+
+    private func buildSessionInjectionMenu() -> UIMenu {
+        let importAction = UIAction(
+            title: "Import to Response Modifier",
+            image: UIImage(systemName: "arrow.triangle.2.circlepath")
+        ) { [weak self] _ in
+            self?.importSessionTapped()
+        }
+
+        let advancedAction = UIAction(
+            title: "Advanced Settings...",
+            image: UIImage(systemName: "gearshape")
+        ) { [weak self] _ in
+            let settingsController = NetworkInjectionSettingsController()
+            self?.navigationController?.pushViewController(settingsController, animated: true)
+        }
+
+        return UIMenu(
+            title: "Session Injection",
+            children: [
+                importAction,
+                advancedAction
+            ]
+        )
+    }
+
+    @objc private func shareTapped() {
+        guard !viewModel.isEmpty else { return }
+        tableView.setEditing(true, animated: true)
+        for row in 0..<viewModel.numberOfRequests {
+            tableView.selectRow(at: IndexPath(row: row, section: 0), animated: false, scrollPosition: .none)
+        }
+        updateNavigationButtons()
+    }
+
+    @objc private func toggleSelectAllTapped() {
+        let currentSelectedCount = tableView.indexPathsForSelectedRows?.count ?? 0
+        let shouldSelectAll = currentSelectedCount < viewModel.numberOfRequests
+        for row in 0..<viewModel.numberOfRequests {
+            let indexPath = IndexPath(row: row, section: 0)
+            if shouldSelectAll {
+                tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+            } else {
+                tableView.deselectRow(at: indexPath, animated: false)
+            }
+        }
+        updateNavigationButtons()
+    }
+
+    @objc private func cancelSelectionTapped() {
+        tableView.setEditing(false, animated: true)
+        updateNavigationButtons()
+    }
+
+    @objc private func exportHARTapped() {
+        guard let selectedIndexPaths = tableView.indexPathsForSelectedRows, !selectedIndexPaths.isEmpty else { return }
+        viewModel.exportHAR(from: selectedIndexPaths)
+        cancelSelectionTapped()
+    }
+
 
     private func loadRequests() {
         Task { @MainActor in
-            requests = await NetworkSessionPersistenceManager.shared.fetchRequests(for: sessionID)
+            await viewModel.loadRequests()
             applyFilter()
         }
     }
 
     private func applyFilter() {
-        let query = searchController.searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !query.isEmpty else {
-            filteredRequests = requests
-            tableView.reloadData()
-            updateEmptyState()
-            return
+        if tableView.isEditing {
+            tableView.setEditing(false, animated: false)
+            updateNavigationButtons()
         }
-
-        let lowercaseQuery = query.lowercased()
-        filteredRequests = requests.filter { request in
-            let url = request.url?.lowercased() ?? ""
-            let method = request.method?.lowercased() ?? ""
-            let statusCode = request.statusCode?.lowercased() ?? ""
-            return url.contains(lowercaseQuery) ||
-                method.contains(lowercaseQuery) ||
-                statusCode.contains(lowercaseQuery)
-        }
-
+        let query = searchController.searchBar.text ?? ""
+        viewModel.applyFilter(query: query)
         tableView.reloadData()
         updateEmptyState()
     }
 
     private func updateEmptyState() {
-        if filteredRequests.isEmpty {
-            tableView.backgroundView = emptyStateLabel
+        if viewModel.isEmpty {
+            tableView.backgroundView = emptyStateView
             tableView.separatorStyle = .none
         } else {
             tableView.backgroundView = nil
@@ -137,7 +234,7 @@ final class NetworkSessionRequestListViewController: BaseController {
     }
 
     @objc private func importSessionTapped() {
-        guard !requests.isEmpty else {
+        guard viewModel.totalRequestsCount > 0 else {
             showMessageAlert(
                 title: "No Requests",
                 message: "This session does not contain any requests to import."
@@ -147,7 +244,7 @@ final class NetworkSessionRequestListViewController: BaseController {
 
         let alert = UIAlertController(
             title: "Import Session to Response Modifier?",
-            message: "This will delete all existing Response Modifier rules and replace them with \(requests.count) rule(s) from this session.\n\nLong sessions can create many rules and may reduce network matching performance.",
+            message: "This will delete all existing Response Modifier rules and replace them with \(viewModel.totalRequestsCount) rule(s) from this session.\n\nLong sessions can create many rules and may reduce network matching performance.",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -158,13 +255,10 @@ final class NetworkSessionRequestListViewController: BaseController {
     }
 
     private func importSessionRules() {
-        let rules = NetworkSessionRewriteRuleBuilder.makeRules(
-            from: requests.map { $0.makeHttpModel() }
-        )
-        NetworkInjectionManager.shared.replaceRewriteRulesFromSessionHistory(rules)
+        let count = viewModel.importSessionRules()
         showMessageAlert(
             title: "Import Complete",
-            message: "Replaced existing Response Modifier rules with \(rules.count) rule(s) from this session. Response Modifier is now active."
+            message: "Replaced existing Response Modifier rules with \(count) rule(s) from this session. Response Modifier is now active."
         )
     }
 
@@ -178,24 +272,35 @@ final class NetworkSessionRequestListViewController: BaseController {
 @available(iOS 17.0, *)
 extension NetworkSessionRequestListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        filteredRequests.count
+        viewModel.numberOfRequests
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let request = filteredRequests[indexPath.row]
+        let request = viewModel.request(at: indexPath.row)
         let cell = tableView.dequeueReusableCell(
             withIdentifier: "NetworkSessionRequestCell",
             for: indexPath
         ) as! NetworkTableViewCell
         cell.setup(request.makeHttpModel())
+        cell.selectionStyle = .default
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView.isEditing {
+            updateNavigationButtons()
+            return
+        }
         tableView.deselectRow(at: indexPath, animated: true)
-        let request = filteredRequests[indexPath.row]
-        let detailController = NetworkViewControllerDetail(model: request.makeHttpModel())
+        let model = viewModel.httpModel(at: indexPath.row)
+        let detailController = NetworkViewControllerDetail(model: model)
         navigationController?.pushViewController(detailController, animated: true)
+    }
+
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if tableView.isEditing {
+            updateNavigationButtons()
+        }
     }
 }
 
