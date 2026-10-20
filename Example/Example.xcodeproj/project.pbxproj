@@ -35,11 +35,21 @@
 			);
 			target = 2EA3B6582B2E7F71001B59FE /* Example */;
 		};
+		C48605A12FE5000000D51C01 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Tests/Features/App/Crash/Native/ExceptionCaptureTests.m",
+				"Tests/Features/App/Crash/Native/SignalCaptureFixture.c",
+				"Tests/Features/App/Crash/Native/SignalCaptureTests.c",
+				"Tests/Features/App/Crash/Native/SymbolMapFixture.swift",
+			);
+			target = 396F5F022DE27523009CA492 /* ExampleTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		391200242DFF587D000BE8E0 /* Example */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (391200322DFF6E6B000BE8E0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Example; sourceTree = "<group>"; };
-		396F5F042DE27523009CA492 /* ExampleTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ExampleTests; sourceTree = "<group>"; };
+		396F5F042DE27523009CA492 /* ExampleTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C48605A12FE5000000D51C01 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ExampleTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */

@@ -8,6 +8,7 @@
 import UIKit
 
 struct CrashModel: Codable, Equatable {
+    let captureID: UUID?
     let type: CrashType
     let details: Details
     let context: Context
@@ -17,8 +18,10 @@ struct CrashModel: Codable, Equatable {
         type: CrashType,
         details: Details,
         context: Context = .builder(),
-        traces: [Trace]
+        traces: [Trace],
+        captureID: UUID? = nil
     ) {
+        self.captureID = captureID
         self.type = type
         self.details = details
         self.context = context
@@ -26,7 +29,10 @@ struct CrashModel: Codable, Equatable {
     }
 
     static func == (lhs: CrashModel, rhs: CrashModel) -> Bool {
-        lhs.details.name == rhs.details.name
+        if lhs.captureID != nil || rhs.captureID != nil {
+            return lhs.captureID == rhs.captureID
+        }
+        return lhs.details.name == rhs.details.name
     }
 }
 
@@ -105,9 +111,34 @@ extension CrashModel {
     struct Trace: Codable {
         let title: String
         let detail: String
+        let address: UInt64?
+        let image: BinaryImage?
+
+        init(title: String, detail: String, address: UInt64? = nil, image: BinaryImage? = nil) {
+            self.title = title
+            self.detail = detail
+            self.address = address
+            self.image = image
+        }
 
         var info: UserInfo.Info {
             .init(title: title, detail: detail)
+        }
+    }
+}
+
+extension CrashModel {
+    struct BinaryImage: Codable, Equatable {
+        let uuid: UUID
+        let loadAddress: UInt64
+        let preferredAddress: UInt64
+        let textSize: UInt64
+
+        func normalizedAddress(for address: UInt64) -> UInt64? {
+            guard address >= loadAddress else { return nil }
+            let offset = address - loadAddress
+            guard offset < textSize, offset <= UInt64.max - preferredAddress else { return nil }
+            return preferredAddress + offset
         }
     }
 }

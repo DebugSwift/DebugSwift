@@ -16,8 +16,13 @@ let package = Package(
     dependencies: [],
     targets: [
         .target(
+            name: "DebugSwiftSignalCapture",
+            path: "DebugSwiftSignalCapture",
+            publicHeadersPath: "include"
+        ),
+        .target(
             name: "DebugSwift",
-            dependencies: [],
+            dependencies: ["DebugSwiftSignalCapture"],
             path: "DebugSwift",
             resources: [
                 .process("Resources")

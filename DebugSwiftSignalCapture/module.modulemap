@@ -1,0 +1,5 @@
+module DebugSwiftSignalCapture {
+    header "include/DebugSwiftSignalCapture.h"
+    header "include/DebugSwiftExceptionCapture.h"
+    export *
+}
