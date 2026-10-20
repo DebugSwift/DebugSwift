@@ -385,27 +385,52 @@ extension DebugSwift {
             return true
         }
 
-        /// Configure how long Session History is kept and how often new requests are written to disk.
-        /// By default, Session History keeps 7 days of sessions and writes every 2 captured requests.
-        /// Use a longer `retentionDays` value if you want more historical sessions available in the Session History UI.
-        /// Use a smaller `batchSize` if you want captured requests to appear in persisted history sooner, at the cost of more frequent writes.
-        /// Use a larger `batchSize` if you want to reduce write frequency, with the tradeoff that the latest requests may not be saved until the batch fills or the feature is disabled.
-        ///
-        /// Example:
-        /// ```swift
-        /// DebugSwift.Network.configureSessionHistory(retentionDays: 14, batchSize: 10)
-        /// ```
-        public static func configureSessionHistory(retentionDays: Int, batchSize: Int) {
+        public var sessionPayloadCompression: NetworkPayloadCompressionMethod {
+            get {
+#if canImport(SwiftData)
+                if #available(iOS 17.0, *) {
+                    return NetworkSessionPersistenceManager.compressionMethodPreference
+                }
+#endif
+                return .lzfse
+            }
+            set {
+#if canImport(SwiftData)
+                if #available(iOS 17.0, *) {
+                    NetworkSessionPersistenceManager.setCompressionMethod(newValue)
+                }
+#endif
+            }
+        }
+
+        public static func configureSessionHistory(
+            retentionDays: Int = 7,
+            batchSize: Int = 2,
+            compressionMethod: NetworkPayloadCompressionMethod = .lzfse
+        ) {
 #if canImport(SwiftData)
             if #available(iOS 17.0, *) {
                 Task { @MainActor in
                     await NetworkSessionPersistenceManager.shared.configure(
                         retentionDays: retentionDays,
-                        batchSize: batchSize
+                        batchSize: batchSize,
+                        compressionMethod: compressionMethod
                     )
                 }
             }
 #endif
+        }
+
+        public static func configureSessionHistory(retentionDays: Int, batchSize: Int) {
+            configureSessionHistory(
+                retentionDays: retentionDays,
+                batchSize: batchSize,
+                compressionMethod: .lzfse
+            )
+        }
+
+        public static func uncompressPayload(_ data: Data) -> Data {
+            data.decompressedPayload()
         }
         
         // MARK: - Encryption/Decryption API

@@ -114,3 +114,22 @@ extension URLRequest {
         return curlCommand
     }
 }
+
+public enum NetworkPayloadCompressionMethod: String, Sendable, CaseIterable {
+    case lzfse
+    case uncompressed
+}
+
+extension Data {
+    func compressedPayload(using method: NetworkPayloadCompressionMethod) -> Data {
+        guard !isEmpty, method == .lzfse else { return self }
+        guard let compressed = try? (self as NSData).compressed(using: .lzfse) as Data else { return self }
+        return Data([1]) + compressed
+    }
+
+    func decompressedPayload() -> Data {
+        guard count > 1, self[0] == 1 else { return self }
+        let payload = Data(dropFirst())
+        return (try? (payload as NSData).decompressed(using: .lzfse) as Data) ?? payload
+    }
+}
