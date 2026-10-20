@@ -39,10 +39,12 @@ public struct SymbolTable {
 
     public let loadAddress: UInt64
     public let entries: [Entry]
+    public let imageUUID: UUID?
 
-    public init(loadAddress: UInt64, entries: [Entry]) {
+    public init(loadAddress: UInt64, entries: [Entry], imageUUID: UUID? = nil) {
         self.loadAddress = loadAddress
         self.entries = entries
+        self.imageUUID = imageUUID
     }
 
     /// Resolve a set of raw frame addresses to symbols. Frames outside the
@@ -71,6 +73,7 @@ public struct SymbolTable {
             let line = entry["line"] as? Int ?? 0
             return Entry(address: address, symbol: Symbol(name: name, file: file, line: line))
         }
-        return SymbolTable(loadAddress: load, entries: parsed)
+        let imageUUID = (object["imageUUID"] as? String).flatMap(UUID.init(uuidString:))
+        return SymbolTable(loadAddress: load, entries: parsed, imageUUID: imageUUID)
     }
 }

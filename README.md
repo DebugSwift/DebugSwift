@@ -59,7 +59,7 @@ DebugSwift
 - **Performance Widget:** Overlay displaying live performance stats
 
 ### 📱 App Tools
-- **Crash Reports:** Detailed crash analysis with screenshots and stack traces
+- **Crash Reports:** Best-effort NSException reports and next-launch recovery of fatal signal records
 - **Console Logs:** Real-time console output monitoring and filtering
 - **Device Info:** App version, build, device details, and more
 - **APNS Tokens:** Easy access and copying of push notification tokens
@@ -149,6 +149,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 ```
+
+### Crash Capture: Timing and Coverage
+
+Register signal observers **before the first `prepare()` or `DebugSwift.setup()`**:
+
+```swift
+CrashSignalExceptionHandler.exceptionReceiveClosure = { signal, _, name in
+    // Runs during recovery on a later launch, not inside the crashed process.
+}
+debugSwift.setup()
+```
+
+- Signal callbacks run synchronously on the preparing thread, after successful report persistence. Late registration does not replay recovered reports. Failed persistence keeps the raw record for a later retry and does not notify the observer.
+- Callbacks are process-wide. Constructing `CrashHandler` does not replace them; the last explicit assignment for each observer wins. Assigning a `CrashHandler` instance's `exceptionReceiveClosure` configures both signal and NSException observers.
+- NSException callbacks remain immediate and best-effort on the failing thread. Callback lookup and report storage skip contended library locks. Keep callbacks short: application/previous-handler code and Foundation I/O can still block; this is not a guarantee of complete crash capture.
+- Alternate signal stacks are **per thread**. `prepare()` prepares its calling thread. Call `CrashSignalExceptionHandler.prepareCurrentThread()` at the start of each application-owned worker thread that needs stack-overflow coverage. GCD, system and third-party threads without a prepared alternate stack have **no guaranteed stack-overflow capture**; ordinary fatal signals on those threads may still be recorded. Initializing one GCD queue does not prepare every worker thread.
+- Signal reports contain the original PC/LR when available, **not a full unwound stack**. Generate a matching UUID `symbol_map.json` with [`Scripts/generate_symbol_map.sh`](Scripts/generate_symbol_map.sh) and include it in app resources to resolve application symbols. Unknown images/builds remain raw addresses.
+- Fatal paths do not capture screenshots or console state. NSException device/app metadata is cached during setup, while its exception time and stack symbols are collected best-effort at failure.
+- Raw pending records live in `Library/Application Support/DebugSwift/CrashReports`, are excluded from backup, and use `completeUntilFirstUserAuthentication` file protection. Access before the first unlock after reboot is not guaranteed. Older Documents pending records are recovered before the new capture file is opened; a persistence failure never overwrites them.
+
+Run the host signal/exception tests at `-O0` and `-O2`, plus symbol-map regressions, with `make test-crash` on macOS. These also run in the Native Crash Capture CI workflow; iOS recovery tests remain in `Example/ExampleTests`.
 
 ### Shake to Toggle (Optional)
 

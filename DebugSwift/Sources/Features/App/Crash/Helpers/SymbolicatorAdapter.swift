@@ -9,9 +9,8 @@ import Foundation
 
 // MARK: - Crash Symbolication — runtime adapter
 
-/// Loads a symbol map JSON (produced by `Scripts/generate_symbol_map.sh` at
-/// build time) and resolves `CrashModel.Trace` titles to `(symbol, file, line)`
-/// using the pure `SymbolTable`.
+/// Loads a build-time symbol map and resolves native frames only after matching
+/// the original image UUID and normalizing its runtime address.
 final class SymbolicatorAdapter: @unchecked Sendable {
 
     static let shared = SymbolicatorAdapter()
@@ -40,31 +39,24 @@ final class SymbolicatorAdapter: @unchecked Sendable {
         symbolTable.flatMap { $0.symbolicate(frames: [address]).first?.symbol }
     }
 
-    /// Resolve a list of `CrashModel.Trace` titles (raw frame strings) to
-    /// pretty-printable symbol descriptions.
+    /// Resolve image-associated native addresses, preserving unknown and plain-text frames.
     func symbolicate(traces: [CrashModel.Trace]) -> [String] {
-        let addresses = traces.compactMap { Self.parse(address: $0.title) }
         guard let table = symbolTable else {
             return traces.map(\.title)
         }
-        let resolved = table.symbolicate(frames: addresses)
-        return zip(traces, resolved).map { trace, result in
-            if let symbol = result.symbol {
+        return traces.map { trace in
+            // Signal frames must carry their original image identity. Never apply a symbol
+            // map for the current build to an absolute address from another process/build.
+            guard let address = trace.address,
+                  let image = trace.image,
+                  table.imageUUID == image.uuid,
+                  let normalized = image.normalizedAddress(for: address)
+            else { return trace.title }
+            if let symbol = table.symbolicate(frames: [normalized]).first?.symbol {
+                guard !symbol.file.isEmpty, symbol.line > 0 else { return symbol.name }
                 return "\(symbol.name)  \(symbol.file):\(symbol.line)"
             }
             return trace.title
         }
-    }
-
-    // MARK: - Private
-
-    /// Parse a hex or decimal address from a frame string like
-    /// `0x1024abc  Foo + 42` or a bare `0x1024abc`.
-    private static func parse(address string: String) -> UInt64? {
-        let trimmed = string.split(separator: " ").first.map(String.init) ?? string
-        if trimmed.hasPrefix("0x") {
-            return UInt64(trimmed.dropFirst(2), radix: 16)
-        }
-        return UInt64(trimmed)
     }
 }

@@ -34,10 +34,14 @@ DERIVED    ?= $(PWD)/build/DerivedData
 APP_PATH   := $(DERIVED)/Build/Products/$(CONFIG)-iphonesimulator/$(SCHEME).app
 
 # ── Rules ─────────────────────────────────────────────────────────────────
-.PHONY: build install launch run terminate booted path clean open help danger danger-setup danger-local danger-ci
+.PHONY: build install launch run terminate booted path clean open help danger danger-setup danger-local danger-ci test-crash
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+
+test-crash: ## Run host crash capture (-O0/-O2) and symbol-map regression tests
+	./Scripts/test_signal_capture.sh
+	./Scripts/test_symbol_map.sh
 
 build: ## Build the scheme for the simulator
 	xcodebuild \
