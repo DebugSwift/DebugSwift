@@ -255,7 +255,10 @@ final class NetworkTableViewCell: UITableViewCell {
 
         contentView.backgroundColor = UIColor.black
         backgroundColor = UIColor.black
-        selectionStyle = .none
+        let selectedView = UIView()
+        selectedView.backgroundColor = .clear
+        selectedBackgroundView = selectedView
+        selectionStyle = .default
     }
 
     private func setupConstraints() {

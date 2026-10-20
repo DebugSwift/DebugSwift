@@ -32,13 +32,19 @@ enum HARExportAdapter {
             headers: redact
                 ? HAREncoder.redactHeaders(stringHeaders(model.responseHeaderFields))
                 : stringHeaders(model.responseHeaderFields),
-            body: bodyString(model.responseData)
+            body: bodyString(model.decryptedResponseData ?? model.responseData)
         )
+        let durationSeconds = Double(
+            model.totalDuration?
+                .replacingOccurrences(of: " (s)", with: "")
+                .replacingOccurrences(of: "s", with: "") ?? "0"
+        ) ?? 0
+
         return HARCapture(
             request: request,
             response: response,
-            startedDateTime: Date(),
-            time: Double(model.totalDuration ?? "0") ?? 0
+            startedDateTime: parseDate(model.startTime) ?? Date(),
+            time: durationSeconds * 1000
         )
     }
 
@@ -74,5 +80,20 @@ enum HARExportAdapter {
     private static func bodyString(_ data: Data?) -> String? {
         guard let data, !data.isEmpty else { return nil }
         return String(data: data, encoding: .utf8) ?? "<binary>"
+    }
+
+    private static func parseDate(_ string: String?) -> Date? {
+        guard let string else { return nil }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.dateFormat = "HH:mm:ss - dd/MM/yyyy"
+        if let date = formatter.date(from: string) {
+            return date
+        }
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        if let date = formatter.date(from: string) {
+            return date
+        }
+        return ISO8601DateFormatter().date(from: string)
     }
 }
