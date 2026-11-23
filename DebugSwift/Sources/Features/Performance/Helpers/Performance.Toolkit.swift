@@ -17,9 +17,7 @@ final class PerformanceToolkit {
     var cpuMeasurements: [CGFloat] = []
     var currentCPU: CGFloat = 0
     var maxCPU: CGFloat = 0
-    var memoryMeasurements: [CGFloat] = []
-    var currentMemory: CGFloat = 0
-    var maxMemory: CGFloat = 0
+    private(set) var memory = PerformanceMemoryMonitor()
     var fpsMeasurements: [CGFloat] = []
 
     var currentFPS: CGFloat = 0
@@ -76,7 +74,6 @@ final class PerformanceToolkit {
 
         // Additional setup for measurements
         cpuMeasurements = Array(repeating: 0, count: measurementsLimit)
-        memoryMeasurements = Array(repeating: 0, count: measurementsLimit)
         fpsMeasurements = Array(repeating: 0, count: measurementsLimit)
         leaksMeasurements = Array(repeating: 0, count: measurementsLimit)
     }
@@ -88,9 +85,7 @@ final class PerformanceToolkit {
         maxCPU = max(maxCPU, currentCPU)
 
         // Memory measurements
-        currentMemory = memory()
-        memoryMeasurements = array(memoryMeasurements, byAddingMeasurement: currentMemory)
-        maxMemory = max(maxMemory, currentMemory)
+        memory.update(limit: measurementsLimit)
 
         // FPS measurements
         currentFPS = fps()
@@ -143,7 +138,8 @@ final class PerformanceToolkit {
         }()
         widget.updateValues(
             cpu: currentCPU,
-            memory: currentMemory,
+            memory: memory.current,
+            memoryMetric: memory.metric,
             fps: fps,
             leaks: currentLeaks
         )
@@ -184,20 +180,6 @@ final class PerformanceToolkit {
         }
         
         return totalUsageOfCPU
-    }
-
-    nonisolated private func memory() -> CGFloat {
-        var taskInfo = task_basic_info()
-        var count = mach_msg_type_number_t(
-            MemoryLayout.size(ofValue: taskInfo) / MemoryLayout<integer_t>.size)
-
-        let result = withUnsafeMutablePointer(to: &taskInfo) {
-            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
-                task_info(mach_task_self_, task_flavor_t(TASK_BASIC_INFO), $0, &count)
-            }
-        }
-
-        return result == KERN_SUCCESS ? CGFloat(taskInfo.resident_size) / 1024.0 / 1024.0 : 0
     }
 
     func simulateMemoryWarning() {

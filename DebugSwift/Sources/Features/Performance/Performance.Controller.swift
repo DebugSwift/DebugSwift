@@ -355,20 +355,30 @@ final class PerformanceViewController: BaseTableController, PerformanceToolkitDe
         switch row {
         case 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: SparklineMetricCell.identifier) as? SparklineMetricCell ?? SparklineMetricCell()
-            let current = performanceToolkit.currentMemory
-            let peak = performanceToolkit.maxMemory
+            let memory = performanceToolkit.memory
             let valueText: String
-            if current >= 1024 {
-                valueText = String(format: "%.1f GB", current / 1024)
+            let color: UIColor
+            if let current = memory.current {
+                valueText = current >= 1024
+                    ? String(format: "%.1f GB", current / 1024)
+                    : String(format: "%.0f MB", current)
+                color = current < 200 ? .systemGreen : current < 500 ? .systemYellow : .systemRed
             } else {
-                valueText = String(format: "%.0f MB", current)
+                valueText = "Unavailable"
+                color = .systemGray
+            }
+            let peakText: String
+            if let peak = memory.peak, let minimum = memory.history.min() {
+                peakText = String(format: "Peak %.0fMB · Min %.0fMB", peak, minimum)
+            } else {
+                peakText = "Peak — · Min —"
             }
             cell.configure(
-                title: "Memory",
+                title: memory.metric.title,
                 value: valueText,
-                color: current < 200 ? .systemGreen : current < 500 ? .systemYellow : .systemRed,
-                measurements: performanceToolkit.memoryMeasurements,
-                peakText: String(format: "Peak %.0fMB · Min %.0fMB", peak, performanceToolkit.memoryMeasurements.min() ?? 0)
+                color: color,
+                measurements: memory.history,
+                peakText: peakText
             )
             return cell
         case 1:

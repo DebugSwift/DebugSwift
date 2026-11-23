@@ -29,6 +29,44 @@ extension DebugSwift {
             }
         }
         
+        /// Selects the process memory metric shown in the Performance screen and floating HUD.
+        public enum Memory {
+            public enum Metric: Sendable {
+                /// Resident set size (RSS), reported by `TASK_BASIC_INFO`.
+                case rss
+                /// Physical memory footprint, reported by `TASK_VM_INFO`.
+                case physFootprint
+
+                var title: String {
+                    switch self {
+                    case .rss: return "Memory (RSS)"
+                    case .physFootprint: return "Memory Footprint"
+                    }
+                }
+
+                var hudTitle: String {
+                    switch self {
+                    case .rss: return "RSS"
+                    case .physFootprint: return "Footprint"
+                    }
+                }
+            }
+
+            /// Defaults to RSS. Changing the metric starts a fresh history and resets
+            /// the peak and minimum at the next sample.
+            @MainActor
+            public static var metric: Metric = .rss {
+                didSet {
+                    if oldValue != metric {
+                        revision &+= 1
+                    }
+                }
+            }
+
+            @MainActor
+            private(set) static var revision = 0
+        }
+
         public class LeakDetector {
             /**
              Triggers the callback whenever a leaked `ViewController` or `View` is detected.

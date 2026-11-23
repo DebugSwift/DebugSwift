@@ -58,9 +58,16 @@ final class PerformanceWidgetView: TopLevelViewWrapper {
 
     weak var delegate: PerformanceWidgetViewDelegate?
 
-    func updateValues(cpu: CGFloat, memory: CGFloat, fps: CGFloat, leaks: CGFloat) {
+    func updateValues(
+        cpu: CGFloat,
+        memory: CGFloat?,
+        memoryMetric: DebugSwift.Performance.Memory.Metric,
+        fps: CGFloat,
+        leaks: CGFloat
+    ) {
         cpuValueLabel.text = String(format: "\("CPU"): %.1lf%%", cpu)
-        memoryValueLabel.text = String(format: "\("Memory"): %.1lf MB", memory)
+        let memoryValue = memory.map { String(format: "%.1f MB", $0) } ?? "—"
+        memoryValueLabel.text = "\(memoryMetric.hudTitle): \(memoryValue)"
         fpsValueLabel.text = String(format: "\("FPS"): %.0lf", fps)
         leaksValueLabel.text = String(format: "\("Leaks"): %.0lf", leaks)
 
