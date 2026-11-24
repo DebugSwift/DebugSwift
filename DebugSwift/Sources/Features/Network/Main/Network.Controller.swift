@@ -140,7 +140,6 @@ final class NetworkViewController: BaseController, MainFeatureType {
         super.viewDidAppear(animated)
 
         if viewModel.firstIn {
-            scrollToBottom()
             viewModel.firstIn = false
         }
     }
@@ -168,7 +167,7 @@ final class NetworkViewController: BaseController, MainFeatureType {
             let matchedResponseModifier = notification.userInfo?["matchedResponseModifier"] as? Bool ?? false
             MainActor.assumeIsolated {
                 self?.reloadHttp(
-                    needScrollToEnd: (self?.viewModel.isReachEnd ?? true) && self?.view.window != nil,
+                    needScrollToEnd: false,
                     success: success,
                     matchedResponseModifier: matchedResponseModifier
                 )
