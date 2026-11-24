@@ -556,6 +556,19 @@ DebugSwift.Performance.shared.leakDetector.onDetect(detectionDelay: 1) { leakDat
 }
 ```
 
+The Performance screen and floating HUD show resident set size (RSS) by default.
+Set the metric on the main actor to monitor the app's physical memory footprint.
+
+```swift
+DebugSwift.Performance.Memory.metric = .physFootprint
+```
+
+You can switch back to `.rss` at runtime. The next sample starts a fresh memory
+chart and resets the peak and minimum. If the selected metric is unavailable,
+DebugSwift skips that sample. The Performance screen uses the same absolute
+usage bands for either metric (below 200 MB, 200 to below 500 MB, and 500 MB
+or more). These colors indicate measured usage, independently of system memory warnings.
+
 ### Push Notification Simulation
 
 ```swift
