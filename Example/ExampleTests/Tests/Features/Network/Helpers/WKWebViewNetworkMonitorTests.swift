@@ -12,10 +12,18 @@ import XCTest
 
 @MainActor
 final class WKWebViewNetworkMonitorTests: XCTestCase {
+    private var previousIsEnabled = true
+
     override func setUp() {
         super.setUp()
+        previousIsEnabled = DebugSwift.WKWebView.shared.isEnabled
         DebugSwift.WKWebView.shared.enable()
         DebugSwift.WKWebView.shared.install()
+    }
+
+    override func tearDown() {
+        DebugSwift.WKWebView.shared.isEnabled = previousIsEnabled
+        super.tearDown()
     }
 
     func testCopiedConfigurationSharesUserContentControllerWithoutCrashing() {
@@ -28,8 +36,8 @@ final class WKWebViewNetworkMonitorTests: XCTestCase {
         let config2 = baseConfig.copy() as! WKWebViewConfiguration
         let webView2 = WKWebView(frame: .zero, configuration: config2)
 
-        XCTAssertNotNil(webView1)
-        XCTAssertNotNil(webView2)
+        XCTAssertTrue(webView1.configuration.userContentController === sharedController)
+        XCTAssertTrue(webView2.configuration.userContentController === sharedController)
         XCTAssertEqual(sharedController.userScripts.count, 1)
     }
 
@@ -44,8 +52,8 @@ final class WKWebViewNetworkMonitorTests: XCTestCase {
         config2.userContentController = sharedController
         let webView2 = WKWebView(frame: .zero, configuration: config2)
 
-        XCTAssertNotNil(webView1)
-        XCTAssertNotNil(webView2)
+        XCTAssertTrue(webView1.configuration.userContentController === sharedController)
+        XCTAssertTrue(webView2.configuration.userContentController === sharedController)
         XCTAssertEqual(sharedController.userScripts.count, 1)
     }
 
@@ -56,8 +64,9 @@ final class WKWebViewNetworkMonitorTests: XCTestCase {
         let config2 = WKWebViewConfiguration()
         let webView2 = WKWebView(frame: .zero, configuration: config2)
 
-        XCTAssertNotNil(webView1)
-        XCTAssertNotNil(webView2)
+        XCTAssertFalse(
+            webView1.configuration.userContentController === webView2.configuration.userContentController
+        )
         XCTAssertEqual(config1.userContentController.userScripts.count, 1)
         XCTAssertEqual(config2.userContentController.userScripts.count, 1)
     }
