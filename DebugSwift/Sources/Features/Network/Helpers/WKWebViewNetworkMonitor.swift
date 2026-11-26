@@ -72,7 +72,7 @@ enum WKWebViewSwizzler {
 
 // MARK: - WKWebView Extension with Network Injection
 
-private nonisolated(unsafe) var kInjectedConfigKey: UInt8 = 0
+private nonisolated(unsafe) var kInjectedContentControllerKey: UInt8 = 0
 
 extension WKWebView {
     
@@ -87,11 +87,22 @@ extension WKWebView {
     
     @MainActor
     private static func injectNetworkMonitoring(into configuration: WKWebViewConfiguration) {
-        // Prevent double injection
-        let wasInjected = objc_getAssociatedObject(configuration, &kInjectedConfigKey) as? Bool ?? false
+        // Deduplicate on `userContentController` rather than `configuration`:
+        // `WKWebViewConfiguration.copy()` shallow-copies `userContentController` without copying
+        // Objective-C associated objects, and multiple configurations may also share one controller.
+        let contentController = configuration.userContentController
+        let wasInjected = objc_getAssociatedObject(
+            contentController,
+            &kInjectedContentControllerKey
+        ) as? Bool ?? false
         guard !wasInjected else { return }
         
-        objc_setAssociatedObject(configuration, &kInjectedConfigKey, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        objc_setAssociatedObject(
+            contentController,
+            &kInjectedContentControllerKey,
+            true,
+            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        )
         
         // Create JavaScript injection for network monitoring
         let networkScript = Self.createNetworkMonitoringScript()
@@ -102,7 +113,6 @@ extension WKWebView {
         )
         
         // Add script and message handler
-        let contentController = configuration.userContentController
         contentController.addUserScript(userScript)
         contentController.add(
             WebViewNetworkMessageHandler.shared,
