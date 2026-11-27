@@ -32,6 +32,20 @@ extension DebugSwift {
         public var delegate: CustomHTTPProtocolDelegate?
         public var encryptionService: EncryptionServiceProtocol = EncryptionService.shared
         public var isDecryptionEnabled = false
+
+        /// Enables or disables network capture at runtime.
+        ///
+        /// This controls the shared HTTP protocol interceptor, including instances
+        /// already installed in URLSession configurations. Requests admitted before
+        /// capture is disabled may finish, but are not recorded after capture stops.
+        @MainActor
+        public func setCaptureEnabled(_ enabled: Bool) {
+            if enabled {
+                NetworkHelper.shared.enable()
+            } else {
+                NetworkHelper.shared.disable()
+            }
+        }
         
         // MARK: - Threshold Limiter API
         

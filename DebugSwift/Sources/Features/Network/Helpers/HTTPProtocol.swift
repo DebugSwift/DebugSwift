@@ -11,6 +11,37 @@ import UIKit
 
 public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     private static let requestProperty = "com.custom.http.protocol"
+    private static let captureState = CaptureState()
+
+    private final class CaptureState: @unchecked Sendable {
+        private let lock = NSLock()
+        private var enabled = true
+
+        func setEnabled(_ value: Bool) {
+            lock.lock()
+            defer { lock.unlock() }
+            enabled = value
+        }
+
+        func isEnabled() -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            return enabled
+        }
+    }
+
+    /// Starts intercepting eligible URL requests.
+    public final class func start() {
+        captureState.setEnabled(true)
+        URLProtocol.registerClass(self)
+    }
+
+    /// Stops intercepting requests, including protocol instances already installed
+    /// in existing URLSession configurations.
+    public final class func stop() {
+        captureState.setEnabled(false)
+        URLProtocol.unregisterClass(self)
+    }
 
     public final class func clearCache() {
         URLCache.customHttp.removeAllCachedResponses()
@@ -25,6 +56,7 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
     }
 
     private final class func canServeRequest(_ request: URLRequest) -> Bool {
+        guard captureState.isEnabled() else { return false }
         if let _ = property(forKey: requestProperty, in: request) { return false }
 
         // Never intercept WebSocket requests - they should be handled by WebSocketMonitor
@@ -116,12 +148,16 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         client?.urlProtocolDidFinishLoading(self)
     }
 
-    public override func startLoading() {
-        guard let newRequest = (request as NSObject).mutableCopy() as? NSMutableURLRequest else {
+    override public func startLoading() {
+        guard Self.captureState.isEnabled() else {
+            client?.urlProtocol(self, didFailWithError: URLError(.cancelled))
+            return
+        }
+        guard let mutableRequest = (request as NSURLRequest).mutableCopy() as? NSMutableURLRequest else {
             fatalError("Can not convert to NSMutableURLRequest")
         }
 
-        URLProtocol.setProperty(true, forKey: CustomHTTPProtocol.requestProperty, in: newRequest)
+        URLProtocol.setProperty(true, forKey: CustomHTTPProtocol.requestProperty, in: mutableRequest)
         
         // Track request for threshold monitoring
         if let url = request.url {
