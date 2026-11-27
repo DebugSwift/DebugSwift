@@ -47,14 +47,6 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         URLCache.customHttp.removeAllCachedResponses()
     }
 
-    public final class func start() {
-        URLProtocol.registerClass(self)
-    }
-
-    public final class func stop() {
-        URLProtocol.unregisterClass(self)
-    }
-
     private final class func canServeRequest(_ request: URLRequest) -> Bool {
         guard captureState.isEnabled() else { return false }
         if let _ = property(forKey: requestProperty, in: request) { return false }
@@ -148,16 +140,12 @@ public final class CustomHTTPProtocol: URLProtocol, @unchecked Sendable {
         client?.urlProtocolDidFinishLoading(self)
     }
 
-    override public func startLoading() {
-        guard Self.captureState.isEnabled() else {
-            client?.urlProtocol(self, didFailWithError: URLError(.cancelled))
-            return
-        }
-        guard let mutableRequest = (request as NSURLRequest).mutableCopy() as? NSMutableURLRequest else {
+    public override func startLoading() {
+        guard let newRequest = (request as NSObject).mutableCopy() as? NSMutableURLRequest else {
             fatalError("Can not convert to NSMutableURLRequest")
         }
 
-        URLProtocol.setProperty(true, forKey: CustomHTTPProtocol.requestProperty, in: mutableRequest)
+        URLProtocol.setProperty(true, forKey: CustomHTTPProtocol.requestProperty, in: newRequest)
         
         // Track request for threshold monitoring
         if let url = request.url {

@@ -41,9 +41,9 @@ extension DebugSwift {
         @MainActor
         public func setCaptureEnabled(_ enabled: Bool) {
             if enabled {
-                NetworkHelper.shared.enable()
+                CustomHTTPProtocol.start()
             } else {
-                NetworkHelper.shared.disable()
+                CustomHTTPProtocol.stop()
             }
         }
         
